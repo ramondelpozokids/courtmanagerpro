@@ -34,7 +34,7 @@ export function useAuth() {
 
 const defaultMockProfile: Profile = {
   id: "u_manager",
-  email: "carlos.kobe@realmadrid.com",
+  email: "charlie-r-k@hotmail.com",
   full_name: "Carlos Rodriguez Kobe",
   avatar_url: "/images/carlos_kobe.png",
   role: "equipment_manager",
@@ -109,14 +109,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Role switching function for interactive Arena AI playground testing!
   const switchRole = useCallback((role: ExtendedRole) => {
     let name = "Carlos Rodriguez Kobe";
-    let email = "carlos.kobe@realmadrid.com";
+    let email = "charlie-r-k@hotmail.com";
 
     if (role === "superadmin") {
-      name = "Ramón del Pozo";
+      name = "Ramón del Pozo Rott";
       email = "ramon.delpozo@realmadrid.com";
     } else if (role === "admin") {
       name = "Carlos Rodriguez Kobe";
-      email = "carlos.kobe@realmadrid.com";
+      email = "charlie-r-k@hotmail.com";
     } else if (role === "assistant") {
       name = "Marta López";
       email = "marta.lopez@realmadrid.com";

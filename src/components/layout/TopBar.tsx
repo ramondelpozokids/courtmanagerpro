@@ -11,19 +11,20 @@ export default function TopBar() {
   const { alerts } = useAlerts();
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
+  const [showBlogDropdown, setShowBlogDropdown] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactFormSubmitted, setContactFormSubmitted] = useState(false);
 
   // Form states for contact
   const [contactName, setContactName] = useState(user?.profile?.full_name || "Carlos Rodriguez Kobe");
-  const [contactEmail, setContactEmail] = useState(user?.profile?.email || "carlos.kobe@realmadrid.com");
+  const [contactEmail, setContactEmail] = useState(user?.profile?.email || "charlie-r-k@hotmail.com");
   const [contactSubject, setContactSubject] = useState("Soporte Técnico");
   const [contactMessage, setContactMessage] = useState("");
 
   const unreadAlerts = alerts.filter((a) => !a.is_read);
 
   const roleLabels: Record<string, string> = {
-    superadmin: "Superadmin (R. del Pozo)",
+    superadmin: "Superadmin (R. del Pozo Rott)",
     admin: "Administrador (C. Kobe)",
     assistant: "Utillero Asistente",
     player: "Jugador (Campazzo)",
@@ -103,6 +104,39 @@ export default function TopBar() {
             )}
           </div>
 
+          {/* Blog Dropdown with Noticias Submenu */}
+          <div className="relative">
+            <button
+              onClick={() => setShowBlogDropdown(!showBlogDropdown)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 hover:text-orange-600 transition-all"
+            >
+              <Landmark className="h-3.5 w-3.5" />
+              <span>Blog</span>
+              <ChevronDown className="h-3 w-3 text-slate-400" />
+            </button>
+            {showBlogDropdown && (
+              <div 
+                className="absolute left-0 mt-1.5 w-48 rounded-xl bg-white dark:bg-slate-800 border border-slate-150 dark:border-slate-700 shadow-xl py-1 z-50 text-left animate-in fade-in zoom-in-95 duration-100"
+                onMouseLeave={() => setShowBlogDropdown(false)}
+              >
+                <Link
+                  href="/blog"
+                  onClick={() => setShowBlogDropdown(false)}
+                  className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors"
+                >
+                  📜 Historia del Club
+                </Link>
+                <Link
+                  href="/blog/noticias"
+                  onClick={() => setShowBlogDropdown(false)}
+                  className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors"
+                >
+                  📰 Noticias de Actualidad
+                </Link>
+              </div>
+            )}
+          </div>
+
           {/* Contacto Button */}
           <button
             onClick={() => setShowContactModal(true)}
@@ -133,7 +167,7 @@ export default function TopBar() {
           <button
             onClick={() => {
               switchRole("superadmin");
-              alert("Sesión iniciada como Ramón del Pozo (Superadmin)");
+              alert("Sesión iniciada como Ramón del Pozo Rott (Superadmin con Acceso Absoluto y sin Restricciones)");
             }}
             className="px-2.5 py-1.5 rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-slate-850 dark:hover:bg-slate-800 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold tracking-wide uppercase transition-all flex items-center gap-1 border border-orange-200/40"
             title="Iniciar sesión con privilegios de Superadmin"
