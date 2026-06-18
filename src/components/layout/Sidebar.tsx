@@ -35,7 +35,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, currentTeam, logout, hasPermission } = useAuth();
   const { sidebarOpen, toggleSidebar } = useApp();
-  const { unreadCount } = useAlerts(currentTeam?.id || '');
+  const { unreadCount } = useAlerts(currentTeam?.id || 'team-acb-123');
 
   const visibleItems = NAV_ITEMS.filter(item =>
     item.roles.length === 0 || hasPermission(item.roles)

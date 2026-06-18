@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useId } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import type { Alert } from '@/types';
@@ -60,13 +60,19 @@ export function useAlerts(teamId: string = 'team-acb-123') {
     }
   }, [teamId, isMockMode]);
 
-  // Realtime subscription (only if not mock mode)
+  const instanceId = useId().replace(/:/g, '');
+
   useEffect(() => {
     fetchAlerts();
-    if (isMockMode) return;
+  }, [fetchAlerts]);
+
+  // Each component instance needs its own channel name — reusing `alerts:${teamId}`
+  // across TopBar, Sidebar, AlertsWidget, etc. causes Supabase to throw after subscribe().
+  useEffect(() => {
+    if (isMockMode || !teamId) return;
 
     const channel = supabase
-      .channel(`alerts:${teamId}`)
+      .channel(`alerts:${teamId}:${instanceId}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
@@ -81,7 +87,7 @@ export function useAlerts(teamId: string = 'team-acb-123') {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [teamId, fetchAlerts, isMockMode]);
+  }, [teamId, isMockMode, instanceId, supabase]);
 
   const markAsRead = useCallback(async (alertId: string): Promise<void> => {
     if (isMockMode) {
