@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import PlayerCard from "@/components/players/PlayerCard";
 import PlayerForm from "@/components/players/PlayerForm";
 import { useState, useEffect } from "react";
-import { PlusCircle, Search, User, Filter, RefreshCw, Shirt, Landmark, Globe } from "lucide-react";
+import { PlusCircle, Search, User, Filter, RefreshCw, Shirt, Landmark, Globe, X, Trophy, Calendar } from "lucide-react";
 
 export default function PlayersPage() {
   const { user } = useAuth();
@@ -16,6 +16,7 @@ export default function PlayersPage() {
   const [activeTab, setActiveTab] = useState<"players" | "staff">("players");
   const [staff, setStaff] = useState<any[]>([]);
   const [staffLoading, setStaffLoading] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<any | null>(null);
 
   // Search and filter states
   const [search, setSearch] = useState("");
@@ -262,10 +263,141 @@ export default function PlayersPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Card Footer Actions */}
+                <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between gap-2">
+                  <button
+                    onClick={() => setSelectedStaff(member)}
+                    className="flex-1 text-center py-2 rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-orange-600 dark:text-orange-400 text-xs font-bold transition-all"
+                  >
+                    Ver Ficha Completa
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )
+      )}
+
+      {/* Coaching Staff Detail Modal */}
+      {selectedStaff && (
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+            {/* Header / Banner */}
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start gap-4 text-left">
+              <div className="flex gap-4">
+                <div className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-orange-200 shrink-0 flex items-center justify-center">
+                  {selectedStaff.photo_url ? (
+                    <img src={selectedStaff.photo_url} alt={selectedStaff.full_name} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-xl font-bold text-orange-600">{selectedStaff.full_name[0]}</span>
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-lg leading-none">
+                    {selectedStaff.full_name}
+                  </h3>
+                  <p className="text-xs text-orange-500 font-bold mt-1.5">{selectedStaff.role}</p>
+                  <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+                    <Globe className="h-3 w-3" /> Nacionalidad: {selectedStaff.nationality || "España"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedStaff(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 text-left max-h-[70vh] overflow-y-auto">
+              {/* Personal Data (Birth) */}
+              {(selectedStaff.birth_place || selectedStaff.birth_date) && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4 text-slate-400" />
+                    Datos Personales
+                  </h4>
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-350 space-y-1.5">
+                    {selectedStaff.birth_date && (
+                      <p><strong>Fecha de nacimiento:</strong> {selectedStaff.birth_date.split("-").reverse().join("/")}</p>
+                    )}
+                    {selectedStaff.birth_place && (
+                      <p><strong>Lugar de nacimiento:</strong> {selectedStaff.birth_place}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Medidas de Utilería */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Shirt className="h-4 w-4 text-slate-400" />
+                  Medidas de Utilería
+                </h4>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wide">Chaqueta</span>
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-100 block mt-0.5">{selectedStaff.shirt_size || "L"}</span>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wide">Pantalón</span>
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-100 block mt-0.5">{selectedStaff.shorts_size || "L"}</span>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wide">Calzado</span>
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-100 block mt-0.5">{selectedStaff.shoe_size || "43"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Trajectory */}
+              {selectedStaff.trajectory && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Landmark className="h-4 w-4 text-slate-400" />
+                    Trayectoria Profesional
+                  </h4>
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-h-36 overflow-y-auto">
+                    {selectedStaff.trajectory}
+                  </div>
+                </div>
+              )}
+
+              {/* Palmares */}
+              {selectedStaff.palmares && selectedStaff.palmares.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Trophy className="h-4 w-4 text-orange-500" />
+                    Palmarés de Trofeos
+                  </h4>
+                  <div className="bg-orange-50/15 dark:bg-orange-950/5 border border-orange-100 dark:border-orange-950/20 p-3.5 rounded-xl space-y-1.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      {selectedStaff.palmares.map((achievement: any, idx: number) => (
+                        <div key={idx} className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium">
+                          <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shrink-0" />
+                          <span>{achievement}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4.5 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+              <button
+                onClick={() => setSelectedStaff(null)}
+                className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-extrabold shadow-md shadow-orange-500/10 transition-colors"
+              >
+                Cerrar Ficha
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

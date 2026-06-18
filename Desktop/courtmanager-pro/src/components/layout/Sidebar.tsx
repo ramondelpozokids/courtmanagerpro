@@ -53,8 +53,27 @@ export function Sidebar() {
       <div className="flex items-center justify-between p-4 border-b border-slate-800 h-16 shrink-0">
         {sidebarOpen && (
           <div className="flex items-center gap-2 text-left">
-            <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center font-bold text-sm">
-              CM
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-transparent shrink-0">
+              <img
+                src="/logo.png"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src.endsWith('/logo.png')) {
+                    target.src = '/images/logo.png';
+                  } else {
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent && !parent.querySelector('.logo-fallback')) {
+                      const fallback = document.createElement('div');
+                      fallback.className = "logo-fallback w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center font-bold text-white text-xs";
+                      fallback.innerText = "CM";
+                      parent.appendChild(fallback);
+                    }
+                  }
+                }}
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <p className="font-bold text-sm leading-none">CourtManager</p>
