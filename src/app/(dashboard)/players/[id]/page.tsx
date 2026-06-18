@@ -292,7 +292,7 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
                   <div key={req.id} className="flex justify-between items-center p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-xs">
                     <div>
                       <h4 className="font-bold text-slate-700 dark:text-slate-200">{req.title}</h4>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Talla: {req.size || "Única"} • Cantidad: {req.quantity} uds • Fecha: {new Date(req.created_at).toLocaleDateString()}</p>
+                      <p suppressHydrationWarning={true} className="text-[10px] text-slate-400 mt-0.5">Talla: {req.size || "Única"} • Cantidad: {req.quantity} uds • Fecha: {new Date(req.created_at).toLocaleDateString()}</p>
                     </div>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase ${
                       req.status === "completada"

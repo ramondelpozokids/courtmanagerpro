@@ -151,7 +151,7 @@ export default function InventoryPage() {
                       </div>
                       <div>
                         <span className="font-bold text-slate-800 dark:text-slate-100 block">{item.name}</span>
-                        <span className="text-[10px] text-slate-400 mt-0.5">Precio: €{item.unit_cost || "N/A"} • Act: {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : "—"}</span>
+                        <span suppressHydrationWarning={true} className="text-[10px] text-slate-400 mt-0.5">Precio: €{item.unit_cost || "N/A"} • Act: {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : "—"}</span>
                       </div>
                     </td>
 

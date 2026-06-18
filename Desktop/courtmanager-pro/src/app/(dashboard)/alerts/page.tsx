@@ -136,7 +136,7 @@ export default function AlertsPage() {
                     }`}>
                       {alert.type}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium">
+                    <span suppressHydrationWarning={true} className="text-[10px] text-slate-400 font-medium">
                       {new Date(alert.created_at).toLocaleString()}
                     </span>
                   </div>

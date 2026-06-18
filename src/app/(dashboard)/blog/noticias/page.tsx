@@ -109,7 +109,7 @@ export default function BlogNoticiasPage() {
                   <ShieldCheck className="h-3.5 w-3.5 text-orange-500" />
                   RMB Oficial
                 </span>
-                {news.date && <span>{new Date(news.date).toLocaleDateString()}</span>}
+                {news.date && <span suppressHydrationWarning={true}>{new Date(news.date).toLocaleDateString()}</span>}
               </div>
             </div>
           </div>

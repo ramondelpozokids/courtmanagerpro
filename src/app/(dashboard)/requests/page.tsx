@@ -156,7 +156,7 @@ export default function RequestsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Fecha solicitud:</span>
-                    <span className="font-medium text-slate-500">{new Date(req.created_at).toLocaleDateString()}</span>
+                    <span suppressHydrationWarning={true} className="font-medium text-slate-500">{new Date(req.created_at).toLocaleDateString()}</span>
                   </div>
                   {req.description && (
                     <div className="bg-slate-50 dark:bg-slate-850 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 mt-2 italic leading-relaxed">

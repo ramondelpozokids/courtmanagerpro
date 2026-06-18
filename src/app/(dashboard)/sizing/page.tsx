@@ -19,7 +19,7 @@ export default function SizingTablePage() {
   // Modal controls
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
-  const [editingType, setEditingItemType] = useState<"player" | "staff">("players");
+  const [editingType, setEditingItemType] = useState<"player" | "staff">("player");
 
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -606,7 +606,11 @@ export default function SizingTablePage() {
                       <input
                         type="text"
                         required
-                        value={s => s.shorts_size || ""}
+                        value={editingItem.shorts_size || ""}
+                        onChange={(e) => setEditingItem({
+                          ...editingItem,
+                          shorts_size: e.target.value
+                        })}
                         className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-orange-500"
                       />
                     </div>

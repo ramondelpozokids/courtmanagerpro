@@ -48,7 +48,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
           {/* Premium legal footer */}
           <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-center text-xs text-slate-400 mt-12 flex flex-col md:flex-row items-center justify-between px-6 gap-4">
-            <div>
+            <div suppressHydrationWarning={true}>
               &copy; {new Date().getFullYear()} <strong>CourtManager Pro</strong>. Creado por <strong>Ramón del Pozo</strong>.
             </div>
             <div className="flex flex-wrap gap-4 font-bold uppercase tracking-wider text-[9px] justify-center md:justify-end">
