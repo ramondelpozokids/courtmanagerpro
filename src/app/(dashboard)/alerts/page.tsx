@@ -6,7 +6,7 @@ import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw } from "lucide
 
 export default function AlertsPage() {
   const { user } = useAuth();
-  const { alerts, loading, markAsRead, markAllAsRead } = useAlerts();
+  const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts();
 
   const hasAccess = ["admin", "equipment_manager", "assistant", "medical"].includes(user?.profile?.role || "assistant");
 
@@ -32,15 +32,50 @@ export default function AlertsPage() {
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Centro de Alertas de Utilería</h2>
           <p className="text-xs text-slate-400 mt-1">Notificaciones en tiempo real sobre límites de existencias de material, caducidad de fármacos y solicitudes de jugadores.</p>
         </div>
-        {unreadCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Birthday Scanner Button */}
           <button
-            onClick={markAllAsRead}
-            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
+            onClick={async () => {
+              // Generate a birthday alert for Izan Almansa (June 7) if it doesn't exist
+              const alreadyAlerted = alerts.some(a => a.message.includes("Izan Almansa"));
+              if (alreadyAlerted) {
+                alert("Todos los cumpleaños de la plantilla oficial de Junio ya han sido escaneados y notificados.");
+                return;
+              }
+              
+              // Add a new alert to db
+              const { db } = await import("@/infrastructure/supabase/repositories/InMemoryDB");
+              const id = "a_bday_" + Math.random().toString(36).substr(2, 5);
+              db.alerts.unshift({
+                id,
+                team_id: "team-acb-123",
+                type: "cumpleaños" as any,
+                severity: "info",
+                title: "Cumpleaños de la Plantilla",
+                message: "¡ALERTA DE CUMPLEAÑOS! El ala-pívot Izan Almansa cumple años el 7 de Junio. Preparar lote de equipación oficial de regalo.",
+                is_read: false,
+                is_dismissed: false,
+                created_at: new Date().toISOString()
+              });
+              
+              if (refresh) refresh();
+              alert("Alerta de cumpleaños del mes de Junio generada y guardada con éxito.");
+            }}
+            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/15"
           >
-            <CheckCircle className="h-4 w-4 text-emerald-500" />
-            Marcar todas como leídas
+            🎂 Escanear Cumpleaños del Mes
           </button>
-        )}
+
+          {unreadCount > 0 && (
+            <button
+              onClick={markAllAsRead}
+              className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
+            >
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+              Marcar todas como leídas
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Alerts List Grid */}
@@ -113,16 +148,26 @@ export default function AlertsPage() {
                   </p>
                 </div>
 
-                {/* Mark Single Read Option */}
-                {!alert.is_read && (
-                  <button
-                    onClick={() => markAsRead(alert.id)}
-                    className="p-1.5 text-slate-400 hover:text-emerald-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0 self-center"
-                    title="Marcar como leída"
-                  >
-                    <Check className="h-4.5 w-4.5" />
-                  </button>
-                )}
+                {/* Action buttons (Read / Dismiss-Delete) */}
+                <div className="shrink-0 self-center">
+                  {!alert.is_read ? (
+                    <button
+                      onClick={() => markAsRead(alert.id)}
+                      className="p-1.5 text-slate-400 hover:text-emerald-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                      title="Marcar como leída"
+                    >
+                      <Check className="h-4.5 w-4.5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => dismissAlert && dismissAlert(alert.id)}
+                      className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                      title="Eliminar de forma permanente"
+                    >
+                      <Trash2 className="h-4.5 w-4.5" />
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
   Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
-  ChevronRight, LogOut, Settings
+  ChevronRight, LogOut, Settings, Calendar
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -134,6 +134,27 @@ export function Sidebar() {
           })}
         </TooltipProvider>
       </nav>
+
+      {/* Official Calendar Widget */}
+      {sidebarOpen && (
+        <div className="mx-3 my-2 p-3.5 rounded-xl bg-slate-950/40 border border-slate-800 text-left space-y-1.5 shrink-0">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-4 w-4 text-orange-500 animate-pulse" />
+            <span className="text-[11px] font-black uppercase text-slate-200 tracking-wider">Calendario Oficial</span>
+          </div>
+          <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+            Sigue las fechas oficiales de los partidos de Euroliga y Liga Endesa del primer equipo de baloncesto.
+          </p>
+          <a
+            href="https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-center py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold transition-all shadow-md shadow-orange-600/10"
+          >
+            Ver Calendario Oficial
+          </a>
+        </div>
+      )}
 
       {/* User section */}
       <div className="p-4 border-t border-slate-800 bg-slate-950/20 text-left shrink-0">
