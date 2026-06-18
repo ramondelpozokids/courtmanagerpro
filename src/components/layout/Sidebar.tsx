@@ -43,7 +43,7 @@ export function Sidebar() {
 
   const full_name = user?.profile?.full_name || "Carlos Rodriguez Kobe";
   const user_role = user?.profile?.role || "equipment_manager";
-  const user_avatar = user?.profile?.avatar_url || "";
+  const user_avatar = user?.profile?.avatar_url || undefined;
 
   return (
     <aside className={cn(
@@ -183,7 +183,7 @@ export function Sidebar() {
         {sidebarOpen ? (
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user_avatar} />
+              <AvatarImage src={user_avatar || undefined} />
               <AvatarFallback className="bg-gray-700 text-white text-xs">
                 {full_name.charAt(0)}
               </AvatarFallback>

@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useAlerts } from "@/hooks/useAlerts";
-import { Bell, Shield, ChevronDown, PhoneCall, Home, Settings, MessageCircle, X, CheckCircle, LogIn, Users } from "lucide-react";
+import { Bell, Shield, ChevronDown, PhoneCall, Home, Settings, MessageCircle, X, CheckCircle, LogIn, Users, Landmark } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -236,7 +236,7 @@ export default function TopBar() {
         {/* User Info */}
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
           <img
-            src={userAvatar}
+            src={userAvatar || undefined}
             alt={userName}
             className="h-9 w-9 rounded-full bg-orange-100 border border-orange-200 animate-in fade-in zoom-in"
           />
