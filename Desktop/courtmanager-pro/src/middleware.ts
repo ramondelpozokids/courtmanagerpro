@@ -40,13 +40,21 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const pathname = request.nextUrl.pathname;
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.includes(pathname);
+
+  // BYPASS REDIRECTS FOR LOCAL PLAYGROUND DEVELOPMENT (Allows free navigation!)
+  const isMockMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+                    process.env.NEXT_PUBLIC_SUPABASE_URL.includes("your-project") ||
+                    process.env.NEXT_PUBLIC_SUPABASE_URL.includes("dummy-project");
+  if (isMockMode) {
+    return supabaseResponse;
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // If there is no user and they try to access a protected route
   if (!user && isProtected) {

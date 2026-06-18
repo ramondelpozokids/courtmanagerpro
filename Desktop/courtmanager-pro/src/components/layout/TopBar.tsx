@@ -2,7 +2,7 @@
 
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { useAlerts } from "@/hooks/useAlerts";
-import { Bell, Shield, LogOut, ChevronDown } from "lucide-react";
+import { Bell, Shield, LogOut, ChevronDown, HelpCircle, PhoneCall } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -14,52 +14,67 @@ export default function TopBar() {
   const unreadAlerts = alerts.filter((a) => !a.is_read);
 
   const roleLabels: Record<string, string> = {
-    admin: "Administrador (Total)",
-    equipment_manager: "Utillero Jefe",
+    superadmin: "Superadmin (R. del Pozo)",
+    admin: "Administrador (C. Kobe)",
     assistant: "Utillero Asistente",
-    player: "Jugador (Huertas)",
+    player: "Jugador (Campazzo)",
     medical: "Staff Médico",
-    coach: "Entrenador",
+    coach: "Entrenador (Scariolo)",
   };
 
   const userRole = user?.profile?.role || "equipment_manager";
-  const userName = user?.profile?.full_name || "Carlos Sánchez";
+  const userName = user?.profile?.full_name || "Carlos Rodriguez Kobe";
   const userAvatar = user?.profile?.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${userName}`;
 
   return (
-    <header className="h-16 border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between px-6 z-10">
+    <header className="h-16 border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
       <div className="flex items-center gap-4">
         {/* Mobile menu trigger could go here, but let's keep it clean */}
-        <div className="text-sm text-slate-500 font-medium md:block hidden">
-          CourtManager Pro <span className="mx-1.5">•</span> Liga Endesa ACB
+        <div className="text-sm text-slate-500 font-bold md:block hidden">
+          CourtManager Pro <span className="mx-1.5">•</span> Real Madrid Baloncesto
         </div>
       </div>
 
       <div className="flex items-center gap-6">
+        {/* Premium Quick Help Center & WhatsApp */}
+        <div className="flex items-center gap-2">
+          {/* WhatsApp click-to-chat */}
+          <a
+            href="https://wa.me/34600000000"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1.5 rounded-full text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors flex items-center gap-1 text-[11px] font-extrabold"
+            title="Soporte Técnico de WhatsApp"
+          >
+            <PhoneCall className="h-4 w-4 shrink-0" />
+            <span className="hidden sm:inline">Soporte</span>
+          </a>
+        </div>
+
         {/* Dynamic Role Switcher (Highly interactive feature for demo preview!) */}
         <div className="relative">
           <button
             onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all shadow-sm"
           >
             <Shield className="h-4 w-4 text-orange-500" />
-            <span>Rol: <strong className="text-orange-600">{roleLabels[userRole]}</strong></span>
+            <span>Rol: <strong className="text-orange-600">{roleLabels[userRole] || userRole}</strong></span>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
           </button>
 
           {showRoleDropdown && (
-            <div className="absolute right-0 mt-1.5 w-56 rounded-xl border border-slate-150 bg-white dark:bg-slate-800 dark:border-slate-700 shadow-xl py-1 z-50 animate-fade-in text-sm text-left">
+            <div className="absolute right-0 mt-1.5 w-60 rounded-xl border border-slate-150 bg-white dark:bg-slate-800 dark:border-slate-700 shadow-xl py-1 z-50 animate-fade-in text-sm text-left">
               <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-700 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
                 Simular Rol de Usuario
               </div>
-              {(Object.keys(roleLabels) as AppRole[]).map((r) => (
+              {Object.keys(roleLabels).map((r) => (
                 <button
                   key={r}
                   onClick={() => {
-                    switchRole(r);
+                    switchRole(r as any);
                     setShowRoleDropdown(false);
                   }}
-                  className={`w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between text-xs font-medium transition-colors ${
+                  className={`w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between text-xs font-semibold transition-colors ${
                     userRole === r ? "text-orange-600 font-bold bg-orange-50/50 dark:bg-orange-500/10" : "text-slate-700 dark:text-slate-300"
                   }`}
                 >

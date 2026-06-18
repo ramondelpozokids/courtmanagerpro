@@ -111,15 +111,27 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
         </div>
 
         {/* Status Badge */}
-        <div className="text-center md:text-right shrink-0">
-          <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${
-            player.is_active
-              ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20"
-              : "bg-slate-100 text-slate-500"
-          }`}>
-            {player.is_active ? "Activo" : "Inactivo"}
-          </span>
-          <p className="text-[10px] text-slate-400 mt-2 font-medium">Asignaciones de Utilería aprobadas esta temporada</p>
+        <div className="text-center md:text-right shrink-0 space-y-2.5">
+          <div className="flex flex-col items-center md:items-end gap-2">
+            <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${
+              player.is_active
+                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20"
+                : "bg-slate-100 text-slate-500"
+            }`}>
+              {player.is_active ? "Activo" : "Inactivo"}
+            </span>
+            {(player as any).profile_url && (
+              <a
+                href={(player as any).profile_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-extrabold shadow-sm transition-all"
+              >
+                Ver Ficha Oficial Real Madrid
+              </a>
+            )}
+          </div>
+          <p className="text-[10px] text-slate-400 font-medium">Asignaciones de Utilería aprobadas esta temporada</p>
         </div>
       </div>
 

@@ -18,7 +18,8 @@ export const initialPlayers: any[] = [
     sizes: { jersey: "M", shorts: "M", shoes: "42.5", socks: "M", warmupShirt: "M" },
     nationality: "Argentina",
     birthDate: "1991-04-17",
-    imageUrl: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=150"
+    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/facundo-campazzo"
   },
   {
     id: "p2",
@@ -30,7 +31,8 @@ export const initialPlayers: any[] = [
     sizes: { jersey: "XXXL", shorts: "XXXL", shoes: "52", socks: "XL", warmupShirt: "XXXL" },
     nationality: "Cabo Verde",
     birthDate: "1992-03-22",
-    imageUrl: "https://images.unsplash.com/photo-1519766304817-4f37bda74a27?w=150"
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/walter-samuel-tavares-da-veiga"
   },
   {
     id: "p3",
@@ -42,7 +44,8 @@ export const initialPlayers: any[] = [
     sizes: { jersey: "XL", shorts: "XL", shoes: "47.5", socks: "L", warmupShirt: "XL" },
     nationality: "Croacia",
     birthDate: "1995-02-25",
-    imageUrl: "https://images.unsplash.com/photo-1505664194779-8bebcb35db60?w=150"
+    imageUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/mario-hezonja"
   },
   {
     id: "p4",
@@ -54,7 +57,8 @@ export const initialPlayers: any[] = [
     sizes: { jersey: "XL", shorts: "XL", shoes: "46.5", socks: "L", warmupShirt: "XL" },
     nationality: "Argentina",
     birthDate: "1995-02-08",
-    imageUrl: "https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=150"
+    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/gabriel-deck"
   },
   {
     id: "p5",
@@ -66,7 +70,8 @@ export const initialPlayers: any[] = [
     sizes: { jersey: "L", shorts: "L", shoes: "45", socks: "M", warmupShirt: "L" },
     nationality: "Francia",
     birthDate: "2001-06-12",
-    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/theo-maledon"
   },
   {
     id: "p6",
@@ -77,7 +82,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "L", shorts: "L", shoes: "44", socks: "M", warmupShirt: "L" },
     nationality: "España",
-    birthDate: "1987-11-15"
+    birthDate: "1987-11-15",
+    imageUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/sergio-llull-melia"
   },
   {
     id: "p7",
@@ -88,7 +95,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XXL", shorts: "XXL", shoes: "49.5", socks: "XL", warmupShirt: "XXL" },
     nationality: "España",
-    birthDate: "2002-03-09"
+    birthDate: "2002-03-09",
+    imageUrl: "https://images.unsplash.com/photo-1500048993953-d23a436266cf?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/usman-garuba"
   },
   {
     id: "p8",
@@ -99,7 +108,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "M", shorts: "L", shoes: "43", socks: "M", warmupShirt: "L" },
     nationality: "República Dominicana",
-    birthDate: "1997-07-15"
+    birthDate: "1997-07-15",
+    imageUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/andres-feliz"
   },
   {
     id: "p9",
@@ -110,7 +121,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "L", shorts: "L", shoes: "45", socks: "M", warmupShirt: "L" },
     nationality: "Alemania",
-    birthDate: "1997-01-14"
+    birthDate: "1997-01-14",
+    imageUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/david-kramer"
   },
   {
     id: "p10",
@@ -121,7 +134,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XL", shorts: "XL", shoes: "46", socks: "L", warmupShirt: "XL" },
     nationality: "España",
-    birthDate: "1995-12-15"
+    birthDate: "1995-12-15",
+    imageUrl: "https://images.unsplash.com/photo-1489980508314-941910ded1f4?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/alberto-abalde-diaz"
   },
   {
     id: "p11",
@@ -132,7 +147,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "L", shorts: "L", shoes: "46", socks: "M", warmupShirt: "L" },
     nationality: "Italia",
-    birthDate: "2002-06-01"
+    birthDate: "2002-06-01",
+    imageUrl: "https://images.unsplash.com/photo-1519766304817-4f37bda74a27?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/gabriele-procida"
   },
   {
     id: "p12",
@@ -143,7 +160,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XXL", shorts: "XXL", shoes: "48.5", socks: "XL", warmupShirt: "XXL" },
     nationality: "Canadá",
-    birthDate: "1995-11-05"
+    birthDate: "1995-11-05",
+    imageUrl: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/trey-lyles"
   },
   {
     id: "p13",
@@ -154,7 +173,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XXL", shorts: "XXL", shoes: "47", socks: "L", warmupShirt: "XXL" },
     nationality: "Estados Unidos",
-    birthDate: "1998-08-18"
+    birthDate: "1998-08-18",
+    imageUrl: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/chukwuma-julian-okeke"
   },
   {
     id: "p14",
@@ -165,7 +186,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XL", shorts: "XL", shoes: "48", socks: "L", warmupShirt: "XL" },
     nationality: "España",
-    birthDate: "2005-06-07"
+    birthDate: "2005-06-07",
+    imageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/izan-almansa"
   },
   {
     id: "p15",
@@ -176,7 +199,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XXL", shorts: "XXL", shoes: "50", socks: "XL", warmupShirt: "XXL" },
     nationality: "Mali",
-    birthDate: "2000-12-20"
+    birthDate: "2000-12-20",
+    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/mady-sissoko"
   },
   {
     id: "p16",
@@ -187,7 +212,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XXXL", shorts: "XXXL", shoes: "51.5", socks: "XL", warmupShirt: "XXXL" },
     nationality: "Ucrania",
-    birthDate: "1993-06-16"
+    birthDate: "1993-06-16",
+    imageUrl: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/alex-len"
   },
   {
     id: "p17",
@@ -198,7 +225,9 @@ export const initialPlayers: any[] = [
     status: "ACTIVE",
     sizes: { jersey: "XXXL", shorts: "XXXL", shoes: "51", socks: "XL", warmupShirt: "XXXL" },
     nationality: "Turquía",
-    birthDate: "1998-06-19"
+    birthDate: "1998-06-19",
+    imageUrl: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150",
+    profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/omer-yurtseven"
   }
 ];
 
@@ -410,14 +439,14 @@ export const initialAlerts: any[] = [
 ];
 
 export const initialCoachingStaff: any[] = [
-  { id: "c1", full_name: "Sergio Scariolo", role: "Entrenador Principal", email: "scariolo@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: null, nationality: "Italia" },
-  { id: "c2", full_name: "Luis Guil", role: "Entrenador Ayudante", email: "guil@realmadrid.com", shirt_size: "XL", shorts_size: "L", shoe_size: 44, photo_url: null, nationality: "España" },
-  { id: "c3", full_name: "Stefan Ivanovic", role: "Entrenador Ayudante", email: "ivanovic@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: null, nationality: "Montenegro" },
-  { id: "c4", full_name: "Isidoro Calín", role: "Entrenador Ayudante", email: "calin@realmadrid.com", shirt_size: "XXL", shorts_size: "XL", shoe_size: 45, photo_url: null, nationality: "España" },
-  { id: "c5", full_name: "Matteo Cassinerio", role: "Entrenador Ayudante", email: "cassinerio@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: null, nationality: "Italia" },
-  { id: "c6", full_name: "Piti Hurtado", role: "Entrenador Ayudante (Área Estadística/Audiovisual)", email: "piti@realmadrid.com", shirt_size: "XL", shorts_size: "XL", shoe_size: 44, photo_url: null, nationality: "España" },
-  { id: "c7", full_name: "David Jimeno", role: "Entrenador Ayudante (Área Mejora Individual)", email: "jimeno@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: null, nationality: "España" },
-  { id: "c8", full_name: "Juan Trapero", role: "Preparador Físico", email: "trapero@realmadrid.com", shirt_size: "XL", shorts_size: "L", shoe_size: 44, photo_url: null, nationality: "España" }
+  { id: "c1", full_name: "Sergio Scariolo", role: "Entrenador Principal", email: "scariolo@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: "/images/staff/scariolo.jpg", nationality: "Italia", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/sergio-scariolo" },
+  { id: "c2", full_name: "Luis Guil", role: "Entrenador Ayudante", email: "guil@realmadrid.com", shirt_size: "XL", shorts_size: "L", shoe_size: 44, photo_url: "/images/staff/luis_guil.jpg", nationality: "España", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/luis-guil" },
+  { id: "c3", full_name: "Stefan Ivanovic", role: "Entrenador Ayudante", email: "ivanovic@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: "/images/staff/stefan_ivanovic.jpg", nationality: "Montenegro", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/stefan-ivanovic" },
+  { id: "c4", full_name: "Isidoro Calín", role: "Entrenador Ayudante", email: "calin@realmadrid.com", shirt_size: "XXL", shorts_size: "XL", shoe_size: 45, photo_url: "/images/staff/isidoro_calin.jpg", nationality: "España", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/isidoro-calin" },
+  { id: "c5", full_name: "Matteo Cassinerio", role: "Entrenador Ayudante", email: "cassinerio@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: "/images/staff/matteo_cassinerio.jpg", nationality: "Italia", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/matteo-cassinerio" },
+  { id: "c6", full_name: "Piti Hurtado", role: "Entrenador Ayudante (Estadística/Audiovisual)", email: "piti@realmadrid.com", shirt_size: "XL", shorts_size: "XL", shoe_size: 44, photo_url: "/images/staff/piti_hurtado.jpg", nationality: "España", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/piti-hurtado" },
+  { id: "c7", full_name: "David Jimeno", role: "Entrenador Ayudante (Mejora Individual)", email: "jimeno@realmadrid.com", shirt_size: "L", shorts_size: "L", shoe_size: 43, photo_url: "/images/staff/david_jimeno.jpg", nationality: "España", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/david-jimeno" },
+  { id: "c8", full_name: "Juan Trapero", role: "Preparador Físico", email: "trapero@realmadrid.com", shirt_size: "XL", shorts_size: "L", shoe_size: 44, photo_url: "/images/staff/juan_trapero.jpg", nationality: "España", profile_url: "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/juan-trapero" }
 ];
 
 class InMemoryDatabase {

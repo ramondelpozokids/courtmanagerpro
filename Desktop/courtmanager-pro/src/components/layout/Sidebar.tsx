@@ -40,7 +40,7 @@ export function Sidebar() {
     item.roles.length === 0 || hasPermission(item.roles)
   );
 
-  const full_name = user?.profile?.full_name || "Carlos Sánchez";
+  const full_name = user?.profile?.full_name || "Carlos Rodriguez Kobe";
   const user_role = user?.profile?.role || "equipment_manager";
   const user_avatar = user?.profile?.avatar_url || "";
 
