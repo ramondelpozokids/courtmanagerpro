@@ -33,7 +33,7 @@ export default function DashboardPage() {
       <div className="w-full flex justify-center">
         <div className="relative w-full max-w-7xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-950">
           <img
-            src="https://assets.realmadrid.com/is/image/realmadrid/ND-COPAS-DE-EUROPA_SALA-DE-JUNTAS_HE02434?$Desktop$&fit=wrap&wid=1440"
+            src="/hero.png"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1200'; // high quality placeholder
@@ -44,10 +44,11 @@ export default function DashboardPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent flex flex-col justify-end p-6 sm:p-8 text-left">
             <div>
               <span className="text-white text-[10px] sm:text-xs font-black uppercase tracking-widest bg-orange-600 px-3 py-1.5 rounded shadow-lg shadow-orange-600/20">
-                Sede Social Real Madrid — Sala de Juntas
+                Sede Social Real Madrid
               </span>
-              <h1 className="text-xl sm:text-3xl font-black text-white mt-3 leading-tight drop-shadow">
-                CourtManager Pro — Real Madrid Baloncesto
+              <h1 className="text-xl sm:text-3xl font-black text-white mt-3 leading-tight drop-shadow flex items-center gap-2.5">
+                <img src="/logo.png" alt="Logo" className="h-8 w-8 object-contain shrink-0" />
+                <span>CourtManager Pro — Real Madrid Baloncesto</span>
               </h1>
             </div>
           </div>
