@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import { X, Send, User, Sparkles } from 'lucide-react';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 
 interface Message {
@@ -88,19 +88,28 @@ export function ChatAssistant() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-40">
-      {/* Floating Toggle Button */}
+    <div className="fixed bottom-20 md:bottom-6 right-5 z-40">
+      {/* Floating toggle — project logo from /public (no orange circle) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="h-12 w-12 rounded-full bg-orange-600 hover:bg-orange-500 text-white flex items-center justify-center shadow-xl hover:scale-105 transition-all"
+        className="relative h-14 w-14 flex items-center justify-center transition-transform hover:scale-105"
         title="Chat Asistente CourtManager Pro"
       >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6" />}
+        <img
+          src="/logo.png"
+          alt="CourtManager Pro"
+          className={`h-14 w-14 object-contain drop-shadow-lg ${isOpen ? 'opacity-50' : ''}`}
+        />
+        {isOpen && (
+          <span className="absolute inset-0 flex items-center justify-center rounded-full bg-white/80 dark:bg-slate-900/80">
+            <X className="h-5 w-5 text-slate-700 dark:text-slate-200" />
+          </span>
+        )}
       </button>
 
       {/* Chat Window Panel */}
       {isOpen && (
-        <div className="absolute bottom-14 right-0 w-80 md:w-96 h-[450px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden animate-fade-in text-left">
+        <div className="absolute bottom-16 right-0 w-80 md:w-96 h-[450px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden animate-fade-in text-left">
           {/* Header */}
           <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">

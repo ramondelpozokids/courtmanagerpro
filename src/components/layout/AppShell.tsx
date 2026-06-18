@@ -5,7 +5,9 @@ import TopBar from "./TopBar";
 import MobileNav from "./MobileNav";
 import { ChatAssistant } from "../shared/ChatAssistant";
 import { ReactNode, useState, useEffect } from "react";
+import Link from "next/link";
 import { ChevronUp } from "lucide-react";
+import { footerLegalLinks } from "@/content/legal";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const [showScroll, setShowScroll] = useState(false);
@@ -47,17 +49,20 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           {/* Premium legal footer */}
-          <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-center text-xs text-slate-400 mt-12 flex flex-col md:flex-row items-center justify-between px-6 gap-4">
+          <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-center text-xs text-slate-400 mt-12 flex flex-col md:flex-row items-center justify-between px-6 pr-24 md:pr-28 gap-4">
             <div suppressHydrationWarning={true}>
               &copy; {new Date().getFullYear()} <strong>CourtManager Pro</strong>. Creado por <strong>Ramón del Pozo</strong>.
             </div>
             <div className="flex flex-wrap gap-4 font-bold uppercase tracking-wider text-[9px] justify-center md:justify-end">
-              <span className="hover:text-slate-600 cursor-pointer">Aviso Legal</span>
-              <span className="hover:text-slate-600 cursor-pointer">Política de Privacidad</span>
-              <span className="hover:text-slate-600 cursor-pointer">Protección de Datos</span>
-              <span className="hover:text-slate-600 cursor-pointer">Política de Cookies</span>
-              <span className="hover:text-slate-600 cursor-pointer">Mapa del Sitio</span>
-              <span className="hover:text-slate-600 cursor-pointer">Condiciones de Uso</span>
+              {footerLegalLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </footer>
         </main>
@@ -69,14 +74,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
       {/* Premium Chat Assistant Widget */}
       <ChatAssistant />
 
-      {/* Scroll to Top Premium Button (Bottom Left, without overlapping sidebar!) */}
+      {/* Scroll to top: bottom-right, left of chat logo — clears footer & mobile nav */}
       {showScroll && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-5 left-20 md:left-72 z-40 p-3.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white shadow-xl hover:scale-115 transition-all"
+          className="fixed bottom-20 md:bottom-6 right-[4.75rem] z-40 p-3 rounded-full bg-slate-800/90 hover:bg-slate-700 text-white shadow-lg hover:scale-105 transition-all"
           title="Subir arriba"
         >
-          <ChevronUp className="h-4.5 w-4.5" />
+          <ChevronUp className="h-4 w-4" />
         </button>
       )}
     </div>

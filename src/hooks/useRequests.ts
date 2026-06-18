@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
+import { isMockMode, mapDemoRequests, shouldUseDemoFallback } from '@/lib/demo-data';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import type { Request, CreateRequestForm, RequestFilters } from '@/types';
 
@@ -11,45 +12,15 @@ export function useRequests(teamId: string = 'team-acb-123', filters: RequestFil
   const [error, setError] = useState<string | null>(null);
 
   const supabase = getSupabaseClient() as any;
-  const isMockMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
-                    process.env.NEXT_PUBLIC_SUPABASE_URL.includes("your-project");
+  const mockMode = isMockMode();
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      if (isMockMode) {
-        // Mock adapters
-        const mapped = db.requests.map(r => ({
-          id: r.id,
-          team_id: teamId,
-          requester_id: "u1",
-          player_id: r.playerId,
-          title: `Petición: ${r.itemName}`,
-          description: r.notes || null,
-          priority: 'normal' as const,
-          status: (r.status === 'PENDING' ? 'pendiente' : r.status === 'APPROVED' ? 'aprobada' : r.status === 'DELIVERED' ? 'completada' : 'rechazada') as any,
-          category: 'camiseta_juego' as const,
-          quantity: r.quantity,
-          size: r.size,
-          estimated_cost: 85,
-          actual_cost: 85,
-          approved_by: null,
-          approved_at: null,
-          completed_by: null,
-          completed_at: null,
-          rejection_reason: null,
-          due_date: null,
-          attachments: [],
-          metadata: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          // mock joins
-          playerName: r.playerName,
-          itemName: r.itemName
-        }));
-        setRequests(mapped as any[]);
+      if (mockMode) {
+        setRequests(mapDemoRequests(teamId));
         return;
       }
 
@@ -71,21 +42,28 @@ export function useRequests(teamId: string = 'team-acb-123', filters: RequestFil
       if (filters.search) query = query.ilike('title', `%${filters.search}%`);
 
       const { data, error } = await query;
-      if (error) setError(error.message);
-      else setRequests((data || []) as unknown as Request[]);
+      if (error) {
+        setError(error.message);
+        setRequests(mapDemoRequests(teamId));
+      } else if (shouldUseDemoFallback(data)) {
+        setRequests(mapDemoRequests(teamId));
+      } else {
+        setRequests((data || []) as unknown as Request[]);
+      }
     } catch (err: any) {
-      setError(err.message || "Error al cargar solicitudes");
+      setError(err.message || 'Error al cargar solicitudes');
+      setRequests(mapDemoRequests(teamId));
     } finally {
       setLoading(false);
     }
-  }, [teamId, JSON.stringify(filters), isMockMode]);
+  }, [teamId, JSON.stringify(filters), mockMode, supabase]);
 
   useEffect(() => {
     fetchRequests();
   }, [fetchRequests]);
 
   const createRequest = useCallback(async (form: CreateRequestForm, userId: string): Promise<any> => {
-    if (isMockMode) {
+    if (mockMode) {
       const p = db.players.find(pl => pl.id === form.player_id) || db.players[0];
       const newReq = {
         id: "r_" + Math.random().toString(36).substr(2, 9),
@@ -142,14 +120,14 @@ export function useRequests(teamId: string = 'team-acb-123', filters: RequestFil
 
     await fetchRequests();
     return data;
-  }, [teamId, fetchRequests, isMockMode]);
+  }, [teamId, fetchRequests, mockMode]);
 
   const updateStatus = useCallback(async (
     id: string,
     status: Request['status'],
     extra?: { rejection_reason?: string; approved_by?: string; completed_by?: string }
   ): Promise<void> => {
-    if (isMockMode) {
+    if (mockMode) {
       const idx = db.requests.findIndex(r => r.id === id);
       if (idx !== -1) {
         // map state
@@ -179,7 +157,7 @@ export function useRequests(teamId: string = 'team-acb-123', filters: RequestFil
 
     if (error) throw new Error(error.message);
     setRequests(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
-  }, [isMockMode, fetchRequests]);
+  }, [mockMode, fetchRequests]);
 
   const addComment = useCallback(async (
     requestId: string,
@@ -187,14 +165,14 @@ export function useRequests(teamId: string = 'team-acb-123', filters: RequestFil
     authorId: string,
     isInternal = false
   ): Promise<void> => {
-    if (isMockMode) return;
+    if (mockMode) return;
 
     const { error } = await supabase
       .from('request_comments')
       .insert({ request_id: requestId, content, author_id: authorId, is_internal: isInternal });
 
     if (error) throw new Error(error.message);
-  }, [isMockMode]);
+  }, [mockMode]);
 
   return {
     requests,

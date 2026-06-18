@@ -84,6 +84,14 @@ export class SupabaseInventoryRepository {
     const { data, error, count } = await query;
     if (error) throw new Error(error.message);
 
+    if (!data?.length) {
+      const prev = this.isMockMode;
+      (this as any).isMockMode = true;
+      const fallback = await this.findAll(teamId, filters, pagination, sort);
+      (this as any).isMockMode = prev;
+      return fallback;
+    }
+
     return {
       data: (data || []) as any[],
       count: count ?? 0,

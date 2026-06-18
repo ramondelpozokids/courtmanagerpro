@@ -34,7 +34,7 @@ export default function TopBar() {
 
   const userRole = user?.profile?.role || "equipment_manager";
   const userName = user?.profile?.full_name || "Carlos Rodriguez Kobe";
-  const userAvatar = user?.profile?.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${userName}`;
+  const userAvatar = user?.profile?.avatar_url || '/images/carlos_kobe.png';
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();

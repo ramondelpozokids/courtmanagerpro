@@ -146,14 +146,12 @@ export function Sidebar() {
           <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
             Fechas oficiales de los partidos del primer equipo de baloncesto.
           </p>
-          <a
-            href="https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball="
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/calendario"
             className="block text-center py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[9px] font-bold transition-all shadow-md"
           >
             Ver Calendario
-          </a>
+          </Link>
         </div>
       )}
 
@@ -167,14 +165,12 @@ export function Sidebar() {
           <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
             Camisetas de juego, jerseis y equipamiento técnico oficial.
           </p>
-          <a
-            href="https://shop.realmadrid.com/collections/jerseys-kits-basketball"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/tienda"
             className="block text-center py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold transition-all shadow-md"
           >
             Ir a la Tienda
-          </a>
+          </Link>
         </div>
       )}
 

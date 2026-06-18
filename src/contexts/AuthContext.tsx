@@ -162,17 +162,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const applyDemoUser = useCallback(() => {
+    setUser({
+      id: "u_manager",
+      email: defaultMockProfile.email,
+      profile: defaultMockProfile,
+      teams: defaultMockUserTeams,
+      currentTeam: defaultMockTeam
+    });
+    setCurrentTeamState(defaultMockTeam);
+  }, []);
+
   useEffect(() => {
     if (isMockMode) {
-      // Mock loading Carlos Rodriguez Kobe as default interactive user
-      setUser({
-        id: "u_manager",
-        email: defaultMockProfile.email,
-        profile: defaultMockProfile,
-        teams: defaultMockUserTeams,
-        currentTeam: defaultMockTeam
-      });
-      setCurrentTeamState(defaultMockTeam);
+      applyDemoUser();
       setLoading(false);
       return;
     }
@@ -186,10 +189,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userData = await loadUserData(session.user.id);
           setUser(userData);
           if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
+        } else {
+          applyDemoUser();
         }
         setLoading(false);
       }).catch((e: any) => {
         console.error("Session fetch failed:", e);
+        applyDemoUser();
         setLoading(false);
       });
 
@@ -200,8 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(userData);
           if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
         } else {
-          setUser(null);
-          setCurrentTeamState(null);
+          applyDemoUser();
         }
       });
       subscription = res?.data?.subscription;
@@ -215,7 +220,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         subscription.unsubscribe();
       }
     };
-  }, [loadUserData, isMockMode, supabase]);
+  }, [loadUserData, isMockMode, supabase, applyDemoUser]);
 
   const login = useCallback(async ({ email, password }: LoginForm) => {
     if (isMockMode) return;
