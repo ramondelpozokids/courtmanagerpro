@@ -80,30 +80,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     process.env.NEXT_PUBLIC_SUPABASE_URL.includes("your-project");
 
   const loadUserData = useCallback(async (userId: string) => {
-    const [profileResult, teamsResult] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', userId).single(),
-      supabase
-        .from('user_teams')
-        .select('*, team:teams(*)')
-        .eq('user_id', userId)
-        .eq('is_active', true),
-    ]);
+    try {
+      const [profileResult, teamsResult] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase
+          .from('user_teams')
+          .select('*, team:teams(*)')
+          .eq('user_id', userId)
+          .eq('is_active', true),
+      ]);
 
-    if (profileResult.error || !profileResult.data) return null;
-    const profile = profileResult.data as Profile;
-    const userTeams = (teamsResult.data || []) as unknown as UserTeam[];
-    const teams = userTeams.map((ut: any) => ut.team).filter(Boolean) as Team[];
+      if (profileResult.error || !profileResult.data) return null;
+      const profile = profileResult.data as Profile;
+      const userTeams = (teamsResult.data || []) as unknown as UserTeam[];
+      const teams = userTeams.map((ut: any) => ut.team).filter(Boolean) as Team[];
 
-    const storedTeamId = localStorage.getItem('currentTeamId');
-    const defaultTeam = storedTeamId ? teams.find(t => t.id === storedTeamId) || teams[0] : teams[0];
+      const storedTeamId = typeof window !== 'undefined' ? localStorage.getItem('currentTeamId') : null;
+      const defaultTeam = storedTeamId ? teams.find(t => t.id === storedTeamId) || teams[0] : teams[0];
 
-    return {
-      id: userId,
-      email: profile.email,
-      profile,
-      teams: userTeams,
-      currentTeam: defaultTeam || null
-    };
+      return {
+        id: userId,
+        email: profile.email,
+        profile,
+        teams: userTeams,
+        currentTeam: defaultTeam || null
+      };
+    } catch (err) {
+      console.error("Error loading user data from Supabase:", err);
+      return null;
+    }
   }, [supabase]);
 
   // Role switching function for interactive Arena AI playground testing!
@@ -172,30 +177,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Live Supabase Auth
-    supabase.auth.getSession().then(async ({ data: { session } }: any) => {
-      setSession(session);
-      if (session?.user) {
-        const userData = await loadUserData(session.user.id);
-        setUser(userData);
-        if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
-      }
+    // Live Supabase Auth with Exception safety guard
+    let subscription: any = null;
+    try {
+      supabase.auth.getSession().then(async ({ data: { session } }: any) => {
+        setSession(session);
+        if (session?.user) {
+          const userData = await loadUserData(session.user.id);
+          setUser(userData);
+          if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
+        }
+        setLoading(false);
+      }).catch((e: any) => {
+        console.error("Session fetch failed:", e);
+        setLoading(false);
+      });
+
+      const res = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
+        setSession(session);
+        if (session?.user) {
+          const userData = await loadUserData(session.user.id);
+          setUser(userData);
+          if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
+        } else {
+          setUser(null);
+          setCurrentTeamState(null);
+        }
+      });
+      subscription = res?.data?.subscription;
+    } catch (err) {
+      console.error("Supabase Auth initialization failed:", err);
       setLoading(false);
-    });
+    }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
-      setSession(session);
-      if (session?.user) {
-        const userData = await loadUserData(session.user.id);
-        setUser(userData);
-        if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
-      } else {
-        setUser(null);
-        setCurrentTeamState(null);
+    return () => {
+      if (subscription && typeof subscription.unsubscribe === "function") {
+        subscription.unsubscribe();
       }
-    });
-
-    return () => subscription.unsubscribe();
+    };
   }, [loadUserData, isMockMode, supabase]);
 
   const login = useCallback(async ({ email, password }: LoginForm) => {

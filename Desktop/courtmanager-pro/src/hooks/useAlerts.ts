@@ -17,43 +17,47 @@ export function useAlerts(teamId: string = 'team-acb-123') {
   const fetchAlerts = useCallback(async () => {
     setLoading(true);
 
-    if (isMockMode) {
-      const mapped = db.alerts.map(a => ({
-        id: a.id,
-        team_id: teamId,
-        type: a.type as any,
-        severity: a.severity.toLowerCase() as any,
-        title: "Alerta del Sistema",
-        message: a.message,
-        entity_type: null,
-        entity_id: null,
-        is_read: a.is_read,
-        is_dismissed: false,
-        read_by: null,
-        read_at: null,
-        auto_generated: true,
-        metadata: {},
-        created_at: a.created_at
-      }));
-      setAlerts(mapped);
-      setUnreadCount(mapped.filter(a => !a.is_read).length);
+    try {
+      if (isMockMode) {
+        const mapped = db.alerts.map(a => ({
+          id: a.id,
+          team_id: teamId,
+          type: a.type as any,
+          severity: a.severity.toLowerCase() as any,
+          title: "Alerta del Sistema",
+          message: a.message,
+          entity_type: null,
+          entity_id: null,
+          is_read: a.is_read,
+          is_dismissed: false,
+          read_by: null,
+          read_at: null,
+          auto_generated: true,
+          metadata: {},
+          created_at: a.created_at
+        }));
+        setAlerts(mapped);
+        setUnreadCount(mapped.filter(a => !a.is_read).length);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('alerts')
+        .select('*')
+        .eq('team_id', teamId)
+        .eq('is_dismissed', false)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (data) {
+        setAlerts(data as Alert[]);
+        setUnreadCount(data.filter((a: Alert) => !a.is_read).length);
+      }
+    } catch (err: any) {
+      console.error("Error loading alerts:", err);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const { data } = await supabase
-      .from('alerts')
-      .select('*')
-      .eq('team_id', teamId)
-      .eq('is_dismissed', false)
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    if (data) {
-      setAlerts(data as Alert[]);
-      setUnreadCount(data.filter((a: Alert) => !a.is_read).length);
-    }
-    setLoading(false);
   }, [teamId, isMockMode]);
 
   // Realtime subscription (only if not mock mode)

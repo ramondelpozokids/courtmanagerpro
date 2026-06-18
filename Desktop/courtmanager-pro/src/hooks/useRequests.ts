@@ -16,63 +16,68 @@ export function useRequests(teamId: string = 'team-acb-123', filters: RequestFil
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
+    setError(null);
 
-    if (isMockMode) {
-      // Mock adapters
-      const mapped = db.requests.map(r => ({
-        id: r.id,
-        team_id: teamId,
-        requester_id: "u1",
-        player_id: r.playerId,
-        title: `Petición: ${r.itemName}`,
-        description: r.notes || null,
-        priority: 'normal' as const,
-        status: (r.status === 'PENDING' ? 'pendiente' : r.status === 'APPROVED' ? 'aprobada' : r.status === 'DELIVERED' ? 'completada' : 'rechazada') as any,
-        category: 'camiseta_juego' as const,
-        quantity: r.quantity,
-        size: r.size,
-        estimated_cost: 85,
-        actual_cost: 85,
-        approved_by: null,
-        approved_at: null,
-        completed_by: null,
-        completed_at: null,
-        rejection_reason: null,
-        due_date: null,
-        attachments: [],
-        metadata: {},
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        // mock joins
-        playerName: r.playerName,
-        itemName: r.itemName
-      }));
-      setRequests(mapped as any[]);
+    try {
+      if (isMockMode) {
+        // Mock adapters
+        const mapped = db.requests.map(r => ({
+          id: r.id,
+          team_id: teamId,
+          requester_id: "u1",
+          player_id: r.playerId,
+          title: `Petición: ${r.itemName}`,
+          description: r.notes || null,
+          priority: 'normal' as const,
+          status: (r.status === 'PENDING' ? 'pendiente' : r.status === 'APPROVED' ? 'aprobada' : r.status === 'DELIVERED' ? 'completada' : 'rechazada') as any,
+          category: 'camiseta_juego' as const,
+          quantity: r.quantity,
+          size: r.size,
+          estimated_cost: 85,
+          actual_cost: 85,
+          approved_by: null,
+          approved_at: null,
+          completed_by: null,
+          completed_at: null,
+          rejection_reason: null,
+          due_date: null,
+          attachments: [],
+          metadata: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          // mock joins
+          playerName: r.playerName,
+          itemName: r.itemName
+        }));
+        setRequests(mapped as any[]);
+        return;
+      }
+
+      let query = supabase
+        .from('requests')
+        .select(`
+          *,
+          requester:profiles!requester_id(id, full_name, avatar_url),
+          player:players(id, full_name, dorsal, photo_url),
+          items:request_items(*),
+          comments:request_comments(count)
+        `)
+        .eq('team_id', teamId)
+        .order('created_at', { ascending: false });
+
+      if (filters.status) query = query.eq('status', filters.status);
+      if (filters.priority) query = query.eq('priority', filters.priority);
+      if (filters.player_id) query = query.eq('player_id', filters.player_id);
+      if (filters.search) query = query.ilike('title', `%${filters.search}%`);
+
+      const { data, error } = await query;
+      if (error) setError(error.message);
+      else setRequests(data as unknown as Request[]);
+    } catch (err: any) {
+      setError(err.message || "Error al cargar solicitudes");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    let query = supabase
-      .from('requests')
-      .select(`
-        *,
-        requester:profiles!requester_id(id, full_name, avatar_url),
-        player:players(id, full_name, dorsal, photo_url),
-        items:request_items(*),
-        comments:request_comments(count)
-      `)
-      .eq('team_id', teamId)
-      .order('created_at', { ascending: false });
-
-    if (filters.status) query = query.eq('status', filters.status);
-    if (filters.priority) query = query.eq('priority', filters.priority);
-    if (filters.player_id) query = query.eq('player_id', filters.player_id);
-    if (filters.search) query = query.ilike('title', `%${filters.search}%`);
-
-    const { data, error } = await query;
-    if (error) setError(error.message);
-    else setRequests(data as unknown as Request[]);
-    setLoading(false);
   }, [teamId, JSON.stringify(filters), isMockMode]);
 
   useEffect(() => {

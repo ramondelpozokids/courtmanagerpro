@@ -17,50 +17,55 @@ export function usePlayers(teamId: string = 'team-acb-123') {
   const fetchPlayers = useCallback(async () => {
     if (!teamId) return;
     setLoading(true);
+    setError(null);
 
-    if (isMockMode) {
-      // Mock mapping
-      const mapped = db.players.map(p => ({
-        id: p.id,
-        team_id: teamId,
-        user_id: p.id === 'p1' ? 'u1' : null,
-        dorsal: p.number,
-        full_name: `${p.firstName} ${p.lastName}`,
-        position: p.position.toLowerCase() as any,
-        nationality: p.nationality || "España",
-        birth_date: p.birthDate || "1995-01-01",
-        photo_url: p.imageUrl || null,
-        is_active: p.status === 'ACTIVE',
-        shirt_size: p.sizes.jersey,
-        shorts_size: p.sizes.shorts,
-        shoe_size: Number(p.sizes.shoes) || 46,
-        jacket_size: p.sizes.warmupShirt,
-        underwear_size: "XL",
-        sock_size: p.sizes.socks,
-        suit_size: "52",
-        hat_size: "M",
-        jersey_name: p.lastName.toUpperCase(),
-        contract_end: "2027-06-30",
-        notes: null,
-        metadata: {},
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }));
-      setPlayers(mapped);
+    try {
+      if (isMockMode) {
+        // Mock mapping
+        const mapped = db.players.map(p => ({
+          id: p.id,
+          team_id: teamId,
+          user_id: p.id === 'p1' ? 'u1' : null,
+          dorsal: p.number,
+          full_name: `${p.firstName} ${p.lastName}`,
+          position: p.position.toLowerCase() as any,
+          nationality: p.nationality || "España",
+          birth_date: p.birthDate || "1995-01-01",
+          photo_url: p.imageUrl || null,
+          is_active: p.status === 'ACTIVE',
+          shirt_size: p.sizes.jersey,
+          shorts_size: p.sizes.shorts,
+          shoe_size: Number(p.sizes.shoes) || 46,
+          jacket_size: p.sizes.warmupShirt,
+          underwear_size: "XL",
+          sock_size: p.sizes.socks,
+          suit_size: "52",
+          hat_size: "M",
+          jersey_name: p.lastName.toUpperCase(),
+          contract_end: "2027-06-30",
+          notes: null,
+          metadata: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }));
+        setPlayers(mapped);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('team_id', teamId)
+        .eq('is_active', true)
+        .order('dorsal');
+
+      if (error) setError(error.message);
+      else setPlayers(data as Player[]);
+    } catch (err: any) {
+      setError(err.message || "Error al cargar jugadores");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('team_id', teamId)
-      .eq('is_active', true)
-      .order('dorsal');
-
-    if (error) setError(error.message);
-    else setPlayers(data as Player[]);
-    setLoading(false);
   }, [teamId, isMockMode]);
 
   useEffect(() => {
