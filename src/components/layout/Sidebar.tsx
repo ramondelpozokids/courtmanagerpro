@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
   Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
-  ChevronRight, LogOut, Settings, Calendar
+  ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { href: '/',           label: 'Dashboard',    icon: LayoutDashboard, roles: [] },
   { href: '/players',    label: 'Jugadores',     icon: Users,           roles: [] },
   { href: '/inventory',  label: 'Inventario',    icon: Package,         roles: [] },
+  { href: '/sizing',     label: 'Tabla de Tallas', icon: Table,         roles: [] },
   { href: '/requests',   label: 'Solicitudes',   icon: ClipboardList,   roles: [] },
   { href: '/trips',      label: 'Viajes',        icon: Plane,           roles: [] },
   { href: '/laundry',    label: 'Lavandería',    icon: Shirt,           roles: [] },
@@ -137,21 +138,42 @@ export function Sidebar() {
 
       {/* Official Calendar Widget */}
       {sidebarOpen && (
-        <div className="mx-3 my-2 p-3.5 rounded-xl bg-slate-950/40 border border-slate-800 text-left space-y-1.5 shrink-0">
+        <div className="mx-3 my-1 p-3 rounded-xl bg-slate-950/40 border border-slate-800 text-left space-y-1 shrink-0">
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 text-orange-500 animate-pulse" />
-            <span className="text-[11px] font-black uppercase text-slate-200 tracking-wider">Calendario Oficial</span>
+            <Calendar className="h-3.5 w-3.5 text-orange-500 animate-pulse" />
+            <span className="text-[10px] font-black uppercase text-slate-200 tracking-wider">Calendario Oficial</span>
           </div>
           <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
-            Sigue las fechas oficiales de los partidos de Euroliga y Liga Endesa del primer equipo de baloncesto.
+            Fechas oficiales de los partidos del primer equipo de baloncesto.
           </p>
           <a
             href="https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball="
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-center py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold transition-all shadow-md shadow-orange-600/10"
+            className="block text-center py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[9px] font-bold transition-all shadow-md"
           >
-            Ver Calendario Oficial
+            Ver Calendario
+          </a>
+        </div>
+      )}
+
+      {/* Official Shop Widget */}
+      {sidebarOpen && (
+        <div className="mx-3 my-1 p-3 rounded-xl bg-slate-950/40 border border-slate-800 text-left space-y-1 shrink-0">
+          <div className="flex items-center gap-1.5">
+            <ShoppingBag className="h-3.5 w-3.5 text-orange-400 animate-pulse" />
+            <span className="text-[10px] font-black uppercase text-slate-200 tracking-wider">Tienda Oficial RMB</span>
+          </div>
+          <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+            Camisetas de juego, jerseis y equipamiento técnico oficial.
+          </p>
+          <a
+            href="https://shop.realmadrid.com/collections/jerseys-kits-basketball"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-center py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold transition-all shadow-md"
+          >
+            Ir a la Tienda
           </a>
         </div>
       )}
