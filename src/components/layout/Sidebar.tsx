@@ -53,11 +53,11 @@ export function Sidebar() {
       <div className="flex items-center justify-between p-4 border-b border-slate-800 h-16 shrink-0">
         {sidebarOpen && (
           <div className="flex items-center gap-2 text-left">
-            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-orange-600 shrink-0 border border-orange-500">
+            <div className="w-8 h-8 shrink-0 flex items-center justify-center">
               <img
-                src="https://assets.realmadrid.com/is/image/realmadrid/ND-COPAS-DE-EUROPA_SALA-DE-JUNTAS_HE02434?$Desktop$&fit=wrap&wid=1440"
+                src="/logo.png"
                 alt="Logo"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>

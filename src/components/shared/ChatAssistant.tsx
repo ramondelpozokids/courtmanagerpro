@@ -104,11 +104,11 @@ export function ChatAssistant() {
           {/* Header */}
           <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full overflow-hidden border border-orange-500 shrink-0">
+              <div className="h-7 w-7 shrink-0 flex items-center justify-center">
                 <img
-                  src="https://assets.realmadrid.com/is/image/realmadrid/ND-COPAS-DE-EUROPA_SALA-DE-JUNTAS_HE02434?$Desktop$&fit=wrap&wid=1440"
+                  src="/logo.png"
                   alt="RMB Logo"
-                  className="h-full w-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <div>
@@ -125,16 +125,16 @@ export function ChatAssistant() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((m, idx) => (
               <div key={idx} className={`flex gap-2.5 items-start ${m.sender === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className="h-7 w-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-850">
+                <div className="h-7 w-7 shrink-0 flex items-center justify-center">
                   {m.sender === 'user' ? (
-                    <div className="h-full w-full bg-orange-600 flex items-center justify-center text-white">
+                    <div className="h-full w-full bg-orange-600 rounded-full flex items-center justify-center text-white">
                       <User className="h-4 w-4" />
                     </div>
                   ) : (
                     <img
-                      src="https://assets.realmadrid.com/is/image/realmadrid/ND-COPAS-DE-EUROPA_SALA-DE-JUNTAS_HE02434?$Desktop$&fit=wrap&wid=1440"
+                      src="/logo.png"
                       alt="RMB Logo"
-                      className="h-full w-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   )}
                 </div>

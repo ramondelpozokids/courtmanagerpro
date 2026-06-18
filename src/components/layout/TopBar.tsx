@@ -30,8 +30,9 @@ export default function TopBar() {
     <header className="h-16 border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
       <div className="flex items-center gap-4">
         {/* Mobile menu trigger could go here, but let's keep it clean */}
-        <div className="text-sm text-slate-500 font-bold md:block hidden">
-          CourtManager Pro <span className="mx-1.5">•</span> Real Madrid Baloncesto
+        <div className="text-sm text-slate-500 font-bold md:flex items-center gap-2.5 hidden">
+          <img src="/logo.png" alt="Logo" className="h-5 w-5 object-contain shrink-0" />
+          <span>CourtManager Pro <span className="mx-1.5">•</span> Real Madrid Baloncesto</span>
         </div>
       </div>
 
