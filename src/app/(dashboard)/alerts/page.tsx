@@ -2,13 +2,16 @@
 
 import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/contexts/AuthContext";
+import { canManageAlerts, canViewAlerts } from "@/lib/permissions";
 import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw } from "lucide-react";
 
 export default function AlertsPage() {
   const { user } = useAuth();
   const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts();
 
-  const hasAccess = ["admin", "equipment_manager", "assistant", "medical"].includes(user?.profile?.role || "assistant");
+  const userRole = user?.profile?.role;
+  const hasAccess = canViewAlerts(userRole);
+  const canEdit = canManageAlerts(userRole);
 
   if (!hasAccess) {
     return (
@@ -33,6 +36,8 @@ export default function AlertsPage() {
           <p className="text-xs text-slate-400 mt-1">Notificaciones en tiempo real sobre límites de existencias de material, caducidad de fármacos y solicitudes de jugadores.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {canEdit && (
+          <>
           {/* Birthday Scanner Button */}
           <button
             onClick={async () => {
@@ -74,6 +79,8 @@ export default function AlertsPage() {
               <CheckCircle className="h-4 w-4 text-emerald-500" />
               Marcar todas como leídas
             </button>
+          )}
+          </>
           )}
         </div>
       </div>
@@ -149,6 +156,7 @@ export default function AlertsPage() {
                 </div>
 
                 {/* Action buttons (Read / Dismiss-Delete) */}
+                {canEdit && (
                 <div className="shrink-0 self-center">
                   {!alert.is_read ? (
                     <button
@@ -168,6 +176,7 @@ export default function AlertsPage() {
                     </button>
                   )}
                 </div>
+                )}
               </div>
             );
           })}

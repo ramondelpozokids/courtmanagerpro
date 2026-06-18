@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { SupabaseInventoryRepository } from '@/infrastructure/supabase/repositories/SupabaseInventoryRepository';
+import { isMockMode, mapDemoInventory, shouldUseDemoFallback } from '@/lib/demo-data';
 import type {
   InventoryItem,
   InventoryFilters,
@@ -15,13 +16,13 @@ import type {
 export function useInventory(
   teamId: string = 'team-acb-123',
   initialFilters: InventoryFilters = {},
-  initialPagination: PaginationConfig = { page: 1, pageSize: 20 }
+  initialPagination: PaginationConfig = { page: 1, pageSize: 50 }
 ) {
   const [items, setItems] = useState<PaginatedResponse<InventoryItem>>({
     data: [],
     count: 0,
     page: 1,
-    pageSize: 20,
+    pageSize: 50,
     totalPages: 0,
   });
 
@@ -30,32 +31,63 @@ export function useInventory(
   const [sort, setSort] = useState<SortConfig>({ field: 'name', direction: 'asc' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usingDemoData, setUsingDemoData] = useState(false);
 
+  const mockMode = isMockMode();
+  const demoActive = mockMode || usingDemoData;
   const repo = new SupabaseInventoryRepository(getSupabaseClient());
+
+  const applyDemoItems = useCallback((tid: string) => {
+    const demo = mapDemoInventory(tid);
+    setUsingDemoData(true);
+    setItems({
+      data: demo as InventoryItem[],
+      count: demo.length,
+      page: 1,
+      pageSize: demo.length,
+      totalPages: 1,
+    });
+  }, []);
 
   const fetchItems = useCallback(async () => {
     if (!teamId) return;
     setLoading(true);
     setError(null);
     try {
+      if (mockMode) {
+        applyDemoItems(teamId);
+        return;
+      }
+
       const result = await repo.findAll(teamId, filters, pagination, sort);
-      setItems(result);
+      if (shouldUseDemoFallback(result.data)) {
+        applyDemoItems(teamId);
+      } else {
+        setUsingDemoData(false);
+        setItems(result);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar inventario');
+      applyDemoItems(teamId);
     } finally {
       setLoading(false);
     }
-  }, [teamId, filters, pagination, sort]);
+  }, [teamId, filters, pagination, sort, mockMode, applyDemoItems]);
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
   const createItem = useCallback(async (form: CreateInventoryItemForm): Promise<InventoryItem> => {
+    if (demoActive) {
+      const item = await repo.create(teamId, form);
+      await fetchItems();
+      return item;
+    }
     const item = await repo.create(teamId, form);
     await fetchItems();
     return item;
-  }, [teamId, fetchItems]);
+  }, [teamId, fetchItems, demoActive, repo]);
 
   const updateItem = useCallback(async (id: string, updates: Partial<InventoryItem>): Promise<InventoryItem> => {
     const item = await repo.update(id, updates);
@@ -64,7 +96,7 @@ export function useInventory(
       data: prev.data.map(i => i.id === id ? item : i),
     }));
     return item;
-  }, []);
+  }, [repo]);
 
   const adjustStock = useCallback(async (id: string, qtyChange: number, action: "ADD" | "SET" | "REDUCE") => {
     const item = items.data.find(i => i.id === id);
@@ -73,7 +105,7 @@ export function useInventory(
     if (action === "ADD") newStock += qtyChange;
     else if (action === "REDUCE") newStock = Math.max(0, newStock - qtyChange);
     else if (action === "SET") newStock = Math.max(0, qtyChange);
-    
+
     return updateItem(id, { stock_available: newStock });
   }, [items.data, updateItem]);
 
@@ -84,15 +116,15 @@ export function useInventory(
       data: prev.data.filter(i => i.id !== id),
       count: prev.count - 1,
     }));
-  }, []);
+  }, [repo]);
 
   const scanQR = useCallback(async (qrCode: string): Promise<InventoryItem | null> => {
     return repo.findByQR(qrCode);
-  }, []);
+  }, [repo]);
 
   const scanBarcode = useCallback(async (barcode: string): Promise<InventoryItem | null> => {
     return repo.findByBarcode(barcode);
-  }, []);
+  }, [repo]);
 
   return {
     items: items.data,
@@ -100,6 +132,7 @@ export function useInventory(
     totalPages: items.totalPages,
     loading,
     error,
+    usingDemoData,
     filters,
     setFilters,
     pagination,

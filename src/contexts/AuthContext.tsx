@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: role === "superadmin" ? "admin" : (role as any), // Map to base role for compatibility
       full_name: name,
       email,
-      avatar_url: role === "superadmin" ? "/images/ramon_del_pozo.png" : role === "admin" ? "/images/carlos_kobe.png" : `https://api.dicebear.com/7.x/adventurer/svg?seed=${name}`
+      avatar_url: role === "superadmin" ? "/images/ramon-del-pozo.png" : role === "admin" ? "/images/carlos_kobe.png" : `https://api.dicebear.com/7.x/adventurer/svg?seed=${name}`
     };
 
     setUser({

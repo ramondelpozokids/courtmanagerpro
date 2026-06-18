@@ -8,6 +8,7 @@ import {
   ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { canAccessMedical, canAccessReports } from '@/lib/permissions';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useAlerts } from '@/hooks/useAlerts';
@@ -37,9 +38,13 @@ export function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useApp();
   const { unreadCount } = useAlerts(currentTeam?.id || 'team-acb-123');
 
-  const visibleItems = NAV_ITEMS.filter(item =>
-    item.roles.length === 0 || hasPermission(item.roles)
-  );
+  const userRole = user?.profile?.role || 'equipment_manager';
+
+  const visibleItems = NAV_ITEMS.filter(item => {
+    if (item.href === '/medical') return canAccessMedical(userRole);
+    if (item.href === '/reports') return canAccessReports(userRole);
+    return item.roles.length === 0 || hasPermission(item.roles);
+  });
 
   const full_name = user?.profile?.full_name || "Carlos Rodriguez Kobe";
   const user_role = user?.profile?.role || "equipment_manager";

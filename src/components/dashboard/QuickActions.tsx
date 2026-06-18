@@ -1,5 +1,6 @@
 "use client";
 
+import { isReadonlyUser } from "@/lib/permissions";
 import { useAuth } from "@/contexts/AuthContext";
 import { PlusCircle, QrCode, ClipboardList, Plane, Droplet } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +9,7 @@ export default function QuickActions() {
   const { user } = useAuth();
   const userRole = user?.profile?.role || "equipment_manager";
 
-  const isReadonly = userRole === "player" || userRole === "coach";
+  const isReadonly = isReadonlyUser(user?.profile?.role);
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">

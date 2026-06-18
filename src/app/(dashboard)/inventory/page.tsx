@@ -2,6 +2,7 @@
 
 import { useInventory } from "@/hooks/useInventory";
 import { useAuth } from "@/contexts/AuthContext";
+import { canWriteClubData } from "@/lib/permissions";
 import StockBadge from "@/components/inventory/StockBadge";
 import ItemForm from "@/components/inventory/ItemForm";
 import { useState } from "react";
@@ -15,7 +16,17 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
 
-  const canWrite = ["admin", "equipment_manager", "assistant"].includes(user?.profile?.role || "assistant");
+  const canWrite = canWriteClubData(user?.profile?.role);
+
+  const categories = [
+    { code: "ALL", name: "Todos" },
+    { code: "camiseta_juego", name: "Camisetas Juego" },
+    { code: "pantalon_juego", name: "Pantalones" },
+    { code: "camiseta_entrenamiento", name: "Entrenamiento" },
+    { code: "zapatillas", name: "Zapatillas" },
+    { code: "calcetines", name: "Calcetines" },
+    { code: "chaqueta", name: "Chaquetas" },
+  ];
 
   const handleCreateItem = async (itemData: any) => {
     try {
@@ -25,14 +36,6 @@ export default function InventoryPage() {
       console.error(err);
     }
   };
-
-  const categories = [
-    { code: "ALL", name: "Todos" },
-    { code: "UNIFORM", name: "Uniformes" },
-    { code: "TRAINING", name: "Entrenamiento" },
-    { code: "FOOTWEAR", name: "Zapatillas" },
-    { code: "ACCESSORY", name: "Accesorios" }
-  ];
 
     const filteredItems = items.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || (item.sku || "").toLowerCase().includes(search.toLowerCase());

@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { canWriteClubData } from "@/lib/permissions";
 import { 
   Shirt, Table, ArrowLeft, Users, ShieldCheck, Search, Ruler, 
   Trash2, Edit2, Plus, X, CheckCircle, PackagePlus 
 } from "lucide-react";
-import Link from "next/link";
-
 export default function SizingTablePage() {
+  const { user } = useAuth();
+  const canWrite = canWriteClubData(user?.profile?.role);
+
   const [activeTab, setActiveTab] = useState<"players" | "staff">("players");
   const [search, setSearch] = useState("");
 
@@ -224,6 +228,7 @@ export default function SizingTablePage() {
             />
           </div>
 
+          {canWrite && (
           <button
             onClick={() => activeTab === "players" ? setShowAddPlayerModal(true) : setShowAddStaffModal(true)}
             className="flex items-center justify-center gap-1.5 px-4.5 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-extrabold transition-all shadow-md w-full sm:w-auto shrink-0"
@@ -231,6 +236,7 @@ export default function SizingTablePage() {
             <Plus className="h-4.5 w-4.5" />
             <span>{activeTab === "players" ? "Añadir Jugador" : "Añadir Staff"}</span>
           </button>
+          )}
         </div>
       </div>
 
@@ -295,6 +301,7 @@ export default function SizingTablePage() {
                           {p.sizes.warmupShirt || "XXL"}
                         </td>
                         <td className="p-4 text-right">
+                          {canWrite && (
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleOpenEdit(p, "player")}
@@ -311,6 +318,7 @@ export default function SizingTablePage() {
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -371,6 +379,7 @@ export default function SizingTablePage() {
                           {s.shoe_size || s.sizes?.shoes || "43"}
                         </td>
                         <td className="p-4 text-right">
+                          {canWrite && (
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleOpenEdit(s, "staff")}
@@ -387,6 +396,7 @@ export default function SizingTablePage() {
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
+                          )}
                         </td>
                       </tr>
                     );

@@ -40,6 +40,18 @@ export function mapDemoPlayers(teamId: string = 'team-acb-123'): Player[] {
   }));
 }
 
+export function mapDemoInventory(teamId: string = 'team-acb-123') {
+  return db.inventory.map((item) => ({
+    ...item,
+    team_id: teamId,
+    stock_available: item.stock_available ?? item.stock_total ?? item.stock ?? 0,
+    stock_min: item.stock_min ?? item.minStock ?? 5,
+    qr_code: item.qr_code ?? item.sku,
+    unit_cost: item.unit_cost ?? item.price ?? 0,
+    updated_at: item.updated_at ?? new Date().toISOString(),
+  }));
+}
+
 export function mapDemoRequests(teamId: string = 'team-acb-123'): Request[] {
   return db.requests.map((r) => ({
     id: r.id,
