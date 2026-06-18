@@ -1,0 +1,6 @@
+# CourtManager Pro — https://courtmanagerpro.vercel.app
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://courtmanagerpro.vercel.app/sitemap.xml

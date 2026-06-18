@@ -5,16 +5,43 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AppProvider } from '@/contexts/AppContext';
 import { ToastContainer } from '@/components/shared/ToastContainer';
 import AppShell from '@/components/layout/AppShell';
+import { SITE_KEYWORDS, SITE_URL } from '@/content/seo';
 
 export const metadata: Metadata = {
-  title: 'CourtManager Pro',
-  description: 'Gestión integral de utilería para equipos profesionales de baloncesto ACB',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'CourtManager Pro — Gestión de Utilería ACB',
+    template: '%s | CourtManager Pro',
+  },
+  description:
+    'Plataforma SaaS de gestión de utilería, tallajes, inventario QR, lavandería, viajes y material médico para equipos profesionales de baloncesto. Real Madrid Baloncesto demo.',
+  keywords: SITE_KEYWORDS,
+  authors: [{ name: 'Ramón del Pozo Rott' }, { name: 'Carlos Rodriguez Kobe' }],
+  creator: 'Ramón del Pozo Rott',
+  publisher: 'CourtManager Pro',
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
   manifest: '/manifest.json',
+  openGraph: {
+    type: 'website',
+    locale: 'es_ES',
+    url: SITE_URL,
+    siteName: 'CourtManager Pro',
+    title: 'CourtManager Pro — Utilería Profesional de Baloncesto',
+    description: 'Control de equipación, tallajes, inventario con QR y logística ACB/Euroliga.',
+    images: [{ url: '/logo.png', width: 512, height: 512, alt: 'CourtManager Pro' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'CourtManager Pro',
+    description: 'Gestión integral de utilería para clubes de baloncesto profesional.',
+    images: ['/logo.png'],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'CourtManager Pro',
   },
+  alternates: { canonical: SITE_URL },
 };
 
 export const viewport: Viewport = {

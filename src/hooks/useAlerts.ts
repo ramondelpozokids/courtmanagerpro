@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useId } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { scanBirthdayAlerts } from '@/lib/birthday-alerts';
 import type { Alert } from '@/types';
 
 export function useAlerts(teamId: string = 'team-acb-123') {
@@ -19,6 +20,7 @@ export function useAlerts(teamId: string = 'team-acb-123') {
 
     try {
       if (isMockMode) {
+        scanBirthdayAlerts(teamId);
         const mapped = db.alerts.map(a => ({
           id: a.id,
           team_id: teamId,

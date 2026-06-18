@@ -1,5 +1,6 @@
 "use client";
 
+import { scanBirthdayAlerts, getUpcomingBirthdays } from "@/lib/birthday-alerts";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/contexts/AuthContext";
 import { canManageAlerts, canViewAlerts } from "@/lib/permissions";
@@ -38,35 +39,20 @@ export default function AlertsPage() {
         <div className="flex flex-wrap items-center gap-2">
           {canEdit && (
           <>
-          {/* Birthday Scanner Button */}
           <button
-            onClick={async () => {
-              // Generate a birthday alert for Izan Almansa (June 7) if it doesn't exist
-              const alreadyAlerted = alerts.some(a => a.message.includes("Izan Almansa"));
-              if (alreadyAlerted) {
-                alert("Todos los cumpleaños de la plantilla oficial de Junio ya han sido escaneados y notificados.");
-                return;
-              }
-              
-              // Add a new alert to db
-              const { db } = await import("@/infrastructure/supabase/repositories/InMemoryDB");
-              const id = "a_bday_" + Math.random().toString(36).substr(2, 5);
-              db.alerts.unshift({
-                id,
-                team_id: "team-acb-123",
-                type: "cumpleaños" as any,
-                severity: "info",
-                title: "Cumpleaños de la Plantilla",
-                message: "¡ALERTA DE CUMPLEAÑOS! El ala-pívot Izan Almansa cumple años el 7 de Junio. Preparar lote de equipación oficial de regalo.",
-                is_read: false,
-                is_dismissed: false,
-                created_at: new Date().toISOString()
-              });
-              
+            onClick={() => {
+              const created = scanBirthdayAlerts("team-acb-123");
+              const upcoming = getUpcomingBirthdays();
               if (refresh) refresh();
-              alert("Alerta de cumpleaños del mes de Junio generada y guardada con éxito.");
+              if (created === 0 && upcoming.length === 0) {
+                alert("No hay cumpleaños de plantilla este mes.");
+              } else if (created === 0) {
+                alert(`Cumpleaños de ${upcoming.map((b) => `${b.name} (${b.day})`).join(", ")} — alertas ya generadas para Carlos Kobe.`);
+              } else {
+                alert(`${created} alerta(s) de cumpleaños creadas para Carlos Rodriguez Kobe.`);
+              }
             }}
-            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/15"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-all shadow-md"
           >
             🎂 Escanear Cumpleaños del Mes
           </button>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CourtManager Pro — Pitch Inversores</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #f8fafc; }
+
+    .deck { height: 100vh; position: relative; }
+    .slide {
+      display: none; height: 100vh; padding: 3rem 4rem;
+      flex-direction: column; justify-content: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    }
+    .slide.active { display: flex; animation: fadeIn 0.35s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .slide.title-slide { text-align: center; align-items: center; }
+    .slide.title-slide h1 { font-size: 3.2rem; font-weight: 900; letter-spacing: -0.02em; }
+    .slide.title-slide h1 span { color: #f97316; }
+    .slide.title-slide .sub { font-size: 1.35rem; color: #94a3b8; margin-top: 1rem; max-width: 640px; }
+    .slide.title-slide .meta { margin-top: 2.5rem; font-size: 0.95rem; color: #64748b; }
+    .slide.title-slide .logo { width: 72px; height: 72px; margin-bottom: 1.5rem; border-radius: 12px; }
+
+    h2 { font-size: 2rem; font-weight: 800; color: #f97316; margin-bottom: 1.5rem; border-bottom: 2px solid #f9731633; padding-bottom: 0.5rem; }
+    h3 { font-size: 1.15rem; font-weight: 700; color: #e2e8f0; margin: 1rem 0 0.5rem; }
+    p, li { font-size: 1.05rem; line-height: 1.65; color: #cbd5e1; margin-bottom: 0.6rem; }
+    ul { padding-left: 1.4rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.35rem; }
+    strong { color: #fff; }
+    .highlight { color: #f97316; font-weight: 800; }
+    .big-num { font-size: 2.8rem; font-weight: 900; color: #f97316; line-height: 1.1; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+    th { background: #f9731622; color: #f97316; text-align: left; padding: 0.65rem 1rem; font-weight: 700; border: 1px solid #334155; }
+    td { padding: 0.6rem 1rem; border: 1px solid #334155; color: #e2e8f0; }
+    tr:nth-child(even) td { background: #1e293b55; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 0.5rem; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; }
+    .card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; font-weight: 700; }
+    .card .value { font-size: 1.75rem; font-weight: 900; color: #f97316; margin-top: 0.25rem; }
+
+    blockquote { border-left: 4px solid #f97316; padding: 0.75rem 1.25rem; margin: 1rem 0; background: #f9731611; font-style: italic; color: #e2e8f0; font-size: 1.1rem; }
+
+    .nav {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 1rem; z-index: 100;
+      background: #1e293bee; backdrop-filter: blur(8px); padding: 0.5rem 1.25rem; border-radius: 999px; border: 1px solid #334155;
+    }
+    .nav button {
+      background: #f97316; border: none; color: white; width: 36px; height: 36px; border-radius: 50%;
+      cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: transform 0.15s;
+    }
+    .nav button:hover { transform: scale(1.08); background: #ea580c; }
+    .nav button:disabled { opacity: 0.3; cursor: default; transform: none; }
+    .nav span { font-size: 0.85rem; color: #94a3b8; min-width: 4rem; text-align: center; }
+
+    .progress { position: fixed; top: 0; left: 0; height: 3px; background: #f97316; transition: width 0.3s; z-index: 100; }
+
+    .check { color: #22c55e; }
+    @media (max-width: 768px) {
+      .slide { padding: 2rem 1.5rem; }
+      .slide.title-slide h1 { font-size: 2rem; }
+      .grid-2 { grid-template-columns: 1fr; }
+      h2 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div class="deck" id="deck">
+
+    <!-- 1 -->
+    <section class="slide title-slide active">
+      <img src="../../public/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
+      <h1>CourtManager <span>Pro</span></h1>
+      <p class="sub">SaaS de utilería profesional para baloncesto — inventario, tallajes, viajes y logística ACB/Euroliga</p>
+      <p class="meta">
+        <strong>Ramón del Pozo Rott</strong> · Fundador &nbsp;|&nbsp;
+        <strong>Carlos Rodriguez Kobe</strong> · Utilero RMB<br/>
+        courtmanagerpro.vercel.app · Junio 2026
+      </p>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide">
+      <h2>El problema</h2>
+      <p>Los clubes de élite pierden <span class="highlight">€15.000 – €30.000 al año</span> en:</p>
+      <ul>
+        <li>Material extraviado en aeropuertos y viajes Euroliga</li>
+        <li>Zapatillas (€150+) duplicadas o sin trazabilidad</li>
+        <li>Errores de tallaje minutos antes del partido</li>
+        <li>Retrasos de lavandería y roturas de stock crítico</li>
+      </ul>
+      <blockquote>Hoy la utilería se gestiona con Excel, WhatsApp y memoria del utilero. Eso no escala.</blockquote>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide">
+      <h2>Océano azul</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="label">Existe mucho</div>
+          <ul style="margin-top:0.75rem">
+            <li>Apps de estadísticas y scouting</li>
+            <li>ERP genéricos</li>
+            <li>Hojas de cálculo</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="label">No existía — hasta ahora</div>
+          <ul style="margin-top:0.75rem">
+            <li>SaaS <strong>solo utilería</strong></li>
+            <li>26+ tallas por jugador</li>
+            <li>QR + trazabilidad deportiva</li>
+            <li>Alertas cumpleaños, botiquines, viajes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide">
+      <h2>La solución</h2>
+      <ul>
+        <li><strong>Tabla de tallas</strong> — equipación oficial, entrenamiento, chándal, calzado, accesorios</li>
+        <li><strong>Inventario QR</strong> — escáner en almacén y vestuario</li>
+        <li><strong>Solicitudes</strong> — workflow aprobar → entregar → deducir stock</li>
+        <li><strong>Viajes</strong> — packing list ACB/Euroliga</li>
+        <li><strong>Lavandería · Médico · Informes</strong> — operativa completa</li>
+        <li><strong>Alertas</strong> — cumpleaños plantilla avisan a Carlos Kobe automáticamente</li>
+      </ul>
+      <p>Demo en producción con plantilla <strong>Real Madrid Baloncesto 2025/26</strong></p>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide">
+      <h2>MVP en producción hoy</h2>
+      <ul>
+        <li><span class="check">✓</span> 35 rutas · Vercel · 0 errores build</li>
+        <li><span class="check">✓</span> PWA instalable (icono en móvil, pantalla completa)</li>
+        <li><span class="check">✓</span> 17 jugadores · 8 staff · 15 refs. médicas</li>
+        <li><span class="check">✓</span> Roles: Superadmin, Admin, Invitado, Médico</li>
+        <li><span class="check">✓</span> Auditoría técnica + SEO + robots.txt</li>
+      </ul>
+      <p style="margin-top:1rem"><strong>Stack:</strong> Next.js 15 · React 19 · Supabase · Vercel</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide">
+      <h2>Demo en 60 segundos</h2>
+      <ol style="padding-left:1.4rem">
+        <li>Carlos entra como administrador de utilería</li>
+        <li>Alerta: <em>«Jugador cumple años → preparar regalo equipación»</em></li>
+        <li>Aprueba solicitud de camiseta visitante</li>
+        <li>Escanea QR → stock actualizado en tiempo real</li>
+        <li>Exporta CSV de tallas para staff Euroliga</li>
+      </ol>
+      <p class="highlight" style="margin-top:1.5rem;font-size:1.2rem">→ courtmanagerpro.vercel.app</p>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide">
+      <h2>Modelo de negocio</h2>
+      <table>
+        <tr><th>Plan</th><th>Cliente</th><th>Precio/mes</th></tr>
+        <tr><td><strong>Amateur</strong></td><td>Cantera, escuelas</td><td>€49</td></tr>
+        <tr><td><strong>Pro</strong></td><td>ACB, LEB Oro</td><td>€299 – €499</td></tr>
+        <tr><td><strong>Elite</strong></td><td>Euroliga, Enterprise</td><td>€1.500 – €3.500</td></tr>
+      </table>
+      <p>Cobro recurrente <strong>Stripe Billing</strong> · Pago fallido → suspensión automática</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide">
+      <h2>Unit economics</h2>
+      <div class="grid-2">
+        <div class="card"><div class="label">100 clubes Pro × €299</div><div class="value">€29.900 MRR</div></div>
+        <div class="card"><div class="label">Infraestructura/mes</div><div class="value">~€50</div></div>
+        <div class="card"><div class="label">Margen bruto</div><div class="value">&gt; 90%</div></div>
+        <div class="card"><div class="label">Ahorro club/año</div><div class="value">€15K–30K</div></div>
+      </div>
+      <p style="margin-top:1.25rem">ROI para el club: <strong>primer mes</strong> de suscripción Pro</p>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide">
+      <h2>Mercado (TAM)</h2>
+      <ul>
+        <li>ACB: 18 equipos · Euroliga: 18+ · Europa/NCAA/Asia: miles</li>
+      </ul>
+      <p class="big-num">€1,8M ARR</p>
+      <p>500 clubes profesionales × €299/mes (solo tier Pro, conservador)</p>
+      <p style="margin-top:1rem">Expansión vertical: fútbol, balonmano, hockey — mismo dolor logístico</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide">
+      <h2>Go-to-market</h2>
+      <table>
+        <tr><th>Fase</th><th>Plazo</th><th>Objetivo</th></tr>
+        <tr><td>1</td><td>0–6 meses</td><td>3 pilotos de pago · Case study ahorro</td></tr>
+        <tr><td>2</td><td>6–18 meses</td><td>ACB + LEB · Federaciones · WhatsApp Carlos</td></tr>
+        <tr><td>3</td><td>18+ meses</td><td>Euroliga · App Store · IoT básculas</td></tr>
+      </table>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide">
+      <h2>Ventaja competitiva</h2>
+      <ul>
+        <li><strong>Validación real</strong> — co-creado con utilero plantilla ACB</li>
+        <li><strong>Time-to-value</strong> — PWA instalable en 30 s (QR en footer)</li>
+        <li><strong>Profundidad vertical</strong> — 26 productos talla vs. 4 genéricos</li>
+        <li><strong>Multi-tenant</strong> — RLS Supabase, roles granulares</li>
+        <li><strong>Coste marginal ~0</strong> — serverless Vercel + Supabase</li>
+      </ul>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide">
+      <h2>Equipo</h2>
+      <table>
+        <tr><th>Persona</th><th>Rol</th></tr>
+        <tr><td><strong>Ramón del Pozo Rott</strong></td><td>Fundador · Producto · Superadmin · Visión SaaS</td></tr>
+        <tr><td><strong>Carlos Rodriguez Kobe</strong></td><td>Co-fundador operativo · Utilero RMB · UX real · Soporte</td></tr>
+      </table>
+      <p style="margin-top:1rem">charlie-r-k@hotmail.com · ramon.delpozo@realmadrid.com · +34 637 23 71 00</p>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide">
+      <h2>Roadmap 12 meses</h2>
+      <table>
+        <tr><th>Trimestre</th><th>Hitos</th></tr>
+        <tr><td>Q3 2026</td><td>Stripe live · 3 pilotos · Informes PDF</td></tr>
+        <tr><td>Q4 2026</td><td>10 clubes Pro · Capacitor beta (App Store)</td></tr>
+        <tr><td>Q1 2027</td><td>Federación · Multi-idioma</td></tr>
+        <tr><td>Q2 2027</td><td>Tier Elite · BD dedicada · IoT básculas</td></tr>
+      </table>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide">
+      <h2>The Ask</h2>
+      <p><strong>Buscamos:</strong> socio estratégico o ronda pre-seed para:</p>
+      <ul>
+        <li>Comercialización ACB / Euroliga (2 comerciales + marketing)</li>
+        <li>Integración Stripe + onboarding automatizado de clubes</li>
+        <li>Soporte 24/7 tier Elite + certificaciones</li>
+      </ul>
+      <blockquote>El producto no es un mockup. Es un MVP premium funcional listo para vender hoy.</blockquote>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide title-slide">
+      <h1>Gracias</h1>
+      <p class="sub">CourtManager Pro — La utilería que el baloncesto profesional necesita</p>
+      <p class="meta">
+        <strong>Demo:</strong> courtmanagerpro.vercel.app<br/>
+        <strong>GitHub:</strong> github.com/ramondelpozokids/courtmanagerpro<br/><br/>
+        ¿Preguntas?
+      </p>
+    </section>
+  </div>
+
+  <nav class="nav" aria-label="Navegación slides">
+    <button id="prev" title="Anterior (←)">‹</button>
+    <span id="counter">1 / 15</span>
+    <button id="next" title="Siguiente (→)">›</button>
+  </nav>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('counter');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    let current = 0;
+
+    function show(i) {
+      current = Math.max(0, Math.min(i, slides.length - 1));
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+    }
+
+    prevBtn.addEventListener('click', () => show(current - 1));
+    nextBtn.addEventListener('click', () => show(current + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(current + 1); }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(current - 1); }
+      if (e.key === 'Home') show(0);
+      if (e.key === 'End') show(slides.length - 1);
+    });
+
+    show(0);
+  </script>
+</body>
+</html>

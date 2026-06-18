@@ -2,50 +2,80 @@
 
 import { useMedical } from "@/hooks/useMedical";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
-import { HeartPulse, Calendar, AlertTriangle, CheckCircle, RefreshCw, Minus, Plus, Search, MapPin } from "lucide-react";
+import { canAccessMedical, canWriteClubData } from "@/lib/permissions";
+import { useMemo, useState } from "react";
+import {
+  HeartPulse, Calendar, AlertTriangle, CheckCircle, RefreshCw, Minus, Plus, Search, MapPin, BriefcaseMedical,
+} from "lucide-react";
+
+const KIT_LABELS: Record<string, string> = {
+  ALL: "Todos los botiquines",
+  "Botiquín Partido": "Botiquín Partido ACB",
+  "Botiquín Viaje": "Botiquín Viaje Euroliga",
+  "Fisioterapia": "Kit Fisioterapia",
+  "Vestuario Principal": "Nevera Vestuario",
+  "Armario Central": "Armario Médico Central",
+};
 
 export default function MedicalStockPage() {
   const { user } = useAuth();
-  const { items, loading, adjustQty, createItem } = useMedical();
+  const { items, loading, adjustQty } = useMedical();
   const [search, setSearch] = useState("");
+  const [kitFilter, setKitFilter] = useState("ALL");
 
-  const hasAccess = ["admin", "equipment_manager", "medical"].includes(user?.profile?.role || "assistant");
+  const role = user?.profile?.role;
+  const hasAccess = canAccessMedical(role);
+  const canEdit = canWriteClubData(role) || role === "medical";
+
+  const stats = useMemo(() => ({
+    total: items.length,
+    expired: items.filter((i) => i.status === "EXPIRED").length,
+    expiring: items.filter((i) => i.status === "EXPIRING_SOON").length,
+    lowStock: items.filter((i) => i.quantity <= i.minQuantity).length,
+  }), [items]);
+
+  const kits = useMemo(() => {
+    const set = new Set(items.map((i) => (i as any).kit || i.location));
+    return ["ALL", ...Array.from(set)];
+  }, [items]);
 
   const getStatusBadge = (status: string, expiry: string) => {
-    switch (status) {
-      case "EXPIRED":
-        return (
-          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-600 uppercase tracking-wide flex items-center gap-1">
-            <AlertTriangle className="h-3 w-3" /> Caducado
-          </span>
-        );
-      case "EXPIRING_SOON":
-        return (
-          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-600 uppercase tracking-wide flex items-center gap-1 animate-pulse">
-            <AlertTriangle className="h-3 w-3" /> Próxima Caducidad ({expiry})
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-600 uppercase tracking-wide flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" /> En Buen Estado
-          </span>
-        );
+    if (status === "EXPIRED") {
+      return (
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 uppercase flex items-center gap-1 w-fit">
+          <AlertTriangle className="h-3 w-3" /> Caducado
+        </span>
+      );
     }
+    if (status === "EXPIRING_SOON") {
+      return (
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-600 uppercase flex items-center gap-1 w-fit animate-pulse">
+          <AlertTriangle className="h-3 w-3" /> Caduca pronto ({expiry})
+        </span>
+      );
+    }
+    return (
+      <span className="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-600 uppercase flex items-center gap-1 w-fit">
+        <CheckCircle className="h-3 w-3" /> OK
+      </span>
+    );
   };
 
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredItems = items.filter((item) => {
+    const kit = (item as any).kit || item.location;
+    const matchesKit = kitFilter === "ALL" || kit === kitFilter;
+    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
+      ((item as any).category || "").toLowerCase().includes(search.toLowerCase());
+    return matchesKit && matchesSearch;
+  });
 
   if (!hasAccess) {
     return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-16 text-center text-slate-400">
+      <div className="bg-white dark:bg-slate-900 border rounded-xl py-16 text-center">
         <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-amber-500" />
-        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Acceso restringido</p>
-        <p className="text-xs mt-1 max-w-xs mx-auto">
-          El módulo de Material Médico y Caducidades de Botiquines solo es accesible para el Administrador, Utillero Jefe y Staff Médico.
+        <p className="text-sm font-bold">Acceso restringido</p>
+        <p className="text-sm mt-1 max-w-md mx-auto text-slate-500">
+          Material médico: Administrador, Carlos Kobe (utilería), staff médico o Superadmin Ramón del Pozo Rott.
         </p>
       </div>
     );
@@ -53,104 +83,116 @@ export default function MedicalStockPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
-        <div>
-          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Material Médico y Botiquines ACB</h2>
-          <p className="text-xs text-slate-400 mt-1">Control sanitario de stock de fisioterapia, sprays fríos, tapes, vendajes y alertas de caducidad.</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Material Médico y Botiquines ACB</h2>
+        <p className="text-sm text-slate-500 mt-1">
+          {stats.total} referencias · {stats.expired} caducadas · {stats.expiring} próximas a caducar · {stats.lowStock} bajo mínimo
+        </p>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl">
-        <div className="relative max-w-md text-left">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar vendas, geles antiinflamatorios, sprays..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-orange-500"
-          />
-        </div>
+      {/* Stats kits */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Referencias", value: stats.total, icon: BriefcaseMedical },
+          { label: "Caducadas", value: stats.expired, icon: AlertTriangle, warn: true },
+          { label: "Próx. caducidad", value: stats.expiring, icon: Calendar, warn: true },
+          { label: "Bajo mínimo", value: stats.lowStock, icon: HeartPulse, warn: true },
+        ].map(({ label, value, icon: Icon, warn }) => (
+          <div key={label} className="bg-white dark:bg-slate-900 border rounded-xl p-4">
+            <Icon className={`h-5 w-5 mb-1 ${warn && value > 0 ? "text-amber-500" : "text-orange-500"}`} />
+            <span className="text-xs font-bold text-slate-400 uppercase">{label}</span>
+            <p className={`text-xl font-black ${warn && value > 0 ? "text-amber-600" : ""}`}>{value}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Grid of Medical Items */}
+      {/* Filtros botiquín */}
+      <div className="flex flex-wrap gap-1.5">
+        {kits.map((kit) => (
+          <button
+            key={kit}
+            type="button"
+            onClick={() => setKitFilter(kit)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              kitFilter === kit ? "bg-orange-500 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600"
+            }`}
+          >
+            {KIT_LABELS[kit] || kit}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Buscar vendas, fármacos, botiquines..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent"
+        />
+      </div>
+
       {loading ? (
-        <div className="py-20 text-center text-slate-400">
+        <div className="py-20 text-center">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto text-orange-500 mb-2" />
-          <p className="text-xs font-semibold">Cargando material sanitario...</p>
+          <p className="text-sm font-semibold text-slate-400">Cargando material sanitario...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-          {filteredItems.map((item) => {
-            return (
-              <div
-                key={item.id}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <HeartPulse className="h-5 w-5 text-red-500" />
-                      <div>
-                        <h3 className="font-extrabold text-sm text-slate-850 dark:text-slate-100 leading-snug">{item.name}</h3>
-                        <span className="text-[10px] text-slate-400 font-medium block mt-0.5">Lote: {item.batchNumber}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="my-4 space-y-2.5 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Estado caducidad:</span>
-                      {getStatusBadge(item.status, item.expiryDate)}
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Fecha caducidad:</span>
-                      <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5 text-slate-400" /> {item.expiryDate}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Ubicación Física:</span>
-                      <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5 text-orange-500" /> {item.location}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Cantidad disponible:</span>
-                      <span className={`font-extrabold ${item.quantity <= item.minQuantity ? "text-amber-500" : "text-emerald-500"}`}>
-                        {item.quantity} unidades (mínimo: {item.minQuantity})
-                      </span>
-                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 text-left">
+          {filteredItems.map((item) => (
+            <div key={item.id} className="bg-white dark:bg-slate-900 border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex items-start gap-2 border-b pb-3">
+                  <HeartPulse className="h-5 w-5 text-red-500 shrink-0" />
+                  <div>
+                    <h3 className="font-extrabold text-sm leading-snug">{item.name}</h3>
+                    <span className="text-xs text-slate-400">Lote {item.batchNumber} · {(item as any).brand || "—"}</span>
+                    {(item as any).kit && (
+                      <span className="text-xs text-orange-600 font-bold block mt-0.5">{(item as any).kit}</span>
+                    )}
                   </div>
                 </div>
-
-                {/* Adjust medicine counts */}
-                <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Control de Stock:</span>
+                <div className="my-3 space-y-2 text-sm">
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-slate-400">Estado</span>
+                    {getStatusBadge(item.status, item.expiryDate)}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Caducidad</span>
+                    <span className="font-bold flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {item.expiryDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ubicación</span>
+                    <span className="font-bold flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-orange-500" /> {item.location}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Stock</span>
+                    <span className={`font-extrabold ${item.quantity <= item.minQuantity ? "text-amber-500" : "text-emerald-600"}`}>
+                      {item.quantity} uds (mín. {item.minQuantity})
+                    </span>
+                  </div>
+                  {(item as any).prescription_required && (
+                    <p className="text-xs text-red-500 font-bold">⚕ Requiere prescripción médica</p>
+                  )}
+                </div>
+              </div>
+              {canEdit && (
+                <div className="pt-3 border-t flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Ajustar stock</span>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => adjustQty(item.id, item.quantity - 1)}
-                      disabled={item.quantity === 0}
-                      className="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30 transition-all"
-                    >
+                    <button type="button" onClick={() => adjustQty(item.id, item.quantity - 1)} disabled={item.quantity === 0} className="p-1 rounded bg-slate-100 dark:bg-slate-800 disabled:opacity-30">
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="font-extrabold text-sm w-8 text-center text-slate-800 dark:text-slate-100">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => adjustQty(item.id, item.quantity + 1)}
-                      className="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all"
-                    >
+                    <span className="font-extrabold w-8 text-center">{item.quantity}</span>
+                    <button type="button" onClick={() => adjustQty(item.id, item.quantity + 1)} className="p-1 rounded bg-slate-100 dark:bg-slate-800">
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

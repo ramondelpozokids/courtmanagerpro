@@ -2,21 +2,38 @@
 
 import { useRequests } from "@/hooks/useRequests";
 import { useAuth } from "@/contexts/AuthContext";
+import { canCreateRequest, canProcessRequests } from "@/lib/permissions";
 import RequestForm from "@/components/requests/RequestForm";
-import { useState } from "react";
-import { PlusCircle, ShoppingBag, CheckCircle, Clock, Trash, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+import { PlusCircle, ShoppingBag, CheckCircle, Clock, RefreshCw, Filter } from "lucide-react";
+
+const CATEGORY_LABELS: Record<string, string> = {
+  ALL: "Todas",
+  equipacion: "Equipación",
+  entrenamiento: "Entrenamiento",
+  calzado: "Calzado",
+  accesorios: "Accesorios",
+};
 
 export default function RequestsPage() {
   const { user } = useAuth();
   const { requests, loading, createRequest, updateStatus } = useRequests();
   const [showAddForm, setShowAddForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
 
   const userRole = user?.profile?.role || "assistant";
   const userId = user?.id || "u1";
-
-  const canProcess = ["admin", "equipment_manager", "assistant"].includes(userRole);
+  const canProcess = canProcessRequests(userRole);
+  const canCreate = canCreateRequest(userRole);
   const isPlayer = userRole === "player";
+
+  const stats = useMemo(() => ({
+    pending: requests.filter((r) => r.status === "pendiente").length,
+    approved: requests.filter((r) => r.status === "aprobada").length,
+    delivered: requests.filter((r) => r.status === "completada").length,
+    total: requests.length,
+  }), [requests]);
 
   const handleCreateRequest = async (reqData: any) => {
     try {
@@ -37,8 +54,10 @@ export default function RequestsPage() {
 
   const visibleRequests = requests.filter((req) => {
     const matchesUser = !isPlayer || req.player_id === userId;
-    const matchesStatus = statusFilter === "ALL" || req.status === statusFilter.toLowerCase();
-    return matchesUser && matchesStatus;
+    const matchesStatus = statusFilter === "ALL" || req.status === statusFilter;
+    const cat = (req as any).category || "equipacion";
+    const matchesCategory = categoryFilter === "ALL" || cat === categoryFilter;
+    return matchesUser && matchesStatus && matchesCategory;
   });
 
   return (
@@ -47,12 +66,13 @@ export default function RequestsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Solicitudes de Equipamiento</h2>
-          <p className="text-xs text-slate-400 mt-1">
-            {isPlayer
-              ? "Tus solicitudes personales de utilería, indumentaria y material deportivo."
-              : "Workflow de peticiones de los jugadores ACB, reposición de material y entregas."}
+          <p className="text-sm text-slate-500 mt-1">
+            {canProcess
+              ? `Workflow de peticiones — ${stats.pending} pendientes · ${stats.approved} aprobadas · ${stats.delivered} entregadas`
+              : "Tus solicitudes personales de utilería e indumentaria."}
           </p>
         </div>
+        {canCreate && (
         <button
           onClick={() => setShowAddForm(true)}
           className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/15"
@@ -60,7 +80,25 @@ export default function RequestsPage() {
           <PlusCircle className="h-4.5 w-4.5" />
           Nueva Petición
         </button>
+        )}
       </div>
+
+      {/* Stats */}
+      {canProcess && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Total", value: stats.total },
+            { label: "Pendientes", value: stats.pending, color: "text-amber-600" },
+            { label: "Aprobadas", value: stats.approved, color: "text-blue-600" },
+            { label: "Entregadas", value: stats.delivered, color: "text-emerald-600" },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="bg-white dark:bg-slate-900 border rounded-xl p-3 text-center">
+              <span className="text-xs font-bold text-slate-400 uppercase">{label}</span>
+              <p className={`text-xl font-black ${color || ""}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Modal request form */}
       {showAddForm && (
@@ -71,31 +109,39 @@ export default function RequestsPage() {
         </div>
       )}
 
-      {/* Filters tabs bar */}
-      <div className="flex gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl w-fit text-left">
-        {["ALL", "PENDING", "APPROVED", "DELIVERED"].map((status) => {
-          const labels: Record<string, string> = {
-            ALL: "Todas",
-            PENDING: "Pendientes",
-            APPROVED: "Aprobadas",
-            DELIVERED: "Entregadas"
-          };
-          const code = status === "ALL" ? "ALL" : status === "PENDING" ? "pendiente" : status === "APPROVED" ? "aprobada" : "completada";
-
-          return (
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
+          {["ALL", "pendiente", "aprobada", "completada"].map((status) => {
+            const labels: Record<string, string> = { ALL: "Todas", pendiente: "Pendientes", aprobada: "Aprobadas", completada: "Entregadas" };
+            return (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                  statusFilter === status ? "bg-white dark:bg-slate-800 text-orange-600 shadow-sm" : "text-slate-500"
+                }`}
+              >
+                {labels[status]}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex gap-1.5 items-center">
+          <Filter className="h-4 w-4 text-slate-400" />
+          {Object.keys(CATEGORY_LABELS).map((cat) => (
             <button
-              key={status}
-              onClick={() => setStatusFilter(status === "ALL" ? "ALL" : code)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                (statusFilter === "ALL" ? "ALL" : statusFilter) === code || (status === "ALL" && statusFilter === "ALL")
-                  ? "bg-white dark:bg-slate-800 text-orange-600 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
+              key={cat}
+              type="button"
+              onClick={() => setCategoryFilter(cat)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
+                categoryFilter === cat ? "bg-orange-500 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
               }`}
             >
-              {labels[status]}
+              {CATEGORY_LABELS[cat]}
             </button>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
       {/* Requests Grid List */}
