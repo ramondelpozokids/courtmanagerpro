@@ -60,7 +60,7 @@ export function usePlayers(teamId: string = 'team-acb-123') {
         .order('dorsal');
 
       if (error) setError(error.message);
-      else setPlayers(data as Player[]);
+      else setPlayers((data || []) as Player[]);
     } catch (err: any) {
       setError(err.message || "Error al cargar jugadores");
     } finally {

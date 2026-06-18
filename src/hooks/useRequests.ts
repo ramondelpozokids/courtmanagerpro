@@ -72,7 +72,7 @@ export function useRequests(teamId: string = 'team-acb-123', filters: RequestFil
 
       const { data, error } = await query;
       if (error) setError(error.message);
-      else setRequests(data as unknown as Request[]);
+      else setRequests((data || []) as unknown as Request[]);
     } catch (err: any) {
       setError(err.message || "Error al cargar solicitudes");
     } finally {
