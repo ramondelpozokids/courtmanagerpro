@@ -4,7 +4,6 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AppProvider } from '@/contexts/AppContext';
 import { ToastContainer } from '@/components/shared/ToastContainer';
-import AppShell from '@/components/layout/AppShell';
 import { SITE_KEYWORDS, SITE_URL } from '@/content/seo';
 
 export const metadata: Metadata = {
@@ -58,9 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <AppProvider>
             <NotificationProvider>
-              <AppShell>
-                {children}
-              </AppShell>
+              {children}
               <ToastContainer />
             </NotificationProvider>
           </AppProvider>

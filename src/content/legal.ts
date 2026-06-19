@@ -4,7 +4,8 @@ export type LegalSlug =
   | 'proteccion-datos'
   | 'politica-cookies'
   | 'mapa-sitio'
-  | 'condiciones-uso';
+  | 'condiciones-uso'
+  | 'seguridad';
 
 export interface LegalPageContent {
   title: string;
@@ -22,7 +23,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Datos identificativos',
-        body: 'Denominación: CourtManager Pro · Contacto: charlie-r-k@hotmail.com · Soporte técnico: ramon.delpozo@realmadrid.com · Dominio de producción: courtmanagerpro.vercel.app',
+        body: 'Denominación: CourtManager Pro · Contacto: charlie-r-k@hotmail.com · Soporte técnico: ramon.delpozo@realmadrid.com',
       },
       {
         heading: 'Objeto',
@@ -59,7 +60,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Conservación y destinatarios',
-        body: 'Los datos se conservan mientras exista relación con el club y durante los plazos legales aplicables. Pueden acceder proveedores tecnológicos (Vercel, Supabase) como encargados de tratamiento con contrato y garantías adecuadas.',
+        body: 'Los datos se conservan mientras exista relación con el club y durante los plazos legales aplicables. Pueden acceder proveedores tecnológicos (hosting, base de datos) como encargados de tratamiento con contrato y garantías adecuadas.',
       },
       {
         heading: 'Tus derechos',
@@ -76,7 +77,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Medidas de seguridad',
-        body: 'Cifrado HTTPS en tránsito (Vercel), Row Level Security (RLS) en Supabase PostgreSQL, control de acceso por roles (admin, equipment_manager, medical, etc.), registro de auditoría en base de datos y segregación entre entorno demo y producción.',
+        body: 'Cifrado HTTPS en tránsito, Row Level Security (RLS) en base de datos PostgreSQL, control de acceso por roles (admin, equipment_manager, medical, etc.), registro de auditoría y segregación entre entorno demo y producción.',
       },
       {
         heading: 'Datos de categorías especiales',
@@ -130,7 +131,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Legal',
-        body: '· Aviso Legal (/aviso-legal) · Política de Privacidad (/politica-privacidad) · Protección de Datos (/proteccion-datos) · Política de Cookies (/politica-cookies) · Condiciones de Uso (/condiciones-uso) · Mapa del Sitio (/mapa-sitio)',
+        body: '· Aviso Legal (/aviso-legal) · Política de Privacidad (/politica-privacidad) · Protección de Datos (/proteccion-datos) · Política de Cookies (/politica-cookies) · Condiciones de Uso (/condiciones-uso) · Seguridad (/seguridad) · Mapa del Sitio (/mapa-sitio)',
       },
       {
         heading: 'Contacto',
@@ -151,7 +152,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Cuentas y roles',
-        body: 'Cada usuario debe utilizar sus credenciales personales. La simulación de roles (superadmin, jugador, etc.) está pensada para demostración y pruebas internas. El usuario es responsable de mantener la confidencialidad de su sesión.',
+        body: 'Cada usuario debe utilizar sus credenciales personales mediante el formulario de inicio de sesión. El acceso sin autorización está prohibido. El usuario es responsable de mantener la confidencialidad de su sesión y cerrar sesión al finalizar.',
       },
       {
         heading: 'Contenidos',
@@ -167,6 +168,39 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
     ],
   },
+  'seguridad': {
+    title: 'Seguridad y Protección de la Plataforma',
+    updated: '19 de junio de 2026',
+    sections: [
+      {
+        body: 'CourtManager Pro implementa medidas de seguridad para proteger la plataforma, los datos del club y la privacidad de los usuarios autorizados. Este documento describe nuestras políticas generales sin revelar detalles técnicos internos que pudieran comprometer la seguridad.',
+      },
+      {
+        heading: 'Acceso y autenticación',
+        body: 'Todo acceso a la plataforma requiere autenticación mediante credenciales personales. Los roles (administrador, superadministrador, utilería, staff médico, etc.) determinan los permisos de cada usuario. Queda prohibido compartir credenciales, acceder con cuentas ajenas o intentar eludir los controles de acceso.',
+      },
+      {
+        heading: 'Protección contra accesos no autorizados',
+        body: 'La plataforma monitoriza intentos de acceso indebido, copia no autorizada de contenidos, extracción masiva de datos y actividades sospechosas. Cualquier intento de hackeo, robo de información, ingeniería inversa del código o uso fraudulento será registrado y puede dar lugar a acciones legales.',
+      },
+      {
+        heading: 'Privacidad de datos',
+        body: 'Los datos personales de jugadores, staff y operaciones del club se tratan conforme al RGPD y la LOPDGDD. Solo el personal autorizado puede acceder a información sensible (tallajes, material médico, logística). Los datos no se comparten con terceros sin base legal.',
+      },
+      {
+        heading: 'Cierre de sesión',
+        body: 'Es obligatorio cerrar sesión al terminar el uso de la plataforma, especialmente en dispositivos compartidos. Utiliza el botón "Salir" del menú superior o del panel lateral. La sesión expira automáticamente tras un periodo de inactividad.',
+      },
+      {
+        heading: 'Propiedad intelectual',
+        body: 'El código fuente, diseño, documentación y contenidos de CourtManager Pro están protegidos por derechos de autor. Queda prohibida la reproducción, distribución o modificación no autorizada. Las marcas de terceros pertenecen a sus respectivos titulares.',
+      },
+      {
+        heading: 'Contacto de seguridad',
+        body: 'Para reportar vulnerabilidades o incidentes de seguridad: charlie-r-k@hotmail.com · Supervisión: ramon.delpozo@realmadrid.com. No divulgues públicamente fallos de seguridad antes de notificarnos.',
+      },
+    ],
+  },
 };
 
 export const footerLegalLinks: { href: string; label: string; slug: LegalSlug }[] = [
@@ -176,4 +210,5 @@ export const footerLegalLinks: { href: string; label: string; slug: LegalSlug }[
   { href: '/politica-cookies', label: 'Política de Cookies', slug: 'politica-cookies' },
   { href: '/mapa-sitio', label: 'Mapa del Sitio', slug: 'mapa-sitio' },
   { href: '/condiciones-uso', label: 'Condiciones de Uso', slug: 'condiciones-uso' },
+  { href: '/seguridad', label: 'Seguridad', slug: 'seguridad' },
 ];

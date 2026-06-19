@@ -8,6 +8,7 @@ import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronUp } from "lucide-react";
 import { footerLegalLinks } from "@/content/legal";
+import { SITE_URL } from "@/content/seo";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const [showScroll, setShowScroll] = useState(false);
@@ -50,26 +51,31 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
           {/* Footer legal + QR instalación PWA */}
           <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 mt-12 flex flex-col lg:flex-row items-center justify-between px-6 pr-24 md:pr-28 gap-6">
-            <div className="text-sm text-slate-500 text-center lg:text-left" suppressHydrationWarning>
-              &copy; {new Date().getFullYear()} <strong className="text-slate-700 dark:text-slate-200">CourtManager Pro</strong>.
-              Creado por <strong>Ramón del Pozo Rott</strong> · Utilería: <strong>Carlos Rodriguez Kobe</strong>
+            <div className="text-sm text-slate-500 text-center lg:text-left space-y-1" suppressHydrationWarning>
+              <p>
+                &copy; {new Date().getFullYear()} <strong className="text-slate-700 dark:text-slate-200">CourtManager Pro</strong>.
+                Todos los derechos reservados.
+              </p>
+              <p className="text-xs">
+                Creado por <strong>Ramón del Pozo Rott</strong> · Utilería: <strong>Carlos Rodriguez Kobe</strong>
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <a
-                href="https://courtmanagerpro.vercel.app"
+                href={`${SITE_URL}/login`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-1 group"
-                title="Escanea para abrir CourtManager Pro en tu móvil"
+                title="Escanea para acceder al portal"
               >
                 <img
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fcourtmanagerpro.vercel.app"
-                  alt="QR CourtManager Pro"
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`${SITE_URL}/login`)}`}
+                  alt="QR acceso CourtManager Pro"
                   className="h-16 w-16 rounded-lg border border-slate-200 dark:border-slate-700 p-1 bg-white"
                 />
                 <span className="text-xs font-bold text-slate-400 group-hover:text-orange-500 transition-colors uppercase tracking-wider">
-                  Instalar App (QR)
+                  Acceso (QR)
                 </span>
               </a>
               <div className="flex flex-wrap gap-3 font-bold uppercase tracking-wider text-xs justify-center text-slate-400">

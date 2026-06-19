@@ -60,6 +60,17 @@ export function useLaundry() {
     }
   };
 
+  const deleteBatch = async (batchId: string) => {
+    try {
+      const res = await fetch(`/api/laundry?batchId=${batchId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete batch");
+      setBatches((prev) => prev.filter((b) => b.id !== batchId));
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   return {
     batches,
     loading,
@@ -67,5 +78,6 @@ export function useLaundry() {
     refetch: fetchLaundry,
     updateBatchStatus,
     createBatch,
+    deleteBatch,
   };
 }

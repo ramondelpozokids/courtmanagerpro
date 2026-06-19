@@ -3,12 +3,18 @@
 import { useTrips } from "@/hooks/useTrips";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import { Plane, Calendar, CheckSquare, Square, CheckCircle, RefreshCw, AlertCircle, ShoppingBag } from "lucide-react";
+import { Plane, Calendar, CheckSquare, Square, CheckCircle, RefreshCw, AlertCircle, ShoppingBag, Plus, Trash2 } from "lucide-react";
 
 export default function TripsPage() {
   const { user } = useAuth();
-  const { trips, loading, packItem } = useTrips();
+  const { trips, loading, packItem, addPackingItem, removePackingItem } = useTrips();
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("Equipaje");
+  const [newItemQty, setNewItemQty] = useState(1);
+
+  const canWrite = ["admin", "equipment_manager", "assistant", "superadmin"].includes(user?.profile?.role || "");
 
   const activeTrip = trips.find((t) => t.id === selectedTripId) || trips[0];
 
@@ -18,6 +24,24 @@ export default function TripsPage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleAddItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeTrip || !newItemName.trim()) return;
+    await addPackingItem(activeTrip.id, {
+      itemName: newItemName.trim(),
+      category: newItemCategory,
+      quantityRequired: newItemQty,
+    });
+    setNewItemName("");
+    setNewItemQty(1);
+    setShowAddItem(false);
+  };
+
+  const handleRemoveItem = async (tripId: string, itemId: string) => {
+    if (!confirm("¿Eliminar esta prenda del equipaje?")) return;
+    await removePackingItem(tripId, itemId);
   };
 
   return (
@@ -124,7 +148,51 @@ export default function TripsPage() {
 
             {/* Checklist items */}
             <div className="space-y-3">
-              <span className="text-[10px] text-slate-400 font-bold uppercase block tracking-wider">Prendas y petates requeridos:</span>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block tracking-wider">Prendas y petates requeridos:</span>
+                {canWrite && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddItem(true)}
+                    className="flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-500"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Añadir equipaje
+                  </button>
+                )}
+              </div>
+
+              {showAddItem && (
+                <form onSubmit={handleAddItem} className="p-3 rounded-xl border border-orange-200 bg-orange-50/30 dark:bg-orange-950/10 space-y-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Nombre de la prenda"
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={newItemCategory}
+                      onChange={(e) => setNewItemCategory(e.target.value)}
+                      placeholder="Categoría"
+                      className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    />
+                    <input
+                      type="number"
+                      min={1}
+                      value={newItemQty}
+                      onChange={(e) => setNewItemQty(Number(e.target.value))}
+                      className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <button type="button" onClick={() => setShowAddItem(false)} className="px-3 py-1.5 text-xs font-bold text-slate-500">Cancelar</button>
+                    <button type="submit" className="px-3 py-1.5 text-xs font-bold bg-orange-500 text-white rounded-lg">Añadir</button>
+                  </div>
+                </form>
+              )}
               
               {activeTrip.packingList.map((packItem) => {
                 return (
@@ -153,13 +221,25 @@ export default function TripsPage() {
                       </div>
                     </div>
 
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
-                      packItem.isPacked
-                        ? "bg-orange-100/60 text-orange-600 dark:bg-orange-950/35"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800"
-                    }`}>
-                      {packItem.quantityRequired} unidades
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                        packItem.isPacked
+                          ? "bg-orange-100/60 text-orange-600 dark:bg-orange-950/35"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800"
+                      }`}>
+                        {packItem.quantityRequired} unidades
+                      </span>
+                      {canWrite && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); handleRemoveItem(activeTrip.id, packItem.id); }}
+                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          title="Eliminar del equipaje"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}

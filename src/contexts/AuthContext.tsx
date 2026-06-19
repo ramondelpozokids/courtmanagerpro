@@ -2,8 +2,16 @@
 
 import React, { createContext, useState, useEffect, useCallback, useContext, type ReactNode } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
-import type { AuthUser, Profile, Team, UserTeam, LoginForm, RegisterForm, UserRole } from '@/types';
+import type { Profile, Team, UserTeam, LoginForm, RegisterForm, UserRole } from '@/types';
 import type { Session } from '@supabase/supabase-js';
+import {
+  findMockCredential,
+  setAuthCookies,
+  clearAuthCookies,
+  ROLE_COOKIE,
+  AUTH_COOKIE,
+} from '@/lib/auth-credentials';
+import { loginWithPasskey } from '@/lib/passkey-client';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -15,11 +23,13 @@ interface AuthContextValue {
   currentTeam: Team | null;
   setCurrentTeam: (team: Team) => void;
   login: (form: LoginForm) => Promise<void>;
+  loginWithBiometric: (email: string) => Promise<void>;
   register: (form: RegisterForm) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
   hasPermission: (roles: string[]) => boolean;
-  switchRole: (role: ExtendedRole) => void; // Interactive role switcher
+  switchRole: (role: ExtendedRole) => void;
+  buildUserFromRole: (role: ExtendedRole, profileOverrides?: Partial<Profile>) => any;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -111,71 +121,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [supabase]);
 
-  // Role switching function for interactive Arena AI playground testing!
-  const switchRole = useCallback((role: ExtendedRole) => {
+  // Role switching — solo roles internos autorizados (sin jugador ni invitado)
+  const buildUserFromRole = useCallback((role: ExtendedRole, profileOverrides?: Partial<Profile>) => {
     let name = "Carlos Rodriguez Kobe";
     let email = "charlie-r-k@hotmail.com";
+    let avatar_url: string | undefined = "/images/carlos_kobe.png";
 
     if (role === "superadmin") {
       name = "Ramón del Pozo Rott";
       email = "ramon.delpozo@realmadrid.com";
+      avatar_url = "/images/ramon-del-pozo.png";
     } else if (role === "admin") {
       name = "Carlos Rodriguez Kobe";
       email = "charlie-r-k@hotmail.com";
+      avatar_url = "/images/carlos_kobe.png";
     } else if (role === "assistant") {
       name = "Marta López";
       email = "marta.lopez@realmadrid.com";
-    } else if (role === "player") {
-      name = "Facundo Campazzo";
-      email = "facu@campazzo.com";
+      avatar_url = undefined;
     } else if (role === "medical") {
       name = "Dr. Xavier Flores";
       email = "dr.flores@realmadrid.com";
+      avatar_url = undefined;
     } else if (role === "coach") {
       name = "Sergio Scariolo";
       email = "scariolo@realmadrid.com";
+      avatar_url = undefined;
     } else if (role === "staff") {
       name = "Asistente Técnico";
       email = "staff@realmadrid.com";
-    } else if (role === "consulta") {
-      name = "Usuario Invitado";
-      email = "guest@realmadrid.com";
+      avatar_url = undefined;
     }
 
     const updatedProfile: Profile = {
       ...defaultMockProfile,
-      role: role === "superadmin" ? "admin" : (role as any), // Map to base role for compatibility
-      full_name: name,
-      email,
-      avatar_url: role === "superadmin" ? "/images/ramon-del-pozo.png" : role === "admin" ? "/images/carlos_kobe.png" : `https://api.dicebear.com/7.x/adventurer/svg?seed=${name}`
+      role: role === "superadmin" ? "admin" : (role as UserRole),
+      full_name: profileOverrides?.full_name || name,
+      email: profileOverrides?.email || email,
+      avatar_url: profileOverrides?.avatar_url || avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${name}`,
     };
 
-    setUser({
-      id: role === "player" ? "p1" : "u_" + role,
-      email,
-      profile: {
-        ...updatedProfile,
-        role: role // Keep extended role in object
-      },
-      teams: [{ team: defaultMockTeam, role: role === "superadmin" ? "admin" : (role as any), is_active: true }],
-      currentTeam: defaultMockTeam
-    });
+    return {
+      id: "u_" + role,
+      email: updatedProfile.email,
+      profile: { ...updatedProfile, role },
+      teams: [{ team: defaultMockTeam, role: role === "superadmin" ? "admin" : (role as UserRole), is_active: true }],
+      currentTeam: defaultMockTeam,
+    };
   }, []);
 
-  const applyDemoUser = useCallback(() => {
-    setUser({
-      id: "u_manager",
-      email: defaultMockProfile.email,
-      profile: defaultMockProfile,
-      teams: defaultMockUserTeams,
-      currentTeam: defaultMockTeam
-    });
+  const switchRole = useCallback((role: ExtendedRole) => {
+    const userData = buildUserFromRole(role);
+    setUser(userData);
     setCurrentTeamState(defaultMockTeam);
-  }, []);
+    setAuthCookies(role);
+  }, [buildUserFromRole]);
+
+  const restoreMockSession = useCallback(() => {
+    if (typeof window === 'undefined') return false;
+    const hasAuth = document.cookie.includes(`${AUTH_COOKIE}=1`);
+    const roleMatch = document.cookie.match(new RegExp(`${ROLE_COOKIE}=([^;]+)`));
+    if (!hasAuth || !roleMatch) return false;
+    const role = roleMatch[1] as ExtendedRole;
+    const userData = buildUserFromRole(role);
+    setUser(userData);
+    setCurrentTeamState(defaultMockTeam);
+    return true;
+  }, [buildUserFromRole]);
 
   useEffect(() => {
     if (isMockMode) {
-      applyDemoUser();
+      restoreMockSession();
       setLoading(false);
       return;
     }
@@ -190,12 +206,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(userData);
           if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
         } else {
-          applyDemoUser();
+          setUser(null);
+          setCurrentTeamState(null);
         }
         setLoading(false);
       }).catch((e: any) => {
         console.error("Session fetch failed:", e);
-        applyDemoUser();
+        setUser(null);
         setLoading(false);
       });
 
@@ -206,7 +223,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(userData);
           if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
         } else {
-          applyDemoUser();
+          setUser(null);
+          setCurrentTeamState(null);
         }
       });
       subscription = res?.data?.subscription;
@@ -220,16 +238,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         subscription.unsubscribe();
       }
     };
-  }, [loadUserData, isMockMode, supabase, applyDemoUser]);
+  }, [loadUserData, isMockMode, supabase, restoreMockSession]);
 
   const login = useCallback(async ({ email, password }: LoginForm) => {
-    if (isMockMode) return;
+    if (isMockMode) {
+      const cred = findMockCredential(email, password);
+      if (!cred) throw new Error('Email o contraseña incorrectos.');
+      const userData = buildUserFromRole(cred.role, {
+        full_name: cred.full_name,
+        email: cred.email,
+        avatar_url: cred.avatar_url,
+      });
+      setUser(userData);
+      setCurrentTeamState(defaultMockTeam);
+      setAuthCookies(cred.role);
+      return;
+    }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
-  }, [isMockMode, supabase]);
+  }, [isMockMode, supabase, buildUserFromRole]);
+
+  const loginWithBiometric = useCallback(async (email: string) => {
+    const result = await loginWithPasskey(email);
+    const userData = buildUserFromRole(result.role as ExtendedRole, {
+      full_name: result.full_name,
+      email: result.email,
+      avatar_url: result.avatar_url,
+    });
+    setUser(userData);
+    setCurrentTeamState(defaultMockTeam);
+    setAuthCookies(result.role);
+  }, [buildUserFromRole]);
 
   const register = useCallback(async ({ email, password, full_name, role }: RegisterForm) => {
-    if (isMockMode) return;
+    if (isMockMode) {
+      const userData = buildUserFromRole(role || 'assistant', { full_name, email });
+      setUser(userData);
+      setCurrentTeamState(defaultMockTeam);
+      setAuthCookies(role || 'assistant');
+      return;
+    }
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw new Error(error.message);
     if (data.user) {
@@ -241,15 +289,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [isMockMode, supabase]);
 
   const logout = useCallback(async () => {
+    clearAuthCookies();
     if (isMockMode) {
       setUser(null);
       setCurrentTeamState(null);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
       return;
     }
     await supabase.auth.signOut();
     localStorage.removeItem('currentTeamId');
     setUser(null);
     setCurrentTeamState(null);
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   }, [isMockMode, supabase]);
 
   const updateProfile = useCallback(async (updates: Partial<Profile>) => {
@@ -291,11 +346,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       currentTeam,
       setCurrentTeam,
       login,
+      loginWithBiometric,
       register,
       logout,
       updateProfile,
       hasPermission,
-      switchRole
+      switchRole,
+      buildUserFromRole,
     }}>
       {children}
     </AuthContext.Provider>

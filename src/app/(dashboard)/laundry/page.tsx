@@ -3,11 +3,11 @@
 import { useLaundry } from "@/hooks/useLaundry";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import { Droplet, Wind, CheckCircle, Clock, PlusCircle, RefreshCw, User } from "lucide-react";
+import { Droplet, Wind, CheckCircle, Clock, PlusCircle, RefreshCw, User, Trash2 } from "lucide-react";
 
 export default function LaundryPage() {
   const { user } = useAuth();
-  const { batches, loading, updateBatchStatus, createBatch } = useLaundry();
+  const { batches, loading, updateBatchStatus, createBatch, deleteBatch } = useLaundry();
   const [showAddForm, setShowAddForm] = useState(false);
   
   // Create batch form state
@@ -15,7 +15,12 @@ export default function LaundryPage() {
   const [itemCount, setItemCount] = useState<number>(20);
   const [responsible, setResponsible] = useState("Carlos (Utillero)");
 
-  const canWrite = ["admin", "equipment_manager", "assistant"].includes(user?.profile?.role || "assistant");
+  const canWrite = ["admin", "equipment_manager", "assistant", "superadmin"].includes(user?.profile?.role || "assistant");
+
+  const handleDeleteBatch = async (batchId: string) => {
+    if (!confirm("¿Eliminar este lote de lavandería?")) return;
+    await deleteBatch(batchId);
+  };
 
   const handleCreateBatch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,34 +170,45 @@ export default function LaundryPage() {
                 </div>
 
                 {/* Status adjustment buttons */}
-                {canWrite && batch.status !== "READY" && (
-                  <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex gap-2">
-                    {batch.status === "PENDING" && (
-                      <button
-                        onClick={() => updateBatchStatus(batch.id, "WASHING")}
-                        className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-blue-500/10"
-                      >
-                        Iniciar Lavado (WASH)
-                      </button>
-                    )}
-                    {batch.status === "WASHING" && (
-                      <button
-                        onClick={() => updateBatchStatus(batch.id, "DRYING")}
-                        className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-amber-500/10"
-                      >
-                        Iniciar Secado (DRY)
-                      </button>
-                    )}
-                    {batch.status === "DRYING" && (
-                      <button
-                        onClick={() => updateBatchStatus(batch.id, "READY")}
-                        className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-emerald-500/10"
-                      >
-                        Marcar Listo (READY)
-                      </button>
-                    )}
-                  </div>
-                )}
+                <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex gap-2">
+                  {canWrite && batch.status !== "READY" && (
+                    <>
+                      {batch.status === "PENDING" && (
+                        <button
+                          onClick={() => updateBatchStatus(batch.id, "WASHING")}
+                          className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-blue-500/10"
+                        >
+                          Iniciar Lavado (WASH)
+                        </button>
+                      )}
+                      {batch.status === "WASHING" && (
+                        <button
+                          onClick={() => updateBatchStatus(batch.id, "DRYING")}
+                          className="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-amber-500/10"
+                        >
+                          Iniciar Secado (DRY)
+                        </button>
+                      )}
+                      {batch.status === "DRYING" && (
+                        <button
+                          onClick={() => updateBatchStatus(batch.id, "READY")}
+                          className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-emerald-500/10"
+                        >
+                          Marcar Listo (READY)
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {canWrite && (
+                    <button
+                      onClick={() => handleDeleteBatch(batch.id)}
+                      className="py-2 px-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition-all border border-red-200"
+                      title="Eliminar lote"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

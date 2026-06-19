@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { canAccessMedical, canWriteClubData } from "@/lib/permissions";
 import { useMemo, useState } from "react";
 import {
-  HeartPulse, Calendar, AlertTriangle, CheckCircle, RefreshCw, Minus, Plus, Search, MapPin, BriefcaseMedical,
+  HeartPulse, Calendar, AlertTriangle, CheckCircle, RefreshCw, Minus, Plus, Search, MapPin, BriefcaseMedical, PlusCircle,
 } from "lucide-react";
 
 const KIT_LABELS: Record<string, string> = {
@@ -19,9 +19,15 @@ const KIT_LABELS: Record<string, string> = {
 
 export default function MedicalStockPage() {
   const { user } = useAuth();
-  const { items, loading, adjustQty } = useMedical();
+  const { items, loading, adjustQty, createItem } = useMedical();
   const [search, setSearch] = useState("");
   const [kitFilter, setKitFilter] = useState("ALL");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newLocation, setNewLocation] = useState("Armario Médico Central");
+  const [newQty, setNewQty] = useState(10);
+  const [newMinQty, setNewMinQty] = useState(5);
+  const [newExpiry, setNewExpiry] = useState("2027-12-31");
 
   const role = user?.profile?.role;
   const hasAccess = canAccessMedical(role);
@@ -69,6 +75,20 @@ export default function MedicalStockPage() {
     return matchesKit && matchesSearch;
   });
 
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    await createItem({
+      name: newName.trim(),
+      location: newLocation,
+      quantity: newQty,
+      minQuantity: newMinQty,
+      expiryDate: newExpiry,
+    });
+    setNewName("");
+    setShowAddForm(false);
+  };
+
   if (!hasAccess) {
     return (
       <div className="bg-white dark:bg-slate-900 border rounded-xl py-16 text-center">
@@ -83,12 +103,58 @@ export default function MedicalStockPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Material Médico y Botiquines ACB</h2>
-        <p className="text-sm text-slate-500 mt-1">
-          {stats.total} referencias · {stats.expired} caducadas · {stats.expiring} próximas a caducar · {stats.lowStock} bajo mínimo
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Material Médico y Botiquines ACB</h2>
+          <p className="text-sm text-slate-500 mt-1">
+            {stats.total} referencias · {stats.expired} caducadas · {stats.expiring} próximas a caducar · {stats.lowStock} bajo mínimo
+          </p>
+        </div>
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Añadir producto
+          </button>
+        )}
       </div>
+
+      {showAddForm && (
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <form onSubmit={handleAddProduct} className="bg-white dark:bg-slate-900 border rounded-xl p-6 shadow-lg max-w-md w-full space-y-4 text-left">
+            <h3 className="font-bold text-base">Nuevo producto médico</h3>
+            <div>
+              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Nombre</label>
+              <input type="text" required value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Ubicación / Botiquín</label>
+              <input type="text" value={newLocation} onChange={(e) => setNewLocation(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Stock inicial</label>
+                <input type="number" min={0} value={newQty} onChange={(e) => setNewQty(Number(e.target.value))} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Stock mínimo</label>
+                <input type="number" min={0} value={newMinQty} onChange={(e) => setNewMinQty(Number(e.target.value))} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
+              </div>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Fecha de caducidad</label>
+              <input type="date" value={newExpiry} onChange={(e) => setNewExpiry(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-2 text-xs font-bold text-slate-500">Cancelar</button>
+              <button type="submit" className="px-4 py-2 bg-orange-500 text-white rounded-lg text-xs font-bold">Guardar</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Stats kits */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

@@ -43,6 +43,43 @@ export function useTrips() {
     }
   };
 
+  const addPackingItem = async (
+    tripId: string,
+    item: { itemName: string; category?: string; quantityRequired?: number }
+  ) => {
+    try {
+      const res = await fetch("/api/trips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tripId, action: "addItem", ...item }),
+      });
+      if (!res.ok) throw new Error("Failed to add item");
+      const updatedTrip = await res.json();
+      setTrips((prev) => prev.map((t) => (t.id === tripId ? updatedTrip : t)));
+      return updatedTrip;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const removePackingItem = async (tripId: string, itemId: string) => {
+    try {
+      const res = await fetch("/api/trips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tripId, action: "removeItem", itemId }),
+      });
+      if (!res.ok) throw new Error("Failed to remove item");
+      const updatedTrip = await res.json();
+      setTrips((prev) => prev.map((t) => (t.id === tripId ? updatedTrip : t)));
+      return updatedTrip;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   const createTrip = async (tripData: any) => {
     try {
       const res = await fetch("/api/trips", {
@@ -66,6 +103,8 @@ export function useTrips() {
     error,
     refetch: fetchTrips,
     packItem,
-    createTrip
+    addPackingItem,
+    removePackingItem,
+    createTrip,
   };
 }

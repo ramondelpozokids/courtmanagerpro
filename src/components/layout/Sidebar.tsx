@@ -146,14 +146,14 @@ export function Sidebar() {
         <div className="mx-3 my-1 p-3 rounded-xl bg-slate-950/40 border border-slate-800 text-left space-y-1 shrink-0">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-orange-500 animate-pulse" />
-            <span className="text-[10px] font-black uppercase text-slate-200 tracking-wider">Calendario Oficial</span>
+            <span className="text-xs font-black uppercase text-slate-200 tracking-wider">Calendario Oficial</span>
           </div>
-          <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+          <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
             Fechas oficiales de los partidos del primer equipo de baloncesto.
           </p>
           <Link
             href="/calendario"
-            className="block text-center py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[9px] font-bold transition-all shadow-md"
+            className="block text-center py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-bold transition-all shadow-md"
           >
             Ver Calendario
           </Link>
@@ -165,14 +165,14 @@ export function Sidebar() {
         <div className="mx-3 my-1 p-3 rounded-xl bg-slate-950/40 border border-slate-800 text-left space-y-1 shrink-0">
           <div className="flex items-center gap-1.5">
             <ShoppingBag className="h-3.5 w-3.5 text-orange-400 animate-pulse" />
-            <span className="text-[10px] font-black uppercase text-slate-200 tracking-wider">Tienda Oficial RMB</span>
+            <span className="text-xs font-black uppercase text-slate-200 tracking-wider">Tienda Oficial RMB</span>
           </div>
-          <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+          <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
             Camisetas de juego, jerseis y equipamiento técnico oficial.
           </p>
           <Link
             href="/tienda"
-            className="block text-center py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold transition-all shadow-md"
+            className="block text-center py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition-all shadow-md"
           >
             Ir a la Tienda
           </Link>

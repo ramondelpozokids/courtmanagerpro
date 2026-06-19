@@ -1,0 +1,78 @@
+'use client';
+
+import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
+import { setAuthCookies } from '@/lib/auth-credentials';
+import type { ExtendedRole } from '@/contexts/AuthContext';
+
+export interface PasskeyLoginResult {
+  role: ExtendedRole;
+  email: string;
+  full_name: string;
+  avatar_url?: string;
+}
+
+export async function fetchBiometricStatus(): Promise<Record<string, boolean>> {
+  const res = await fetch('/api/auth/webauthn/status');
+  if (!res.ok) return {};
+  return res.json();
+}
+
+export async function registerPasskey(email: string, password: string): Promise<void> {
+  const optionsRes = await fetch('/api/auth/webauthn/register-options', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!optionsRes.ok) {
+    const err = await optionsRes.json();
+    throw new Error(err.error || 'No se pudo iniciar el registro biométrico');
+  }
+  const options = await optionsRes.json();
+
+  const attestation = await startRegistration({ optionsJSON: options });
+
+  const verifyRes = await fetch('/api/auth/webauthn/register-verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, response: attestation }),
+  });
+  if (!verifyRes.ok) {
+    const err = await verifyRes.json();
+    throw new Error(err.error || 'No se pudo verificar el registro biométrico');
+  }
+}
+
+export async function loginWithPasskey(email: string): Promise<PasskeyLoginResult> {
+  const optionsRes = await fetch('/api/auth/webauthn/login-options', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!optionsRes.ok) {
+    const err = await optionsRes.json();
+    throw new Error(err.error || 'Acceso biométrico no disponible');
+  }
+  const options = await optionsRes.json();
+
+  const assertion = await startAuthentication({ optionsJSON: options });
+
+  const verifyRes = await fetch('/api/auth/webauthn/login-verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, response: assertion }),
+  });
+  if (!verifyRes.ok) {
+    const err = await verifyRes.json();
+    throw new Error(err.error || 'Autenticación biométrica fallida');
+  }
+
+  const user = await verifyRes.json();
+  setAuthCookies(user.role);
+  return user;
+}
+
+export function isWebAuthnSupported(): boolean {
+  return typeof window !== 'undefined'
+    && window.PublicKeyCredential !== undefined
+    && typeof window.PublicKeyCredential === 'function';
+}

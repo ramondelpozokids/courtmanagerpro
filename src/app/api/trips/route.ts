@@ -9,6 +9,35 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    // Adding a packing item
+    if (body.tripId && body.action === 'addItem') {
+      const trip = db.trips.find((t) => t.id === body.tripId) as any;
+      if (!trip) return NextResponse.json({ error: "Trip not found" }, { status: 404 });
+
+      const newItem = {
+        id: "pi_" + Math.random().toString(36).substr(2, 9),
+        itemName: body.itemName,
+        category: body.category || "General",
+        quantityRequired: body.quantityRequired || 1,
+        quantityPacked: 0,
+        isPacked: false,
+      };
+      trip.packingList.push(newItem);
+      trip.status = "PLANNING";
+      return NextResponse.json(trip);
+    }
+
+    // Removing a packing item
+    if (body.tripId && body.action === 'removeItem' && body.itemId) {
+      const trip = db.trips.find((t) => t.id === body.tripId) as any;
+      if (!trip) return NextResponse.json({ error: "Trip not found" }, { status: 404 });
+
+      trip.packingList = trip.packingList.filter((pi: any) => pi.id !== body.itemId);
+      const allPacked = trip.packingList.length > 0 && trip.packingList.every((pi: any) => pi.isPacked);
+      trip.status = allPacked ? "READY" : "PLANNING";
+      return NextResponse.json(trip);
+    }
+
     // Packing item action
     if (body.tripId && body.itemId && typeof body.isPacked !== "undefined") {
       const trip = db.trips.find((t) => t.id === body.tripId) as any;
