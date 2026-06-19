@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { SupabaseInventoryRepository } from '@/infrastructure/supabase/repositories/SupabaseInventoryRepository';
 import { isMockMode, mapDemoInventory, shouldUseDemoFallback } from '@/lib/demo-data';
@@ -14,7 +15,7 @@ import type {
 } from '@/types';
 
 export function useInventory(
-  teamId: string = 'team-acb-123',
+  teamId: string = DEFAULT_TEAM_ID,
   initialFilters: InventoryFilters = {},
   initialPagination: PaginationConfig = { page: 1, pageSize: 50 }
 ) {

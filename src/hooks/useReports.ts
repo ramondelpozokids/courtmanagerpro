@@ -3,9 +3,10 @@
 import { useState, useCallback } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { DashboardStats } from '@/types';
 
-export function useReports(teamId: string = 'team-acb-123') {
+export function useReports(teamId: string = DEFAULT_TEAM_ID) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(false);
 

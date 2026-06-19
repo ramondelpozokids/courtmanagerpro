@@ -12,6 +12,7 @@ import {
   AUTH_COOKIE,
 } from '@/lib/auth-credentials';
 import { loginWithPasskey } from '@/lib/passkey-client';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -56,8 +57,9 @@ const defaultMockProfile: Profile = {
   updated_at: new Date().toISOString(),
 };
 
+
 const defaultMockTeam: Team = {
-  id: "team-acb-123",
+  id: DEFAULT_TEAM_ID,
   name: "Real Madrid Baloncesto",
   short_name: "RMB",
   logo_url: null,

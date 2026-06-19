@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createSupabaseServerClient();
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const pageSize = parseInt(searchParams.get('page_size') || '20');
 
   // If no team_id is supplied, fallback to dummy Tenerife ID
-  const activeTeamId = teamId || 'team-acb-123';
+  const activeTeamId = resolveTeamId(teamId);
 
   let query = supabase
     .from('inventory_items')
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = await req.json();
   const { data, error } = await supabase
     .from('inventory_items')
-    .insert({ ...body, team_id: 'team-acb-123' })
+    .insert({ ...body, team_id: DEFAULT_TEAM_ID })
     .select()
     .single();
 

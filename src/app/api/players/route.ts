@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { createPlayerSchema } from '@/lib/validators';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { ApiResponse, Player } from '@/types';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const { data, error } = await supabase
     .from('players')
-    .insert({ ...parsed.data, team_id: "team-acb-123" })
+    .insert({ ...parsed.data, team_id: DEFAULT_TEAM_ID })
     .select()
     .single();
 

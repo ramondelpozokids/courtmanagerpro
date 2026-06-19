@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback, useId } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { scanBirthdayAlerts } from '@/lib/birthday-alerts';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { Alert } from '@/types';
 
-export function useAlerts(teamId: string = 'team-acb-123') {
+export function useAlerts(teamId: string = DEFAULT_TEAM_ID) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);

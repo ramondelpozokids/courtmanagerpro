@@ -6,7 +6,15 @@ import { Request } from "@/types";
 import PlayerSizeChart from "@/components/players/PlayerSizeChart";
 import { ArrowLeft, User, Phone, Mail, Globe, Calendar, RefreshCw, Trophy, Target, Award, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
+import { getSupabaseClient } from "@/infrastructure/supabase/client";
+import {
+  isMockMode,
+  mapDemoPlayerDetail,
+  mapDemoPlayerRequests,
+  shouldUseDemoFallback,
+} from "@/lib/demo-data";
+import { normalizePlayerProfile } from "@/lib/player-profile";
+import { uuidToDemoPlayerId } from "@/lib/team-constants";
 
 interface PlayerProfileProps {
   params: Promise<{ id: string }>;
@@ -22,72 +30,43 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const isMockMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
-                          process.env.NEXT_PUBLIC_SUPABASE_URL.includes("your-project");
+        const mockMode = isMockMode();
 
-        if (isMockMode) {
-          const localP = db.players.find(p => p.id === id);
-          if (localP) {
-            const mappedPlayer = {
-              id: localP.id,
-              full_name: `${localP.firstName} ${localP.lastName}`,
-              dorsal: localP.number,
-              position: localP.position,
-              nationality: localP.nationality || "España",
-              birth_date: localP.birthDate || "1995-01-01",
-              photo_url: localP.imageUrl || null,
-              is_active: localP.status === 'ACTIVE',
-              shirt_size: localP.sizes.jersey,
-              shorts_size: localP.sizes.shorts,
-              shoe_size: Number(localP.sizes.shoes) || 47,
-              jacket_size: localP.sizes.warmupShirt,
-              sock_size: localP.sizes.socks,
-              birth_place: localP.birth_place,
-              weight: localP.weight,
-              height: localP.height,
-              matches_played: localP.matches_played,
-              points: localP.points,
-              rebounds: localP.rebounds,
-              assists: localP.assists,
-              minutes_played: localP.minutes_played,
-              valuation: localP.valuation,
-              debut: localP.debut,
-              trajectory: localP.trajectory,
-              palmares: localP.palmares,
-              profile_url: localP.profile_url,
-              action_image: localP.actionImage || null
-            };
-            setPlayer(mappedPlayer);
-          }
+        if (mockMode) {
+          setPlayer(normalizePlayerProfile(mapDemoPlayerDetail(id)));
+          setRequests(mapDemoPlayerRequests(id));
+          return;
+        }
 
-          const localReqs = db.requests
-            .filter(r => r.playerId === id || r.player_id === id)
-            .map(r => ({
-              id: r.id,
-              player_id: r.playerId || r.player_id,
-              title: r.itemName || r.title,
-              size: r.size,
-              quantity: r.quantity,
-              status: (r.status?.toLowerCase() === "delivered" || r.status?.toLowerCase() === "completada" ? "completada" : r.status?.toLowerCase() || "pendiente") as any,
-              created_at: r.requestDate || r.created_at || new Date().toISOString()
-            }));
-          setRequests(localReqs as any);
+        const supabase = getSupabaseClient() as any;
+        const { data, error } = await supabase
+          .from('players')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error || shouldUseDemoFallback(data ? [data] : null)) {
+          const demoId = uuidToDemoPlayerId(id) ?? id;
+          setPlayer(normalizePlayerProfile(mapDemoPlayerDetail(demoId)));
+          setRequests(mapDemoPlayerRequests(demoId));
+          return;
+        }
+
+        setPlayer(normalizePlayerProfile(data));
+
+        const requestsRes = await fetch('/api/requests');
+        if (requestsRes.ok) {
+          const requestsData = await requestsRes.json();
+          const list = Array.isArray(requestsData) ? requestsData : requestsData.data || [];
+          setRequests(list.filter((r: Request) => r.player_id === id));
         } else {
-          // Fetch player
-          const playerRes = await fetch(`/api/players/${id}`);
-          if (!playerRes.ok) throw new Error();
-          const playerData = await playerRes.json();
-          setPlayer(playerData.data || playerData);
-
-          // Fetch requests and filter for player
-          const requestsRes = await fetch("/api/requests");
-          if (requestsRes.ok) {
-            const requestsData = await requestsRes.json();
-            setRequests(requestsData.filter((r: Request) => r.player_id === id));
-          }
+          setRequests(mapDemoPlayerRequests(id));
         }
       } catch (err) {
         console.error(err);
+        const demoId = uuidToDemoPlayerId(id) ?? id;
+        setPlayer(normalizePlayerProfile(mapDemoPlayerDetail(demoId)));
+        setRequests(mapDemoPlayerRequests(demoId));
       } finally {
         setLoading(false);
       }

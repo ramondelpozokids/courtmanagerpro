@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -7,7 +8,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const teamId = searchParams.get('team_id') || 'team-acb-123';
+  const teamId = resolveTeamId(searchParams.get('team_id'));
   const status = searchParams.get('status');
   const priority = searchParams.get('priority');
 
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       player_id: body.player_id,
       quantity: body.quantity || 1,
       size: body.size || "XL",
-      team_id: 'team-acb-123',
+      team_id: DEFAULT_TEAM_ID,
       requester_id: user.id,
       status: 'pendiente'
     })

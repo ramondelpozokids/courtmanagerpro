@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = (await createSupabaseServerClient()) as any;
@@ -7,7 +8,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const teamId = searchParams.get('team_id') || 'team-acb-123';
+  const teamId = resolveTeamId(searchParams.get('team_id'));
   const unreadOnly = searchParams.get('unread') === 'true';
 
   let query = supabase
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const { error } = await supabase
       .from('alerts')
       .update({ is_read: true, read_at: new Date().toISOString(), read_by: user.id })
-      .eq('team_id', 'team-acb-123')
+      .eq('team_id', DEFAULT_TEAM_ID)
       .eq('is_read', false);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

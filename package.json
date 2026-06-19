@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "seed:roster": "npx tsx scripts/seed-roster.ts",
+    "seed:roster:sql": "npx tsx scripts/seed-roster.ts --sql"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.3.0",

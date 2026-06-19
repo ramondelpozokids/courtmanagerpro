@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { isMockMode, mapDemoRequests, shouldUseDemoFallback } from '@/lib/demo-data';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import type { Request, CreateRequestForm, RequestFilters } from '@/types';
 
-export function useRequests(teamId: string = 'team-acb-123', filters: RequestFilters = {}) {
+export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFilters = {}) {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

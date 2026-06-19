@@ -6,7 +6,7 @@ import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isMockMode, mapDemoPlayers, shouldUseDemoFallback } from '@/lib/demo-data';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
 
-export function usePlayers(teamId: string = 'team-acb-123') {
+export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

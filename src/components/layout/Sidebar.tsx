@@ -7,7 +7,7 @@ import {
   Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
   ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { canAccessMedical, canAccessReports } from '@/lib/permissions';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -36,7 +36,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, currentTeam, logout, hasPermission } = useAuth();
   const { sidebarOpen, toggleSidebar } = useApp();
-  const { unreadCount } = useAlerts(currentTeam?.id || 'team-acb-123');
+  const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
 
   const userRole = user?.profile?.role || 'equipment_manager';
 

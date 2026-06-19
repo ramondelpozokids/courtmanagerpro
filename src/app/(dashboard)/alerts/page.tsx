@@ -1,6 +1,7 @@
 "use client";
 
 import { scanBirthdayAlerts, getUpcomingBirthdays } from "@/lib/birthday-alerts";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/contexts/AuthContext";
 import { canManageAlerts, canViewAlerts } from "@/lib/permissions";
@@ -41,7 +42,7 @@ export default function AlertsPage() {
           <>
           <button
             onClick={() => {
-              const created = scanBirthdayAlerts("team-acb-123");
+              const created = scanBirthdayAlerts(DEFAULT_TEAM_ID);
               const upcoming = getUpcomingBirthdays();
               if (refresh) refresh();
               if (created === 0 && upcoming.length === 0) {
