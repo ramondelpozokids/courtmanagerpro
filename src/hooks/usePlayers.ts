@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isMockMode, mapDemoPlayers, shouldUseDemoFallback } from '@/lib/demo-data';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
 
 export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {

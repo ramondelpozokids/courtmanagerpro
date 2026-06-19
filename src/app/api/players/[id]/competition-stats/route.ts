@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
-import type { CompetitionId } from '@/lib/player-competitions';
+import type { CompetitionId, PlayerCompetitionMap } from '@/lib/player-competitions';
 
 const VALID_COMPETITIONS: CompetitionId[] = [
   'liga_endesa',
@@ -36,7 +36,8 @@ export async function PATCH(req: NextRequest, { params }: Params): Promise<NextR
   }
 
   const metadata = (player.metadata || {}) as Record<string, unknown>;
-  const competitionStats = (metadata.competition_stats || {}) as Record<string, unknown>;
+  const competitionStats = (metadata.competition_stats || {}) as PlayerCompetitionMap;
+  const existing = competitionStats[competition];
 
   competitionStats[competition] = {
     stats: {
@@ -44,7 +45,7 @@ export async function PATCH(req: NextRequest, { params }: Params): Promise<NextR
       updated_at: new Date().toISOString(),
       updated_by: user.id,
     },
-    games: body.games ?? competitionStats[competition]?.games ?? [],
+    games: body.games ?? existing?.games ?? [],
   };
 
   const { data, error } = await supabase

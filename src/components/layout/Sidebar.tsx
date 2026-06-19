@@ -8,6 +8,7 @@ import {
   ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag
 } from 'lucide-react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { cn } from '@/lib/utils';
 import { canAccessMedical, canAccessReports } from '@/lib/permissions';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CourtManager Pro — Elite Basketball Equipment Management Platform</title>
+  <meta name="description" content="SaaS equipment management for ACB and EuroLeague clubs. QR inventory, roster, sizing, travel and alerts. From €49/month." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #060b14;
+      --surface: #0f172a;
+      --card: #111c33;
+      --border: #1e3a5f44;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --orange: #f97316;
+      --orange2: #fb923c;
+      --green: #22c55e;
+      --glow: 0 0 80px #f9731633;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, .display { font-family: 'Space Grotesk', sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    .container { width: min(1200px, 92vw); margin: 0 auto; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(16px);
+      background: #060b14cc;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.9rem 0; gap: 1rem;
+    }
+    .brand { display: flex; align-items: center; gap: 0.65rem; font-weight: 800; font-size: 1.05rem; }
+    .brand img { width: 36px; height: 36px; border-radius: 8px; }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; font-size: 0.88rem; color: var(--muted); }
+    .nav-links a:hover { color: var(--text); }
+    .lang { display: flex; gap: 0.35rem; }
+    .lang a {
+      padding: 0.35rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+      border: 1px solid var(--border);
+    }
+    .lang a.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.85rem 1.5rem; border-radius: 12px; font-weight: 700; font-size: 0.92rem;
+      border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: linear-gradient(135deg, var(--orange), #ea580c); color: #fff; box-shadow: 0 8px 32px #f9731644; }
+    .btn-ghost { background: transparent; border: 1px solid #334155; color: var(--text); }
+    .btn-lg { padding: 1rem 2rem; font-size: 1rem; border-radius: 14px; }
+
+    .hero {
+      min-height: 100vh; padding: 7rem 0 4rem; position: relative;
+      display: flex; align-items: center;
+    }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .hero-bg::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, #f9731622, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 60%, #3b82f622, transparent);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; opacity: 0.15;
+      background-image: linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1.1fr; gap: 3rem; align-items: center; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: #f9731622; border: 1px solid #f9731644; color: var(--orange2);
+      padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem;
+    }
+    .badge::before { content: ''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; }
+    .hero h1 span { background: linear-gradient(135deg, var(--orange), #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-lead { font-size: 1.15rem; color: var(--muted); margin: 1.25rem 0 2rem; max-width: 520px; }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2.5rem; }
+    .hero-stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .stat .num { font-size: 1.75rem; font-weight: 900; color: var(--orange); font-family: 'Space Grotesk', sans-serif; }
+    .stat .lbl { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .hero-visual { position: relative; }
+    .hero-frame {
+      border-radius: 20px; overflow: hidden; border: 1px solid #334155;
+      box-shadow: var(--glow), 0 40px 80px #00000088; background: var(--surface);
+      transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
+      transition: transform 0.5s;
+    }
+    .hero-frame:hover { transform: perspective(1200px) rotateY(0) rotateX(0); }
+    .hero-frame img { width: 100%; height: auto; }
+    .hero-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem;
+      background: linear-gradient(transparent, #060b14ee);
+    }
+    .float-card {
+      position: absolute; background: #1e293bee; backdrop-filter: blur(12px);
+      border: 1px solid #334155; border-radius: 14px; padding: 0.85rem 1.1rem;
+      font-size: 0.82rem; box-shadow: 0 12px 40px #0006; animation: float 4s ease-in-out infinite;
+    }
+    .float-card.a { top: 10%; right: -8%; }
+    .float-card.b { bottom: 18%; left: -10%; animation-delay: -2s; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    .ticker {
+      border-block: 1px solid var(--border); background: #0a1020;
+      padding: 0.85rem 0; overflow: hidden;
+    }
+    .ticker-track {
+      display: flex; gap: 3rem; animation: ticker 30s linear infinite; white-space: nowrap;
+      font-size: 0.85rem; font-weight: 600; color: var(--muted);
+    }
+    .ticker-track span { color: var(--orange); }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    section { padding: 5.5rem 0; }
+    .section-tag { color: var(--orange); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.75rem; }
+    .section-title { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; }
+    .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 640px; margin-bottom: 3rem; }
+
+    .video-section { background: linear-gradient(180deg, transparent, #0a1020, transparent); }
+    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; }
+    .video-wrap {
+      position: relative; border-radius: 20px; overflow: hidden;
+      border: 1px solid #334155; aspect-ratio: 16/10; background: #000;
+      box-shadow: var(--glow);
+    }
+    .video-wrap iframe { width: 100%; height: 100%; border: 0; }
+    .play-badge {
+      position: absolute; top: 1rem; left: 1rem; z-index: 2;
+      background: #ef4444; color: #fff; font-size: 0.7rem; font-weight: 800;
+      padding: 0.3rem 0.65rem; border-radius: 6px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 0.35rem;
+    }
+    .play-badge::before { content: ''; width: 8px; height: 8px; background: #fff; border-radius: 50%; animation: pulse 1.5s infinite; }
+    .steps { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
+    .steps li {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--orange), #ea580c);
+      display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem;
+    }
+
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .feature {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+      padding: 1.75rem; transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature:hover { border-color: #f9731655; transform: translateY(-4px); }
+    .feature-icon { font-size: 1.75rem; margin-bottom: 1rem; }
+    .feature h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature p { font-size: 0.88rem; color: var(--muted); }
+
+    .gallery { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 220px 220px; gap: 1rem; }
+    .gallery-item { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+    .gallery-item:first-child { grid-row: span 2; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-item .cap {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem;
+      background: linear-gradient(transparent, #000c); font-size: 0.8rem; font-weight: 600;
+    }
+
+    .pricing { background: #0a1020; }
+    .billing-toggle {
+      display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .toggle {
+      display: flex; background: var(--surface); border-radius: 999px; padding: 4px; border: 1px solid var(--border);
+    }
+    .toggle button {
+      padding: 0.5rem 1.25rem; border: none; background: transparent; color: var(--muted);
+      border-radius: 999px; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+    }
+    .toggle button.active { background: var(--orange); color: #fff; }
+    .save-badge { background: #22c55e22; color: var(--green); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.7rem; border-radius: 999px; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; align-items: stretch; }
+    .plan {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 2rem; display: flex; flex-direction: column; position: relative;
+    }
+    .plan.featured { border-color: var(--orange); box-shadow: var(--glow); transform: scale(1.03); }
+    .plan-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--orange); color: #fff; font-size: 0.7rem; font-weight: 800;
+      padding: 0.3rem 0.9rem; border-radius: 999px; text-transform: uppercase;
+    }
+    .plan-name { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .plan-price { font-size: 2.8rem; font-weight: 900; font-family: 'Space Grotesk', sans-serif; margin: 0.5rem 0; }
+    .plan-price small { font-size: 1rem; font-weight: 500; color: var(--muted); }
+    .plan-desc { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .plan ul { list-style: none; flex: 1; margin-bottom: 1.5rem; }
+    .plan li { font-size: 0.88rem; padding: 0.4rem 0; color: #cbd5e1; display: flex; gap: 0.5rem; }
+    .plan li::before { content: '✓'; color: var(--green); font-weight: 900; }
+
+    .investor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .metric-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .metric {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;
+    }
+    .metric .val { font-size: 2rem; font-weight: 900; color: var(--orange); font-family: 'Space Grotesk', sans-serif; }
+    .metric .key { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.25rem; }
+    .investor-panel {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border); border-radius: 20px; padding: 2rem;
+    }
+    .investor-panel blockquote {
+      font-size: 1.2rem; font-style: italic; color: #e2e8f0; border-left: 3px solid var(--orange);
+      padding-left: 1.25rem; margin: 1.5rem 0;
+    }
+
+    .team-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; max-width: 700px; }
+    .team-card {
+      display: flex; gap: 1rem; align-items: center;
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem;
+    }
+    .team-card img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #334155; }
+
+    .cta {
+      text-align: center; padding: 5rem 2rem;
+      background: radial-gradient(ellipse at center, #f9731618, transparent 70%);
+      border: 1px solid #f9731633; border-radius: 28px; margin: 2rem 0 4rem;
+    }
+    .cta h2 { font-size: 2.2rem; font-weight: 900; margin-bottom: 1rem; }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 2.5rem 0; color: var(--muted); font-size: 0.85rem;
+    }
+    .footer-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 960px) {
+      .hero-content, .video-grid, .investor-grid, .features-grid, .pricing-grid, .gallery { grid-template-columns: 1fr; }
+      .plan.featured { transform: none; }
+      .nav-links { display: none; }
+      .float-card { display: none; }
+      .gallery { grid-template-rows: auto; }
+      .gallery-item:first-child { grid-row: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="brand">
+      <img src="../../public/logo.png" alt="CourtManager Pro" onerror="this.src='https://courtmanagerpro.vercel.app/logo.png'" />
+      CourtManager Pro
+    </a>
+    <div class="nav-links">
+      <a href="#video">Demo</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#investors">Investors</a>
+    </div>
+    <div style="display:flex;gap:0.75rem;align-items:center">
+      <div class="lang">
+        <a href="es.html">ES</a>
+        <a href="en.html" class="active">EN</a>
+      </div>
+      <a href="https://courtmanagerpro.vercel.app" class="btn btn-primary" style="padding:0.55rem 1rem;font-size:0.82rem">Try demo</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"><div class="hero-grid"></div></div>
+  <div class="container hero-content">
+    <div>
+      <div class="badge">SaaS · Pro basketball · Live MVP</div>
+      <h1>Run equipment ops like a <span>EuroLeague</span> club</h1>
+      <p class="hero-lead">
+        The all-in-one platform for roster, sizing, QR inventory, requests, travel and smart alerts.
+        Less Excel. Less WhatsApp. Full control. ROI from month one.
+      </p>
+      <div class="hero-cta">
+        <a href="https://courtmanagerpro.vercel.app" class="btn btn-primary btn-lg">See live demo →</a>
+        <a href="#pricing" class="btn btn-ghost btn-lg">View plans & pricing</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="num">17</div><div class="lbl">Demo players</div></div>
+        <div class="stat"><div class="num">4</div><div class="lbl">Competitions</div></div>
+        <div class="stat"><div class="num">~€28k</div><div class="lbl">Club savings/year</div></div>
+        <div class="stat"><div class="num">90%+</div><div class="lbl">SaaS gross margin</div></div>
+      </div>
+    </div>
+    <div class="hero-visual reveal">
+      <div class="hero-frame">
+        <img src="../../public/hero.png" alt="CourtManager Pro Dashboard" onerror="this.src='https://courtmanagerpro.vercel.app/hero.png'" />
+        <div class="hero-overlay">
+          <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--orange)">Production dashboard</span>
+          <div style="font-weight:800;font-size:1.1rem;margin-top:0.25rem">Equipment command center</div>
+        </div>
+      </div>
+      <div class="float-card a">📦 QR inventory live</div>
+      <div class="float-card b">✈️ EuroLeague packing ready</div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span>ACB</span> · QR inventory · <span>EuroLeague</span> · Expiry alerts · NBA/ACB sizing ·
+    Real-time requests · <span>6× ROI</span> · KPI dashboard · Pro travel ops ·
+    <span>ACB</span> · QR inventory · <span>EuroLeague</span> · Expiry alerts · NBA/ACB sizing ·
+    Real-time requests · <span>6× ROI</span> · KPI dashboard · Pro travel ops ·
+  </div>
+</div>
+
+<section class="video-section" id="video">
+  <div class="container">
+    <div class="section-tag reveal">Live demo</div>
+    <h2 class="section-title reveal">See CourtManager Pro in action</h2>
+    <p class="section-sub reveal">Explore the app deployed on Vercel. No install. Works from your phone in the arena.</p>
+    <div class="video-grid">
+      <div class="video-wrap reveal">
+        <div class="play-badge">Live</div>
+        <iframe src="https://courtmanagerpro.vercel.app" title="CourtManager Pro Demo" loading="lazy" allow="fullscreen"></iframe>
+      </div>
+      <div>
+        <ol class="steps reveal">
+          <li><span class="step-num">1</span><div><strong>Roster & profiles</strong><br><span style="color:var(--muted);font-size:0.9rem">17 players with stats across Liga Endesa, EuroLeague, Cup & SuperCup.</span></div></li>
+          <li><span class="step-num">2</span><div><strong>Requests & sizing</strong><br><span style="color:var(--muted);font-size:0.9rem">Players request gear; equipment staff approve and deliver with full traceability.</span></div></li>
+          <li><span class="step-num">3</span><div><strong>Travel & alerts</strong><br><span style="color:var(--muted);font-size:0.9rem">Packing lists, low stock, birthdays and medical expiry notifications.</span></div></li>
+          <li><span class="step-num">4</span><div><strong>Executive reports</strong><br><span style="color:var(--muted);font-size:0.9rem">KPIs and CSV exports for sports directors and board members.</span></div></li>
+        </ol>
+        <a href="https://courtmanagerpro.vercel.app/login" class="btn btn-primary" style="margin-top:1.5rem;width:100%">Access the demo →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <div class="section-tag reveal">Full platform</div>
+    <h2 class="section-title reveal">Everything elite equipment staff need</h2>
+    <p class="section-sub reveal">Built for real ACB/EuroLeague workflows — not a generic ERP forced into sports.</p>
+    <div class="features-grid">
+      <div class="feature reveal"><div class="feature-icon">👥</div><h3>Pro roster</h3><p>Player cards with photo, number, position and per-competition stats.</p></div>
+      <div class="feature reveal"><div class="feature-icon">📏</div><h3>Sizing matrix</h3><p>26+ configurable products: shoes, jerseys, travel wear.</p></div>
+      <div class="feature reveal"><div class="feature-icon">📱</div><h3>QR inventory</h3><p>Scan in the arena. SKU-level traceability and location tracking.</p></div>
+      <div class="feature reveal"><div class="feature-icon">📋</div><h3>Requests</h3><p>Pending → approved → delivered workflow with full history.</p></div>
+      <div class="feature reveal"><div class="feature-icon">✈️</div><h3>Travel</h3><p>Competition-specific packing lists. EuroLeague, Cup, preseason.</p></div>
+      <div class="feature reveal"><div class="feature-icon">🧺</div><h3>Laundry</h3><p>Batch control and textile return tracking.</p></div>
+      <div class="feature reveal"><div class="feature-icon">🩺</div><h3>Medical supplies</h3><p>Stock, kits and automatic expiry alerts.</p></div>
+      <div class="feature reveal"><div class="feature-icon">📊</div><h3>KPI dashboard</h3><p>Real-time executive view for sports management.</p></div>
+      <div class="feature reveal"><div class="feature-icon">🔔</div><h3>Smart alerts</h3><p>Birthdays, low stock, expiries — zero surprises.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="container">
+    <div class="gallery reveal">
+      <div class="gallery-item">
+        <img src="../../public/hero.png" alt="Dashboard" onerror="this.src='https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900'" />
+        <div class="cap">Dashboard — Command center</div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1574623452339-09381a5d5c4f?w=600" alt="Inventory" />
+        <div class="cap">Inventory & QR</div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1519861531473-9200262184bf?w=600" alt="Travel" />
+        <div class="cap">EuroLeague travel</div>
+      </div>
+      <div class="gallery-item">
+        <img src="../../public/images/carlos_kobe.png" alt="Equipment manager" onerror="this.src='https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=600'" />
+        <div class="cap">Validated by ACB equipment staff</div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1504450758481-733eedeba991?w=600" alt="Arena" />
+        <div class="cap">Arena-ready operations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-tag reveal">Transparent pricing</div>
+    <h2 class="section-title reveal">Monthly or annual subscription</h2>
+    <p class="section-sub reveal">No lock-in. 14-day trial. Clubs recover the investment in the first month.</p>
+    <div class="billing-toggle reveal">
+      <div class="toggle">
+        <button id="btn-monthly" class="active" type="button">Monthly</button>
+        <button id="btn-annual" type="button">Annual</button>
+      </div>
+      <span class="save-badge">Save 17% on annual</span>
+    </div>
+    <div class="pricing-grid">
+      <div class="plan reveal">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price" data-monthly="49" data-annual="490">€49<small>/mo</small></div>
+        <p class="plan-desc">Youth academies & semi-pro clubs</p>
+        <ul>
+          <li>Up to 25 players</li>
+          <li>Roster & sizing</li>
+          <li>Basic requests</li>
+          <li>Email support</li>
+        </ul>
+        <a href="mailto:info@ramondelpozorott.es?subject=CourtManager%20Starter" class="btn btn-ghost" style="width:100%">Get started</a>
+      </div>
+      <div class="plan featured reveal">
+        <div class="plan-badge">Most popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price" data-monthly="349" data-annual="3490">€349<small>/mo</small></div>
+        <p class="plan-desc">ACB & LEB Oro — professional clubs</p>
+        <ul>
+          <li>Unlimited players</li>
+          <li>QR inventory + travel</li>
+          <li>Laundry & medical</li>
+          <li>CSV reports & KPIs</li>
+          <li>Onboarding included</li>
+        </ul>
+        <a href="mailto:info@ramondelpozorott.es?subject=CourtManager%20Pro" class="btn btn-primary" style="width:100%">Book a demo</a>
+      </div>
+      <div class="plan reveal">
+        <div class="plan-name">Elite</div>
+        <div class="plan-price" data-monthly="1990" data-annual="19900">€1,990<small>/mo</small></div>
+        <p class="plan-desc">EuroLeague & multi-sport operations</p>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>Priority 24/7 support</li>
+          <li>White-label branding</li>
+          <li>API & integrations</li>
+          <li>Dedicated account manager</li>
+        </ul>
+        <a href="mailto:info@ramondelpozorott.es?subject=CourtManager%20Elite" class="btn btn-ghost" style="width:100%">Contact us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="investors">
+  <div class="container">
+    <div class="section-tag reveal">Investment opportunity</div>
+    <h2 class="section-title reveal">A vertical SaaS with elite margins</h2>
+    <div class="investor-grid">
+      <div class="metric-cards reveal">
+        <div class="metric"><div class="val">~€45k</div><div class="key">MVP replacement cost</div></div>
+        <div class="metric"><div class="val">85–90%</div><div class="key">Estimated gross margin</div></div>
+        <div class="metric"><div class="val">€123k</div><div class="key">Year 1 ARR target (realistic)</div></div>
+        <div class="metric"><div class="val">36+</div><div class="key">ACB + EuroLeague clubs (Spain TAM)</div></div>
+      </div>
+      <div class="investor-panel reveal">
+        <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Investment thesis</h3>
+        <p style="color:var(--muted);font-size:0.95rem">CourtManager Pro targets an underserved niche: professional basketball equipment management. No vertical competitor in Spain. Live MVP, validated workflow, minimal cloud costs.</p>
+        <blockquote>"A club losing €20,000/year in gear pays under €4,200 for CourtManager Pro. The ROI sells itself."</blockquote>
+        <p style="font-size:0.9rem;color:var(--muted)"><strong style="color:var(--text)">We are seeking:</strong> a flagship pilot club, sports/SaaS angel investor, or equipment brand partnership.</p>
+        <a href="mailto:info@ramondelpozorott.es?subject=CourtManager%20Pro%20Investment" class="btn btn-primary" style="margin-top:1rem">Request full dossier →</a>
+      </div>
+    </div>
+    <div class="team-grid reveal" style="margin-top:3rem">
+      <div class="team-card">
+        <img src="../../public/images/ramon-del-pozo.png" alt="Ramón del Pozo Rott" onerror="this.src='https://ui-avatars.com/api/?name=Ramon+del+Pozo&background=f97316&color=fff'" />
+        <div><strong>Ramón del Pozo Rott</strong><br><span style="color:var(--muted);font-size:0.85rem">Founder · Product · Engineering</span></div>
+      </div>
+      <div class="team-card">
+        <img src="../../public/images/carlos_kobe.png" alt="Carlos Rodriguez Kobe" onerror="this.src='https://ui-avatars.com/api/?name=Carlos+Kobe&background=334155&color=fff'" />
+        <div><strong>Carlos Rodriguez Kobe</strong><br><span style="color:var(--muted);font-size:0.85rem">Equipment Manager · Operations validation</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="cta reveal">
+      <h2>Ready to leave Excel behind?</h2>
+      <p style="color:var(--muted);margin-bottom:2rem;max-width:520px;margin-inline:auto">Join the next generation of digital equipment management. Free 30-minute demo, no commitment.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <a href="https://courtmanagerpro.vercel.app" class="btn btn-primary btn-lg">Try live demo</a>
+        <a href="mailto:info@ramondelpozorott.es" class="btn btn-ghost btn-lg">info@ramondelpozorott.es</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <strong style="color:var(--text)">CourtManager Pro</strong><br>
+      Smart equipment management for professional basketball<br>
+      © 2026 Ramón del Pozo Rott · All rights reserved
+    </div>
+    <div>
+      <a href="https://courtmanagerpro.vercel.app">courtmanagerpro.vercel.app</a><br>
+      <a href="es.html">Versión en español</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+
+  const btnM = document.getElementById('btn-monthly');
+  const btnA = document.getElementById('btn-annual');
+  const prices = document.querySelectorAll('.plan-price');
+
+  function setBilling(annual) {
+    btnM.classList.toggle('active', !annual);
+    btnA.classList.toggle('active', annual);
+    prices.forEach(el => {
+      const v = annual ? el.dataset.annual : el.dataset.monthly;
+      const suffix = annual ? '/yr' : '/mo';
+      const num = Number(v);
+      const display = num >= 1000 ? num.toLocaleString('en-US') : v;
+      const prefix = el.closest('.plan')?.querySelector('.plan-name')?.textContent === 'Starter' || document.documentElement.lang === 'en' ? '€' : '€';
+      el.innerHTML = prefix + display + '<small>' + suffix + '</small>';
+    });
+  }
+  btnM.addEventListener('click', () => setBilling(false));
+  btnA.addEventListener('click', () => setBilling(true));
+</script>
+</body>
+</html>

@@ -35,3 +35,13 @@ Thumbs.db
 
 # Dossier comercial local — no subir a GitHub
 docs/dossier-lanzamiento-saas/
+
+# Local junk / exports
+page_*
+*.jp2
+Desktop/
+uploads/
+.gitconfig
+.~lock.*
+*.odt#
+Acceso CourtManager Pro.odt
