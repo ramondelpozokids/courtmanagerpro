@@ -58,6 +58,20 @@
     .nav button:disabled { opacity: 0.3; cursor: default; transform: none; }
     .nav span { font-size: 0.85rem; color: #94a3b8; min-width: 4rem; text-align: center; }
 
+    .audio-bar {
+      position: fixed; top: 1rem; right: 1rem; z-index: 100;
+      display: flex; align-items: center; gap: 0.5rem;
+      background: #1e293bee; backdrop-filter: blur(8px); padding: 0.4rem 0.75rem; border-radius: 999px; border: 1px solid #334155;
+    }
+    .audio-bar button {
+      background: #334155; border: none; color: #e2e8f0; padding: 0.35rem 0.75rem; border-radius: 999px;
+      cursor: pointer; font-size: 0.8rem; font-weight: 700; transition: background 0.15s;
+    }
+    .audio-bar button:hover { background: #475569; }
+    .audio-bar button.primary { background: #f97316; color: white; }
+    .audio-bar button.primary:hover { background: #ea580c; }
+    .audio-bar button:disabled { opacity: 0.4; cursor: default; }
+
     .progress { position: fixed; top: 0; left: 0; height: 3px; background: #f97316; transition: width 0.3s; z-index: 100; }
 
     .check { color: #22c55e; }
@@ -71,22 +85,26 @@
 </head>
 <body>
   <div class="progress" id="progress"></div>
+  <div class="audio-bar" aria-label="Controles de audio">
+    <button type="button" id="btnTts" class="primary" title="Voz del navegador (español)">🔊 Escuchar</button>
+    <button type="button" id="btnStop" title="Detener audio">⏹</button>
+  </div>
   <div class="deck" id="deck">
 
     <!-- 1 -->
-    <section class="slide title-slide active">
+    <section class="slide title-slide active" data-narration="CourtManager Pro. SaaS de utilería profesional para baloncesto: inventario, tallajes, viajes y logística ACB y Euroliga. Ramón del Pozo Rott, fundador y creador de la plataforma. Carlos Rodriguez Kobe, utilero del Real Madrid Baloncesto. Junio de 2026.">
       <img src="../../public/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
       <h1>CourtManager <span>Pro</span></h1>
       <p class="sub">SaaS de utilería profesional para baloncesto — inventario, tallajes, viajes y logística ACB/Euroliga</p>
       <p class="meta">
-        <strong>Ramón del Pozo Rott</strong> · Fundador &nbsp;|&nbsp;
+        <strong>Ramón del Pozo Rott</strong> · Fundador & Creador &nbsp;|&nbsp;
         <strong>Carlos Rodriguez Kobe</strong> · Utilero RMB<br/>
-        courtmanagerpro.vercel.app · Junio 2026
+        info@ramondelpozorott.es · Junio 2026
       </p>
     </section>
 
     <!-- 2 -->
-    <section class="slide">
+    <section class="slide" data-narration="El problema. Los clubes de élite pierden entre quince mil y treinta mil euros al año en material extraviado, zapatillas sin trazabilidad, errores de tallaje antes del partido, y retrasos de lavandería. Hoy la utilería se gestiona con Excel, WhatsApp y memoria del utilero. Eso no escala.">
       <h2>El problema</h2>
       <p>Los clubes de élite pierden <span class="highlight">€15.000 – €30.000 al año</span> en:</p>
       <ul>
@@ -99,7 +117,7 @@
     </section>
 
     <!-- 3 -->
-    <section class="slide">
+    <section class="slide" data-narration="Océano azul. Ya existen apps de estadísticas, ERP genéricos y hojas de cálculo. No existía hasta ahora un SaaS solo de utilería, con más de veintiséis tallas por jugador, QR con trazabilidad deportiva, y alertas de cumpleaños, botiquines y viajes.">
       <h2>Océano azul</h2>
       <div class="grid-2">
         <div class="card">
@@ -123,7 +141,7 @@
     </section>
 
     <!-- 4 -->
-    <section class="slide">
+    <section class="slide" data-narration="La solución. Tabla de tallas completa. Inventario QR con escáner. Solicitudes con workflow. Viajes con packing list. Lavandería, material médico e informes. Alertas automáticas de cumpleaños. Demo en producción con plantilla Real Madrid Baloncesto 2025-2026.">
       <h2>La solución</h2>
       <ul>
         <li><strong>Tabla de tallas</strong> — equipación oficial, entrenamiento, chándal, calzado, accesorios</li>
@@ -137,7 +155,7 @@
     </section>
 
     <!-- 5 -->
-    <section class="slide">
+    <section class="slide" data-narration="MVP en producción hoy. Treinta y cinco rutas, PWA instalable, diecisiete jugadores, ocho staff, quince referencias médicas, roles granulares, auditoría técnica y SEO. Stack: Next.js 15, React 19, Supabase y Vercel.">
       <h2>MVP en producción hoy</h2>
       <ul>
         <li><span class="check">✓</span> 35 rutas · Vercel · 0 errores build</li>
@@ -150,7 +168,7 @@
     </section>
 
     <!-- 6 -->
-    <section class="slide">
+    <section class="slide" data-narration="Demo en sesenta segundos. Carlos entra como admin. Alerta de cumpleaños. Aprueba solicitud de camiseta. Escanea QR y actualiza stock. Exporta CSV de tallas para Euroliga.">
       <h2>Demo en 60 segundos</h2>
       <ol style="padding-left:1.4rem">
         <li>Carlos entra como administrador de utilería</li>
@@ -163,7 +181,7 @@
     </section>
 
     <!-- 7 -->
-    <section class="slide">
+    <section class="slide" data-narration="Modelo de negocio. Plan Amateur cuarenta y nueve euros. Plan Pro de doscientos noventa y nueve a cuatrocientos noventa y nueve. Plan Elite de mil quinientos a tres mil quinientos euros al mes. Cobro recurrente Stripe con suspensión automática si falla el pago.">
       <h2>Modelo de negocio</h2>
       <table>
         <tr><th>Plan</th><th>Cliente</th><th>Precio/mes</th></tr>
@@ -175,7 +193,7 @@
     </section>
 
     <!-- 8 -->
-    <section class="slide">
+    <section class="slide" data-narration="Unit economics. Cien clubes Pro generan casi treinta mil euros MRR. Infraestructura unos cincuenta euros al mes. Margen bruto superior al noventa por ciento. Ahorro club quince a treinta mil euros al año. ROI en el primer mes.">
       <h2>Unit economics</h2>
       <div class="grid-2">
         <div class="card"><div class="label">100 clubes Pro × €299</div><div class="value">€29.900 MRR</div></div>
@@ -187,7 +205,7 @@
     </section>
 
     <!-- 9 -->
-    <section class="slide">
+    <section class="slide" data-narration="Mercado TAM. ACB, Euroliga, Europa, NCAA y Asia. Un millón ochocientos mil euros ARR con quinientos clubes a doscientos noventa y nueve euros, estimación conservadora. Expansión a fútbol, balonmano e hockey.">
       <h2>Mercado (TAM)</h2>
       <ul>
         <li>ACB: 18 equipos · Euroliga: 18+ · Europa/NCAA/Asia: miles</li>
@@ -198,7 +216,7 @@
     </section>
 
     <!-- 10 -->
-    <section class="slide">
+    <section class="slide" data-narration="Go-to-market. Fase uno: tres pilotos de pago. Fase dos: ACB, LEB y federaciones. Fase tres: Euroliga, App Store e IoT con básculas.">
       <h2>Go-to-market</h2>
       <table>
         <tr><th>Fase</th><th>Plazo</th><th>Objetivo</th></tr>
@@ -209,7 +227,7 @@
     </section>
 
     <!-- 11 -->
-    <section class="slide">
+    <section class="slide" data-narration="Ventaja competitiva. Validación real con utilero ACB. PWA en treinta segundos. Veintiséis productos de talla. Multi-tenant con Supabase. Coste marginal casi cero.">
       <h2>Ventaja competitiva</h2>
       <ul>
         <li><strong>Validación real</strong> — co-creado con utilero plantilla ACB</li>
@@ -221,18 +239,18 @@
     </section>
 
     <!-- 12 -->
-    <section class="slide">
+    <section class="slide" data-narration="Equipo. Ramón del Pozo Rott, fundador y creador de CourtManager Pro. Carlos Rodriguez Kobe, co-fundador operativo y utilero RMB. Contacto: charlie arroba hotmail punto com e info arroba ramondelpozorott punto es.">
       <h2>Equipo</h2>
       <table>
         <tr><th>Persona</th><th>Rol</th></tr>
-        <tr><td><strong>Ramón del Pozo Rott</strong></td><td>Fundador · Producto · Superadmin · Visión SaaS</td></tr>
+        <tr><td><strong>Ramón del Pozo Rott</strong></td><td>Fundador · Creador · Producto · Superadmin · Visión SaaS</td></tr>
         <tr><td><strong>Carlos Rodriguez Kobe</strong></td><td>Co-fundador operativo · Utilero RMB · UX real · Soporte</td></tr>
       </table>
-      <p style="margin-top:1rem">charlie-r-k@hotmail.com · ramon.delpozo@realmadrid.com · +34 637 23 71 00</p>
+      <p style="margin-top:1rem">charlie-r-k@hotmail.com · info@ramondelpozorott.es · +34 637 23 71 00</p>
     </section>
 
     <!-- 13 -->
-    <section class="slide">
+    <section class="slide" data-narration="Roadmap doce meses. Tercer trimestre 2026: Stripe y tres pilotos. Cuarto trimestre: diez clubes Pro. Primer trimestre 2027: federación. Segundo trimestre: tier Elite e IoT.">
       <h2>Roadmap 12 meses</h2>
       <table>
         <tr><th>Trimestre</th><th>Hitos</th></tr>
@@ -244,7 +262,7 @@
     </section>
 
     <!-- 14 -->
-    <section class="slide">
+    <section class="slide" data-narration="The Ask. Buscamos socio estratégico o pre-seed para comercialización, Stripe y onboarding, y soporte tier Elite. El producto no es un mockup: es un MVP premium listo para vender hoy.">
       <h2>The Ask</h2>
       <p><strong>Buscamos:</strong> socio estratégico o ronda pre-seed para:</p>
       <ul>
@@ -256,7 +274,7 @@
     </section>
 
     <!-- 15 -->
-    <section class="slide title-slide">
+    <section class="slide title-slide" data-narration="Gracias. CourtManager Pro, la utilería que el baloncesto profesional necesita. ¿Preguntas?">
       <h1>Gracias</h1>
       <p class="sub">CourtManager Pro — La utilería que el baloncesto profesional necesita</p>
       <p class="meta">
@@ -279,9 +297,44 @@
     const counter = document.getElementById('counter');
     const prevBtn = document.getElementById('prev');
     const nextBtn = document.getElementById('next');
+    const btnTts = document.getElementById('btnTts');
+    const btnStop = document.getElementById('btnStop');
     let current = 0;
+    let slideAudio = null;
+
+    function stopAudio() {
+      window.speechSynthesis.cancel();
+      if (slideAudio) {
+        slideAudio.pause();
+        slideAudio.currentTime = 0;
+        slideAudio = null;
+      }
+    }
+
+    function playSlideAudio(index) {
+      stopAudio();
+      const slide = slides[index];
+      const mp3 = `audio/slide-${String(index + 1).padStart(2, '0')}.mp3`;
+      slideAudio = new Audio(mp3);
+      slideAudio.onerror = () => {
+        slideAudio = null;
+        const text = slide.dataset.narration;
+        if (!text || !window.speechSynthesis) return;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'es-ES';
+        utter.rate = 0.92;
+        const voices = speechSynthesis.getVoices();
+        const es = voices.find(v => v.lang.startsWith('es'));
+        if (es) utter.voice = es;
+        speechSynthesis.speak(utter);
+      };
+      slideAudio.play().catch(() => {
+        slideAudio.dispatchEvent(new Event('error'));
+      });
+    }
 
     function show(i) {
+      stopAudio();
       current = Math.max(0, Math.min(i, slides.length - 1));
       slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
       counter.textContent = `${current + 1} / ${slides.length}`;
@@ -292,6 +345,8 @@
 
     prevBtn.addEventListener('click', () => show(current - 1));
     nextBtn.addEventListener('click', () => show(current + 1));
+    btnTts.addEventListener('click', () => playSlideAudio(current));
+    btnStop.addEventListener('click', stopAudio);
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(current + 1); }
@@ -299,6 +354,11 @@
       if (e.key === 'Home') show(0);
       if (e.key === 'End') show(slides.length - 1);
     });
+
+    if (window.speechSynthesis) {
+      speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+    }
 
     show(0);
   </script>

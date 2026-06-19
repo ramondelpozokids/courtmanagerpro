@@ -11,7 +11,7 @@ export interface MockCredential {
 /** Credenciales de demostración — sustituir por Supabase Auth en producción. */
 export const MOCK_CREDENTIALS: MockCredential[] = [
   {
-    email: 'ramon.delpozo@realmadrid.com',
+    email: 'info@ramondelpozorott.es',
     password: 'superadmin2026',
     role: 'superadmin',
     full_name: 'Ramón del Pozo Rott',
@@ -46,7 +46,7 @@ export const MOCK_CREDENTIALS: MockCredential[] = [
 
 export const BIOMETRIC_QUICK_ACCESS = [
   {
-    email: 'ramon.delpozo@realmadrid.com',
+    email: 'info@ramondelpozorott.es',
     name: 'Ramón del Pozo Rott',
     shortName: 'Ramón',
     avatar: '/images/ramon-del-pozo.png',

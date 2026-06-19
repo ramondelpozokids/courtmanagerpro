@@ -57,7 +57,7 @@ export function updatePasskeyCounter(credentialID: string, counter: number): voi
 /** Estado de passkeys registradas (para UI). */
 export function getBiometricStatus(): Record<string, boolean> {
   const status: Record<string, boolean> = {};
-  for (const email of ['ramon.delpozo@realmadrid.com', 'charlie-r-k@hotmail.com']) {
+  for (const email of ['info@ramondelpozorott.es', 'charlie-r-k@hotmail.com']) {
     status[email] = hasPasskey(email);
   }
   return status;

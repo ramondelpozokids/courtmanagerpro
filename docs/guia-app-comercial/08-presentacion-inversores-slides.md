@@ -150,7 +150,7 @@ Euroliga · App Store (Capacitor) · IoT básculas equipaje
 | **Carlos Rodriguez Kobe** | Co-fundador operativo · Utilero RMB · UX real · Soporte |
 
 
-Contacto: [charlie-r-k@hotmail.com](mailto:charlie-r-k@hotmail.com) · [ramon.delpozo@realmadrid.com](mailto:ramon.delpozo@realmadrid.com)  
+Contacto: [charlie-r-k@hotmail.com](mailto:charlie-r-k@hotmail.com) · [info@ramondelpozorott.es](mailto:info@ramondelpozorott.es)  
 WhatsApp utilería: +34 637 23 71 00
 
 # Roadmap 12 meses

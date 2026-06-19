@@ -1,7 +1,7 @@
 import { SITE_URL } from '@/content/seo';
 
 export const BIOMETRIC_USERS = [
-  'ramon.delpozo@realmadrid.com',
+  'info@ramondelpozorott.es',
   'charlie-r-k@hotmail.com',
 ] as const;
 

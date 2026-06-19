@@ -4,7 +4,7 @@
 
 | Rol | Usuario | Acceso |
 |-----|---------|--------|
-| **Superadmin** | Ramón del Pozo Rott · `ramon.delpozo@realmadrid.com` | Bypass total — todo visible y editable |
+| **Superadmin** | Ramón del Pozo Rott · `info@ramondelpozorott.es` | Bypass total — todo visible y editable |
 | **Administrador utilería** | Carlos Rodriguez Kobe · `charlie-r-k@hotmail.com` | Inventario, tallas, solicitudes, informes, médico, alertas |
 | **Utillero asistente** | Rol simulado | Operativa diaria sin superadmin |
 | **Staff médico** | Rol simulado | Botiquines + alertas sanitarias |

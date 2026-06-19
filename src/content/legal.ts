@@ -19,11 +19,11 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
     updated: '18 de junio de 2026',
     sections: [
       {
-        body: 'En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa que el titular de este sitio web es CourtManager Pro, plataforma de gestión de utilería deportiva desarrollada por Ramón del Pozo Rott y administrada operativamente por Carlos Rodriguez Kobe en el entorno del Real Madrid Baloncesto (demostración técnica temporada 2025/2026).',
+        body: 'En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa que el titular de este sitio web es CourtManager Pro, plataforma de gestión de utilería deportiva creada por Ramón del Pozo Rott (info@ramondelpozorott.es) y administrada operativamente por Carlos Rodriguez Kobe. La demo utiliza datos del Real Madrid Baloncesto con fines demostrativos (temporada 2025/2026).',
       },
       {
         heading: 'Datos identificativos',
-        body: 'Denominación: CourtManager Pro · Contacto: charlie-r-k@hotmail.com · Soporte técnico: ramon.delpozo@realmadrid.com',
+        body: 'Denominación: CourtManager Pro · Creador: Ramón del Pozo Rott (info@ramondelpozorott.es) · Utilería / contacto operativo: charlie-r-k@hotmail.com',
       },
       {
         heading: 'Objeto',
@@ -89,7 +89,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Delegado / contacto',
-        body: 'Para consultas sobre protección de datos: Carlos Rodriguez Kobe (equipment manager) — charlie-r-k@hotmail.com · Supervisión: Ramón del Pozo Rott — ramon.delpozo@realmadrid.com',
+        body: 'Para consultas sobre protección de datos: Carlos Rodriguez Kobe (equipment manager) — charlie-r-k@hotmail.com · Supervisión: Ramón del Pozo Rott — info@ramondelpozorott.es',
       },
     ],
   },
@@ -135,7 +135,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Contacto',
-        body: 'Carlos Rodriguez Kobe: +34 637 23 71 00 · charlie-r-k@hotmail.com · Ramón del Pozo Rott: ramon.delpozo@realmadrid.com',
+        body: 'Carlos Rodriguez Kobe: +34 637 23 71 00 · charlie-r-k@hotmail.com · Ramón del Pozo Rott: info@ramondelpozorott.es',
       },
     ],
   },
@@ -197,7 +197,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Contacto de seguridad',
-        body: 'Para reportar vulnerabilidades o incidentes de seguridad: charlie-r-k@hotmail.com · Supervisión: ramon.delpozo@realmadrid.com. No divulgues públicamente fallos de seguridad antes de notificarnos.',
+        body: 'Para reportar vulnerabilidades o incidentes de seguridad: charlie-r-k@hotmail.com · Supervisión: info@ramondelpozorott.es. No divulgues públicamente fallos de seguridad antes de notificarnos.',
       },
     ],
   },
