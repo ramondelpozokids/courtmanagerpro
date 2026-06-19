@@ -264,10 +264,11 @@
 <nav>
   <div class="container nav-inner">
     <a href="#" class="brand">
-      <img src="../../public/logo.png" alt="CourtManager Pro" onerror="this.src='https://courtmanagerpro.vercel.app/logo.png'" />
+      <img src="assets/logo.png" alt="CourtManager Pro" />
       CourtManager Pro
     </a>
     <div class="nav-links">
+      <a href="#narration">Narration</a>
       <a href="#video">Demo</a>
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
@@ -306,7 +307,7 @@
     </div>
     <div class="hero-visual reveal">
       <div class="hero-frame">
-        <img src="../../public/hero.png" alt="CourtManager Pro Dashboard" onerror="this.src='https://courtmanagerpro.vercel.app/hero.png'" />
+        <img src="assets/hero.png" alt="CourtManager Pro Dashboard" />
         <div class="hero-overlay">
           <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--orange)">Production dashboard</span>
           <div style="font-weight:800;font-size:1.1rem;margin-top:0.25rem">Equipment command center</div>
@@ -326,6 +327,14 @@
     Real-time requests · <span>6× ROI</span> · KPI dashboard · Pro travel ops ·
   </div>
 </div>
+
+<section id="narration" style="padding:3rem 0 1rem">
+  <div class="container reveal">
+    <div class="section-tag">Voice-guided pitch</div>
+    <h2 class="section-title" style="font-size:1.5rem">Listen to the full project explanation</h2>
+    <p class="section-sub" style="margin-bottom:0">Use the <strong>🎙️ Guided narration</strong> panel bottom-left. It covers the dashboard, modules, pricing, investors and gallery in English (~4 min).</p>
+  </div>
+</section>
 
 <section class="video-section" id="video">
   <div class="container">
@@ -373,23 +382,23 @@
   <div class="container">
     <div class="gallery reveal">
       <div class="gallery-item">
-        <img src="../../public/hero.png" alt="Dashboard" onerror="this.src='https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900'" />
+        <img src="assets/hero.png" alt="Dashboard" />
         <div class="cap">Dashboard — Command center</div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1574623452339-09381a5d5c4f?w=600" alt="Inventory" />
+        <img src="assets/inventory-qr.jpg" alt="Inventory and QR" />
         <div class="cap">Inventory & QR</div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1519861531473-9200262184bf?w=600" alt="Travel" />
+        <img src="assets/euroleague-travel.jpg" alt="EuroLeague travel" />
         <div class="cap">EuroLeague travel</div>
       </div>
       <div class="gallery-item">
-        <img src="../../public/images/carlos_kobe.png" alt="Equipment manager" onerror="this.src='https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=600'" />
+        <img src="assets/carlos_kobe.png" alt="Carlos Rodriguez Kobe" />
         <div class="cap">Validated by ACB equipment staff</div>
       </div>
       <div class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1504450758481-733eedeba991?w=600" alt="Arena" />
+        <img src="assets/arena-operations.jpg" alt="Arena operations" />
         <div class="cap">Arena-ready operations</div>
       </div>
     </div>
@@ -473,11 +482,11 @@
     </div>
     <div class="team-grid reveal" style="margin-top:3rem">
       <div class="team-card">
-        <img src="../../public/images/ramon-del-pozo.png" alt="Ramón del Pozo Rott" onerror="this.src='https://ui-avatars.com/api/?name=Ramon+del+Pozo&background=f97316&color=fff'" />
+        <img src="assets/ramon-del-pozo.png" alt="Ramón del Pozo Rott" />
         <div><strong>Ramón del Pozo Rott</strong><br><span style="color:var(--muted);font-size:0.85rem">Founder · Product · Engineering</span></div>
       </div>
       <div class="team-card">
-        <img src="../../public/images/carlos_kobe.png" alt="Carlos Rodriguez Kobe" onerror="this.src='https://ui-avatars.com/api/?name=Carlos+Kobe&background=334155&color=fff'" />
+        <img src="assets/carlos_kobe.png" alt="Carlos Rodriguez Kobe" />
         <div><strong>Carlos Rodriguez Kobe</strong><br><span style="color:var(--muted);font-size:0.85rem">Equipment Manager · Operations validation</span></div>
       </div>
     </div>
@@ -537,5 +546,6 @@
   btnM.addEventListener('click', () => setBilling(false));
   btnA.addEventListener('click', () => setBilling(true));
 </script>
+<script src="voice.js"></script>
 </body>
 </html>

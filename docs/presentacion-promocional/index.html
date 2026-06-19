@@ -2,10 +2,53 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=es.html" />
-  <title>CourtManager Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CourtManager Pro — Presentación</title>
+  <meta http-equiv="refresh" content="3; url=es.html" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #060b14; color: #f1f5f9; padding: 2rem;
+      background-image: radial-gradient(ellipse at top, #f9731622, transparent 60%);
+    }
+    .card {
+      max-width: 520px; width: 100%; text-align: center;
+      background: #0f172a; border: 1px solid #334155; border-radius: 24px;
+      padding: 2.5rem 2rem; box-shadow: 0 30px 80px #0008;
+    }
+    .logo { width: 56px; height: 56px; border-radius: 12px; margin: 0 auto 1rem; }
+    h1 { font-size: 1.75rem; font-weight: 900; margin-bottom: 0.5rem; }
+    h1 span { color: #f97316; }
+    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.75rem; }
+    .hero-thumb {
+      width: 100%; border-radius: 14px; margin-bottom: 1.75rem;
+      border: 1px solid #334155;
+    }
+    .langs { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    a.btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.85rem 1.5rem; border-radius: 12px; font-weight: 700;
+      text-decoration: none; font-size: 0.92rem; transition: transform 0.15s;
+    }
+    a.btn:hover { transform: translateY(-2px); }
+    a.primary { background: linear-gradient(135deg,#f97316,#ea580c); color: #fff; }
+    a.ghost { border: 1px solid #475569; color: #e2e8f0; }
+    .note { margin-top: 1.25rem; font-size: 0.78rem; color: #64748b; }
+  </style>
 </head>
 <body>
-  <p><a href="es.html">Español</a> · <a href="en.html">English</a></p>
+  <div class="card">
+    <img class="logo" src="assets/logo.png" alt="CourtManager Pro" />
+    <h1>CourtManager <span>Pro</span></h1>
+    <p>Presentación promocional con imágenes locales y narración por voz en español e inglés.</p>
+    <img class="hero-thumb" src="assets/hero.png" alt="Dashboard CourtManager Pro" />
+    <div class="langs">
+      <a class="btn primary" href="es.html">🇪🇸 Español + voz</a>
+      <a class="btn ghost" href="en.html">🇬🇧 English + voice</a>
+    </div>
+    <p class="note">Redirigiendo a español en 3 segundos… Usa el panel 🎙️ abajo a la izquierda para escuchar la presentación.</p>
+  </div>
 </body>
 </html>
