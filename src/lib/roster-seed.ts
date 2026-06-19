@@ -1,4 +1,5 @@
 import { initialPlayers } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { buildPlayerMetadataExtras } from '@/lib/player-profile';
 import { DEFAULT_TEAM_ID, demoPlayerIdToUuid } from '@/lib/team-constants';
 
 export interface RosterSeedRow {
@@ -48,23 +49,7 @@ export function buildRosterSeedRows(): RosterSeedRow[] {
     sock_size: player.sizes?.socks || null,
     jersey_name: player.lastName?.toUpperCase() || null,
     contract_end: '2027-06-30',
-    metadata: {
-      legacy_id: player.id,
-      birth_place: player.birth_place ?? null,
-      weight: player.weight ?? null,
-      height: player.height ?? null,
-      matches_played: player.matches_played ?? null,
-      points: player.points ?? null,
-      rebounds: player.rebounds ?? null,
-      assists: player.assists ?? null,
-      minutes_played: player.minutes_played ?? null,
-      valuation: player.valuation ?? null,
-      debut: player.debut ?? null,
-      trajectory: player.trajectory ?? null,
-      palmares: player.palmares ?? [],
-      profile_url: player.profile_url ?? null,
-      action_image: player.actionImage ?? null,
-    },
+    metadata: buildPlayerMetadataExtras(player),
   }));
 }
 

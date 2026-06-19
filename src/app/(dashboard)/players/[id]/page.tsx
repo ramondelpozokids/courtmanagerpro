@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { Player } from "@/types";
 import { Request } from "@/types";
+import PlayerLeagueStats from "@/components/players/PlayerLeagueStats";
 import PlayerSizeChart from "@/components/players/PlayerSizeChart";
 import { ArrowLeft, User, Phone, Mail, Globe, Calendar, RefreshCw, Trophy, Target, Award, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -215,34 +216,18 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
 
         {/* Right column: Roster Stats & Delivery History */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Extended Statistics Dashboard */}
-          {player.matches_played && (
+          <PlayerLeagueStats
+            competitionStats={player.competition_stats || {}}
+            playerName={player.full_name}
+          />
+
+          {(player.debut || player.trajectory || player.palmares?.length > 0) && (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
               <h3 className="font-extrabold text-slate-850 dark:text-slate-100 text-sm mb-4 flex items-center gap-1.5">
                 <Trophy className="h-5 w-5 text-orange-500" />
-                Estadísticas Oficiales de Competición
+                Trayectoria y Palmarés
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Partidos</span>
-                  <span className="text-2xl font-black text-slate-800 dark:text-slate-100 block mt-1">{player.matches_played}</span>
-                </div>
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Puntos</span>
-                  <span className="text-2xl font-black text-slate-800 dark:text-slate-100 block mt-1">{player.points}</span>
-                </div>
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Rebotes</span>
-                  <span className="text-2xl font-black text-slate-800 dark:text-slate-100 block mt-1">{player.rebounds}</span>
-                </div>
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Asistencias</span>
-                  <span className="text-2xl font-black text-slate-800 dark:text-slate-100 block mt-1">{player.assists}</span>
-                </div>
-              </div>
-
-              {/* Trajectory / Debut */}
-              <div className="mt-5 p-4 bg-orange-50/20 dark:bg-orange-950/5 border border-orange-100 dark:border-orange-950/20 rounded-xl space-y-2 text-xs">
+              <div className="p-4 bg-orange-50/20 dark:bg-orange-950/5 border border-orange-100 dark:border-orange-950/20 rounded-xl space-y-2 text-xs">
                 {player.debut && (
                   <p className="text-slate-700 dark:text-slate-350">
                     <strong>Debut oficial RMB:</strong> {player.debut}
@@ -252,6 +237,16 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
                   <p className="text-slate-700 dark:text-slate-350">
                     <strong>Trayectoria en el club:</strong> {player.trajectory}
                   </p>
+                )}
+                {player.palmares?.length > 0 && (
+                  <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    {player.palmares.map((item: string, idx: number) => (
+                      <li key={idx} className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
             </div>

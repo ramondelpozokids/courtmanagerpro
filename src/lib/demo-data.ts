@@ -1,5 +1,7 @@
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { buildPlayerMetadataExtras } from '@/lib/player-profile';
+import { getPlayerCompetitionStats } from '@/lib/player-competitions';
 import type { Player, Request } from '@/types';
 
 export function isMockMode(): boolean {
@@ -15,6 +17,8 @@ export function shouldUseDemoFallback(rows: unknown[] | null | undefined): boole
 export function mapDemoPlayerDetail(id: string) {
   const localP = db.players.find((p) => p.id === id);
   if (!localP) return null;
+
+  const extras = buildPlayerMetadataExtras(localP);
 
   return {
     id: localP.id,
@@ -44,6 +48,8 @@ export function mapDemoPlayerDetail(id: string) {
     palmares: localP.palmares,
     profile_url: localP.profile_url,
     action_image: localP.actionImage || null,
+    metadata: extras,
+    competition_stats: getPlayerCompetitionStats({ ...localP, metadata: { competition_stats: extras.competition_stats } }),
   };
 }
 
