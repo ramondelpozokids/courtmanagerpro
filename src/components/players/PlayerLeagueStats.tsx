@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Trophy, Calendar, MapPin } from "lucide-react";
+import PlayerCompetitionStatsEditor from "@/components/players/PlayerCompetitionStatsEditor";
 import {
   RMB_COMPETITIONS,
   type CompetitionId,
@@ -10,18 +11,38 @@ import {
 } from "@/lib/player-competitions";
 
 interface PlayerLeagueStatsProps {
+  playerId: string;
   competitionStats: PlayerCompetitionMap;
   playerName: string;
+  canEdit?: boolean;
+  onStatsSaved?: (next: PlayerCompetitionMap) => void;
 }
 
-export default function PlayerLeagueStats({ competitionStats, playerName }: PlayerLeagueStatsProps) {
+export default function PlayerLeagueStats({
+  playerId,
+  competitionStats,
+  playerName,
+  canEdit = false,
+  onStatsSaved,
+}: PlayerLeagueStatsProps) {
+  const [statsMap, setStatsMap] = useState(competitionStats);
+
+  useEffect(() => {
+    setStatsMap(competitionStats);
+  }, [competitionStats]);
+
   const defaultTab =
-    RMB_COMPETITIONS.find((c) => hasCompetitionData(competitionStats, c.id))?.id ?? "liga_endesa";
+    RMB_COMPETITIONS.find((c) => hasCompetitionData(statsMap, c.id))?.id ?? "liga_endesa";
 
   const [activeLeague, setActiveLeague] = useState<CompetitionId>(defaultTab);
-  const active = competitionStats[activeLeague];
+  const active = statsMap[activeLeague];
   const stats = active?.stats;
   const games = active?.games ?? [];
+
+  const handleSaved = (next: PlayerCompetitionMap) => {
+    setStatsMap(next);
+    onStatsSaved?.(next);
+  };
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
@@ -39,7 +60,7 @@ export default function PlayerLeagueStats({ competitionStats, playerName }: Play
       <div className="px-5 pt-4">
         <div className="inline-flex flex-wrap gap-1 p-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700">
           {RMB_COMPETITIONS.map((league) => {
-            const hasData = hasCompetitionData(competitionStats, league.id);
+            const hasData = hasCompetitionData(statsMap, league.id);
             const isActive = activeLeague === league.id;
             return (
               <button
@@ -185,6 +206,14 @@ export default function PlayerLeagueStats({ competitionStats, playerName }: Play
           </div>
         )}
       </div>
+
+      <PlayerCompetitionStatsEditor
+        playerId={playerId}
+        playerName={playerName}
+        competitionStats={statsMap}
+        canEdit={canEdit}
+        onSaved={handleSaved}
+      />
     </div>
   );
 }

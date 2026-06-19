@@ -15,6 +15,8 @@ import {
   shouldUseDemoFallback,
 } from "@/lib/demo-data";
 import { normalizePlayerProfile } from "@/lib/player-profile";
+import { useAuth } from "@/contexts/AuthContext";
+import { canWriteClubData } from "@/lib/permissions";
 import { uuidToDemoPlayerId } from "@/lib/team-constants";
 
 interface PlayerProfileProps {
@@ -23,6 +25,8 @@ interface PlayerProfileProps {
 
 export default function PlayerProfilePage({ params }: PlayerProfileProps) {
   const { id } = use(params);
+  const { user } = useAuth();
+  const canEditStats = canWriteClubData(user?.profile?.role);
   const [player, setPlayer] = useState<any | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
@@ -217,8 +221,15 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
         {/* Right column: Roster Stats & Delivery History */}
         <div className="lg:col-span-2 space-y-6">
           <PlayerLeagueStats
+            playerId={player.id}
             competitionStats={player.competition_stats || {}}
             playerName={player.full_name}
+            canEdit={canEditStats}
+            onStatsSaved={(next) =>
+              setPlayer((prev: any) =>
+                prev ? { ...prev, competition_stats: next, metadata: { ...prev.metadata, competition_stats: next } } : prev
+              )
+            }
           />
 
           {(player.debut || player.trajectory || player.palmares?.length > 0) && (
