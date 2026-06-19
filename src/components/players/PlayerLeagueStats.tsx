@@ -52,7 +52,7 @@ export default function PlayerLeagueStats({
           Estadísticas por Competición
         </h3>
         <p className="text-[10px] text-slate-400 mt-1">
-          Datos oficiales del Real Madrid en las 4 competiciones de la temporada. El club puede actualizar cada liga de forma independiente.
+          Estadísticas copiadas de la web oficial del Real Madrid (realmadrid.com). El club puede actualizar cada liga si cambian en la fuente oficial.
         </p>
       </div>
 
