@@ -23,9 +23,10 @@ export default function RequestsPage() {
   const [categoryFilter, setCategoryFilter] = useState("ALL");
 
   const userRole = user?.profile?.role || "assistant";
+  const userEmail = user?.profile?.email ?? user?.email;
   const userId = user?.id || "u1";
-  const canProcess = canProcessRequests(userRole);
-  const canCreate = canCreateRequest(userRole);
+  const canProcess = canProcessRequests(userRole, userEmail);
+  const canCreate = canCreateRequest(userRole, userEmail);
   const isPlayer = userRole === "player";
 
   const stats = useMemo(() => ({

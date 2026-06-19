@@ -11,6 +11,7 @@ import {
   ROLE_COOKIE,
   AUTH_COOKIE,
 } from '@/lib/auth-credentials';
+import { canModifyProject, hasFullClubAccess } from '@/lib/permissions';
 import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 
@@ -173,11 +174,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const switchRole = useCallback((role: ExtendedRole) => {
+    const currentRole = user?.profile?.role;
+    const email = user?.profile?.email ?? user?.email;
+    if (!canModifyProject(currentRole, email)) {
+      throw new Error('Solo el superadmin (Ramón) puede cambiar la configuración del proyecto.');
+    }
     const userData = buildUserFromRole(role);
     setUser(userData);
     setCurrentTeamState(defaultMockTeam);
     setAuthCookies(role);
-  }, [buildUserFromRole]);
+  }, [buildUserFromRole, user]);
 
   const restoreMockSession = useCallback(() => {
     if (typeof window === 'undefined') return false;
@@ -335,7 +341,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasPermission = useCallback((roles: string[]): boolean => {
     if (!user || !currentTeam) return false;
     const userRole = user?.profile?.role || "assistant";
-    if (userRole === "superadmin") return true; // Superadmin has universal bypass permissions!
+    const email = user?.profile?.email ?? user?.email;
+    if (hasFullClubAccess(userRole, email)) return true;
     const userTeam = user.teams.find((ut: any) => (ut.team as unknown as Team).id === currentTeam.id);
     return userTeam ? roles.includes(userTeam.role) : false;
   }, [user, currentTeam]);

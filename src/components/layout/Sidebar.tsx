@@ -40,10 +40,11 @@ export function Sidebar() {
   const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
 
   const userRole = user?.profile?.role || 'equipment_manager';
+  const userEmail = user?.profile?.email ?? user?.email;
 
   const visibleItems = NAV_ITEMS.filter(item => {
-    if (item.href === '/medical') return canAccessMedical(userRole);
-    if (item.href === '/reports') return canAccessReports(userRole);
+    if (item.href === '/medical') return canAccessMedical(userRole, userEmail);
+    if (item.href === '/reports') return canAccessReports(userRole, userEmail);
     return item.roles.length === 0 || hasPermission(item.roles);
   });
 

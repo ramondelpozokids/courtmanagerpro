@@ -30,8 +30,9 @@ export default function MedicalStockPage() {
   const [newExpiry, setNewExpiry] = useState("2027-12-31");
 
   const role = user?.profile?.role;
-  const hasAccess = canAccessMedical(role);
-  const canEdit = canWriteClubData(role) || role === "medical";
+  const userEmail = user?.profile?.email ?? user?.email;
+  const hasAccess = canAccessMedical(role, userEmail);
+  const canEdit = canWriteClubData(role, userEmail) || role === "medical";
 
   const stats = useMemo(() => ({
     total: items.length,

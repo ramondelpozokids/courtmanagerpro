@@ -20,7 +20,7 @@ export const MOCK_CREDENTIALS: MockCredential[] = [
   {
     email: 'charlie-r-k@hotmail.com',
     password: 'utileria2026',
-    role: 'admin',
+    role: 'equipment_manager',
     full_name: 'Carlos Rodriguez Kobe',
     avatar_url: '/images/carlos_kobe.png',
   },

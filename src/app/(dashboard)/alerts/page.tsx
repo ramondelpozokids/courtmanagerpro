@@ -12,8 +12,9 @@ export default function AlertsPage() {
   const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts();
 
   const userRole = user?.profile?.role;
-  const hasAccess = canViewAlerts(userRole);
-  const canEdit = canManageAlerts(userRole);
+  const userEmail = user?.profile?.email ?? user?.email;
+  const hasAccess = canViewAlerts(userRole, userEmail);
+  const canEdit = canManageAlerts(userRole, userEmail);
 
   if (!hasAccess) {
     return (

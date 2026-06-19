@@ -16,7 +16,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
 
-  const canWrite = canWriteClubData(user?.profile?.role);
+  const canWrite = canWriteClubData(user?.profile?.role, user?.profile?.email ?? user?.email);
 
   const categories = [
     { code: "ALL", name: "Todos" },

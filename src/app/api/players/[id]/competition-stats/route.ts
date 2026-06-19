@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { canModifyProject } from '@/lib/permissions';
+
 import type { CompetitionId, PlayerCompetitionMap } from '@/lib/player-competitions';
 
 const VALID_COMPETITIONS: CompetitionId[] = [
@@ -18,6 +20,21 @@ export async function PATCH(req: NextRequest, { params }: Params): Promise<NextR
   const supabase = (await createSupabaseServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, email')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const role = profile?.role ?? null;
+  const email = profile?.email ?? user.email ?? null;
+  if (!canModifyProject(role, email)) {
+    return NextResponse.json(
+      { error: 'Solo el superadmin puede modificar estadísticas del proyecto' },
+      { status: 403 }
+    );
+  }
 
   const body = await req.json();
   const competition = body.competition as CompetitionId;

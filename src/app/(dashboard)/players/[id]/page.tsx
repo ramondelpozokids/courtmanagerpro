@@ -16,7 +16,7 @@ import {
 } from "@/lib/demo-data";
 import { normalizePlayerProfile } from "@/lib/player-profile";
 import { useAuth } from "@/contexts/AuthContext";
-import { canWriteClubData } from "@/lib/permissions";
+import { canModifyProject } from "@/lib/permissions";
 import { uuidToDemoPlayerId } from "@/lib/team-constants";
 
 interface PlayerProfileProps {
@@ -26,7 +26,7 @@ interface PlayerProfileProps {
 export default function PlayerProfilePage({ params }: PlayerProfileProps) {
   const { id } = use(params);
   const { user } = useAuth();
-  const canEditStats = canWriteClubData(user?.profile?.role);
+  const canEditStats = canModifyProject(user?.profile?.role, user?.profile?.email ?? user?.email);
   const [player, setPlayer] = useState<any | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
