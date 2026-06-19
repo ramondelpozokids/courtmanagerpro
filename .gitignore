@@ -32,3 +32,6 @@ next-env.d.ts
 # OS files
 .DS_Store
 Thumbs.db
+
+# Dossier comercial local — no subir a GitHub
+docs/dossier-lanzamiento-saas/
