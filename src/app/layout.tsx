@@ -5,6 +5,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AppProvider } from '@/contexts/AppContext';
 import { ToastContainer } from '@/components/shared/ToastContainer';
 import { SITE_KEYWORDS, SITE_URL } from '@/content/seo';
+import { SECURITY_SCRIPT } from '@/lib/securityLayers';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </NotificationProvider>
           </AppProvider>
         </AuthProvider>
+        <script dangerouslySetInnerHTML={{ __html: SECURITY_SCRIPT }} />
       </body>
     </html>
   );
