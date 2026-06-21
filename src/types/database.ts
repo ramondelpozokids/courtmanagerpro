@@ -170,6 +170,20 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["webauthn_passkeys"]["Row"]>;
       };
+      webauthn_challenges: {
+        Row: {
+          id: string;
+          challenge_key: string;
+          challenge: string;
+          expires_at: string;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["webauthn_challenges"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["webauthn_challenges"]["Row"]>;
+      };
     };
   };
 }

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { BIOMETRIC_USERS } from '@/lib/webauthn-config';
 import { isProductionApp } from '@/lib/app-mode';
 import { supabaseUrl, supabaseServiceRoleKey } from '@/infrastructure/supabase/env';
+import { credentialIdsMatch, normalizeCredentialId } from '@/lib/webauthn-credential-id';
 
 export interface StoredPasskey {
   email: string;
@@ -15,7 +16,7 @@ export interface StoredPasskey {
 /** Almacén en memoria de passkeys — solo modo demo. */
 const passkeys: StoredPasskey[] = [];
 
-/** Challenges temporales para verificación WebAuthn (expiran en 5 min). */
+/** Challenges en memoria — solo modo demo. */
 const challenges = new Map<string, { challenge: string; expires: number }>();
 
 function getAdminClient() {
@@ -33,22 +34,50 @@ function rowToPasskey(row: {
 }): StoredPasskey {
   return {
     email: row.email,
-    credentialID: row.credential_id,
+    credentialID: normalizeCredentialId(row.credential_id),
     credentialPublicKey: Uint8Array.from(Buffer.from(row.credential_public_key, 'base64')),
     counter: Number(row.counter),
     transports: (row.transports || undefined) as AuthenticatorTransportFuture[] | undefined,
   };
 }
 
-export function setChallenge(key: string, challenge: string): void {
-  challenges.set(key, { challenge, expires: Date.now() + 5 * 60 * 1000 });
+export async function setChallenge(key: string, challenge: string): Promise<void> {
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+
+  if (!isProductionApp()) {
+    challenges.set(key, { challenge, expires: Date.now() + 5 * 60 * 1000 });
+    return;
+  }
+
+  const admin = getAdminClient();
+  const { error } = await admin.from('webauthn_challenges').upsert(
+    { challenge_key: key, challenge, expires_at: expiresAt },
+    { onConflict: 'challenge_key' }
+  );
+  if (error) throw new Error(error.message);
 }
 
-export function consumeChallenge(key: string): string | undefined {
-  const entry = challenges.get(key);
-  challenges.delete(key);
-  if (!entry || entry.expires < Date.now()) return undefined;
-  return entry.challenge;
+export async function consumeChallenge(key: string): Promise<string | undefined> {
+  if (!isProductionApp()) {
+    const entry = challenges.get(key);
+    challenges.delete(key);
+    if (!entry || entry.expires < Date.now()) return undefined;
+    return entry.challenge;
+  }
+
+  const admin = getAdminClient();
+  const { data, error } = await admin
+    .from('webauthn_challenges')
+    .select('challenge, expires_at')
+    .eq('challenge_key', key)
+    .maybeSingle();
+
+  if (error || !data) return undefined;
+
+  await admin.from('webauthn_challenges').delete().eq('challenge_key', key);
+
+  if (new Date(data.expires_at).getTime() < Date.now()) return undefined;
+  return data.challenge;
 }
 
 export async function getPasskeysForEmail(email: string): Promise<StoredPasskey[]> {
@@ -73,26 +102,28 @@ export async function hasPasskey(email: string): Promise<boolean> {
 }
 
 export async function getPasskeyByCredentialId(credentialID: string): Promise<StoredPasskey | undefined> {
+  const normalizedId = normalizeCredentialId(credentialID);
+
   if (!isProductionApp()) {
-    return passkeys.find((p) => p.credentialID === credentialID);
+    return passkeys.find((p) => credentialIdsMatch(p.credentialID, normalizedId));
   }
 
   const admin = getAdminClient();
   const { data } = await admin
     .from('webauthn_passkeys')
-    .select('email, credential_id, credential_public_key, counter, transports')
-    .eq('credential_id', credentialID)
-    .maybeSingle();
+    .select('email, credential_id, credential_public_key, counter, transports');
 
-  return data ? rowToPasskey(data) : undefined;
+  const match = (data || []).find((row) => credentialIdsMatch(row.credential_id, normalizedId));
+  return match ? rowToPasskey(match) : undefined;
 }
 
 export async function savePasskey(passkey: StoredPasskey): Promise<void> {
   const normalized = passkey.email.trim().toLowerCase();
+  const credentialID = normalizeCredentialId(passkey.credentialID);
 
   if (!isProductionApp()) {
-    const existing = passkeys.findIndex((p) => p.credentialID === passkey.credentialID);
-    const entry = { ...passkey, email: normalized };
+    const existing = passkeys.findIndex((p) => credentialIdsMatch(p.credentialID, credentialID));
+    const entry = { ...passkey, email: normalized, credentialID };
     if (existing >= 0) {
       passkeys[existing] = entry;
     } else {
@@ -104,7 +135,7 @@ export async function savePasskey(passkey: StoredPasskey): Promise<void> {
   const admin = getAdminClient();
   const payload = {
     email: normalized,
-    credential_id: passkey.credentialID,
+    credential_id: credentialID,
     credential_public_key: Buffer.from(passkey.credentialPublicKey).toString('base64'),
     counter: passkey.counter,
     transports: passkey.transports || [],
@@ -119,17 +150,31 @@ export async function savePasskey(passkey: StoredPasskey): Promise<void> {
 }
 
 export async function updatePasskeyCounter(credentialID: string, counter: number): Promise<void> {
+  const normalizedId = normalizeCredentialId(credentialID);
+
   if (!isProductionApp()) {
-    const passkey = passkeys.find((p) => p.credentialID === credentialID);
+    const passkey = passkeys.find((p) => credentialIdsMatch(p.credentialID, normalizedId));
     if (passkey) passkey.counter = counter;
     return;
   }
 
   const admin = getAdminClient();
+  const { data } = await admin
+    .from('webauthn_passkeys')
+    .select('credential_id')
+    .eq('credential_id', normalizedId)
+    .maybeSingle();
+
+  const idToUpdate = data?.credential_id
+    || (await admin.from('webauthn_passkeys').select('credential_id')).data
+      ?.find((row) => credentialIdsMatch(row.credential_id, normalizedId))?.credential_id;
+
+  if (!idToUpdate) return;
+
   await admin
     .from('webauthn_passkeys')
     .update({ counter, updated_at: new Date().toISOString() })
-    .eq('credential_id', credentialID);
+    .eq('credential_id', idToUpdate);
 }
 
 /** Estado de passkeys registradas (para UI). */

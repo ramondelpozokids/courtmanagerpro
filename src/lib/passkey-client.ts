@@ -13,6 +13,30 @@ export interface PasskeyLoginResult {
   avatar_url?: string;
 }
 
+const LOCAL_PASSKEY_PREFIX = 'cmp_passkey_local_';
+
+export function hasLocalPasskey(email: string): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(`${LOCAL_PASSKEY_PREFIX}${email.toLowerCase()}`) === '1';
+}
+
+export function markLocalPasskey(email: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(`${LOCAL_PASSKEY_PREFIX}${email.toLowerCase()}`, '1');
+}
+
+function getClientOrigin(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  return window.location.origin;
+}
+
+function webauthnPayload(payload: Record<string, unknown>) {
+  return {
+    ...payload,
+    origin: getClientOrigin(),
+  };
+}
+
 export async function fetchBiometricStatus(): Promise<Record<string, boolean>> {
   const res = await fetch('/api/auth/webauthn/status');
   if (!res.ok) return {};
@@ -23,7 +47,7 @@ export async function registerPasskey(email: string, password: string): Promise<
   const optionsRes = await fetch('/api/auth/webauthn/register-options', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(webauthnPayload({ email, password })),
   });
   if (!optionsRes.ok) {
     const err = await optionsRes.json();
@@ -36,19 +60,21 @@ export async function registerPasskey(email: string, password: string): Promise<
   const verifyRes = await fetch('/api/auth/webauthn/register-verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, response: attestation }),
+    body: JSON.stringify(webauthnPayload({ email, response: attestation })),
   });
   if (!verifyRes.ok) {
     const err = await verifyRes.json();
     throw new Error(err.error || 'No se pudo verificar el registro biométrico');
   }
+
+  markLocalPasskey(email);
 }
 
 export async function loginWithPasskey(email: string): Promise<PasskeyLoginResult> {
   const optionsRes = await fetch('/api/auth/webauthn/login-options', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
+    body: JSON.stringify(webauthnPayload({ email })),
   });
   if (!optionsRes.ok) {
     const err = await optionsRes.json();
@@ -61,7 +87,7 @@ export async function loginWithPasskey(email: string): Promise<PasskeyLoginResul
   const verifyRes = await fetch('/api/auth/webauthn/login-verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, response: assertion }),
+    body: JSON.stringify(webauthnPayload({ email, response: assertion })),
   });
   if (!verifyRes.ok) {
     const err = await verifyRes.json();
@@ -81,6 +107,8 @@ export async function loginWithPasskey(email: string): Promise<PasskeyLoginResul
     setAuthCookies(user.role);
   }
 
+  markLocalPasskey(email);
+
   return {
     role: user.role,
     email: user.email,
@@ -89,7 +117,22 @@ export async function loginWithPasskey(email: string): Promise<PasskeyLoginResul
   };
 }
 
-export function isWebAuthnSupported(): boolean {
+export async function isWebAuthnSupported(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  if (!window.PublicKeyCredential) return false;
+
+  try {
+    if (PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+      return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    }
+  } catch {
+    /* fallback below */
+  }
+
+  return typeof window.PublicKeyCredential === 'function';
+}
+
+export function isWebAuthnSupportedSync(): boolean {
   return typeof window !== 'undefined'
     && window.PublicKeyCredential !== undefined
     && typeof window.PublicKeyCredential === 'function';

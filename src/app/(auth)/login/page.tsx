@@ -8,7 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { BIOMETRIC_QUICK_ACCESS } from '@/lib/auth-credentials';
 import {
   fetchBiometricStatus,
+  hasLocalPasskey,
   isWebAuthnSupported,
+  markLocalPasskey,
   registerPasskey,
 } from '@/lib/passkey-client';
 
@@ -21,15 +23,28 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [bioSupported, setBioSupported] = useState(false);
-  const [passkeyStatus, setPasskeyStatus] = useState<Record<string, boolean>>({});
+  const [localPasskeys, setLocalPasskeys] = useState<Record<string, boolean>>({});
   const [setupUser, setSetupUser] = useState<(typeof BIOMETRIC_QUICK_ACCESS)[number] | null>(null);
   const [setupPassword, setSetupPassword] = useState('');
   const [bioLoading, setBioLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    setBioSupported(isWebAuthnSupported());
-    fetchBiometricStatus().then(setPasskeyStatus);
+    isWebAuthnSupported().then(setBioSupported);
+    fetchBiometricStatus().then(() => {
+      const local: Record<string, boolean> = {};
+      for (const user of BIOMETRIC_QUICK_ACCESS) {
+        local[user.email] = hasLocalPasskey(user.email);
+      }
+      setLocalPasskeys(local);
+    });
   }, []);
+
+  const canEnterWithBiometric = (userEmail: string) => hasLocalPasskey(userEmail);
+
+  const openSetup = (userEmail: string) => {
+    const user = BIOMETRIC_QUICK_ACCESS.find((u) => u.email === userEmail);
+    if (user) setSetupUser(user);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,16 +65,21 @@ export default function LoginPage() {
     setError('');
     setBioLoading(userEmail);
     try {
-      if (!passkeyStatus[userEmail]) {
-        const user = BIOMETRIC_QUICK_ACCESS.find((u) => u.email === userEmail);
-        if (user) setSetupUser(user);
+      if (!canEnterWithBiometric(userEmail)) {
+        openSetup(userEmail);
         return;
       }
       await loginWithBiometric(userEmail);
       router.push('/');
       router.refresh();
     } catch (err: any) {
-      setError(err.message || 'No se pudo completar el acceso biométrico.');
+      const message = err.message || 'No se pudo completar el acceso biométrico.';
+      if (/cancel|abort|not allowed|denied|expired|expirada|reconocida/i.test(message)) {
+        setError(`${message} Prueba a configurar de nuevo en este móvil.`);
+        openSetup(userEmail);
+      } else {
+        setError(message);
+      }
     } finally {
       setBioLoading(null);
     }
@@ -72,7 +92,8 @@ export default function LoginPage() {
     setBioLoading(setupUser.email);
     try {
       await registerPasskey(setupUser.email, setupPassword);
-      setPasskeyStatus((prev) => ({ ...prev, [setupUser.email]: true }));
+      markLocalPasskey(setupUser.email);
+      setLocalPasskeys((prev) => ({ ...prev, [setupUser.email]: true }));
       setSetupUser(null);
       setSetupPassword('');
       await loginWithBiometric(setupUser.email);
@@ -120,7 +141,7 @@ export default function LoginPage() {
                     <span className="flex items-center gap-1 text-[10px] text-orange-600 font-semibold">
                       {bioLoading === user.email ? (
                         'Verificando...'
-                      ) : passkeyStatus[user.email] ? (
+                      ) : canEnterWithBiometric(user.email) ? (
                         <>
                           <Fingerprint className="h-3 w-3" />
                           Entrar
@@ -136,8 +157,7 @@ export default function LoginPage() {
                 ))}
               </div>
               <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-                Usa la huella dactilar o reconocimiento facial de tu dispositivo.
-                La primera vez deberás confirmar con tu contraseña.
+                Cada móvil debe configurarse una vez. Pulsa tu avatar, confirma contraseña y registra huella o Face ID en este dispositivo.
               </p>
             </div>
           )}
@@ -229,13 +249,14 @@ export default function LoginPage() {
               <ScanFace className="h-10 w-10 text-orange-500 mx-auto mb-2" />
               <h3 className="font-bold text-slate-900 dark:text-white">Activar acceso biométrico</h3>
               <p className="text-xs text-slate-400 mt-1">
-                {setupUser.name} — confirma tu contraseña para registrar huella o Face ID
+                {setupUser.name} — confirma tu contraseña para registrar huella o Face ID en este dispositivo
               </p>
             </div>
             <input
               type="password"
               required
               autoFocus
+              autoComplete="current-password"
               value={setupPassword}
               onChange={(e) => setSetupPassword(e.target.value)}
               placeholder="Contraseña"

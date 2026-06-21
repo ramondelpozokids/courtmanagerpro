@@ -5,7 +5,8 @@ import { savePasskey, consumeChallenge } from '@/lib/webauthn-store';
 
 export async function POST(request: Request) {
   try {
-    const { email, response } = await request.json();
+    const body = await request.json();
+    const { email, response, origin: bodyOrigin } = body;
     if (!email || !response) {
       return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 });
     }
@@ -15,12 +16,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Usuario no autorizado' }, { status: 403 });
     }
 
-    const expectedChallenge = consumeChallenge(`register:${normalized}`);
+    const expectedChallenge = await consumeChallenge(`register:${normalized}`);
     if (!expectedChallenge) {
       return NextResponse.json({ error: 'Sesión de registro expirada. Vuelve a intentarlo.' }, { status: 400 });
     }
 
-    const { origin, rpID } = getWebAuthnConfig(request.headers.get('origin') || undefined);
+    const { origin, rpID } = getWebAuthnConfig(
+      bodyOrigin,
+      request.headers.get('origin'),
+      request.headers.get('referer')
+    );
 
     const verification = await verifyRegistrationResponse({
       response,

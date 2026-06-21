@@ -68,10 +68,22 @@ export async function createSupabaseSessionForEmail(
     type: 'email',
   });
 
-  if (verifyError || !sessionData.session) return null;
+  if (!verifyError && sessionData.session) {
+    return {
+      access_token: sessionData.session.access_token,
+      refresh_token: sessionData.session.refresh_token,
+    };
+  }
+
+  const { data: magicSession, error: magicError } = await authClient.auth.verifyOtp({
+    token_hash: linkData.properties.hashed_token,
+    type: 'magiclink',
+  });
+
+  if (magicError || !magicSession.session) return null;
 
   return {
-    access_token: sessionData.session.access_token,
-    refresh_token: sessionData.session.refresh_token,
+    access_token: magicSession.session.access_token,
+    refresh_token: magicSession.session.refresh_token,
   };
 }

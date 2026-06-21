@@ -5,7 +5,8 @@ import { getPasskeysForEmail, hasPasskey, setChallenge } from '@/lib/webauthn-st
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const body = await request.json();
+    const { email, origin: bodyOrigin } = body;
     if (!email) {
       return NextResponse.json({ error: 'Email requerido' }, { status: 400 });
     }
@@ -22,19 +23,23 @@ export async function POST(request: Request) {
       );
     }
 
+    const { rpID } = getWebAuthnConfig(
+      bodyOrigin,
+      request.headers.get('origin'),
+      request.headers.get('referer')
+    );
+
     const passkeys = await getPasskeysForEmail(normalized);
-    const { rpID } = getWebAuthnConfig(request.headers.get('origin') || undefined);
 
     const options = await generateAuthenticationOptions({
       rpID,
+      userVerification: 'required',
       allowCredentials: passkeys.map((p) => ({
         id: p.credentialID,
-        transports: p.transports,
       })),
-      userVerification: 'required',
     });
 
-    setChallenge(`login:${normalized}`, options.challenge);
+    await setChallenge(`login:${normalized}`, options.challenge);
 
     return NextResponse.json(options);
   } catch (err: any) {
