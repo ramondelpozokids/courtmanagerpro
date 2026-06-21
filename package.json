@@ -9,7 +9,8 @@
     "sync:rm-stats": "node scripts/sync-rm-roster-stats.mjs",
     "seed:roster": "npx tsx scripts/seed-roster.ts",
     "seed:roster:sql": "npx tsx scripts/seed-roster.ts --sql",
-    "seed:production": "npx tsx scripts/seed-production.ts"
+    "seed:production": "npx tsx scripts/seed-production.ts",
+    "setup:superadmin": "npx tsx scripts/setup-superadmin.ts"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.3.0",

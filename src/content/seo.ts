@@ -1,5 +1,24 @@
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || 'https://courtmanagerpro.com';
+const DEFAULT_SITE_URL = 'https://courtmanagerpro.vercel.app';
+
+function resolveSiteUrl(raw?: string): string {
+  const cleaned = (raw || '').trim().replace(/^['"]|['"]$/g, '');
+  if (!cleaned) return DEFAULT_SITE_URL;
+
+  let candidate = cleaned;
+  if (!/^https?:\/\//i.test(candidate)) {
+    candidate = `https://${candidate}`;
+  }
+
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return DEFAULT_SITE_URL;
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return DEFAULT_SITE_URL;
+  }
+}
+
+export const SITE_URL = resolveSiteUrl(process.env.NEXT_PUBLIC_APP_URL);
 
 export const SITE_KEYWORDS = [
   'CourtManager Pro',

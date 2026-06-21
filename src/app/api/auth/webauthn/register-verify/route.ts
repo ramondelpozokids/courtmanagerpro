@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     const { credential, credentialDeviceType } = verification.registrationInfo;
 
-    savePasskey({
+    await savePasskey({
       email: normalized,
       credentialID: credential.id,
       credentialPublicKey: credential.publicKey,

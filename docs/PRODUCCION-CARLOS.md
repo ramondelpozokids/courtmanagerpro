@@ -63,6 +63,23 @@ Redeploy.
 
 Carlos entra en `/login` con su email y contraseña de Supabase Auth.
 
+### 7. Superadmin Ramón
+
+En producción **no** vale la contraseña demo `superadmin2026`. Ramón debe existir en Supabase Auth.
+
+**Opción A — script (recomendado):**
+
+```bash
+npx tsx scripts/setup-superadmin.ts --password "TuContraseñaSegura"
+```
+
+**Opción B — manual:**
+
+1. Supabase → **Authentication → Users** → crear `info@ramondelpozorott.es`
+2. Ejecutar `supabase/migrations/006_vincular_superadmin_ramon.sql` (sustituir `<UUID-RAMON>`)
+
+Ramón entra en `/login` con su email y la contraseña de Supabase. El rol **superadmin** se reconoce por email aunque en SQL el perfil sea `admin`.
+
 ---
 
 ## Qué funciona en producción

@@ -152,6 +152,24 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["item_assignments"]["Row"]>;
       };
+      webauthn_passkeys: {
+        Row: {
+          id: string;
+          email: string;
+          credential_id: string;
+          credential_public_key: string;
+          counter: number;
+          transports: string[] | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["webauthn_passkeys"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["webauthn_passkeys"]["Row"]>;
+      };
     };
   };
 }

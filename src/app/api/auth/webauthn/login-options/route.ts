@@ -15,14 +15,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Acceso biométrico no disponible para este usuario' }, { status: 403 });
     }
 
-    if (!hasPasskey(normalized)) {
+    if (!(await hasPasskey(normalized))) {
       return NextResponse.json(
         { error: 'Primero configura tu acceso biométrico con email y contraseña' },
         { status: 404 }
       );
     }
 
-    const passkeys = getPasskeysForEmail(normalized);
+    const passkeys = await getPasskeysForEmail(normalized);
     const { rpID } = getWebAuthnConfig(request.headers.get('origin') || undefined);
 
     const options = await generateAuthenticationOptions({

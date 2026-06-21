@@ -2,6 +2,8 @@
 
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { setAuthCookies } from '@/lib/auth-credentials';
+import { isDemoMode } from '@/lib/app-mode';
+import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import type { ExtendedRole } from '@/contexts/AuthContext';
 
 export interface PasskeyLoginResult {
@@ -67,8 +69,24 @@ export async function loginWithPasskey(email: string): Promise<PasskeyLoginResul
   }
 
   const user = await verifyRes.json();
-  setAuthCookies(user.role);
-  return user;
+
+  if (!isDemoMode() && user.access_token && user.refresh_token) {
+    const supabase = getSupabaseClient();
+    const { error } = await supabase.auth.setSession({
+      access_token: user.access_token,
+      refresh_token: user.refresh_token,
+    });
+    if (error) throw new Error(error.message);
+  } else {
+    setAuthCookies(user.role);
+  }
+
+  return {
+    role: user.role,
+    email: user.email,
+    full_name: user.full_name,
+    avatar_url: user.avatar_url,
+  };
 }
 
 export function isWebAuthnSupported(): boolean {

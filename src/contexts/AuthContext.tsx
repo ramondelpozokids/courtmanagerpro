@@ -15,6 +15,7 @@ import { canModifyProject, hasFullClubAccess } from '@/lib/permissions';
 import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { isDemoMode } from '@/lib/app-mode';
+import { buildFallbackProductionUser, enrichProfileForApp } from '@/lib/production-auth-fallback';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -92,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = getSupabaseClient() as any;
   const mockAuth = isDemoMode();
 
-  const loadUserData = useCallback(async (userId: string) => {
+  const loadUserData = useCallback(async (userId: string, authEmail?: string | null) => {
     try {
       const [profileResult, teamsResult] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).single(),
@@ -103,8 +104,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .eq('is_active', true),
       ]);
 
-      if (profileResult.error || !profileResult.data) return null;
-      const profile = profileResult.data as Profile;
+      if (profileResult.error || !profileResult.data) {
+        return buildFallbackProductionUser(supabase, userId, authEmail || '');
+      }
+
+      const profile = enrichProfileForApp(profileResult.data as Profile);
       const userTeams = (teamsResult.data || []) as unknown as UserTeam[];
       const teams = userTeams.map((ut: any) => ut.team).filter(Boolean) as Team[];
 
@@ -116,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: profile.email,
         profile,
         teams: userTeams,
-        currentTeam: defaultTeam || null
+        currentTeam: defaultTeam || null,
       };
     } catch (err) {
       console.error("Error loading user data from Supabase:", err);
@@ -210,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase.auth.getSession().then(async ({ data: { session } }: any) => {
         setSession(session);
         if (session?.user) {
-          const userData = await loadUserData(session.user.id);
+          const userData = await loadUserData(session.user.id, session.user.email);
           setUser(userData);
           if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
         } else {
@@ -227,7 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
         setSession(session);
         if (session?.user) {
-          const userData = await loadUserData(session.user.id);
+          const userData = await loadUserData(session.user.id, session.user.email);
           setUser(userData);
           if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
         } else {
@@ -268,15 +272,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithBiometric = useCallback(async (email: string) => {
     const result = await loginWithPasskey(email);
-    const userData = buildUserFromRole(result.role as ExtendedRole, {
-      full_name: result.full_name,
-      email: result.email,
-      avatar_url: result.avatar_url,
-    });
+
+    if (mockAuth) {
+      const userData = buildUserFromRole(result.role as ExtendedRole, {
+        full_name: result.full_name,
+        email: result.email,
+        avatar_url: result.avatar_url,
+      });
+      setUser(userData);
+      setCurrentTeamState(defaultMockTeam);
+      return;
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      throw new Error('No se pudo iniciar sesión tras el acceso biométrico.');
+    }
+    const userData = await loadUserData(session.user.id);
+    if (!userData) {
+      throw new Error('No se encontró el perfil del usuario.');
+    }
+    setSession(session);
     setUser(userData);
-    setCurrentTeamState(defaultMockTeam);
-    setAuthCookies(result.role);
-  }, [buildUserFromRole]);
+    if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
+  }, [mockAuth, supabase, buildUserFromRole, loadUserData]);
 
   const register = useCallback(async ({ email, password, full_name, role }: RegisterForm) => {
     if (mockAuth) {

@@ -2,10 +2,7 @@ import { SITE_URL } from '@/content/seo';
 
 /** URL escaneable que abre la ficha de la prenda en la PWA (Fase 1 — móvil). */
 export function buildGarmentScanUrl(qrCode: string): string {
-  const base =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL || SITE_URL;
+  const base = typeof window !== 'undefined' ? window.location.origin : SITE_URL;
   return `${base.replace(/\/$/, '')}/scan/${encodeURIComponent(qrCode)}`;
 }
 

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { generateRegistrationOptions } from '@simplewebauthn/server';
-import { findMockCredential } from '@/lib/auth-credentials';
 import { getWebAuthnConfig, isBiometricUser } from '@/lib/webauthn-config';
 import { getPasskeysForEmail, setChallenge } from '@/lib/webauthn-store';
+import { verifyBiometricUserPassword } from '@/lib/webauthn-password-verify';
 
 export async function POST(request: Request) {
   try {
@@ -16,20 +16,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Acceso biométrico solo para administradores autorizados' }, { status: 403 });
     }
 
-    const cred = findMockCredential(normalized, password);
-    if (!cred) {
+    const verified = await verifyBiometricUserPassword(normalized, password);
+    if (!verified) {
       return NextResponse.json({ error: 'Credenciales incorrectas' }, { status: 401 });
     }
 
     const { rpName, rpID } = getWebAuthnConfig(request.headers.get('origin') || undefined);
-    const existing = getPasskeysForEmail(normalized);
+    const existing = await getPasskeysForEmail(normalized);
 
     const options = await generateRegistrationOptions({
       rpName,
       rpID,
       userName: normalized,
       userID: new TextEncoder().encode(normalized),
-      userDisplayName: cred.full_name,
+      userDisplayName: verified.displayName,
       attestationType: 'none',
       excludeCredentials: existing.map((p) => ({
         id: p.credentialID,
