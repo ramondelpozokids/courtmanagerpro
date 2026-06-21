@@ -1039,6 +1039,7 @@ export interface ClubDemoDataSlice {
   trips: any[];
   laundry: any[];
   alerts: any[];
+  coachingStaff?: any[];
   garmentUnits?: any[];
 }
 
@@ -1049,5 +1050,6 @@ export function loadClubDemoData(data: ClubDemoDataSlice): void {
   db.trips = [...data.trips];
   db.laundry = [...data.laundry];
   db.alerts = [...data.alerts];
+  db.coachingStaff = [...(data.coachingStaff ?? initialCoachingStaff)];
   db.garmentUnits = [...(data.garmentUnits ?? [])];
 }

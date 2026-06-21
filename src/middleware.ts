@@ -13,6 +13,12 @@ const PUBLIC_PATHS = [
   '/condiciones-uso',
 ];
 
+function nextWithSkipToolbar(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-vercel-skip-toolbar', '1');
+  return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -21,7 +27,7 @@ export function middleware(request: NextRequest) {
   );
 
   if (isPublic) {
-    return NextResponse.next();
+    return nextWithSkipToolbar(request);
   }
 
   const hasAuth = request.cookies.get('cm_auth')?.value === '1';
@@ -34,7 +40,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return nextWithSkipToolbar(request);
 }
 
 export const config = {

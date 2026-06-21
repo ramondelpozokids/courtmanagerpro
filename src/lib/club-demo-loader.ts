@@ -37,6 +37,7 @@ export function loadClubPack(pack: ClubDemoPack): Team {
     trips: pack.trips,
     laundry: pack.laundry,
     alerts: pack.alerts,
+    coachingStaff: pack.coachingStaff,
     garmentUnits,
   });
   return packToTeam(pack);
@@ -61,6 +62,6 @@ export function persistDemoClubSlug(slug: ClubSlug): void {
 export function readStoredDemoClubSlug(): ClubSlug {
   if (typeof window === 'undefined') return 'rmb';
   const stored = localStorage.getItem(DEMO_CLUB_STORAGE_KEY);
-  if (stored === 'fcb' || stored === 'vbc' || stored === 'rmb') return stored;
+  if (stored === 'fcb' || stored === 'fbat' || stored === 'vbc' || stored === 'rmb') return stored;
   return 'rmb';
 }

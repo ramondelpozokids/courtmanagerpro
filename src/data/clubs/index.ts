@@ -6,10 +6,20 @@ import {
   initialTrips,
   initialLaundry,
   initialAlerts,
+  initialCoachingStaff,
 } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
-import { fcbPlayers, fcbInventory, fcbRequests, fcbTrips, fcbAlerts, fcbLaundry } from '@/data/clubs/fcb-data';
-import { vbcPlayers, vbcInventory, vbcRequests, vbcTrips, vbcAlerts, vbcLaundry } from '@/data/clubs/vbc-data';
+import { fcbPlayers, fcbInventory, fcbRequests, fcbTrips, fcbAlerts, fcbLaundry, fcbCoachingStaff } from '@/data/clubs/fcb-data';
+import {
+  fbatPlayers,
+  fbatInventory,
+  fbatRequests,
+  fbatTrips,
+  fbatAlerts,
+  fbatLaundry,
+  fbatCoachingStaff,
+} from '@/data/clubs/fcb-atletic-data';
+import { vbcPlayers, vbcInventory, vbcRequests, vbcTrips, vbcAlerts, vbcLaundry, vbcCoachingStaff } from '@/data/clubs/vbc-data';
 
 const rmbPack: ClubDemoPack = {
   branding: {
@@ -73,6 +83,7 @@ const rmbPack: ClubDemoPack = {
     { id: 'n6', title: 'Estreno de equipación de calentamiento blanca', tag: 'Utilería', image: 'https://assets.realmadrid.com/is/image/realmadrid/ND_LUIK_1VC5447?$Desktop$&fit=wrap&wid=400', description: 'Nuevos cortavientos técnicos para la logística de viaje Euroliga.', date: '2026-06-05' },
   ],
   players: initialPlayers,
+  coachingStaff: initialCoachingStaff,
   inventory: initialInventory,
   requests: initialRequests,
   trips: initialTrips,
@@ -92,8 +103,8 @@ const fcbPack: ClubDemoPack = {
     secondaryColor: '#A50044',
     accentColor: '#FFD700',
     logoUrl: '/clubs/fcb/logo.svg',
-    heroUrl: '/clubs/fcb/hero.jpg',
-    blogHeroUrl: '/clubs/fcb/hero.jpg',
+    heroUrl: '/clubs/fcb/hero-playoff.jpg',
+    blogHeroUrl: '/clubs/fcb/hero-playoff.jpg',
   },
   blog: {
     portalTitle: 'FCB Portal: Noticias, Historia e Indumentaria',
@@ -101,8 +112,8 @@ const fcbPack: ClubDemoPack = {
     historyTitle: 'Historia Reciente del Barça Basquet (2020-2030)',
     historySubtitle: 'De la reconstrucción post-Euroliga al retorno como candidato al título en ACB y Europa.',
     historyIntro: [
-      'El FC Barcelona Basquet ha vivido una década de transición y renacimiento, con **Niko Mirotic** como referente y una cantera que sigue alimentando el primer equipo.',
-      'Tras la **Euroliga 2022-23** y múltiples finales ACB, el club apuesta por la continuidad de proyecto con **Roger Grimau** al frente del banquillo.',
+      'El FC Barcelona Basquet presenta una plantilla de **14 jugadores** equilibrada entre experiencia Euroliga y talento joven, liderada en el perímetro por **Tomás Satoransky** y **Kevin Punter**.',
+      'En el juego interior, **Jan Vesely**, **Willy Hernangómez** y **Tornike Shengelia** forman un bloque versátil para ACB y Europa bajo **Roger Grimau**.',
     ],
     milestones: [
       { year: '2021', title: 'Final ACB vs Baskonia', description: 'El Barça compite por el título doméstico con plantilla joven.' },
@@ -112,11 +123,11 @@ const fcbPack: ClubDemoPack = {
       { year: '2025', title: 'Playoffs ACB — Clásico', description: 'Serie épica ante el Real Madrid en semifinales.' },
     ],
     timeline: [
-      { title: '2021 — Nueva etapa con Mirotic', description: 'El pívot esloveno-español se consolida como líder del proyecto.' },
-      { title: '2022 — Euroliga y Palau lleno', description: 'Semifinal europea con ambiente espectacular en Barcelona.' },
-      { title: '2023 — Copa del Rey', description: 'Título copero que refuerza la identidad blaugrana.' },
-      { title: '2024 — Supercopa Endesa', description: 'Dominio en competición de pretemporada.' },
-      { title: '2025 — Clásico en Playoffs', description: 'Serie de alto voltaje contra el Real Madrid.' },
+      { title: '2024/25 — Núcleo Satoransky + Punter', description: 'Duo exterior de referencia en competición europea.' },
+      { title: '2025 — Fichaje Jan Vesely', description: 'Experiencia Euroliga en la pintura blaugrana.' },
+      { title: '2025/26 — Cantera en el primer equipo', description: 'Juan Núñez y Juani Marcos suman minutos en ACB.' },
+      { title: '2025/26 — Willy Hernangómez de regreso', description: 'Refuerzo interior español para la rotación.' },
+      { title: '2025/26 — Clásico en Playoffs', description: 'Serie de alto voltaje contra el Real Madrid.' },
     ],
     palmares: [
       { label: 'Euroliga', count: 2, detail: '(2003, 2010)' },
@@ -134,19 +145,88 @@ const fcbPack: ClubDemoPack = {
     ],
   },
   news: [
-    { id: 'n1', title: 'Niko Mirotic lidera la victoria en el Clásico ACB', tag: 'ACB', image: '/clubs/fcb/hero.jpg', description: 'El pívot fue MVP del partido con 24 puntos y 11 rebotes ante el Real Madrid.', date: '2026-06-18' },
-    { id: 'n2', title: 'Alex Abrines renueva hasta 2028', tag: 'Fichajes', image: '/clubs/fcb/logo.svg', description: 'El alero mallorquín amplía su contrato como referente del proyecto blaugrana.', date: '2026-06-16' },
-    { id: 'n3', title: 'Hugo González brilla con la selección U20', tag: 'Selección', image: '/clubs/fcb/hero.jpg', description: 'El base canterano suma otro hito internacional con España.', date: '2026-06-14' },
-    { id: 'n4', title: 'Roger Grimau: "Tenemos plantilla para pelear por todo"', tag: 'Entrenador', image: '/clubs/fcb/logo.svg', description: 'El entrenador valora la profundidad de banquillo de cara a Euroliga.', date: '2026-06-12' },
-    { id: 'n5', title: 'Palau Blaugrana sold out para el playoff', tag: 'Afición', image: '/clubs/fcb/hero.jpg', description: 'Entradas agotadas para la semifinal ACB.', date: '2026-06-10' },
-    { id: 'n6', title: 'Nueva equipación visitante presentada', tag: 'Utilería', image: '/clubs/fcb/logo.svg', description: 'El primer equipo estrena el segundo uniforme de la temporada 25/26.', date: '2026-06-08' },
+    { id: 'n1', title: 'Jan Vesely domina el rebote en el Clásico ACB', tag: 'ACB', image: '/clubs/fcb/hero.jpg', description: 'El pívot checo lideró la pintura con 14 rebotes y 22 puntos ante el Real Madrid en el Palau.', date: '2026-06-18' },
+    { id: 'n2', title: 'Kevin Punter, máximo anotador en Euroliga', tag: 'Euroliga', image: '/clubs/fcb/logo.svg', description: 'El escolta americano suma 28 puntos en la victoria en Belgrado.', date: '2026-06-16' },
+    { id: 'n3', title: 'Juan Núñez brilla con la selección U20', tag: 'Selección', image: '/clubs/fcb/hero.jpg', description: 'El base canterano consolida su proyección en el primer equipo blaugrana.', date: '2026-06-14' },
+    { id: 'n4', title: 'Roger Grimau: "Tenemos 14 para pelear por todo"', tag: 'Entrenador', image: '/clubs/fcb/logo.svg', description: 'El entrenador valora la profundidad de plantilla de cara a la Euroliga.', date: '2026-06-12' },
+    { id: 'n5', title: 'Álex Abrines renueva hasta 2028', tag: 'Fichajes', image: '/clubs/fcb/logo.svg', description: 'El alero mallorquín amplía su contrato como referente del proyecto.', date: '2026-06-10' },
+    { id: 'n6', title: 'Palau Blaugrana sold out para el playoff', tag: 'Afición', image: '/clubs/fcb/hero.jpg', description: 'Entradas agotadas para la semifinal ACB.', date: '2026-06-08' },
   ],
   players: fcbPlayers,
+  coachingStaff: fcbCoachingStaff,
   inventory: fcbInventory,
   requests: fcbRequests,
   trips: fcbTrips,
   laundry: fcbLaundry,
   alerts: fcbAlerts,
+};
+
+const fbatPack: ClubDemoPack = {
+  branding: {
+    slug: 'fbat',
+    teamId: CLUB_TEAM_IDS.fbat,
+    name: 'Barça Atlètic',
+    shortName: 'FBAT',
+    tagline: 'Ciutat Esportiva · Cantera U22',
+    venue: 'Ciutat Esportiva Joan Gamper · Barcelona',
+    primaryColor: '#004D98',
+    secondaryColor: '#A50044',
+    accentColor: '#FFD700',
+    logoUrl: '/clubs/fcb/logo.svg',
+    heroUrl: '/clubs/fcb/hero-playoff.jpg',
+    blogHeroUrl: '/clubs/fcb/hero-playoff.jpg',
+  },
+  blog: {
+    portalTitle: 'Barça Atlètic Portal: Cantera, Noticias e Indumentaria',
+    portalSubtitle: 'Plantilla U22 25/26, formación blaugrana y equipación de cantera en la Ciutat Esportiva.',
+    historyTitle: 'Barça Atlètic — Formación 25/26',
+    historySubtitle: 'El filial del FC Barcelona Basquet compite en Liga EBA con talento joven de la cantera.',
+    historyIntro: [
+      'La plantilla **2526_BASQUET_u22** reúne **14 jugadores** de proyección bajo la dirección de **Álvaro Salinas González**.',
+      'Referentes como **Nil Poza**, **Oriol Filbà** y **Mohamed Namakan Keita** lideran un proyecto de transición hacia el primer equipo.',
+    ],
+    milestones: [
+      { year: '2023', title: 'Ascenso Liga EBA', description: 'El Barça Atlètic consolida su presencia en competición nacional.' },
+      { year: '2024', title: 'Copa Catalunya', description: 'Título autonómico de la cantera blaugrana.' },
+      { year: '2025', title: 'Proyección al primer equipo', description: 'Jugadores U22 con minutos en ACB.' },
+      { year: '2026', title: 'Plantilla U22 25/26', description: '14 jugadores oficiales — temporada 2526_BASQUET_u22.' },
+    ],
+    timeline: [
+      { title: '2024/25 — Transición cantera', description: 'Integración de talento joven en dinámica de primer equipo.' },
+      { title: '2025/26 — Álvaro Salinas al frente', description: 'Nuevo ciclo técnico en Ciutat Esportiva.' },
+      { title: '2025/26 — Fichajes internacionales', description: 'Keita, Gueye y Kusturica refuerzan la rotación.' },
+      { title: '2025/26 — Tienda oficial', description: 'Equipación cantera en store.fcbarcelona.com.' },
+    ],
+    palmares: [
+      { label: 'Liga EBA', count: 0, detail: 'En progreso' },
+      { label: 'Copa Catalunya', count: 2, detail: 'Cantera' },
+      { label: 'Liga U22', count: 1, detail: 'Histórico' },
+      { label: 'Promociones ACB', count: 12, detail: 'Última década' },
+    ],
+    equipacionTitle: 'Equipación Barça Atlètic U22 25/26',
+    equipacionDescription: 'Camisetas y chándals de cantera con identidad blaugrana — disponibles en la tienda oficial del club.',
+    equipacionItems: [
+      { name: 'Camiseta Cantera Local', price: '€65.00', image: '/clubs/fcb/logo.svg' },
+      { name: 'Camiseta Entrenamiento', price: '€55.00', image: '/clubs/fcb/logo.svg' },
+      { name: 'Pantalón Juego', price: '€35.00', image: '/clubs/fcb/logo.svg' },
+      { name: 'Chándal Cantera', price: '€75.00', image: '/clubs/fcb/logo.svg' },
+    ],
+  },
+  news: [
+    { id: 'n1', title: 'Nil Poza lidera la victoria en Liga EBA', tag: 'EBA', image: '/clubs/fcb/hero-playoff.jpg', description: 'El base canterano suma 18 puntos y 7 asistencias ante Cornellà.', date: '2026-06-18' },
+    { id: 'n2', title: 'Mohamed Namakan Keita domina la pintura', tag: 'Cantera', image: '/clubs/fcb/logo.svg', description: 'Doble-doble con 22 puntos y 15 rebotes en Ciutat Esportiva.', date: '2026-06-16' },
+    { id: 'n3', title: 'Oriol Filbà convocado con Catalunya', tag: 'Selección', image: '/clubs/fcb/hero-playoff.jpg', description: 'El escolta blaugrana debuta con la selección autonómica.', date: '2026-06-14' },
+    { id: 'n4', title: 'Álvaro Salinas: "Tenemos 14 para competir al máximo"', tag: 'Entrenador', image: '/clubs/fcb/logo.svg', description: 'El primer entrenador valora la profundidad de la plantilla U22.', date: '2026-06-12' },
+    { id: 'n5', title: 'Nueva equipación cantera en tienda oficial', tag: 'Utilería', image: '/clubs/fcb/logo.svg', description: 'Estreno del uniforme 25/26 en store.fcbarcelona.com.', date: '2026-06-10' },
+    { id: 'n6', title: 'Derbi catalán cantera vs Joventut', tag: 'Partido', image: '/clubs/fcb/hero-playoff.jpg', description: 'Barça Atlètic recibe al Joventut en la Ciutat Esportiva.', date: '2026-06-08' },
+  ],
+  players: fbatPlayers,
+  coachingStaff: fbatCoachingStaff,
+  inventory: fbatInventory,
+  requests: fbatRequests,
+  trips: fbatTrips,
+  laundry: fbatLaundry,
+  alerts: fbatAlerts,
 };
 
 const vbcPack: ClubDemoPack = {
@@ -170,8 +250,8 @@ const vbcPack: ClubDemoPack = {
     historyTitle: 'Historia Reciente del Valencia Basket (2020-2030)',
     historySubtitle: 'Del título de 2017 a la final ACB 2025: la era taronja en la élite del baloncesto español.',
     historyIntro: [
-      'El Valencia Basket ha sido protagonista en la élite europea con **Brandon Davies** y **Chris Jones** liderando un proyecto ambicioso en la **Roig Arena**.',
-      'Tras la **final ACB 2025** ante el Real Madrid, el club refuerza su apuesta por la cantera valenciana y la identidad taronja.',
+      'Bajo **Pedro Martínez**, el Valencia Basket apuesta por una plantilla joven y competitiva con referentes como **Jaime Pradilla**, **Josep Puerto** y **Sergio De Larrea** en la **Roig Arena**.',
+      'Tras la **final ACB 2025** ante el Real Madrid, el club taronja renueva el proyecto con fichajes como **Braxton Key**, **Matt Costello** y **Yankuba Sima**.',
     ],
     milestones: [
       { year: '2017', title: 'Campeón Liga Endesa', description: 'Título histórico en un final apoteósico.' },
@@ -203,14 +283,15 @@ const vbcPack: ClubDemoPack = {
     ],
   },
   news: [
-    { id: 'n1', title: 'Brandon Davies MVP del partido ante Joventut', tag: 'ACB', image: '/clubs/vbc/hero.jpg', description: 'El pívot taronja domina la pintura con 26 puntos y 14 rebotes.', date: '2026-06-18' },
-    { id: 'n2', title: 'Chris Jones lidera la asistencia en Euroliga', tag: 'Euroliga', image: '/clubs/vbc/logo.svg', description: 'El base americano suma 12 asistencias en la victoria en Belgrado.', date: '2026-06-16' },
-    { id: 'n3', title: 'Jaime Pradilla convocado con la selección', tag: 'Selección', image: '/clubs/vbc/hero.jpg', description: 'El joven ala-pívot valenciano debuta con España absoluta.', date: '2026-06-14' },
+    { id: 'n1', title: 'Jaime Pradilla MVP del partido ante Joventut', tag: 'ACB', image: '/clubs/vbc/hero.jpg', description: 'El ala-pívot taronja lidera con 22 puntos y 11 rebotes en la Fonteta.', date: '2026-06-18' },
+    { id: 'n2', title: 'Sergio De Larrea brilla en Euroliga', tag: 'Euroliga', image: '/clubs/vbc/logo.svg', description: 'El base de la cantera suma 14 asistencias en la victoria en Belgrado.', date: '2026-06-16' },
+    { id: 'n3', title: 'Braxton Key refuerza la pintura taronja', tag: 'Fichajes', image: '/clubs/vbc/hero.jpg', description: 'El ala-pívot americano se incorpora a la plantilla 25/26.', date: '2026-06-14' },
     { id: 'n4', title: 'Roig Arena: récord de asistencia en playoffs', tag: 'Afición', image: '/clubs/vbc/hero.jpg', description: 'Más de 9.000 aficionados taronja en semifinales ACB.', date: '2026-06-12' },
-    { id: 'n5', title: 'Josep Puerto renueva con el club', tag: 'Fichajes', image: '/clubs/vbc/logo.svg', description: 'El alero balear amplía su vinculación con el Valencia Basket.', date: '2026-06-10' },
-    { id: 'n6', title: 'Nueva equipación naranja presentada', tag: 'Utilería', image: '/clubs/vbc/logo.svg', description: 'Estreno oficial del uniforme local 25/26 en entrenamiento.', date: '2026-06-08' },
+    { id: 'n5', title: 'Josep Puerto, referente del vestuario', tag: 'Plantilla', image: '/clubs/vbc/logo.svg', description: 'El alero balear (#2) lidera la experiencia del equipo masculino.', date: '2026-06-10' },
+    { id: 'n6', title: 'Nueva equipación naranja en tienda oficial', tag: 'Utilería', image: '/clubs/vbc/logo.svg', description: 'Estreno del uniforme local 25/26 — disponible en tienda.valenciabasket.com.', date: '2026-06-08' },
   ],
   players: vbcPlayers,
+  coachingStaff: vbcCoachingStaff,
   inventory: vbcInventory,
   requests: vbcRequests,
   trips: vbcTrips,
@@ -221,10 +302,11 @@ const vbcPack: ClubDemoPack = {
 export const CLUB_PACKS: Record<ClubSlug, ClubDemoPack> = {
   rmb: rmbPack,
   fcb: fcbPack,
+  fbat: fbatPack,
   vbc: vbcPack,
 };
 
-export const CLUB_LIST: ClubDemoPack[] = [rmbPack, fcbPack, vbcPack];
+export const CLUB_LIST: ClubDemoPack[] = [rmbPack, fcbPack, fbatPack, vbcPack];
 
 export function getClubPack(slug: ClubSlug): ClubDemoPack {
   return CLUB_PACKS[slug];

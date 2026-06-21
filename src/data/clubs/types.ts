@@ -1,4 +1,4 @@
-export type ClubSlug = 'rmb' | 'fcb' | 'vbc';
+export type ClubSlug = 'rmb' | 'fcb' | 'fbat' | 'vbc';
 
 export interface ClubBlogMilestone {
   year: string;
@@ -55,6 +55,7 @@ export interface ClubDemoPack {
   blog: ClubBlogContent;
   news: ClubNewsItem[];
   players: any[];
+  coachingStaff: any[];
   inventory: any[];
   requests: any[];
   trips: any[];

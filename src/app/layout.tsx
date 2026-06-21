@@ -7,6 +7,7 @@ import { ClubDemoProvider } from '@/contexts/ClubDemoContext';
 import { ToastContainer } from '@/components/shared/ToastContainer';
 import { SITE_KEYWORDS, SITE_URL } from '@/content/seo';
 import { SECURITY_SCRIPT } from '@/lib/securityLayers';
+import { DISABLE_VERCEL_TOOLBAR_SCRIPT } from '@/lib/disableVercelToolbar';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ClubDemoProvider>
         </AuthProvider>
         <script dangerouslySetInnerHTML={{ __html: SECURITY_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: DISABLE_VERCEL_TOOLBAR_SCRIPT }} />
       </body>
     </html>
   );

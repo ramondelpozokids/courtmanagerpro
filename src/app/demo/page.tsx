@@ -48,13 +48,13 @@ export default function DemoSelectorPage() {
             <span className="text-orange-400">en tu club de la ACB</span>
           </h1>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-            Selecciona uno de los tres grandes de la Liga Endesa y explora la plataforma con plantilla,
-            inventario, blog, noticias, viajes y utilería personalizada con la identidad de cada club.
+            Selecciona uno de los clubes de la Liga Endesa y explora la plataforma con plantilla,
+            inventario, blog, noticias, viajes y utilería personalizada con la identidad de cada equipo.
           </p>
         </section>
 
         {/* Club cards */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {CLUB_LIST.map((pack) => {
             const { branding } = pack;
             const isActive = clubSlug === branding.slug;

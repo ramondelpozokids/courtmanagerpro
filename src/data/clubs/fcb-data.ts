@@ -4,19 +4,51 @@ function avatar(name: string, bg: string): string {
 
 const accent = 'A50044';
 
+type DemoPlayer = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  number: number;
+  position: string;
+  nationality: string;
+  birthDate: string;
+  sizes: { jersey: string; shorts: string; shoes: string; socks: string; warmupShirt: string };
+};
+
+function mk(p: DemoPlayer) {
+  return {
+    ...p,
+    status: 'ACTIVE' as const,
+    imageUrl: avatar(`${p.firstName} ${p.lastName}`, accent),
+    birth_place: 'Barcelona',
+    matches_played: 28,
+    points: 320,
+    rebounds: 80,
+    assists: 45,
+    palmares: ['FC Barcelona Basquet — Plantilla 25/26'],
+  };
+}
+
+/** Plantilla oficial demo — Primer Equipo FC Barcelona Basquet 25/26 */
 export const fcbPlayers = [
-  { id: 'p1', firstName: 'Alex', lastName: 'Abrines', number: 8, position: 'alero', status: 'ACTIVE', sizes: { jersey: 'XL', shorts: 'XL', shoes: '47', socks: 'L', warmupShirt: 'XL' }, nationality: 'España', birthDate: '1993-08-01', imageUrl: avatar('Alex Abrines', accent), birth_place: 'Palma de Mallorca', weight: '95 kg.', height: '1,98 m.', matches_played: 42, points: 512, rebounds: 98, assists: 45, palmares: ['1 Euroliga', '2 Ligas ACB', '1 Copa del Rey'] },
-  { id: 'p2', firstName: 'Niko', lastName: 'Mirotic', number: 33, position: 'pivot', status: 'ACTIVE', sizes: { jersey: 'XXL', shorts: 'XXL', shoes: '48', socks: 'XL', warmupShirt: 'XXL' }, nationality: 'España', birthDate: '1990-02-11', imageUrl: avatar('Niko Mirotic', accent), birth_place: 'Barcelona', weight: '102 kg.', height: '2,08 m.', matches_played: 55, points: 890, rebounds: 310, assists: 120, palmares: ['1 Euroliga', '3 Ligas ACB', '2 Copas del Rey'] },
-  { id: 'p3', firstName: 'Juancho', lastName: 'Hernangómez', number: 41, position: 'ala-pivot', status: 'ACTIVE', sizes: { jersey: 'XXL', shorts: 'XXL', shoes: '49', socks: 'XL', warmupShirt: 'XXL' }, nationality: 'España', birthDate: '1995-09-28', imageUrl: avatar('Juancho Hernangomez', accent), birth_place: 'Madrid', weight: '104 kg.', height: '2,06 m.', matches_played: 38, points: 445, rebounds: 180, assists: 55, palmares: ['1 Eurobasket', '1 Liga ACB'] },
-  { id: 'p4', firstName: 'Kyle', lastName: 'Guy', number: 2, position: 'base', status: 'ACTIVE', sizes: { jersey: 'L', shorts: 'L', shoes: '44', socks: 'M', warmupShirt: 'L' }, nationality: 'Estados Unidos', birthDate: '1997-12-02', imageUrl: avatar('Kyle Guy', accent), birth_place: 'Indianapolis', weight: '77 kg.', height: '1,88 m.', matches_played: 40, points: 520, rebounds: 40, assists: 95, palmares: ['1 NCAA', '1 Liga ACB'] },
-  { id: 'p5', firstName: 'Tomás', lastName: 'Satoransky', number: 6, position: 'base', status: 'ACTIVE', sizes: { jersey: 'XL', shorts: 'XL', shoes: '46', socks: 'L', warmupShirt: 'XL' }, nationality: 'Rep. Checa', birthDate: '1991-10-30', imageUrl: avatar('Tomas Satoransky', accent), birth_place: 'Praga', weight: '95 kg.', height: '2,01 m.', matches_played: 48, points: 380, rebounds: 120, assists: 210, palmares: ['1 Euroliga', '2 Ligas ACB'] },
-  { id: 'p6', firstName: 'James', lastName: 'Nnaji', number: 19, position: 'pivot', status: 'ACTIVE', sizes: { jersey: 'XXL', shorts: 'XXL', shoes: '50', socks: 'XL', warmupShirt: 'XXL' }, nationality: 'Nigeria', birthDate: '2002-10-01', imageUrl: avatar('James Nnaji', accent), birth_place: 'Kaduna', weight: '108 kg.', height: '2,11 m.', matches_played: 35, points: 290, rebounds: 165, assists: 20, palmares: ['Campeón ABA League U19'] },
-  { id: 'p7', firstName: 'Hugo', lastName: 'González', number: 23, position: 'base', status: 'ACTIVE', sizes: { jersey: 'L', shorts: 'L', shoes: '43', socks: 'M', warmupShirt: 'L' }, nationality: 'España', birthDate: '2006-02-05', imageUrl: avatar('Hugo Gonzalez', accent), birth_place: 'Madrid', weight: '82 kg.', height: '1,93 m.', matches_played: 28, points: 210, rebounds: 45, assists: 60, palmares: ['Oro Eurobasket U18'] },
-  { id: 'p8', firstName: 'Michael', lastName: 'Caicedo', number: 25, position: 'alero', status: 'ACTIVE', sizes: { jersey: 'XL', shorts: 'XL', shoes: '46', socks: 'L', warmupShirt: 'XL' }, nationality: 'España', birthDate: '2003-04-04', imageUrl: avatar('Michael Caicedo', accent), birth_place: 'Barcelona', weight: '88 kg.', height: '2,00 m.', matches_played: 22, points: 145, rebounds: 55, assists: 25, palmares: ['Campeón Liga U'] },
-  { id: 'p9', firstName: 'Roger', lastName: 'Carulla', number: 16, position: 'base', status: 'ACTIVE', sizes: { jersey: 'M', shorts: 'M', shoes: '42', socks: 'M', warmupShirt: 'M' }, nationality: 'España', birthDate: '2004-08-16', imageUrl: avatar('Roger Carulla', accent), birth_place: 'Barcelona', weight: '78 kg.', height: '1,85 m.', matches_played: 18, points: 95, rebounds: 20, assists: 40, palmares: ['Cantera FCB'] },
-  { id: 'p10', firstName: 'Kaspar', lastName: 'Tambja', number: 44, position: 'alero', status: 'ACTIVE', sizes: { jersey: 'XL', shorts: 'XL', shoes: '47', socks: 'L', warmupShirt: 'XL' }, nationality: 'Estonia', birthDate: '2000-05-14', imageUrl: avatar('Kaspar Tambja', accent), birth_place: 'Tallin', weight: '92 kg.', height: '2,03 m.', matches_played: 30, points: 260, rebounds: 70, assists: 35, palmares: ['1 Liga Estonia'] },
-  { id: 'p11', firstName: 'Pau', lastName: 'Ribas', number: 5, position: 'base', status: 'ACTIVE', sizes: { jersey: 'L', shorts: 'L', shoes: '44', socks: 'M', warmupShirt: 'L' }, nationality: 'España', birthDate: '1987-03-05', imageUrl: avatar('Pau Ribas', accent), birth_place: 'Barcelona', weight: '88 kg.', height: '1,92 m.', matches_played: 62, points: 410, rebounds: 80, assists: 180, palmares: ['1 Euroliga', '4 Ligas ACB', '1 Eurobasket'] },
-  { id: 'p12', firstName: 'Nicola', lastName: 'Laprovittola', number: 20, position: 'base', status: 'ACTIVE', sizes: { jersey: 'L', shorts: 'L', shoes: '43', socks: 'M', warmupShirt: 'L' }, nationality: 'Argentina', birthDate: '1990-01-31', imageUrl: avatar('Nicola Laprovittola', accent), birth_place: 'Mar del Plata', weight: '84 kg.', height: '1,90 m.', matches_played: 44, points: 480, rebounds: 50, assists: 130, palmares: ['1 Euroliga', '1 Oro Olímpico'] },
+  // Bases
+  mk({ id: 'p1', firstName: 'Tomás', lastName: 'Satoransky', number: 5, position: 'base', nationality: 'Rep. Checa', birthDate: '1991-10-30', sizes: { jersey: 'XL', shorts: 'XL', shoes: '46', socks: 'L', warmupShirt: 'XL' } }),
+  mk({ id: 'p2', firstName: 'Juan', lastName: 'Núñez', number: 20, position: 'base', nationality: 'España', birthDate: '2004-07-25', sizes: { jersey: 'L', shorts: 'L', shoes: '43', socks: 'M', warmupShirt: 'L' } }),
+  mk({ id: 'p3', firstName: 'Juani', lastName: 'Marcos', number: 3, position: 'base', nationality: 'España', birthDate: '2003-02-14', sizes: { jersey: 'L', shorts: 'L', shoes: '44', socks: 'M', warmupShirt: 'L' } }),
+  mk({ id: 'p4', firstName: 'Nicolás', lastName: 'Laprovittola', number: 6, position: 'base', nationality: 'Argentina', birthDate: '1990-01-31', sizes: { jersey: 'L', shorts: 'L', shoes: '43', socks: 'M', warmupShirt: 'L' } }),
+  // Escoltas
+  mk({ id: 'p5', firstName: 'Kevin', lastName: 'Punter', number: 9, position: 'escolta', nationality: 'Estados Unidos', birthDate: '1994-04-06', sizes: { jersey: 'XL', shorts: 'XL', shoes: '47', socks: 'L', warmupShirt: 'XL' } }),
+  mk({ id: 'p6', firstName: 'Darío', lastName: 'Brizuela', number: 8, position: 'escolta', nationality: 'España', birthDate: '1994-07-08', sizes: { jersey: 'L', shorts: 'L', shoes: '44', socks: 'M', warmupShirt: 'L' } }),
+  mk({ id: 'p7', firstName: 'Myles', lastName: 'Cale', number: 12, position: 'escolta', nationality: 'Estados Unidos', birthDate: '1999-08-08', sizes: { jersey: 'XL', shorts: 'XL', shoes: '46', socks: 'L', warmupShirt: 'XL' } }),
+  // Aleros
+  mk({ id: 'p8', firstName: 'Joel', lastName: 'Parra', number: 21, position: 'alero', nationality: 'España', birthDate: '1996-07-25', sizes: { jersey: 'XL', shorts: 'XL', shoes: '46', socks: 'L', warmupShirt: 'XL' } }),
+  mk({ id: 'p9', firstName: 'Álex', lastName: 'Abrines', number: 10, position: 'alero', nationality: 'España', birthDate: '1993-08-01', sizes: { jersey: 'XL', shorts: 'XL', shoes: '47', socks: 'L', warmupShirt: 'XL' } }),
+  mk({ id: 'p10', firstName: 'Justin', lastName: 'Anderson', number: 1, position: 'alero', nationality: 'Estados Unidos', birthDate: '1993-11-19', sizes: { jersey: 'XL', shorts: 'XL', shoes: '46', socks: 'L', warmupShirt: 'XL' } }),
+  // Pívots y ala-pívots
+  mk({ id: 'p11', firstName: 'Jan', lastName: 'Vesely', number: 24, position: 'pivot', nationality: 'Rep. Checa', birthDate: '1990-04-24', sizes: { jersey: 'XXL', shorts: 'XXL', shoes: '49', socks: 'XL', warmupShirt: 'XXL' } }),
+  mk({ id: 'p12', firstName: 'Willy', lastName: 'Hernangómez', number: 14, position: 'ala-pivot', nationality: 'España', birthDate: '1994-05-27', sizes: { jersey: 'XXL', shorts: 'XXL', shoes: '48', socks: 'XL', warmupShirt: 'XXL' } }),
+  mk({ id: 'p13', firstName: 'Chimezie', lastName: 'Metu', number: 23, position: 'ala-pivot', nationality: 'Nigeria', birthDate: '1997-03-22', sizes: { jersey: 'XXL', shorts: 'XXL', shoes: '48', socks: 'XL', warmupShirt: 'XXL' } }),
+  mk({ id: 'p14', firstName: 'Tornike', lastName: 'Shengelia', number: 35, position: 'ala-pivot', nationality: 'Georgia', birthDate: '1991-07-05', sizes: { jersey: 'XXL', shorts: 'XXL', shoes: '50', socks: 'XL', warmupShirt: 'XXL' } }),
 ];
 
 export const fcbInventory = [
@@ -28,23 +60,33 @@ export const fcbInventory = [
 ];
 
 export const fcbRequests = [
-  { id: 'r1', playerId: 'p1', playerName: 'Alex Abrines', itemName: 'Camiseta Juego Local FCB 25/26', quantity: 2, size: 'XL', status: 'PENDING', requestDate: '2026-06-18', notes: 'Euroliga — partido en Belgrado' },
-  { id: 'r2', playerId: 'p2', playerName: 'Niko Mirotic', itemName: 'Zapatillas Pro Bounce FCB Edition', quantity: 1, size: '48', status: 'APPROVED', requestDate: '2026-06-17', notes: 'Reposición calzado competición' },
-  { id: 'r3', playerId: 'p4', playerName: 'Kyle Guy', itemName: 'Chándal Completo Entrenamiento', quantity: 1, size: 'L', status: 'DELIVERED', requestDate: '2026-06-15', notes: 'Entrega vestuario completada' },
-  { id: 'r4', playerId: 'p3', playerName: 'Juancho Hernangómez', itemName: 'Camiseta Visitante FCB 25/26', quantity: 1, size: 'XXL', status: 'PENDING', requestDate: '2026-06-18', notes: 'Rotura costura en Clásico ACB' },
+  { id: 'r1', playerId: 'p9', playerName: 'Álex Abrines', itemName: 'Camiseta Juego Local FCB 25/26', quantity: 2, size: 'XL', status: 'PENDING', requestDate: '2026-06-18', notes: 'Euroliga — partido en Belgrado' },
+  { id: 'r2', playerId: 'p11', playerName: 'Jan Vesely', itemName: 'Zapatillas Pro Bounce FCB Edition', quantity: 1, size: '49', status: 'APPROVED', requestDate: '2026-06-17', notes: 'Reposición calzado competición' },
+  { id: 'r3', playerId: 'p5', playerName: 'Kevin Punter', itemName: 'Chándal Completo Entrenamiento', quantity: 1, size: 'XL', status: 'DELIVERED', requestDate: '2026-06-15', notes: 'Entrega vestuario completada' },
+  { id: 'r4', playerId: 'p12', playerName: 'Willy Hernangómez', itemName: 'Camiseta Visitante FCB 25/26', quantity: 1, size: 'XXL', status: 'PENDING', requestDate: '2026-06-18', notes: 'Rotura costura en Clásico ACB' },
+  { id: 'r5', playerId: 'p1', playerName: 'Tomás Satoransky', itemName: 'Camiseta Juego Local FCB 25/26', quantity: 1, size: 'XL', status: 'PENDING', requestDate: '2026-06-19', notes: 'Viaje Euroliga — Atenas' },
 ];
 
 export const fcbTrips = [
-  { id: 't1', destination: 'Atenas', opponent: 'Panathinaikos', departureDate: '2026-06-22', returnDate: '2026-06-24', status: 'planificado', packingList: [{ id: 'tp1', itemName: 'Equipación Visitante', quantityRequired: 14, quantityPacked: 8, category: 'camiseta_juego', isPacked: false }], notes: 'Euroliga — maleta logística prioritaria' },
+  { id: 't1', destination: 'Atenas', opponent: 'Panathinaikos', departureDate: '2026-06-22', returnDate: '2026-06-24', status: 'planificado', packingList: [{ id: 'tp1', itemName: 'Equipación Visitante', quantityRequired: 14, quantityPacked: 8, category: 'camiseta_juego', isPacked: false }], notes: 'Euroliga — maleta logística prioritaria (14 jugadores plantilla)' },
   { id: 't2', destination: 'Madrid', opponent: 'Real Madrid', departureDate: '2026-06-28', returnDate: '2026-06-28', status: 'planificado', packingList: [{ id: 'tp2', itemName: 'Equipación Local', quantityRequired: 14, quantityPacked: 14, category: 'camiseta_juego', isPacked: true }], notes: 'Clásico ACB — WiZink Center' },
 ];
 
 export const fcbAlerts = [
   { id: 'a1', team_id: 'fcb', type: 'stock_bajo', severity: 'critical', title: 'Stock Crítico', message: 'Zapatillas Pro Bounce FCB Edition bajo mínimos (6 unidades)', entity_type: 'inventory_item', entity_id: 'i4', is_read: false, is_dismissed: false, auto_generated: true, metadata: {}, created_at: '2026-06-18T08:30:00.000Z' },
-  { id: 'a2', team_id: 'fcb', type: 'solicitud_pendiente', severity: 'info', message: 'Nueva solicitud de Alex Abrines — camiseta local', entity_type: 'request', entity_id: 'r1', is_read: false, is_dismissed: false, auto_generated: true, metadata: {}, created_at: '2026-06-18T09:15:00.000Z' },
+  { id: 'a2', team_id: 'fcb', type: 'solicitud_pendiente', severity: 'info', message: 'Nueva solicitud de Álex Abrines — camiseta local', entity_type: 'request', entity_id: 'r1', is_read: false, is_dismissed: false, auto_generated: true, metadata: {}, created_at: '2026-06-18T09:15:00.000Z' },
+  { id: 'a3', team_id: 'fcb', type: 'solicitud_pendiente', severity: 'info', message: 'Tomás Satoransky solicita equipación para viaje a Atenas', entity_type: 'request', entity_id: 'r5', is_read: false, is_dismissed: false, auto_generated: true, metadata: {}, created_at: '2026-06-19T09:00:00.000Z' },
 ];
 
 export const fcbLaundry = [
   { id: 'l1', name: 'Lote Entrenamiento Palau Blaugrana', itemCount: 22, status: 'WASHING', receivedDate: '2026-06-18', responsible: 'Carlos R. Kobe (Utillero)' },
   { id: 'l2', name: 'Juego vs Baskonia', itemCount: 16, status: 'READY', receivedDate: '2026-06-17', completedDate: '2026-06-18', responsible: 'Carlos R. Kobe (Utillero)' },
+];
+
+export const fcbCoachingStaff = [
+  { id: 'c1', full_name: 'Roger Grimau', role: 'Entrenador Principal', email: 'rgrimau@fcbarcelona.cat', shirt_size: 'L', shorts_size: 'L', shoe_size: 43, nationality: 'España', profile_url: 'https://www.fcbarcelona.es/es/baloncesto/primer-equipo/jugadores' },
+  { id: 'c2', full_name: 'Jose Ramón Cortés', role: 'Entrenador Asistente', email: 'jrcortes@fcbarcelona.cat', shirt_size: 'L', shorts_size: 'L', shoe_size: 43, nationality: 'España' },
+  { id: 'c3', full_name: 'Roberto Acosta', role: 'Entrenador Asistente', email: 'racosta@fcbarcelona.cat', shirt_size: 'XL', shorts_size: 'L', shoe_size: 44, nationality: 'España' },
+  { id: 'c4', full_name: 'Pau Gómez', role: 'Preparador Físico', email: 'pgomez@fcbarcelona.cat', shirt_size: 'L', shorts_size: 'L', shoe_size: 43, nationality: 'España' },
+  { id: 'c5', full_name: 'Jordi Busquets', role: 'Fisioterapeuta', email: 'jbusquets@fcbarcelona.cat', shirt_size: 'M', shorts_size: 'M', shoe_size: 42, nationality: 'España' },
 ];
