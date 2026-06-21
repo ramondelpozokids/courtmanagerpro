@@ -105,7 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ]);
 
       if (profileResult.error || !profileResult.data) {
-        return buildFallbackProductionUser(supabase, userId, authEmail || '');
+        const fallbackEmail = authEmail || '';
+        if (!fallbackEmail) return null;
+        return buildFallbackProductionUser(supabase, userId, fallbackEmail);
       }
 
       const profile = enrichProfileForApp(profileResult.data as Profile);
@@ -288,7 +290,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!session?.user) {
       throw new Error('No se pudo iniciar sesión tras el acceso biométrico.');
     }
-    const userData = await loadUserData(session.user.id);
+    const userData = await loadUserData(session.user.id, session.user.email);
     if (!userData) {
       throw new Error('No se encontró el perfil del usuario.');
     }

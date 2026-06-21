@@ -39,9 +39,10 @@ function isSuperadminPreviewClub(slug: ClubSlug): slug is (typeof SUPERADMIN_PRE
 }
 
 export function ClubDemoProvider({ children }: { children: ReactNode }) {
-  const { setCurrentTeam, user } = useAuth();
+  const { setCurrentTeam, user, loading: authLoading, session } = useAuth();
   const demo = isDemoMode();
-  const isSuperadmin = isSuperadminUser(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const authEmail = user?.profile?.email ?? user?.email ?? session?.user?.email ?? null;
+  const isSuperadmin = isSuperadminUser(user?.profile?.role, authEmail);
   const canSwitchClubs = demo || isSuperadmin;
   const isSuperadminPreview = !demo && isSuperadmin;
 
@@ -92,6 +93,8 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    if (authLoading) return;
+
     if (isSuperadmin) {
       applyClub(readActiveClubPreviewSlug());
       return;
@@ -100,7 +103,7 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
     setClubSlug(PRODUCTION_CLUB_SLUG);
     setClub(getClubPack(PRODUCTION_CLUB_SLUG));
     setActiveClubPreviewSlug(PRODUCTION_CLUB_SLUG);
-  }, [applyClub, demo, isSuperadmin]);
+  }, [applyClub, authLoading, demo, isSuperadmin]);
 
   const switchClub = useCallback(
     (slug: ClubSlug, options?: { redirect?: string }) => {
