@@ -6,6 +6,8 @@
  * Producción activa cuando hay Supabase configurado y NEXT_PUBLIC_DEMO_MODE !== 'true'.
  */
 
+import { shouldUseDemoDataFallback } from '@/lib/club-preview';
+
 export function isMockMode(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   return !url || url.includes('your-project') || url.includes('dummy-project');
@@ -22,8 +24,7 @@ export function isProductionApp(): boolean {
   return !isDemoMode();
 }
 
-/** Solo en demo: rellenar con datos ficticios si Supabase está vacío. */
+/** Solo en demo / preview: rellenar con datos ficticios si Supabase está vacío. */
 export function shouldUseDemoFallback(rows: unknown[] | null | undefined): boolean {
-  if (isProductionApp()) return false;
-  return !rows || rows.length === 0;
+  return shouldUseDemoDataFallback(rows);
 }

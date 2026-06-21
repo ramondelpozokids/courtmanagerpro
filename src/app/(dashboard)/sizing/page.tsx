@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { canWriteClubData } from "@/lib/permissions";
 import { persistDemoDb } from "@/lib/demo-persistence";
-import { isProductionApp } from "@/lib/app-mode";
+import { usesDemoClubData, usesProductionClubData } from "@/lib/club-preview";
 import {
   loadProductionSizing,
   saveProductionPlayerSizes,
@@ -78,7 +78,7 @@ export default function SizingTablePage() {
   const [customProducts, setCustomProducts] = useState<SizingProduct[]>([]);
 
   const catalog = useMemo(
-    () => (isProductionApp() ? mergeSizingCatalog(customProducts) : mergeSizingCatalog(db.customSizingProducts)),
+    () => (usesProductionClubData() ? mergeSizingCatalog(customProducts) : mergeSizingCatalog(db.customSizingProducts)),
     [catalogVersion, customProducts]
   );
 
@@ -143,7 +143,7 @@ export default function SizingTablePage() {
   );
 
   const refreshFromDb = async () => {
-    if (isProductionApp()) {
+    if (usesProductionClubData()) {
       try {
         const data = await loadProductionSizing();
         setPlayers(data.players);
@@ -162,7 +162,7 @@ export default function SizingTablePage() {
   };
 
   const refreshAndSave = () => {
-    if (!isProductionApp()) saveSizingDemo();
+    if (usesDemoClubData()) saveSizingDemo();
     void refreshFromDb();
   };
 
@@ -284,7 +284,7 @@ export default function SizingTablePage() {
 
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isProductionApp()) {
+    if (usesProductionClubData()) {
       try {
         if (editingType === "player") {
           await saveProductionPlayerSizes(editingItem.id, editSizes, catalog);

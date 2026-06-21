@@ -4,13 +4,25 @@ import Link from 'next/link';
 import { useClubDemo, useClubBranding } from '@/contexts/ClubDemoContext';
 import { CLUB_LIST } from '@/data/clubs';
 import type { ClubSlug } from '@/data/clubs/types';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Crown } from 'lucide-react';
 
 export default function DemoClubBanner() {
-  const { clubSlug, switchClub, switching, isDemo } = useClubDemo();
+  const {
+    clubSlug,
+    switchClub,
+    switching,
+    isDemo,
+    canSwitchClubs,
+    isSuperadminPreview,
+    previewClubs,
+  } = useClubDemo();
   const branding = useClubBranding();
 
-  if (!isDemo) return null;
+  if (!canSwitchClubs) return null;
+
+  const clubs = isDemo
+    ? CLUB_LIST
+    : CLUB_LIST.filter((pack) => previewClubs.includes(pack.branding.slug as ClubSlug));
 
   return (
     <div
@@ -21,18 +33,34 @@ export default function DemoClubBanner() {
       }}
     >
       <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-        <Sparkles className="h-3.5 w-3.5 shrink-0" style={{ color: branding.accentColor }} />
+        {isSuperadminPreview ? (
+          <Crown className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+        ) : (
+          <Sparkles className="h-3.5 w-3.5 shrink-0" style={{ color: branding.accentColor }} />
+        )}
         <span>
-          <strong>Demo comercial</strong> — {branding.name} · datos ilustrativos para presentación comercial
+          {isSuperadminPreview ? (
+            <>
+              <strong>Superadmin</strong> — {branding.name}
+              {clubSlug === 'rmb'
+                ? ' · producción real'
+                : ' · demo comercial (datos ilustrativos)'}
+            </>
+          ) : (
+            <>
+              <strong>Demo comercial</strong> — {branding.name} · datos ilustrativos para presentación comercial
+            </>
+          )}
         </span>
       </div>
       <div className="flex items-center gap-1.5 flex-wrap">
-        {CLUB_LIST.map((pack) => {
+        {clubs.map((pack) => {
           const slug = pack.branding.slug as ClubSlug;
           const active = clubSlug === slug;
           return (
             <button
               key={slug}
+              type="button"
               disabled={switching}
               onClick={() => switchClub(slug, { redirect: '/' })}
               className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
@@ -47,12 +75,14 @@ export default function DemoClubBanner() {
             </button>
           );
         })}
-        <Link
-          href="/demo"
-          className="px-2.5 py-1 rounded-lg font-bold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors"
-        >
-          Info demo
-        </Link>
+        {isDemo && (
+          <Link
+            href="/demo"
+            className="px-2.5 py-1 rounded-lg font-bold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors"
+          >
+            Info demo
+          </Link>
+        )}
       </div>
     </div>
   );

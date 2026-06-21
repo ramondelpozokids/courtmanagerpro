@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
-import { isProductionApp } from '@/lib/app-mode';
+import { usesDemoClubData, usesProductionClubData } from '@/lib/club-preview';
 import { isMockMode, mapDemoRequests, shouldUseDemoFallback } from '@/lib/demo-data';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import type { Request, CreateRequestForm, RequestFilters } from '@/types';
@@ -15,13 +15,14 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
 
   const supabase = getSupabaseClient() as any;
   const mockMode = isMockMode();
+  const demoActive = mockMode || usesDemoClubData();
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      if (mockMode) {
+      if (mockMode || usesDemoClubData()) {
         setRequests(mapDemoRequests(teamId));
         return;
       }
@@ -46,7 +47,7 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
       const { data, error } = await query;
       if (error) {
         setError(error.message);
-        setRequests(isProductionApp() ? [] : mapDemoRequests(teamId));
+        setRequests(usesProductionClubData() ? [] : mapDemoRequests(teamId));
       } else if (shouldUseDemoFallback(data)) {
         setRequests(mapDemoRequests(teamId));
       } else {
@@ -54,7 +55,7 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar solicitudes');
-      setRequests(isProductionApp() ? [] : mapDemoRequests(teamId));
+      setRequests(usesProductionClubData() ? [] : mapDemoRequests(teamId));
     } finally {
       setLoading(false);
     }
@@ -65,7 +66,7 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
   }, [fetchRequests]);
 
   const createRequest = useCallback(async (form: CreateRequestForm, userId: string): Promise<any> => {
-    if (mockMode) {
+    if (demoActive) {
       const p = db.players.find(pl => pl.id === form.player_id) || db.players[0];
       const newReq = {
         id: "r_" + Math.random().toString(36).substr(2, 9),
@@ -122,14 +123,14 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
 
     await fetchRequests();
     return data;
-  }, [teamId, fetchRequests, mockMode]);
+  }, [teamId, fetchRequests, demoActive]);
 
   const updateStatus = useCallback(async (
     id: string,
     status: Request['status'],
     extra?: { rejection_reason?: string; approved_by?: string; completed_by?: string }
   ): Promise<void> => {
-    if (mockMode) {
+    if (demoActive) {
       const idx = db.requests.findIndex(r => r.id === id);
       if (idx !== -1) {
         // map state
@@ -159,7 +160,7 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
 
     if (error) throw new Error(error.message);
     setRequests(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
-  }, [mockMode, fetchRequests]);
+  }, [demoActive, fetchRequests]);
 
   const addComment = useCallback(async (
     requestId: string,
@@ -167,14 +168,14 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
     authorId: string,
     isInternal = false
   ): Promise<void> => {
-    if (mockMode) return;
+    if (demoActive) return;
 
     const { error } = await supabase
       .from('request_comments')
       .insert({ request_id: requestId, content, author_id: authorId, is_internal: isInternal });
 
     if (error) throw new Error(error.message);
-  }, [mockMode]);
+  }, [demoActive]);
 
   return {
     requests,

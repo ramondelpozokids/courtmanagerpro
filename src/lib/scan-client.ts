@@ -1,7 +1,7 @@
 import { parseScannedValue } from '@/lib/qr-codes';
 import type { GarmentUnit } from '@/types/garment';
 import type { ScanLookupResult } from '@/lib/garment-lookup';
-import { isProductionApp } from '@/lib/app-mode';
+import { usesDemoClubData } from '@/lib/club-preview';
 import { resolveScan } from '@/lib/garment-lookup';
 
 /** Escaneo en cliente: demo local o API Supabase en producción. */
@@ -9,7 +9,7 @@ export async function resolveScanClient(raw: string): Promise<ScanLookupResult |
   const code = parseScannedValue(raw);
   if (!code) return null;
 
-  if (!isProductionApp()) {
+  if (usesDemoClubData()) {
     return resolveScan(code);
   }
 

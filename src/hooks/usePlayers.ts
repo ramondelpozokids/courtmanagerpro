@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isMockMode, mapDemoPlayers, shouldUseDemoFallback } from '@/lib/demo-data';
-import { isProductionApp } from '@/lib/app-mode';
+import { usesDemoClubData, usesProductionClubData } from '@/lib/club-preview';
 import { persistDemoDb } from '@/lib/demo-persistence';
 import {
   type PlayerFormData,
@@ -31,7 +31,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
     setError(null);
 
     try {
-      if (mockMode) {
+      if (mockMode || usesDemoClubData()) {
         setUsingDemoData(true);
         setPlayers(mapDemoPlayers(teamId));
         return;
@@ -46,7 +46,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
 
       if (error) {
         setError(error.message);
-        if (isProductionApp()) {
+        if (usesProductionClubData()) {
           setUsingDemoData(false);
           setPlayers([]);
         } else {
@@ -62,7 +62,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar jugadores');
-      if (isProductionApp()) {
+      if (usesProductionClubData()) {
         setUsingDemoData(false);
         setPlayers([]);
       } else {

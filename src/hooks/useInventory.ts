@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { SupabaseInventoryRepository } from '@/infrastructure/supabase/repositories/SupabaseInventoryRepository';
-import { isProductionApp } from '@/lib/app-mode';
+import { usesDemoClubData, usesProductionClubData } from '@/lib/club-preview';
 import { isMockMode, mapDemoInventory, shouldUseDemoFallback } from '@/lib/demo-data';
 import type {
   InventoryItem,
@@ -61,6 +61,11 @@ export function useInventory(
         return;
       }
 
+      if (usesDemoClubData()) {
+        applyDemoItems(teamId);
+        return;
+      }
+
       const result = await repo.findAll(teamId, filters, pagination, sort);
       if (shouldUseDemoFallback(result.data)) {
         applyDemoItems(teamId);
@@ -70,7 +75,7 @@ export function useInventory(
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar inventario');
-      if (!isProductionApp()) {
+      if (!usesProductionClubData()) {
         applyDemoItems(teamId);
       } else {
         setUsingDemoData(false);
