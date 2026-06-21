@@ -197,16 +197,13 @@ export function Sidebar() {
               <p className="text-xs font-bold truncate text-slate-100 group-hover:text-orange-300 transition-colors">{full_name}</p>
               <p className="text-[10px] text-slate-400 truncate uppercase tracking-wider font-semibold mt-0.5">{user_role.replace("_", " ")}</p>
             </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="text-slate-400 hover:text-white hover:bg-slate-850 h-8 w-8"
+            <Link
+              href="/cuenta"
+              title="Mi cuenta"
+              className="inline-flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-slate-850 h-8 w-8 transition-colors"
             >
-              <Link href="/cuenta" title="Mi cuenta">
-                <KeyRound className="h-4 w-4" />
-              </Link>
-            </Button>
+              <KeyRound className="h-4 w-4" />
+            </Link>
             <Button
               variant="ghost"
               size="icon"
