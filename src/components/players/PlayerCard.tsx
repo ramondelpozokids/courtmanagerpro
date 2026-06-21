@@ -7,10 +7,11 @@ import Link from "next/link";
 interface PlayerCardProps {
   player: Player;
   onDelete?: (id: string) => void;
+  onEdit?: (player: Player) => void;
   canWrite?: boolean;
 }
 
-export default function PlayerCard({ player, onDelete, canWrite }: PlayerCardProps) {
+export default function PlayerCard({ player, onDelete, onEdit, canWrite }: PlayerCardProps) {
   const positionLabels: Record<string, string> = {
     base: "Base (PG)",
     escolta: "Escolta (SG)",
@@ -77,13 +78,26 @@ export default function PlayerCard({ player, onDelete, canWrite }: PlayerCardPro
           href={`/players/${player.id}`}
           className="flex-1 text-center py-2 rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-orange-600 dark:text-orange-400 text-xs font-bold transition-all"
         >
-          Ver Perfil Completo
+          Ver Perfil
         </Link>
+        {canWrite && onEdit && (
+          <button
+            onClick={() => onEdit(player)}
+            className="px-2.5 py-2 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-xs font-bold transition-all"
+            title="Editar jugador"
+          >
+            Editar
+          </button>
+        )}
         {canWrite && onDelete && (
           <button
-            onClick={() => onDelete(player.id)}
+            onClick={() => {
+              if (confirm(`¿Eliminar a ${player.full_name} de la plantilla?`)) {
+                onDelete(player.id);
+              }
+            }}
             className="px-2.5 py-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs font-bold transition-all"
-            title="Borrar Jugador"
+            title="Eliminar jugador"
           >
             Borrar
           </button>

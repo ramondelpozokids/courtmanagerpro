@@ -9,43 +9,56 @@ import {
   readStoredDemoClubSlug,
 } from '@/lib/club-demo-loader';
 import { useAuth } from '@/contexts/AuthContext';
+import { isDemoMode } from '@/lib/app-mode';
 
 interface ClubDemoContextValue {
   club: ClubDemoPack;
   clubSlug: ClubSlug;
   switching: boolean;
   switchClub: (slug: ClubSlug, options?: { redirect?: string }) => void;
+  isDemo: boolean;
 }
 
 const ClubDemoContext = createContext<ClubDemoContextValue | null>(null);
 
+const PRODUCTION_CLUB_SLUG: ClubSlug = 'rmb';
+
 export function ClubDemoProvider({ children }: { children: ReactNode }) {
   const { setCurrentTeam } = useAuth();
-  const [clubSlug, setClubSlug] = useState<ClubSlug>('rmb');
-  const [club, setClub] = useState<ClubDemoPack>(() => getClubPack('rmb'));
+  const demo = isDemoMode();
+  const [clubSlug, setClubSlug] = useState<ClubSlug>(demo ? 'rmb' : PRODUCTION_CLUB_SLUG);
+  const [club, setClub] = useState<ClubDemoPack>(() => getClubPack(demo ? 'rmb' : PRODUCTION_CLUB_SLUG));
   const [switching, setSwitching] = useState(false);
 
   const applyClub = useCallback(
     (slug: ClubSlug) => {
       const pack = getClubPack(slug);
-      const team = loadClubBySlug(slug);
-      persistDemoClubSlug(slug);
+      if (demo) {
+        const team = loadClubBySlug(slug);
+        persistDemoClubSlug(slug);
+        setCurrentTeam(team);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('club-demo-changed', { detail: { slug } }));
+        }
+      }
       setClubSlug(slug);
       setClub(pack);
-      setCurrentTeam(team);
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('club-demo-changed', { detail: { slug } }));
-      }
     },
-    [setCurrentTeam]
+    [demo, setCurrentTeam]
   );
 
   useEffect(() => {
-    applyClub(readStoredDemoClubSlug());
-  }, [applyClub]);
+    if (demo) {
+      applyClub(readStoredDemoClubSlug());
+    } else {
+      setClubSlug(PRODUCTION_CLUB_SLUG);
+      setClub(getClubPack(PRODUCTION_CLUB_SLUG));
+    }
+  }, [applyClub, demo]);
 
   const switchClub = useCallback(
     (slug: ClubSlug, options?: { redirect?: string }) => {
+      if (!demo) return;
       setSwitching(true);
       applyClub(slug);
       setSwitching(false);
@@ -53,11 +66,11 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         window.location.href = options.redirect;
       }
     },
-    [applyClub]
+    [applyClub, demo]
   );
 
   return (
-    <ClubDemoContext.Provider value={{ club, clubSlug, switching, switchClub }}>
+    <ClubDemoContext.Provider value={{ club, clubSlug, switching, switchClub, isDemo: demo }}>
       {children}
     </ClubDemoContext.Provider>
   );

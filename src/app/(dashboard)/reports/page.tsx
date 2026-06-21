@@ -3,8 +3,9 @@
 import { useInventory } from "@/hooks/useInventory";
 import { usePlayers } from "@/hooks/usePlayers";
 import { useAuth } from "@/contexts/AuthContext";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { canAccessReports, canWriteClubData } from "@/lib/permissions";
-import { DEFAULT_SIZING_PRODUCTS } from "@/content/sizing-products";
+import { exportInventoryCsv, exportSizingCsv } from "@/lib/csv-export";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import {
   TrendingUp, Download, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler,
@@ -12,6 +13,7 @@ import {
 
 export default function ReportsPage() {
   const { user } = useAuth();
+  const branding = useClubBranding();
   const { items } = useInventory();
   const { players } = usePlayers();
   const role = user?.profile?.role;
@@ -30,32 +32,25 @@ export default function ReportsPage() {
     return acc;
   }, {});
 
-  const exportInventoryCSV = () => {
-    let csv = "data:text/csv;charset=utf-8,ID,Nombre,SKU,Categoria,Stock,Talla,Precio,Valor Total\r\n";
-    items.forEach((item) => {
-      csv += `${item.id},"${item.name}",${item.sku},${item.category},${item.stock_available},"${item.size || "U"}",${item.unit_cost || 0},${(item.unit_cost || 0) * item.stock_available}\r\n`;
-    });
-    const link = document.createElement("a");
-    link.href = encodeURI(csv);
-    link.download = "inventario_utileria_courtmanager.csv";
-    link.click();
+  const handleExportInventory = () => {
+    exportInventoryCsv(
+      branding.slug,
+      items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        sku: item.sku,
+        category: item.category,
+        stock_available: item.stock_available,
+        stock_min: item.stock_min,
+        size: item.size,
+        unit_cost: item.unit_cost,
+        location: (item as { location?: string }).location,
+      }))
+    );
   };
 
-  const exportSizingCSV = () => {
-    let csv = "data:text/csv;charset=utf-8,Jugador,Dorsal,Posicion";
-    DEFAULT_SIZING_PRODUCTS.forEach((p) => { csv += `,${p.label}`; });
-    csv += "\r\n";
-    db.players.forEach((p) => {
-      csv += `"${p.firstName} ${p.lastName}",${p.number},${p.position}`;
-      DEFAULT_SIZING_PRODUCTS.forEach((prod) => {
-        csv += `,"${p.sizes?.[prod.id] || p.sizes?.[prod.legacyKey || ""] || "—"}"`;
-      });
-      csv += "\r\n";
-    });
-    const link = document.createElement("a");
-    link.href = encodeURI(csv);
-    link.download = "tabla_tallas_plantilla_rmb.csv";
-    link.click();
+  const handleExportSizing = () => {
+    exportSizingCsv(branding.slug, db.players, db.coachingStaff, db.customSizingProducts);
   };
 
   if (!canAccessReports(role, userEmail)) {
@@ -78,15 +73,15 @@ export default function ReportsPage() {
             Informes de Equipación y Utilería
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Valor de almacén, rotación de material, tallajes de plantilla ({players.length} jugadores) e informes exportables para Carlos Kobe.
+            {branding.name} — exportación con cabecera oficial, valor de almacén y tabla de tallas ({players.length} jugadores).
           </p>
         </div>
         {canExport && (
           <div className="flex flex-wrap gap-2">
-            <button onClick={exportInventoryCSV} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-md">
+            <button onClick={handleExportInventory} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-md">
               <Download className="h-4 w-4" /> Inventario CSV
             </button>
-            <button onClick={exportSizingCSV} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-bold">
+            <button onClick={handleExportSizing} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-bold">
               <Ruler className="h-4 w-4 text-orange-500" /> Tallas CSV
             </button>
           </div>
@@ -99,7 +94,7 @@ export default function ReportsPage() {
           { icon: Package, label: "Valor Almacén", value: `€${totalValue.toLocaleString("es-ES")}`, color: "text-slate-800 dark:text-white" },
           { icon: Users, label: "Jugadores Activos", value: String(players.length), color: "text-orange-600" },
           { icon: Shirt, label: "Referencias Inventario", value: String(items.length), color: "text-slate-800 dark:text-white" },
-          { icon: Ruler, label: "Productos de Talla", value: String(DEFAULT_SIZING_PRODUCTS.length + db.customSizingProducts.length), color: "text-emerald-600" },
+          { icon: Ruler, label: "Productos de Talla", value: String(26 + db.customSizingProducts.length), color: "text-emerald-600" },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
             <Icon className="h-5 w-5 text-orange-500 mb-2" />

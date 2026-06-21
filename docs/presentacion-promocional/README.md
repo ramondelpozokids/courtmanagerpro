@@ -4,29 +4,27 @@ Landing pages HTML para inversores, compradores y clientes potenciales.
 
 ## Archivos
 
-| Archivo | Idioma |
-|---------|--------|
-| [index.html](./index.html) | Selector ES / EN |
-| [es.html](./es.html) | Español + narración por voz |
-| [en.html](./en.html) | English + voice narration |
-| [voice.js](./voice.js) | Motor de voz (Web Speech API) |
-| [assets/](./assets/) | Imágenes locales (hero, galería, equipo) |
-
-## Imágenes incluidas (carpeta `assets/`)
-
-- `hero.png` — Dashboard principal
-- `logo.png` — Logo CourtManager Pro
-- `inventory-qr.jpg` — Inventario y QR
-- `euroleague-travel.jpg` — Viajes Euroliga
-- `arena-operations.jpg` — Operativa en pabellón
-- `carlos_kobe.png` / `ramon-del-pozo.png` — Equipo
+| Archivo | Idioma | Audio |
+|---------|--------|-------|
+| [index.html](./index.html) | Selector ES / CA / EN | — |
+| [es.html](./es.html) | Español | `audio/es.mp3` (voz profesional) |
+| [ca.html](./ca.html) | Català | `audio/ca.mp3` (veu professional) |
+| [en.html](./en.html) | English | Web Speech API (sintética) |
+| [voice.js](./voice.js) | Motor de narración | MP3 + TTS |
+| [audio/](./audio/) | Pistas de voz | `es.mp3`, `ca.mp3` |
+| [assets/](./assets/) | Imágenes locales | hero, galería, equipo |
 
 ## Narración por voz
 
-En **es.html** y **en.html** aparece un panel fijo 🎙️ abajo a la izquierda:
-- **Escuchar presentación** / **Listen to pitch** (~4 min)
-- Pausar / Continuar / Detener
-- Usa la voz sintética del navegador (es-ES / en-US)
+En **es.html**, **ca.html** y **en.html** aparece un panel fijo 🎙️ abajo a la izquierda:
+
+| Idioma | Fuente |
+|--------|--------|
+| ES | `audio/es.mp3` — voz profesional grabada |
+| CA | `audio/ca.mp3` — veu professional gravada |
+| EN | Voz sintética del navegador (en-US) |
+
+Controles: Escuchar / Pausar / Continuar / Detener + barra de progreso.
 
 ## Cómo abrir en local
 
@@ -34,7 +32,7 @@ En **es.html** y **en.html** aparece un panel fijo 🎙️ abajo a la izquierda:
 Start-Process "C:\Users\X\Desktop\courtmanager-pro\docs\presentacion-promocional\es.html"
 ```
 
-Todas las imágenes cargan desde `./assets/` — funciona sin internet.
+Todas las imágenes cargan desde `./assets/` — funciona sin internet (excepto iframe demo y fuentes Google Fonts).
 
 ## Contenido
 

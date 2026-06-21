@@ -55,7 +55,7 @@ export async function DELETE(_req: NextRequest, { params }: Params): Promise<Nex
 
   const { error } = await supabase
     .from('players')
-    .update({ is_active: false })
+    .delete()
     .eq('id', id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

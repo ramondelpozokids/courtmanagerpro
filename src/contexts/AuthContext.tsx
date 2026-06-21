@@ -14,6 +14,7 @@ import {
 import { canModifyProject, hasFullClubAccess } from '@/lib/permissions';
 import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { isDemoMode } from '@/lib/app-mode';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -89,8 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentTeam, setCurrentTeamState] = useState<Team | null>(null);
 
   const supabase = getSupabaseClient() as any;
-  const isMockMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
-                    process.env.NEXT_PUBLIC_SUPABASE_URL.includes("your-project");
+  const mockAuth = isDemoMode();
 
   const loadUserData = useCallback(async (userId: string) => {
     try {
@@ -198,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [buildUserFromRole]);
 
   useEffect(() => {
-    if (isMockMode) {
+    if (mockAuth) {
       restoreMockSession();
       setLoading(false);
       return;
@@ -246,10 +246,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         subscription.unsubscribe();
       }
     };
-  }, [loadUserData, isMockMode, supabase, restoreMockSession]);
+  }, [loadUserData, mockAuth, supabase, restoreMockSession]);
 
   const login = useCallback(async ({ email, password }: LoginForm) => {
-    if (isMockMode) {
+    if (mockAuth) {
       const cred = findMockCredential(email, password);
       if (!cred) throw new Error('Email o contraseña incorrectos.');
       const userData = buildUserFromRole(cred.role, {
@@ -264,7 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
-  }, [isMockMode, supabase, buildUserFromRole]);
+  }, [mockAuth, supabase, buildUserFromRole]);
 
   const loginWithBiometric = useCallback(async (email: string) => {
     const result = await loginWithPasskey(email);
@@ -279,7 +279,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [buildUserFromRole]);
 
   const register = useCallback(async ({ email, password, full_name, role }: RegisterForm) => {
-    if (isMockMode) {
+    if (mockAuth) {
       const userData = buildUserFromRole(role || 'assistant', { full_name, email });
       setUser(userData);
       setCurrentTeamState(defaultMockTeam);
@@ -294,11 +294,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .insert({ id: data.user.id, email, full_name, role: role || 'assistant' });
       if (profileError) throw new Error(profileError.message);
     }
-  }, [isMockMode, supabase]);
+  }, [mockAuth, supabase]);
 
   const logout = useCallback(async () => {
     clearAuthCookies();
-    if (isMockMode) {
+    if (mockAuth) {
       setUser(null);
       setCurrentTeamState(null);
       if (typeof window !== 'undefined') {
@@ -313,11 +313,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       window.location.href = '/login';
     }
-  }, [isMockMode, supabase]);
+  }, [mockAuth, supabase]);
 
   const updateProfile = useCallback(async (updates: Partial<Profile>) => {
     if (!user) return;
-    if (isMockMode) {
+    if (mockAuth) {
       setUser((prev: any) => prev ? { ...prev, profile: { ...prev.profile, ...updates } } : null);
       return;
     }
@@ -330,7 +330,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (error) throw new Error(error.message);
     setUser((prev: any) => prev ? { ...prev, profile: data as Profile } : null);
-  }, [user, isMockMode, supabase]);
+  }, [user, mockAuth, supabase]);
 
   const setCurrentTeam = useCallback((team: Team) => {
     setCurrentTeamState(team);

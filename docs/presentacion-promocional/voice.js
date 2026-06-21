@@ -1,35 +1,15 @@
-/* Narración guiada CourtManager Pro — Web Speech API */
+/* Narración guiada CourtManager Pro — MP3 (ES/CA) + Web Speech (EN) */
 (function () {
+  const lang = (document.documentElement.lang || 'es').toLowerCase();
+  const AUDIO_SRC = { es: 'audio/es.mp3', ca: 'audio/ca.mp3' };
+  const useAudio = Object.prototype.hasOwnProperty.call(AUDIO_SRC, lang);
+
   const SCRIPTS = {
-    es: `Bienvenido a CourtManager Pro. Soy tu guía en esta presentación.
-
-CourtManager Pro es la plataforma SaaS de gestión de utilería para clubes de baloncesto profesional: ACB, Euroliga y categorías elite. Centraliza en una sola aplicación web todo lo que hoy se hace con Excel y WhatsApp.
-
-En la cabecera verás el acceso a la demo en vivo, las funciones, los precios y la sección para inversores. Puedes cambiar el idioma entre español e inglés en cualquier momento.
-
-El dashboard es el centro de mando. Muestra el estado del club en tiempo real: jugadores registrados, stock de material, solicitudes pendientes y viajes en preparación. La demo incluye diecisiete jugadores y cuatro competiciones: Liga Endesa, Euroliga, Copa del Rey y Supercopa.
-
-En la sección de demo en vivo puedes explorar la aplicación desplegada en Vercel sin instalar nada. El flujo cubre cuatro pasos: plantilla y fichas por competición, solicitudes y tallas, viajes y alertas, e informes para la dirección deportiva.
-
-Los nueve módulos principales son: plantilla profesional, tabla de tallas con más de veintiséis productos, inventario con código QR, solicitudes de material, viajes y packing lists, lavandería, material médico con alertas de caducidad, dashboard de KPIs y alertas inteligentes de cumpleaños y stock.
-
-La galería visual muestra el dashboard en producción, el inventario con QR, la logística de viajes Euroliga, la validación operativa por Carlos Rodriguez Kobe como equipment manager, y la operativa en pabellón.
-
-Los precios son transparentes. Plan Starter desde cuarenta y nueve euros al mes para canteras. Plan Pro a trescientos cuarenta y nueve euros para clubes ACB. Plan Elite a mil novecientos noventa euros para Euroliga. Puedes elegir facturación mensual o anual con un diecisiete por ciento de ahorro.
-
-Para inversores: el coste de reemplazo del MVP ronda los cuarenta y cinco mil euros, con un margen bruto del ochenta y cinco al noventa por ciento. El objetivo realista de ingresos recurrentes en el primer año es de ciento veintitrés mil euros. El mercado incluye más de treinta y seis clubes ACB y Euroliga en España.
-
-El equipo está liderado por Ramón del Pozo Rott, creador y superadministrador, y Carlos Rodriguez Kobe, equipment manager que valida la operativa real del club.
-
-CourtManager Pro recupera su coste en el primer mes: un club que pierde veinte mil euros en material al año invierte menos de cuatro mil doscientos en la plataforma.
-
-Para probar la demo visita courtmanagerpro punto vercel punto app, o escribe a info arroba ramondelpozorott punto es. Gracias por tu atención.`,
-
     en: `Welcome to CourtManager Pro. I'll guide you through this presentation.
 
 CourtManager Pro is a SaaS platform for professional basketball equipment management: ACB, EuroLeague and elite academies. It replaces Excel spreadsheets and WhatsApp threads with one unified web application.
 
-In the header you'll find the live demo, features, pricing and investors section. You can switch between Spanish and English at any time.
+In the header you'll find the live demo, features, pricing and investors section. You can switch between Spanish, Catalan and English at any time.
 
 The dashboard is your command center. It shows real-time club status: registered players, stock levels, pending requests and trips in preparation. The demo includes seventeen players across four competitions: Liga Endesa, EuroLeague, Copa del Rey and SuperCup.
 
@@ -50,15 +30,41 @@ CourtManager Pro pays for itself in month one: a club losing twenty thousand eur
 To try the demo visit courtmanagerpro dot vercel dot app, or email info at ramondelpozorott dot es. Thank you for listening.`,
   };
 
-  const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
   const labels = {
-    es: { play: '▶ Escuchar presentación', pause: '⏸ Pausar', resume: '▶ Continuar', stop: '⏹ Detener', title: 'Narración guiada', hint: 'Voz sintética · ~4 min' },
-    en: { play: '▶ Listen to pitch', pause: '⏸ Pause', resume: '▶ Resume', stop: '⏹ Stop', title: 'Guided narration', hint: 'Synthetic voice · ~4 min' },
+    es: {
+      play: '▶ Escuchar presentación',
+      pause: '⏸ Pausar',
+      resume: '▶ Continuar',
+      stop: '⏹ Detener',
+      title: 'Narración guiada',
+      hint: 'Voz profesional · audio MP3',
+    },
+    ca: {
+      play: '▶ Escoltar presentació',
+      pause: '⏸ Pausar',
+      resume: '▶ Continuar',
+      stop: '⏹ Aturar',
+      title: 'Narració guiada',
+      hint: 'Veu professional · àudio MP3',
+    },
+    en: {
+      play: '▶ Listen to pitch',
+      pause: '⏸ Pause',
+      resume: '▶ Resume',
+      stop: '⏹ Stop',
+      title: 'Guided narration',
+      hint: 'Synthetic voice · ~4 min',
+    },
   };
-  const L = labels[lang];
+  const L = labels[lang] || labels.es;
 
+  let audio = null;
   let utterance = null;
   let paused = false;
+  let playBtn;
+  let pauseBtn;
+  let stopBtn;
+  let bar;
 
   function buildPanel() {
     const panel = document.createElement('div');
@@ -104,90 +110,151 @@ To try the demo visit courtmanagerpro dot vercel dot app, or email info at ramon
       .voice-btn:disabled { opacity: 0.35; cursor: default; }
       .voice-btn.primary { background: linear-gradient(135deg,#f97316,#ea580c); border-color: #f97316; color: #fff; }
       .voice-progress { margin-top: 0.65rem; height: 4px; background: #1e293b; border-radius: 999px; overflow: hidden; }
-      #voice-bar { height: 100%; width: 0%; background: #f97316; transition: width 0.3s; border-radius: 999px; }
+      #voice-bar { height: 100%; width: 0%; background: #f97316; transition: width 0.15s linear; border-radius: 999px; }
       @media (max-width: 600px) { #voice-panel { left: 0.75rem; right: 0.75rem; max-width: none; } }
     `;
     document.head.appendChild(style);
 
-    const playBtn = document.getElementById('voice-play');
-    const pauseBtn = document.getElementById('voice-pause');
-    const stopBtn = document.getElementById('voice-stop');
-    const bar = document.getElementById('voice-bar');
+    playBtn = document.getElementById('voice-play');
+    pauseBtn = document.getElementById('voice-pause');
+    stopBtn = document.getElementById('voice-stop');
+    bar = document.getElementById('voice-bar');
 
-    function pickVoice() {
-      const voices = speechSynthesis.getVoices();
-      const prefer = lang === 'es'
-        ? voices.find(v => v.lang.startsWith('es') && /female|paula|helena|laura|espa/i.test(v.name))
-          || voices.find(v => v.lang.startsWith('es'))
-        : voices.find(v => v.lang.startsWith('en') && /female|samantha|google us english/i.test(v.name))
-          || voices.find(v => v.lang.startsWith('en'));
-      return prefer || voices[0];
+    playBtn.addEventListener('click', onPlayClick);
+    pauseBtn.addEventListener('click', onPauseClick);
+    stopBtn.addEventListener('click', stopNarration);
+
+    if (!useAudio && window.speechSynthesis) {
+      speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
     }
+  }
 
-    function resetUI() {
-      playBtn.textContent = L.play;
-      playBtn.disabled = false;
-      pauseBtn.disabled = true;
-      stopBtn.disabled = true;
-      pauseBtn.textContent = L.pause;
-      bar.style.width = '0%';
-      paused = false;
+  function resetUI() {
+    playBtn.textContent = L.play;
+    playBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+    pauseBtn.textContent = L.pause;
+    bar.style.width = '0%';
+    paused = false;
+  }
+
+  function updateProgressFromAudio() {
+    if (!audio || !audio.duration) return;
+    bar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+  }
+
+  function onNarrationEnd() {
+    bar.style.width = '100%';
+    setTimeout(resetUI, 600);
+  }
+
+  function stopNarration() {
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio = null;
     }
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    utterance = null;
+    resetUI();
+  }
 
-    function startSpeech() {
-      speechSynthesis.cancel();
-      utterance = new SpeechSynthesisUtterance(SCRIPTS[lang]);
-      utterance.rate = 0.95;
-      utterance.pitch = 1;
-      utterance.volume = 1;
-      const voice = pickVoice();
-      if (voice) utterance.voice = voice;
-
-      let prog = 0;
-      const tick = setInterval(() => {
-        if (!speechSynthesis.speaking && !paused) { clearInterval(tick); return; }
-        prog = Math.min(prog + 0.4, speechSynthesis.speaking ? 92 : 100);
-        bar.style.width = prog + '%';
-      }, 800);
-
-      utterance.onend = () => { clearInterval(tick); bar.style.width = '100%'; setTimeout(resetUI, 600); };
-      utterance.onerror = () => { clearInterval(tick); resetUI(); };
-
-      speechSynthesis.speak(utterance);
+  function startAudio() {
+    stopNarration();
+    audio = new Audio(AUDIO_SRC[lang]);
+    audio.addEventListener('timeupdate', updateProgressFromAudio);
+    audio.addEventListener('ended', onNarrationEnd);
+    audio.addEventListener('error', resetUI);
+    audio.play().then(() => {
       playBtn.disabled = true;
       pauseBtn.disabled = false;
       stopBtn.disabled = false;
-    }
+    }).catch(resetUI);
+  }
 
-    playBtn.addEventListener('click', () => {
-      if (paused) {
-        speechSynthesis.resume();
+  function pickEnglishVoice() {
+    const voices = speechSynthesis.getVoices();
+    return (
+      voices.find((v) => v.lang.startsWith('en') && /female|samantha|google us english/i.test(v.name))
+      || voices.find((v) => v.lang.startsWith('en'))
+      || voices[0]
+    );
+  }
+
+  function startSpeech() {
+    if (!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    utterance = new SpeechSynthesisUtterance(SCRIPTS.en);
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    const voice = pickEnglishVoice();
+    if (voice) utterance.voice = voice;
+
+    let prog = 0;
+    const tick = setInterval(() => {
+      if (!speechSynthesis.speaking && !paused) {
+        clearInterval(tick);
+        return;
+      }
+      prog = Math.min(prog + 0.4, speechSynthesis.speaking ? 92 : 100);
+      bar.style.width = `${prog}%`;
+    }, 800);
+
+    utterance.onend = () => {
+      clearInterval(tick);
+      onNarrationEnd();
+    };
+    utterance.onerror = () => {
+      clearInterval(tick);
+      resetUI();
+    };
+
+    speechSynthesis.speak(utterance);
+    playBtn.disabled = true;
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+  }
+
+  function onPlayClick() {
+    if (useAudio) {
+      if (paused && audio) {
+        audio.play();
         paused = false;
         playBtn.disabled = true;
         pauseBtn.disabled = false;
-        pauseBtn.textContent = L.pause;
         return;
       }
-      startSpeech();
-    });
+      startAudio();
+      return;
+    }
+    if (paused) {
+      speechSynthesis.resume();
+      paused = false;
+      playBtn.disabled = true;
+      pauseBtn.disabled = false;
+      return;
+    }
+    startSpeech();
+  }
 
-    pauseBtn.addEventListener('click', () => {
-      if (speechSynthesis.speaking && !speechSynthesis.paused) {
-        speechSynthesis.pause();
-        paused = true;
-        playBtn.disabled = false;
-        playBtn.textContent = L.resume;
-        pauseBtn.disabled = true;
-      }
-    });
-
-    stopBtn.addEventListener('click', () => {
-      speechSynthesis.cancel();
-      resetUI();
-    });
-
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = () => pickVoice();
+  function onPauseClick() {
+    if (useAudio && audio && !audio.paused) {
+      audio.pause();
+      paused = true;
+      playBtn.disabled = false;
+      playBtn.textContent = L.resume;
+      pauseBtn.disabled = true;
+      return;
+    }
+    if (speechSynthesis.speaking && !speechSynthesis.paused) {
+      speechSynthesis.pause();
+      paused = true;
+      playBtn.disabled = false;
+      playBtn.textContent = L.resume;
+      pauseBtn.disabled = true;
     }
   }
 

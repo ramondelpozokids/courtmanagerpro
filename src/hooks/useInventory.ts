@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { SupabaseInventoryRepository } from '@/infrastructure/supabase/repositories/SupabaseInventoryRepository';
+import { isProductionApp } from '@/lib/app-mode';
 import { isMockMode, mapDemoInventory, shouldUseDemoFallback } from '@/lib/demo-data';
 import type {
   InventoryItem,
@@ -69,7 +70,12 @@ export function useInventory(
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar inventario');
-      applyDemoItems(teamId);
+      if (!isProductionApp()) {
+        applyDemoItems(teamId);
+      } else {
+        setUsingDemoData(false);
+        setItems({ data: [], count: 0, page: 1, pageSize: 50, totalPages: 0 });
+      }
     } finally {
       setLoading(false);
     }

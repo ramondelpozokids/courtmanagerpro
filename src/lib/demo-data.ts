@@ -4,15 +4,7 @@ import { buildPlayerMetadataExtras } from '@/lib/player-profile';
 import { getPlayerCompetitionStats } from '@/lib/player-competitions';
 import type { Player, Request } from '@/types';
 
-export function isMockMode(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  return !url || url.includes('your-project') || url.includes('dummy-project');
-}
-
-/** Use demo roster when Supabase is empty or unreachable (production without seed data). */
-export function shouldUseDemoFallback(rows: unknown[] | null | undefined): boolean {
-  return !rows || rows.length === 0;
-}
+export { isMockMode, isDemoMode, isProductionApp, shouldUseDemoFallback } from '@/lib/app-mode';
 
 export function mapDemoPlayerDetail(id: string) {
   const localP = db.players.find((p) => p.id === id);

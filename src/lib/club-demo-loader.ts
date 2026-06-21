@@ -1,8 +1,9 @@
 import type { ClubDemoPack, ClubSlug } from '@/data/clubs/types';
 import { getClubPack, getClubSlugByTeamId } from '@/data/clubs';
-import { loadClubDemoData } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { loadClubDemoData, db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { buildGarmentUnitsForClub } from '@/lib/garment-units-seed';
 import { CLUB_TEAM_IDS, DEMO_CLUB_STORAGE_KEY } from '@/lib/club-team-ids';
+import { loadPersistedDemoState } from '@/lib/demo-persistence';
 import type { Team } from '@/types';
 
 export function packToTeam(pack: ClubDemoPack): Team {
@@ -24,20 +25,32 @@ export function packToTeam(pack: ClubDemoPack): Team {
 }
 
 export function loadClubPack(pack: ClubDemoPack): Team {
+  const slug = pack.branding.slug;
+  const saved = typeof window !== 'undefined' ? loadPersistedDemoState(slug) : null;
+
+  if (saved?.customSizingProducts) {
+    db.customSizingProducts = [...saved.customSizingProducts];
+  } else {
+    db.customSizingProducts = [];
+  }
+
+  const players = saved?.players ?? pack.players;
+  const coachingStaff = saved?.coachingStaff ?? pack.coachingStaff;
+
   const garmentUnits = buildGarmentUnitsForClub(
-    pack.branding.slug,
+    slug,
     pack.branding.teamId,
-    pack.players,
+    players,
     pack.inventory
   );
   loadClubDemoData({
-    players: pack.players,
+    players,
     inventory: pack.inventory,
     requests: pack.requests,
     trips: pack.trips,
     laundry: pack.laundry,
     alerts: pack.alerts,
-    coachingStaff: pack.coachingStaff,
+    coachingStaff,
     garmentUnits,
   });
   return packToTeam(pack);

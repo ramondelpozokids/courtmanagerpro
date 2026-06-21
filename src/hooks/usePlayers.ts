@@ -4,6 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isMockMode, mapDemoPlayers, shouldUseDemoFallback } from '@/lib/demo-data';
+import { isProductionApp } from '@/lib/app-mode';
+import { persistDemoDb } from '@/lib/demo-persistence';
+import {
+  type PlayerFormData,
+  formDataToCreatePlayerForm,
+  formDataToDemoPlayer,
+  formDataToUpdatePayload,
+} from '@/lib/player-form-mapper';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
 
@@ -38,8 +46,13 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
 
       if (error) {
         setError(error.message);
-        setUsingDemoData(true);
-        setPlayers(mapDemoPlayers(teamId));
+        if (isProductionApp()) {
+          setUsingDemoData(false);
+          setPlayers([]);
+        } else {
+          setUsingDemoData(true);
+          setPlayers(mapDemoPlayers(teamId));
+        }
       } else if (shouldUseDemoFallback(data)) {
         setUsingDemoData(true);
         setPlayers(mapDemoPlayers(teamId));
@@ -49,8 +62,13 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar jugadores');
-      setUsingDemoData(true);
-      setPlayers(mapDemoPlayers(teamId));
+      if (isProductionApp()) {
+        setUsingDemoData(false);
+        setPlayers([]);
+      } else {
+        setUsingDemoData(true);
+        setPlayers(mapDemoPlayers(teamId));
+      }
     } finally {
       setLoading(false);
     }
@@ -63,14 +81,15 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
   useEffect(() => {
     const handler = () => fetchPlayers();
     window.addEventListener('club-demo-changed', handler);
-    return () => window.removeEventListener('club-demo-changed', handler);
+    window.addEventListener('demo-db-changed', handler);
+    return () => {
+      window.removeEventListener('club-demo-changed', handler);
+      window.removeEventListener('demo-db-changed', handler);
+    };
   }, [fetchPlayers]);
 
   const getPlayerInventory = useCallback(async (playerId: string): Promise<ItemAssignment[]> => {
-    if (demoActive) {
-      // Simple static mock assignments
-      return [];
-    }
+    if (demoActive) return [];
 
     const { data, error } = await supabase
       .from('item_assignments')
@@ -85,11 +104,11 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
 
   const assignItem = useCallback(async (form: AssignItemForm): Promise<ItemAssignment> => {
     if (demoActive) {
-      const mockAs: ItemAssignment = {
-        id: "as_" + Math.random().toString(36).substr(2, 9),
+      return {
+        id: 'as_' + Math.random().toString(36).substr(2, 9),
         item_id: form.item_id,
         player_id: form.player_id,
-        assigned_by: "u1",
+        assigned_by: 'u1',
         quantity: form.quantity,
         assigned_at: new Date().toISOString(),
         returned_at: null,
@@ -100,15 +119,9 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
         is_returned: false,
         created_at: new Date().toISOString(),
       };
-      return mockAs;
     }
 
-    const { data, error } = await supabase
-      .from('item_assignments')
-      .insert(form)
-      .select()
-      .single();
-
+    const { data, error } = await supabase.from('item_assignments').insert(form).select().single();
     if (error) throw new Error(error.message);
     return data as ItemAssignment;
   }, [demoActive, supabase]);
@@ -131,25 +144,28 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
   const createPlayer = useCallback(async (form: CreatePlayerForm): Promise<Player> => {
     if (demoActive) {
       const newP = {
-        id: "p_" + Math.random().toString(36).substr(2, 9),
-        firstName: form.full_name.split(" ")[0] || "Nuevo",
-        lastName: form.full_name.split(" ").slice(1).join(" ") || "Jugador",
-        number: form.dorsal,
-        position: (form.position.toUpperCase() === "BASE" ? "PG" : "SF") as any,
-        status: "ACTIVE" as const,
-        sizes: {
-          jersey: form.shirt_size || "XL",
-          shorts: form.shorts_size || "XL",
-          shoes: String(form.shoe_size || 47),
-          socks: "L",
-          warmupShirt: form.jacket_size || "XXL"
-        },
-        nationality: form.nationality || "España",
-        birthDate: form.birth_date || "1998-05-10"
+        id: 'p_' + Math.random().toString(36).substr(2, 9),
+        ...formDataToDemoPlayer({
+          firstName: form.full_name.split(' ')[0] || 'Nuevo',
+          lastName: form.full_name.split(' ').slice(1).join(' ') || 'Jugador',
+          number: form.dorsal,
+          position: 'PG',
+          status: 'ACTIVE',
+          nationality: form.nationality,
+          sizes: {
+            jersey: form.shirt_size || 'XL',
+            shorts: form.shorts_size || 'XL',
+            shoes: String(form.shoe_size || 47),
+            socks: 'L',
+            warmupShirt: form.jacket_size || 'XXL',
+          },
+        }),
       };
+      newP.position = form.position;
       db.players.push(newP);
+      persistDemoDb();
       await fetchPlayers();
-      return players.find(p => p.id === newP.id) as Player || {} as Player;
+      return mapDemoPlayers(teamId).find((p) => p.id === newP.id) as Player;
     }
 
     const { data, error } = await supabase
@@ -159,38 +175,94 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
       .single();
 
     if (error) throw new Error(error.message);
-    setPlayers(prev => [...prev, data as Player].sort((a, b) => a.dorsal - b.dorsal));
+    setPlayers((prev) => [...prev, data as Player].sort((a, b) => a.dorsal - b.dorsal));
     return data as Player;
-  }, [teamId, demoActive, fetchPlayers, players, supabase]);
+  }, [teamId, demoActive, fetchPlayers, supabase]);
 
-  const updatePlayer = useCallback(async (id: string, updates: Partial<Player>): Promise<Player> => {
-    if (demoActive) {
-      const idx = db.players.findIndex(p => p.id === id);
-      if (idx !== -1) {
-        db.players[idx] = { ...db.players[idx], ...updates as any };
+  const createPlayerFromForm = useCallback(
+    async (form: PlayerFormData): Promise<Player> => {
+      if (demoActive) {
+        const newP = { id: 'p_' + Math.random().toString(36).substr(2, 9), ...formDataToDemoPlayer(form) };
+        db.players.push(newP);
+        persistDemoDb();
         await fetchPlayers();
+        return mapDemoPlayers(teamId).find((p) => p.id === newP.id) as Player;
       }
-      return players.find(p => p.id === id) as Player;
-    }
+      return createPlayer(formDataToCreatePlayerForm(form));
+    },
+    [createPlayer, demoActive, fetchPlayers, teamId]
+  );
 
-    const { data, error } = await supabase
-      .from('players')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+  const updatePlayer = useCallback(
+    async (id: string, updates: Partial<Player>): Promise<Player> => {
+      if (demoActive) {
+        const idx = db.players.findIndex((p) => p.id === id);
+        if (idx !== -1) {
+          db.players[idx] = { ...db.players[idx], ...updates };
+          persistDemoDb();
+          await fetchPlayers();
+        }
+        return mapDemoPlayers(teamId).find((p) => p.id === id) as Player;
+      }
 
-    if (error) throw new Error(error.message);
-    setPlayers(prev => prev.map(p => p.id === id ? data as Player : p));
-    return data as Player;
-  }, [demoActive, fetchPlayers, players, supabase]);
+      const { data, error } = await supabase.from('players').update(updates).eq('id', id).select().single();
+      if (error) throw new Error(error.message);
+      setPlayers((prev) => prev.map((p) => (p.id === id ? (data as Player) : p)));
+      return data as Player;
+    },
+    [demoActive, fetchPlayers, supabase, teamId]
+  );
+
+  const updatePlayerFromForm = useCallback(
+    async (id: string, form: PlayerFormData): Promise<Player> => {
+      if (demoActive) {
+        const idx = db.players.findIndex((p) => p.id === id);
+        if (idx !== -1) {
+          const existing = db.players[idx];
+          db.players[idx] = {
+            ...existing,
+            ...formDataToDemoPlayer(form, { imageUrl: existing.imageUrl, birthDate: existing.birthDate }),
+            id,
+          };
+          persistDemoDb();
+          await fetchPlayers();
+        }
+        return mapDemoPlayers(teamId).find((p) => p.id === id) as Player;
+      }
+      return updatePlayer(id, formDataToUpdatePayload(form));
+    },
+    [demoActive, fetchPlayers, teamId, updatePlayer]
+  );
+
+  const deletePlayer = useCallback(
+    async (id: string): Promise<void> => {
+      if (demoActive) {
+        db.players = db.players.filter((p) => p.id !== id);
+        persistDemoDb();
+        await fetchPlayers();
+        return;
+      }
+
+      const res = await fetch(`/api/players/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || 'No se pudo eliminar el jugador');
+      }
+      setPlayers((prev) => prev.filter((p) => p.id !== id));
+    },
+    [demoActive, fetchPlayers]
+  );
 
   return {
     players,
     loading,
     error,
+    demoActive,
     createPlayer,
+    createPlayerFromForm,
     updatePlayer,
+    updatePlayerFromForm,
+    deletePlayer,
     getPlayerInventory,
     assignItem,
     returnItem,

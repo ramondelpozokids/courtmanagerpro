@@ -1,10 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { canWriteClubData } from "@/lib/permissions";
+import { persistDemoDb } from "@/lib/demo-persistence";
+import { isProductionApp } from "@/lib/app-mode";
+import {
+  loadProductionSizing,
+  saveProductionPlayerSizes,
+  saveProductionStaffSizes,
+} from "@/lib/sizing-production";
 import {
   DEFAULT_SIZING_PRODUCTS,
   SIZING_CATEGORY_LABELS,
@@ -19,6 +26,10 @@ import {
   ArrowLeft, Users, ShieldCheck, Search, Ruler,
   Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown,
 } from "lucide-react";
+
+function saveSizingDemo() {
+  persistDemoDb();
+}
 
 const ALL_CATEGORIES: (SizingCategory | "ALL")[] = [
   "ALL", "equipacion", "entrenamiento", "calzado", "accesorios", "viaje",
@@ -64,10 +75,11 @@ export default function SizingTablePage() {
   const canWrite = canWriteClubData(user?.profile?.role, user?.profile?.email ?? user?.email);
 
   const [catalogVersion, setCatalogVersion] = useState(0);
+  const [customProducts, setCustomProducts] = useState<SizingProduct[]>([]);
 
   const catalog = useMemo(
-    () => mergeSizingCatalog(db.customSizingProducts),
-    [catalogVersion]
+    () => (isProductionApp() ? mergeSizingCatalog(customProducts) : mergeSizingCatalog(db.customSizingProducts)),
+    [catalogVersion, customProducts]
   );
 
   const [activeTab, setActiveTab] = useState<"players" | "staff">("players");
@@ -130,24 +142,52 @@ export default function SizingTablePage() {
     s.role.toLowerCase().includes(search.toLowerCase())
   );
 
-  const refreshFromDb = () => {
+  const refreshFromDb = async () => {
+    if (isProductionApp()) {
+      try {
+        const data = await loadProductionSizing();
+        setPlayers(data.players);
+        setStaff(data.staff);
+        setCustomProducts(data.customProducts);
+        setCatalogVersion((v) => v + 1);
+      } catch (err) {
+        console.error('Error cargando tallas:', err);
+      }
+      return;
+    }
     const cat = mergeSizingCatalog(db.customSizingProducts);
     setPlayers(initPlayers(cat));
     setStaff(initStaff(cat));
     setCatalogVersion((v) => v + 1);
   };
 
+  const refreshAndSave = () => {
+    if (!isProductionApp()) saveSizingDemo();
+    void refreshFromDb();
+  };
+
+  useEffect(() => {
+    void refreshFromDb();
+    const onChange = () => void refreshFromDb();
+    window.addEventListener("club-demo-changed", onChange);
+    window.addEventListener("demo-db-changed", onChange);
+    return () => {
+      window.removeEventListener("club-demo-changed", onChange);
+      window.removeEventListener("demo-db-changed", onChange);
+    };
+  }, []);
+
   const handleDeletePlayer = (id: string) => {
     if (confirm("¿Eliminar a este jugador de la plantilla oficial?")) {
       db.players = db.players.filter((p) => p.id !== id);
-      refreshFromDb();
+      refreshAndSave();
     }
   };
 
   const handleDeleteStaff = (id: string) => {
     if (confirm("¿Eliminar a este miembro del cuerpo técnico?")) {
       db.coachingStaff = db.coachingStaff.filter((s) => s.id !== id);
-      refreshFromDb();
+      refreshAndSave();
     }
   };
 
@@ -172,7 +212,7 @@ export default function SizingTablePage() {
     };
 
     db.players.push(newP);
-    refreshFromDb();
+    refreshAndSave();
     setShowAddPlayerModal(false);
     setNewPlayerName("");
   };
@@ -191,7 +231,7 @@ export default function SizingTablePage() {
     };
 
     db.coachingStaff.push(newS);
-    refreshFromDb();
+    refreshAndSave();
     setShowAddStaffModal(false);
     setNewStaffName("");
   };
@@ -218,7 +258,7 @@ export default function SizingTablePage() {
     db.customSizingProducts.push(product);
     const updatedCatalog = mergeSizingCatalog(db.customSizingProducts);
     propagateNewProduct(product, updatedCatalog);
-    refreshFromDb();
+    refreshAndSave();
     setShowAddProductModal(false);
     setNewProductName("");
     setNewProductShort("");
@@ -228,7 +268,7 @@ export default function SizingTablePage() {
   const handleRemoveCustomProduct = (productId: string) => {
     if (!confirm("¿Eliminar este producto del catálogo de tallas?")) return;
     db.customSizingProducts = db.customSizingProducts.filter((p) => p.id !== productId);
-    refreshFromDb();
+    refreshAndSave();
   };
 
   const handleOpenEdit = (item: any, type: "player" | "staff") => {
@@ -242,8 +282,22 @@ export default function SizingTablePage() {
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = (e: React.FormEvent) => {
+  const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isProductionApp()) {
+      try {
+        if (editingType === "player") {
+          await saveProductionPlayerSizes(editingItem.id, editSizes, catalog);
+        } else {
+          await saveProductionStaffSizes(editingItem.id, editSizes, catalog);
+        }
+        await refreshFromDb();
+        setShowEditModal(false);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : 'Error al guardar');
+      }
+      return;
+    }
     if (editingType === "player") {
       const idx = db.players.findIndex((p) => p.id === editingItem.id);
       if (idx !== -1) {
@@ -258,7 +312,7 @@ export default function SizingTablePage() {
         };
       }
     }
-    refreshFromDb();
+    refreshAndSave();
     setShowEditModal(false);
   };
 

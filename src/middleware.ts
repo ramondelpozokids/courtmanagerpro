@@ -13,6 +13,13 @@ const PUBLIC_PATHS = [
   '/condiciones-uso',
 ];
 
+function isProductionDeployment(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const hasRealSupabase =
+    !!url && !url.includes('your-project') && !url.includes('dummy-project');
+  return hasRealSupabase && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true';
+}
+
 function nextWithSkipToolbar(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-vercel-skip-toolbar', '1');
@@ -34,7 +41,11 @@ export function middleware(request: NextRequest) {
   const hasSupabaseSession = request.cookies.get('sb-access-token')?.value
     || request.cookies.getAll().some((c) => c.name.startsWith('sb-') && c.name.includes('auth-token'));
 
-  if (!hasAuth && !hasSupabaseSession) {
+  const authenticated = isProductionDeployment()
+    ? hasSupabaseSession
+    : hasAuth || hasSupabaseSession;
+
+  if (!authenticated) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

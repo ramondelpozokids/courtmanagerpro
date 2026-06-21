@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
+import { isProductionApp } from '@/lib/app-mode';
 import { isMockMode, mapDemoRequests, shouldUseDemoFallback } from '@/lib/demo-data';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import type { Request, CreateRequestForm, RequestFilters } from '@/types';
@@ -45,7 +46,7 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
       const { data, error } = await query;
       if (error) {
         setError(error.message);
-        setRequests(mapDemoRequests(teamId));
+        setRequests(isProductionApp() ? [] : mapDemoRequests(teamId));
       } else if (shouldUseDemoFallback(data)) {
         setRequests(mapDemoRequests(teamId));
       } else {
@@ -53,7 +54,7 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar solicitudes');
-      setRequests(mapDemoRequests(teamId));
+      setRequests(isProductionApp() ? [] : mapDemoRequests(teamId));
     } finally {
       setLoading(false);
     }

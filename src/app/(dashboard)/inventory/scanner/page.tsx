@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { useQRScanner } from "@/hooks/useQRScanner";
 import { useHIDScanner } from "@/hooks/useHIDScanner";
+import { resolveScanClient } from "@/lib/scan-client";
+import { isProductionApp } from "@/lib/app-mode";
 import { resolveScan, recordGarmentWash } from "@/lib/garment-lookup";
 import { parseScannedValue } from "@/lib/qr-codes";
 import { ScanResultCard, ScanNotFound, ScanSuccessBanner } from "@/components/inventory/ScanResultCard";
@@ -32,9 +34,11 @@ export default function QRScannerPage() {
   const [washing, setWashing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleScan = useCallback((raw: string) => {
+  const handleScan = useCallback(async (raw: string) => {
     const code = parseScannedValue(raw);
-    const result = resolveScan(code);
+    const result = isProductionApp()
+      ? await resolveScanClient(raw)
+      : resolveScan(code);
     if (result?.kind === "garment" && result.garment) {
       setGarment({ ...result.garment });
       setNotFoundCode(null);

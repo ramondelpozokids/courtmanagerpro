@@ -7,8 +7,10 @@ import type { ClubSlug } from '@/data/clubs/types';
 import { Sparkles } from 'lucide-react';
 
 export default function DemoClubBanner() {
-  const { clubSlug, switchClub, switching } = useClubDemo();
+  const { clubSlug, switchClub, switching, isDemo } = useClubDemo();
   const branding = useClubBranding();
+
+  if (!isDemo) return null;
 
   return (
     <div
