@@ -24,13 +24,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [bioSupported, setBioSupported] = useState(false);
   const [localPasskeys, setLocalPasskeys] = useState<Record<string, boolean>>({});
+  const [serverPasskeys, setServerPasskeys] = useState<Record<string, boolean>>({});
   const [setupUser, setSetupUser] = useState<(typeof BIOMETRIC_QUICK_ACCESS)[number] | null>(null);
   const [setupPassword, setSetupPassword] = useState('');
   const [bioLoading, setBioLoading] = useState<string | null>(null);
 
   useEffect(() => {
     isWebAuthnSupported().then(setBioSupported);
-    fetchBiometricStatus().then(() => {
+    fetchBiometricStatus().then((status) => {
+      setServerPasskeys(status);
       const local: Record<string, boolean> = {};
       for (const user of BIOMETRIC_QUICK_ACCESS) {
         local[user.email] = hasLocalPasskey(user.email);
@@ -39,7 +41,8 @@ export default function LoginPage() {
     });
   }, []);
 
-  const canEnterWithBiometric = (userEmail: string) => hasLocalPasskey(userEmail);
+  const hasRegisteredPasskey = (userEmail: string) =>
+    hasLocalPasskey(userEmail) || !!serverPasskeys[userEmail.toLowerCase()];
 
   const openSetup = (userEmail: string) => {
     const user = BIOMETRIC_QUICK_ACCESS.find((u) => u.email === userEmail);
@@ -65,7 +68,7 @@ export default function LoginPage() {
     setError('');
     setBioLoading(userEmail);
     try {
-      if (!canEnterWithBiometric(userEmail)) {
+      if (!hasRegisteredPasskey(userEmail)) {
         openSetup(userEmail);
         return;
       }
@@ -75,7 +78,8 @@ export default function LoginPage() {
     } catch (err: any) {
       const message = err.message || 'No se pudo completar el acceso biométrico.';
       if (/cancel|abort|not allowed|denied|expired|expirada|reconocida/i.test(message)) {
-        setError(`${message} Prueba a configurar de nuevo en este móvil.`);
+        setError(`${message} Usa email y contraseña o configura de nuevo.`);
+      } else if (/no disponible|404|configura/i.test(message)) {
         openSetup(userEmail);
       } else {
         setError(message);
@@ -88,15 +92,18 @@ export default function LoginPage() {
   const handleSetupPasskey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!setupUser) return;
+    const targetEmail = setupUser.email;
+    const targetPassword = setupPassword;
     setError('');
-    setBioLoading(setupUser.email);
+    setBioLoading(targetEmail);
     try {
-      await registerPasskey(setupUser.email, setupPassword);
-      markLocalPasskey(setupUser.email);
-      setLocalPasskeys((prev) => ({ ...prev, [setupUser.email]: true }));
+      await registerPasskey(targetEmail, targetPassword);
+      markLocalPasskey(targetEmail);
+      setServerPasskeys((prev) => ({ ...prev, [targetEmail]: true }));
+      setLocalPasskeys((prev) => ({ ...prev, [targetEmail]: true }));
       setSetupUser(null);
       setSetupPassword('');
-      await loginWithBiometric(setupUser.email);
+      await login({ email: targetEmail, password: targetPassword });
       router.push('/');
       router.refresh();
     } catch (err: any) {
@@ -141,7 +148,7 @@ export default function LoginPage() {
                     <span className="flex items-center gap-1 text-[10px] text-orange-600 font-semibold">
                       {bioLoading === user.email ? (
                         'Verificando...'
-                      ) : canEnterWithBiometric(user.email) ? (
+                      ) : hasRegisteredPasskey(user.email) ? (
                         <>
                           <Fingerprint className="h-3 w-3" />
                           Entrar
@@ -157,7 +164,7 @@ export default function LoginPage() {
                 ))}
               </div>
               <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-                Cada móvil debe configurarse una vez. Pulsa tu avatar, confirma contraseña y registra huella o Face ID en este dispositivo.
+                Opcional: registra huella, Face ID o llave de acceso del navegador. Si falla, usa email y contraseña abajo.
               </p>
             </div>
           )}

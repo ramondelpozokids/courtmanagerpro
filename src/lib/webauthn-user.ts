@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { MOCK_CREDENTIALS } from '@/lib/auth-credentials';
 import { isProductionApp } from '@/lib/app-mode';
 import { supabaseUrl, supabaseServiceRoleKey } from '@/infrastructure/supabase/env';
-import { isSuperadminUser } from '@/lib/permissions';
+import { CARLOS_EMAIL, isSuperadminUser } from '@/lib/permissions';
 import type { ExtendedRole } from '@/contexts/AuthContext';
 
 export interface BiometricLoginUser {
@@ -36,7 +36,26 @@ export async function getBiometricLoginUser(email: string): Promise<BiometricLog
     .eq('email', normalized)
     .maybeSingle();
 
-  if (!profile) return null;
+  if (!profile) {
+    if (isSuperadminUser(null, normalized)) {
+      return {
+        role: 'superadmin',
+        email: normalized,
+        full_name: 'Ramón del Pozo Rott',
+        avatar_url: '/images/ramon-del-pozo.png',
+      };
+    }
+    if (normalized === CARLOS_EMAIL) {
+      const cred = MOCK_CREDENTIALS.find((c) => c.email.toLowerCase() === normalized);
+      return {
+        role: 'equipment_manager',
+        email: normalized,
+        full_name: cred?.full_name || 'Carlos Rodriguez Kobe',
+        avatar_url: cred?.avatar_url,
+      };
+    }
+    return null;
+  }
 
   const role = isSuperadminUser(null, profile.email)
     ? ('superadmin' as ExtendedRole)

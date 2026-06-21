@@ -119,16 +119,6 @@ export async function loginWithPasskey(email: string): Promise<PasskeyLoginResul
 
 export async function isWebAuthnSupported(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
-  if (!window.PublicKeyCredential) return false;
-
-  try {
-    if (PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
-      return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    }
-  } catch {
-    /* fallback below */
-  }
-
   return typeof window.PublicKeyCredential === 'function';
 }
 

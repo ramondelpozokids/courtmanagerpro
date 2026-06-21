@@ -40,7 +40,7 @@ export async function verifyBiometricUserPassword(
     .eq('id', authData.user.id)
     .maybeSingle();
 
-  const full_name = profile?.full_name || normalized;
+  const full_name = profile?.full_name || authData.user.user_metadata?.full_name || normalized;
   return { full_name, displayName: full_name };
 }
 
@@ -53,37 +53,55 @@ export async function createSupabaseSessionForEmail(
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: linkData, error } = await admin.auth.admin.generateLink({
-    type: 'magiclink',
-    email: normalized,
-  });
-  if (error || !linkData?.properties?.hashed_token) return null;
-
   const authClient = createClient(supabaseUrl, supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: sessionData, error: verifyError } = await authClient.auth.verifyOtp({
-    token_hash: linkData.properties.hashed_token,
-    type: 'email',
+  const { data: linkData, error } = await admin.auth.admin.generateLink({
+    type: 'magiclink',
+    email: normalized,
   });
+  if (error || !linkData?.properties) return null;
 
-  if (!verifyError && sessionData.session) {
-    return {
-      access_token: sessionData.session.access_token,
-      refresh_token: sessionData.session.refresh_token,
-    };
+  const tokenHash = linkData.properties.hashed_token;
+  if (tokenHash) {
+    for (const type of ['magiclink', 'email'] as const) {
+      const { data: sessionData, error: verifyError } = await authClient.auth.verifyOtp({
+        token_hash: tokenHash,
+        type,
+      });
+      if (!verifyError && sessionData.session) {
+        return {
+          access_token: sessionData.session.access_token,
+          refresh_token: sessionData.session.refresh_token,
+        };
+      }
+    }
   }
 
-  const { data: magicSession, error: magicError } = await authClient.auth.verifyOtp({
-    token_hash: linkData.properties.hashed_token,
-    type: 'magiclink',
-  });
+  const actionLink = linkData.properties.action_link;
+  if (typeof actionLink === 'string' && actionLink.length > 0) {
+    try {
+      const url = new URL(actionLink);
+      const token = url.searchParams.get('token');
+      if (token) {
+        for (const type of ['magiclink', 'email'] as const) {
+          const { data: sessionData, error: verifyError } = await authClient.auth.verifyOtp({
+            token_hash: token,
+            type,
+          });
+          if (!verifyError && sessionData.session) {
+            return {
+              access_token: sessionData.session.access_token,
+              refresh_token: sessionData.session.refresh_token,
+            };
+          }
+        }
+      }
+    } catch {
+      /* ignore malformed action link */
+    }
+  }
 
-  if (magicError || !magicSession.session) return null;
-
-  return {
-    access_token: magicSession.session.access_token,
-    refresh_token: magicSession.session.refresh_token,
-  };
+  return null;
 }

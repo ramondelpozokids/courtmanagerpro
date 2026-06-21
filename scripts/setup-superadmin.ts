@@ -107,6 +107,17 @@ async function main() {
   }
   console.log('✓ user_teams vinculado al RMB');
 
+  for (const table of ['webauthn_passkeys', 'webauthn_challenges'] as const) {
+    const { error: tableError } = await supabase.from(table).select('*').limit(1);
+    if (tableError?.message?.includes('does not exist')) {
+      const migration = table === 'webauthn_passkeys' ? '005_webauthn_passkeys.sql' : '007_webauthn_challenges.sql';
+      console.warn(`\n⚠ Falta tabla ${table}. Ejecuta supabase/migrations/${migration} en Supabase SQL Editor.`);
+      console.warn('  Sin esto, huella/Face ID no funciona en producción.\n');
+    } else {
+      console.log(`✓ Tabla ${table} OK`);
+    }
+  }
+
   console.log('\n✅ Ramón listo para entrar en producción:');
   console.log('   Email:    info@ramondelpozorott.es');
   console.log('   Password:', password);

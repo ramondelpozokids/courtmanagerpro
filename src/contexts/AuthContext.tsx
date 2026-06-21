@@ -272,9 +272,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthCookies(cred.role);
       return;
     }
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
-  }, [mockAuth, supabase, buildUserFromRole]);
+    if (data.session?.user) {
+      setSession(data.session);
+      const userData = await loadUserData(data.session.user.id, data.session.user.email);
+      if (userData) {
+        setUser(userData);
+        if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
+      }
+    }
+  }, [mockAuth, supabase, buildUserFromRole, loadUserData]);
 
   const loginWithBiometric = useCallback(async (email: string) => {
     const result = await loginWithPasskey(email);
@@ -294,11 +302,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!session?.user) {
       throw new Error('No se pudo iniciar sesión tras el acceso biométrico.');
     }
+    setSession(session);
     const userData = await loadUserData(session.user.id, session.user.email);
     if (!userData) {
       throw new Error('No se encontró el perfil del usuario.');
     }
-    setSession(session);
     setUser(userData);
     if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
   }, [mockAuth, supabase, buildUserFromRole, loadUserData]);

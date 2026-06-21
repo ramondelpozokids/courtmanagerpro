@@ -40,9 +40,8 @@ export async function POST(request: Request) {
         id: p.credentialID,
       })),
       authenticatorSelection: {
-        residentKey: 'required',
-        userVerification: 'required',
-        authenticatorAttachment: 'platform',
+        residentKey: 'preferred',
+        userVerification: 'preferred',
       },
       supportedAlgorithmIDs: [-7, -257],
     });

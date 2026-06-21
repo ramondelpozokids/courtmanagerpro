@@ -41,6 +41,13 @@ function rowToPasskey(row: {
   };
 }
 
+function webauthnDbError(error: { message: string }, table: string): Error {
+  if (error.message.includes(table) || error.message.includes('does not exist')) {
+    return new Error(`Falta la tabla ${table} en Supabase. Ejecuta las migraciones 005 y 007 en el SQL Editor.`);
+  }
+  return new Error(error.message);
+}
+
 export async function setChallenge(key: string, challenge: string): Promise<void> {
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
@@ -54,7 +61,7 @@ export async function setChallenge(key: string, challenge: string): Promise<void
     { challenge_key: key, challenge, expires_at: expiresAt },
     { onConflict: 'challenge_key' }
   );
-  if (error) throw new Error(error.message);
+  if (error) throw webauthnDbError(error, 'webauthn_challenges');
 }
 
 export async function consumeChallenge(key: string): Promise<string | undefined> {
@@ -146,7 +153,7 @@ export async function savePasskey(passkey: StoredPasskey): Promise<void> {
     .from('webauthn_passkeys')
     .upsert(payload, { onConflict: 'credential_id' });
 
-  if (error) throw new Error(error.message);
+  if (error) throw webauthnDbError(error, 'webauthn_passkeys');
 }
 
 export async function updatePasskeyCounter(credentialID: string, counter: number): Promise<void> {

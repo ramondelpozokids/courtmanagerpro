@@ -19,6 +19,8 @@ CourtManager Pro tiene **dos modos**:
    - `supabase/migrations/002_rls_policies.sql`
    - `supabase/migrations/003_seed_rmb_roster.sql` *(opcional si usas el script)*
    - `supabase/migrations/004_production_extensions.sql`
+   - `supabase/migrations/005_webauthn_passkeys.sql` *(huella / Face ID)*
+   - `supabase/migrations/007_webauthn_challenges.sql` *(obligatorio en Vercel)*
 
 ### 2. Variables locales
 
