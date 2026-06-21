@@ -15,6 +15,7 @@
     "@simplewebauthn/server": "^13.3.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.46.1",
+    "@zxing/browser": "^0.2.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "jsbarcode": "^3.11.6",

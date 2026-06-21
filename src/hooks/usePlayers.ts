@@ -60,6 +60,12 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
     fetchPlayers();
   }, [fetchPlayers]);
 
+  useEffect(() => {
+    const handler = () => fetchPlayers();
+    window.addEventListener('club-demo-changed', handler);
+    return () => window.removeEventListener('club-demo-changed', handler);
+  }, [fetchPlayers]);
+
   const getPlayerInventory = useCallback(async (playerId: string): Promise<ItemAssignment[]> => {
     if (demoActive) {
       // Simple static mock assignments

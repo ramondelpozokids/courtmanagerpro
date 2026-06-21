@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { useAlerts } from "@/hooks/useAlerts";
 import { Bell, Shield, ChevronDown, Home, Settings, MessageCircle, X, CheckCircle, LogIn, LogOut, Landmark } from "lucide-react";
 
@@ -26,6 +27,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function TopBar() {
   const { user, logout } = useAuth();
+  const branding = useClubBranding();
   const { alerts } = useAlerts();
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showBlogDropdown, setShowBlogDropdown] = useState(false);
@@ -58,7 +60,7 @@ export default function TopBar() {
     <header className="h-16 border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0 relative">
       <div className="flex items-center gap-6">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <img src="/logo.png" alt="Logo" className="h-6 w-6 object-contain shrink-0" />
+          <img src={branding.logoUrl} alt="Logo club" className="h-6 w-6 object-contain shrink-0" />
           <span className="text-sm text-slate-800 dark:text-slate-100 font-extrabold tracking-tight md:block hidden">CourtManager Pro</span>
         </Link>
 

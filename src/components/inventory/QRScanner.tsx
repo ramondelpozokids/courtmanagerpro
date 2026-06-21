@@ -1,11 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { Camera, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useQRScanner } from '@/hooks/useQRScanner';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { parseScannedValue, isGarmentQrCode } from '@/lib/qr-codes';
 
 interface QRScannerProps {
   open: boolean;
@@ -15,17 +16,19 @@ interface QRScannerProps {
 
 export function QRScanner({ open, onClose, onResult }: QRScannerProps) {
   const [manualCode, setManualCode] = useState('');
+  const handleResult = (raw: string) => {
+    const code = parseScannedValue(raw);
+    onResult(code, isGarmentQrCode(code) ? 'qr' : 'barcode');
+    onClose();
+  };
+
   const { isScanning, hasPermission, videoRef, startScanning, stopScanning } = useQRScanner({
-    onScan: (code) => {
-      onResult(code, code.startsWith('CMP-') ? 'qr' : 'barcode');
-      onClose();
-    },
+    onScan: handleResult,
   });
 
   const handleManualSubmit = () => {
     if (manualCode.trim()) {
-      onResult(manualCode.trim(), manualCode.startsWith('CMP-') ? 'qr' : 'barcode');
-      onClose();
+      handleResult(manualCode.trim());
     }
   };
 
@@ -86,7 +89,7 @@ export function QRScanner({ open, onClose, onResult }: QRScannerProps) {
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">O introduce el código manualmente:</p>
             <div className="flex gap-2">
               <Input
-                placeholder="CMP-xxxxx o EAN-13"
+                placeholder="CMP-RMB-I1-P1-001 o URL /scan/…"
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}

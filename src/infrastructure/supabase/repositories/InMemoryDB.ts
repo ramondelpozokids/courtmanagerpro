@@ -755,6 +755,28 @@ export const initialInventory: any[] = [
     lastUpdated: "2026-06-15",
     updated_at: new Date().toISOString(),
     image_url: "https://shop.realmadrid.com/cdn/shop/files/image_91f0f462-612c-4d62-a57e-ab26ebbec659.jpg?v=1768385652&width=832"
+  },
+  {
+    id: "i9",
+    name: "Chubasquero Real Madrid AW JKT 25/26 (Adidas JP4057)",
+    sku: "JP4057",
+    category: "chaqueta",
+    stock_total: 18,
+    stock_available: 14,
+    stock_assigned: 4,
+    stock_min: 6,
+    location: "Vestuario principal — perchero capitanes",
+    qr_code: "CMP-RMB-I9-P6-001",
+    barcode: "4068807308923",
+    size: "2XL",
+    price: 120,
+    unit_cost: 120,
+    is_active: true,
+    lastUpdated: "2026-06-19",
+    updated_at: new Date().toISOString(),
+    image_url: "/garments/rmb/llull-chubasquero-jp4057.jpg",
+    brand: "Adidas",
+    notes: "REAL AW JKT · RFID EAN 696 KH · Demo Sergio Llull #23"
   }
 ];
 
@@ -1004,7 +1026,28 @@ class InMemoryDatabase {
   alerts = [...initialAlerts];
   coachingStaff = [...initialCoachingStaff];
   customSizingProducts: SizingProduct[] = [];
+  garmentUnits: any[] = [];
 }
 
 export const db = new InMemoryDatabase();
 export type DBType = InMemoryDatabase;
+
+export interface ClubDemoDataSlice {
+  players: any[];
+  inventory: any[];
+  requests: any[];
+  trips: any[];
+  laundry: any[];
+  alerts: any[];
+  garmentUnits?: any[];
+}
+
+export function loadClubDemoData(data: ClubDemoDataSlice): void {
+  db.players = [...data.players];
+  db.inventory = [...data.inventory];
+  db.requests = [...data.requests];
+  db.trips = [...data.trips];
+  db.laundry = [...data.laundry];
+  db.alerts = [...data.alerts];
+  db.garmentUnits = [...(data.garmentUnits ?? [])];
+}

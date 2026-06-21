@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { canAccessMedical, canAccessReports } from '@/lib/permissions';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
+import { useClubBranding } from '@/contexts/ClubDemoContext';
 import { useAlerts } from '@/hooks/useAlerts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
 export function Sidebar() {
   const pathname = usePathname();
   const { user, currentTeam, logout, hasPermission } = useAuth();
+  const branding = useClubBranding();
   const { sidebarOpen, toggleSidebar } = useApp();
   const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
 
@@ -63,7 +65,7 @@ export function Sidebar() {
           <div className="flex items-center gap-2 text-left">
             <div className="w-8 h-8 shrink-0 flex items-center justify-center">
               <img
-                src="/logo.png"
+                src={branding.logoUrl}
                 alt="Logo"
                 className="w-full h-full object-contain"
               />

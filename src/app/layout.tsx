@@ -3,6 +3,7 @@ import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AppProvider } from '@/contexts/AppContext';
+import { ClubDemoProvider } from '@/contexts/ClubDemoContext';
 import { ToastContainer } from '@/components/shared/ToastContainer';
 import { SITE_KEYWORDS, SITE_URL } from '@/content/seo';
 import { SECURITY_SCRIPT } from '@/lib/securityLayers';
@@ -56,12 +57,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body className="antialiased">
         <AuthProvider>
-          <AppProvider>
-            <NotificationProvider>
-              {children}
-              <ToastContainer />
-            </NotificationProvider>
-          </AppProvider>
+          <ClubDemoProvider>
+            <AppProvider>
+              <NotificationProvider>
+                {children}
+                <ToastContainer />
+              </NotificationProvider>
+            </AppProvider>
+          </ClubDemoProvider>
         </AuthProvider>
         <script dangerouslySetInnerHTML={{ __html: SECURITY_SCRIPT }} />
       </body>

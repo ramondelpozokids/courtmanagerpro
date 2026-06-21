@@ -8,8 +8,8 @@ import { useState, useEffect } from "react";
 import { PlusCircle, Search, User, Filter, RefreshCw, Shirt, Landmark, Globe, X, Trophy, Calendar } from "lucide-react";
 
 export default function PlayersPage() {
-  const { user } = useAuth();
-  const { players, loading, createPlayer, updatePlayer } = usePlayers();
+  const { user, currentTeam } = useAuth();
+  const { players, loading, createPlayer, updatePlayer } = usePlayers(currentTeam?.id);
   const [showAddForm, setShowAddForm] = useState(false);
   
   // Tab state: "players" or "staff"

@@ -1,194 +1,241 @@
 "use client";
 
-import { useInventory } from "@/hooks/useInventory";
-import { useState } from "react";
-import { QrCode, ArrowLeft, Camera, RefreshCw, CheckCircle, Package, Minus, Plus } from "lucide-react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
+import { useQRScanner } from "@/hooks/useQRScanner";
+import { useHIDScanner } from "@/hooks/useHIDScanner";
+import { resolveScan, recordGarmentWash } from "@/lib/garment-lookup";
+import { parseScannedValue } from "@/lib/qr-codes";
+import { ScanResultCard, ScanNotFound, ScanSuccessBanner } from "@/components/inventory/ScanResultCard";
+import type { GarmentUnit } from "@/types/garment";
+import { SERGIO_LLULL_AW_JACKET } from "@/lib/featured-garments";
+import {
+  ArrowLeft,
+  Camera,
+  X,
+  Smartphone,
+  Bluetooth,
+  Keyboard,
+  ChevronRight,
+  Sparkles,
+} from "lucide-react";
 
 export default function QRScannerPage() {
-  const { items, adjustStock } = useInventory();
-  const [scannedItem, setScannedItem] = useState<any>(null);
-  const [scanning, setScanning] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const { currentTeam } = useAuth();
+  const branding = useClubBranding();
+  const [garment, setGarment] = useState<GarmentUnit | null>(null);
+  const [notFoundCode, setNotFoundCode] = useState<string | null>(null);
+  const [manualCode, setManualCode] = useState("");
+  const [hidEnabled, setHidEnabled] = useState(false);
+  const [washing, setWashing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const simulateScan = (sku: string) => {
-    setScanning(true);
-    setScannedItem(null);
-    setSuccess(false);
-
-    setTimeout(() => {
-      const match = items.find((i) => i.sku === sku);
-      if (match) {
-        setScannedItem(match);
-        setSuccess(true);
-      } else {
-        alert("Código no reconocido en el almacén ACB");
+  const handleScan = useCallback((raw: string) => {
+    const code = parseScannedValue(raw);
+    const result = resolveScan(code);
+    if (result?.kind === "garment" && result.garment) {
+      setGarment({ ...result.garment });
+      setNotFoundCode(null);
+      setShowSuccess(true);
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(80);
       }
-      setScanning(false);
-    }, 1200);
+    } else {
+      setGarment(null);
+      setNotFoundCode(code);
+      setShowSuccess(false);
+    }
+  }, []);
+
+  const { isScanning, hasPermission, videoRef, startScanning, stopScanning } = useQRScanner({
+    onScan: handleScan,
+  });
+
+  useHIDScanner({
+    enabled: hidEnabled,
+    onScan: handleScan,
+  });
+
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (manualCode.trim()) handleScan(manualCode.trim());
   };
 
-  const handleAdjustStock = async (id: string, qty: number, action: "ADD" | "REDUCE") => {
-    const updated = await adjustStock(id, qty, action);
-    setScannedItem(updated);
+  const handleRegisterWash = () => {
+    if (!garment) return;
+    setWashing(true);
+    const updated = recordGarmentWash(garment.qr_code);
+    if (updated) setGarment({ ...updated });
+    setWashing(false);
   };
+
+  const demoSamples =
+    branding.slug === "rmb"
+      ? [
+          {
+            label: "Sergio Llull — Chubasquero JP4057 (etiqueta real)",
+            code: SERGIO_LLULL_AW_JACKET.barcode!,
+            hint: "EAN 4068807308923 · escanea el QR de la etiqueta Adidas",
+          },
+          {
+            label: "Campazzo — Camiseta #7",
+            code: `CMP-${branding.slug.toUpperCase()}-I1-P1-001`,
+          },
+        ]
+      : [
+          { label: "Campazzo — Camiseta #7", code: `CMP-${branding.slug.toUpperCase()}-I1-P1-001` },
+          { label: "Tavares — Camiseta #22", code: `CMP-${branding.slug.toUpperCase()}-I1-P2-001` },
+        ];
 
   return (
-    <div className="space-y-6">
-      {/* Back to Inventory */}
-      <div>
-        <Link href="/inventory" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold transition-colors">
+    <div className="space-y-4 max-w-lg mx-auto pb-8">
+      <div className="flex items-center justify-between">
+        <Link
+          href="/inventory"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold"
+        >
           <ArrowLeft className="h-4 w-4" />
-          Volver al Inventario
+          Inventario
         </Link>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-orange-500 flex items-center gap-1">
+          <Smartphone className="h-3.5 w-3.5" />
+          Fase 1 · Móvil
+        </span>
       </div>
 
-      <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-        {/* Mock Scanning Camera Viewport */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden p-6 text-white flex flex-col justify-between relative min-h-[350px]">
-          {/* Scanning lines animation */}
-          {scanning && (
-            <div className="absolute inset-0 bg-orange-500/10 pointer-events-none flex flex-col items-center justify-center">
-              <div className="w-full h-1 bg-orange-500 animate-bounce absolute top-10" />
-              <div className="w-full h-1 bg-orange-500 animate-bounce absolute bottom-10" />
-            </div>
-          )}
+      <div className="text-left space-y-1">
+        <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+          Escanear QR de prenda
+        </h1>
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Usa la cámara del iPhone o Android. Sin hardware extra — la PWA abre la ficha al instante.
+        </p>
+      </div>
 
-          <div>
-            <h3 className="font-extrabold text-sm text-orange-400 uppercase tracking-widest flex items-center gap-2">
-              <Camera className="h-4 w-4" />
-              Cámara Utilería Pro (Simulada)
-            </h3>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Escanea códigos QR de ropa de partido o códigos de barra de material médico.
+      {/* Cámara */}
+      <div className="relative rounded-2xl overflow-hidden border-2 border-slate-800 bg-black aspect-[3/4] max-h-[420px]">
+        <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
+        {!isScanning && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 text-white p-6 text-center">
+            <Camera className="h-14 w-14 text-orange-400 mb-3" />
+            <p className="text-sm font-bold">Cámara trasera lista</p>
+            <p className="text-[11px] text-slate-400 mt-1 max-w-xs">
+              En iPhone 16 / Galaxy S25 apunta al QR pegado en la prenda
             </p>
+            <button
+              type="button"
+              onClick={startScanning}
+              className="mt-5 px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-sm transition-colors"
+            >
+              Activar cámara
+            </button>
           </div>
-
-          {/* Scanner Area Target */}
-          <div className="my-8 flex items-center justify-center">
-            <div className={`h-40 w-40 border-4 rounded-xl flex items-center justify-center transition-colors relative ${
-              scanning ? "border-orange-500 pulse-active" : "border-slate-700"
-            }`}>
-              <QrCode className={`h-20 w-20 ${scanning ? "text-orange-500" : "text-slate-600"}`} />
-              <span className="absolute -top-3 bg-slate-950 px-2 text-[9px] uppercase font-bold tracking-widest text-slate-400">
-                Alinear Código
-              </span>
-            </div>
-          </div>
-
-          {/* Scan trigger simulator options */}
-          <div className="space-y-3">
-            <span className="text-[10px] text-slate-400 font-bold block text-center">SELECCIONAR ARTÍCULO PARA SIMULAR ESCANEO:</span>
-            <div className="grid grid-cols-2 gap-2">
-              {items.slice(0, 4).map((i) => (
-                <button
-                  key={i.id}
-                  onClick={() => simulateScan(i.sku || "")}
-                  disabled={scanning}
-                  className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-semibold text-slate-300 transition-colors truncate"
-                  title={i.name}
-                >
-                  {i.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Scan Results Panel */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
-          <div>
-            <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-3">
-              Resultado del Escaneo
-            </h3>
-
-            {scanning ? (
-              <div className="py-20 text-center text-slate-400">
-                <RefreshCw className="h-8 w-8 animate-spin mx-auto text-orange-500 mb-2" />
-                <p className="text-xs font-semibold">Procesando código QR...</p>
-              </div>
-            ) : scannedItem ? (
-              <div className="mt-5 space-y-5">
-                {/* Header info */}
-                <div className="flex gap-4 items-start">
-                  <div className="p-1 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 rounded">
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${scannedItem.sku || "CMP"}`} alt="Item QR" className="h-16 w-16" />
-                  </div>
-                  <div>
-                    <span className="text-[9px] bg-orange-100 dark:bg-orange-950/40 text-orange-600 px-2 py-0.5 rounded font-extrabold tracking-wider uppercase">
-                      {scannedItem.category}
-                    </span>
-                    <h4 className="font-extrabold text-base text-slate-850 dark:text-slate-100 mt-1">{scannedItem.name}</h4>
-                    <p className="text-xs font-mono text-slate-400 mt-0.5">SKU: {scannedItem.sku}</p>
-                  </div>
-                </div>
-
-                {/* Details list */}
-                <div className="bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Talla asignada:</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{scannedItem.size || "Única"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Ubicación Almacén:</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{scannedItem.location}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Precio de adquisición:</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">€{scannedItem.unit_cost || scannedItem.price}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Nivel de stock actual:</span>
-                    <span className={`font-extrabold ${scannedItem.stock <= scannedItem.minStock ? "text-amber-500" : "text-emerald-500"}`}>
-                      {scannedItem.stock} unidades
-                    </span>
-                  </div>
-                </div>
-
-                {/* Quick inventory mutations */}
-                <div className="pt-2">
-                  <span className="text-[10px] text-slate-400 font-bold block mb-2 uppercase tracking-wide">Acciones de Inventario Directas:</span>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleAdjustStock(scannedItem.id, 1, "REDUCE")}
-                      disabled={scannedItem.stock === 0}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/20 text-xs font-bold transition-all disabled:opacity-30"
-                    >
-                      <Minus className="h-4 w-4" />
-                      Retirar 1 ud
-                    </button>
-                    <button
-                      onClick={() => handleAdjustStock(scannedItem.id, 1, "ADD")}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/20 text-xs font-bold transition-all"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Añadir 1 ud
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="py-20 text-center text-slate-400">
-                <QrCode className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-xs font-semibold">Esperando escaneo...</p>
-                <p className="text-[10px] mt-1 text-slate-400 max-w-xs mx-auto">
-                  Selecciona uno de los artículos rápidos de utilería de la izquierda para simular la detección del código QR de la prenda.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {success && scannedItem && (
-            <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-xl p-3 flex items-center gap-2 text-xs mt-4">
-              <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" />
-              <div>
-                <p className="font-bold">¡Código reconocido!</p>
-                <p className="text-[10px] text-emerald-600/90 mt-0.5">Artículo localizado con éxito en el Almacén de Competición.</p>
+        )}
+        {isScanning && (
+          <>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-56 h-56 border-2 border-orange-400/80 rounded-2xl relative">
+                <div className="absolute inset-x-0 top-1/2 h-0.5 bg-orange-400/60 animate-pulse" />
               </div>
             </div>
-          )}
-        </div>
+            <button
+              type="button"
+              onClick={stopScanning}
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white"
+              aria-label="Detener cámara"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </>
+        )}
+        {hasPermission === false && (
+          <p className="absolute bottom-3 left-3 right-3 text-center text-[11px] text-red-300 font-semibold bg-black/60 rounded-lg py-2">
+            Permiso de cámara denegado — usa código manual abajo
+          </p>
+        )}
       </div>
+
+      {/* Fase 2 HID toggle */}
+      <button
+        type="button"
+        onClick={() => setHidEnabled((v) => !v)}
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left text-xs font-bold transition-colors ${
+          hidEnabled
+            ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300"
+            : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          <Bluetooth className="h-4 w-4" />
+          Fase 2 — Lector Zebra / Honeywell (HID)
+        </span>
+        <span>{hidEnabled ? "ON" : "OFF"}</span>
+      </button>
+      {hidEnabled && (
+        <p className="text-[10px] text-slate-400 -mt-2 flex items-center gap-1">
+          <Keyboard className="h-3 w-3" />
+          Escanea con la pistola Bluetooth — no hace falta enfocar ningún campo
+        </p>
+      )}
+
+      {/* Manual */}
+      <form onSubmit={handleManualSubmit} className="flex gap-2">
+        <input
+          type="text"
+          value={manualCode}
+          onChange={(e) => setManualCode(e.target.value)}
+          placeholder="JP4057 · 4068807308923 · CMP-RMB-…"
+          className="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs font-mono"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold"
+        >
+          Buscar
+        </button>
+      </form>
+
+      {/* Demo rápida */}
+      <div className="bg-orange-50/50 dark:bg-orange-950/10 border border-orange-100 dark:border-orange-900/30 rounded-xl p-4 space-y-2 text-left">
+        <p className="text-[10px] font-black uppercase tracking-wider text-orange-600 flex items-center gap-1">
+          <Sparkles className="h-3.5 w-3.5" />
+          Probar sin QR impreso — {branding.shortName}
+        </p>
+        {demoSamples.map((s) => (
+          <button
+            key={s.code}
+            type="button"
+            onClick={() => handleScan(s.code)}
+            className="w-full flex flex-col items-start px-3 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-xs font-semibold hover:border-orange-400 transition-colors"
+          >
+            <span className="flex items-center justify-between w-full">
+              {s.label}
+              <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
+            </span>
+            {"hint" in s && s.hint && (
+              <span className="text-[10px] text-slate-400 font-normal mt-0.5">{s.hint}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {showSuccess && garment && <ScanSuccessBanner />}
+
+      {garment && (
+        <ScanResultCard
+          garment={garment}
+          onRegisterWash={handleRegisterWash}
+          washing={washing}
+        />
+      )}
+
+      {notFoundCode && !garment && <ScanNotFound code={notFoundCode} />}
+
+      <p className="text-[10px] text-center text-slate-400 pt-2">
+        Fase 3 (roadmap): RFID + QR para grandes clubes · {currentTeam?.name}
+      </p>
     </div>
   );
 }

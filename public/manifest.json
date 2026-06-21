@@ -1,21 +1,33 @@
 {
   "name": "CourtManager Pro",
   "short_name": "CourtManager",
-  "description": "Plataforma SaaS para la gestión de utilería e indumentaria del Real Madrid Baloncesto",
+  "description": "Gestión de utilería ACB — inventario QR, tallajes, lavandería y logística desde el móvil",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#f97316",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Escanear QR prenda",
+      "short_name": "Escanear",
+      "description": "Abrir cámara y leer QR de utilería (Fase 1 — sin hardware)",
+      "url": "/inventory/scanner",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
     }
   ]
 }

@@ -49,7 +49,7 @@ export default function InventoryPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Inventario de Utilería Profesional</h2>
-          <p className="text-xs text-slate-400 mt-1">Control de stock en tiempo real, códigos de barra y asignación de ropa técnica ACB.</p>
+          <p className="text-xs text-slate-400 mt-1">Control de stock, QR por prenda (móvil) y asignación de ropa técnica ACB.</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
@@ -57,7 +57,7 @@ export default function InventoryPage() {
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
           >
             <QrCode className="h-4.5 w-4.5" />
-            Lector QR / Barcode
+            Escanear con móvil
           </Link>
           {canWrite && (
             <button

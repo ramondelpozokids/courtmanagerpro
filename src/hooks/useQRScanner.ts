@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { BrowserMultiFormatReader } from '@zxing/browser';
+import type { IScannerControls } from '@zxing/browser';
 
 interface QRScannerOptions {
   onScan: (result: string) => void;
@@ -11,52 +13,51 @@ export function useQRScanner({ onScan, onError }: QRScannerOptions) {
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  const startScanning = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: 1280, height: 720 },
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setHasPermission(true);
-      setIsScanning(true);
-
-      // Usar BarcodeDetector API si está disponible
-      if ('BarcodeDetector' in window) {
-        const detector = new (window as any).BarcodeDetector({
-          formats: ['qr_code', 'ean_13', 'ean_8', 'code_128', 'data_matrix'],
-        });
-
-        const scan = async () => {
-          if (!isScanning || !videoRef.current) return;
-          try {
-            const barcodes = await detector.detect(videoRef.current);
-            if (barcodes.length > 0) {
-              onScan(barcodes[0].rawValue);
-              stopScanning();
-              return;
-            }
-          } catch {}
-          requestAnimationFrame(scan);
-        };
-        requestAnimationFrame(scan);
-      }
-    } catch (err) {
-      setHasPermission(false);
-      onError?.(err instanceof Error ? err : new Error('Camera access denied'));
-    }
-  }, [isScanning, onScan, onError]);
+  const controlsRef = useRef<IScannerControls | null>(null);
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
+  const handledRef = useRef(false);
 
   const stopScanning = useCallback(() => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
+    controlsRef.current?.stop();
+    controlsRef.current = null;
+    readerRef.current = null;
     setIsScanning(false);
   }, []);
+
+  const startScanning = useCallback(async () => {
+    if (!videoRef.current) return;
+
+    handledRef.current = false;
+    setHasPermission(null);
+
+    try {
+      const reader = new BrowserMultiFormatReader();
+      readerRef.current = reader;
+
+      const controls = await reader.decodeFromVideoDevice(
+        undefined,
+        videoRef.current,
+        (result, error) => {
+          if (result && !handledRef.current) {
+            handledRef.current = true;
+            onScan(result.getText());
+            stopScanning();
+          }
+          if (error && error.name !== 'NotFoundException') {
+            // Frame sin código — ignorar
+          }
+        }
+      );
+
+      controlsRef.current = controls;
+      setHasPermission(true);
+      setIsScanning(true);
+    } catch (err) {
+      setHasPermission(false);
+      stopScanning();
+      onError?.(err instanceof Error ? err : new Error('No se pudo acceder a la cámara'));
+    }
+  }, [onScan, onError, stopScanning]);
 
   useEffect(() => () => stopScanning(), [stopScanning]);
 

@@ -45,8 +45,8 @@ export default function QuickActions() {
             className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-orange-500 hover:bg-orange-50/25 dark:hover:bg-orange-950/10 transition-all text-center group"
           >
             <QrCode className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform mb-2" />
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Lector QR</span>
-            <span className="text-[9px] text-slate-400 mt-0.5">Escanear código de barras</span>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Escanear QR</span>
+            <span className="text-[9px] text-slate-400 mt-0.5">Cámara del móvil</span>
           </Link>
 
           <Link
