@@ -8,7 +8,8 @@
     "start": "next start",
     "sync:rm-stats": "node scripts/sync-rm-roster-stats.mjs",
     "seed:roster": "npx tsx scripts/seed-roster.ts",
-    "seed:roster:sql": "npx tsx scripts/seed-roster.ts --sql"
+    "seed:roster:sql": "npx tsx scripts/seed-roster.ts --sql",
+    "seed:production": "npx tsx scripts/seed-production.ts"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.3.0",
@@ -32,9 +33,11 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/ws": "^8.18.1",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.15",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "ws": "^8.21.0"
   }
 }

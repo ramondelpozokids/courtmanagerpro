@@ -12,8 +12,8 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
-import { createClient } from '@supabase/supabase-js';
 import { buildRosterSeedRows, buildRosterSeedSql } from '../src/lib/roster-seed';
+import { createSeedClient } from './supabase-seed-client';
 import { DEFAULT_TEAM_ID } from '../src/lib/team-constants';
 
 function loadEnvFile() {
@@ -50,9 +50,7 @@ async function main() {
     process.exit(1);
   }
 
-  const supabase = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const supabase = createSeedClient(url, serviceKey);
 
   const { error: teamError } = await supabase.from('teams').upsert({
     id: DEFAULT_TEAM_ID,

@@ -10,8 +10,8 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
-import { createClient } from '@supabase/supabase-js';
 import { buildRosterSeedRows } from '../src/lib/roster-seed';
+import { createSeedClient } from './supabase-seed-client';
 import { DEFAULT_TEAM_ID } from '../src/lib/team-constants';
 import { initialCoachingStaff } from '../src/infrastructure/supabase/repositories/InMemoryDB';
 
@@ -50,9 +50,14 @@ async function main() {
     process.exit(1);
   }
 
-  const supabase = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  if (url.includes('tu-proyecto') || serviceKey.includes('tu-')) {
+    console.error('❌ .env.local tiene valores de plantilla. Copia las claves reales desde Supabase → Settings → API');
+    process.exit(1);
+  }
+
+  console.log(`Conectando a ${url.replace(/https:\/\//, '')}…`);
+
+  const supabase = createSeedClient(url, serviceKey);
 
   console.log('1/4 — Equipo Real Madrid…');
   const { error: teamError } = await supabase.from('teams').upsert({
@@ -131,7 +136,16 @@ ON CONFLICT DO NOTHING;\n`);
   console.log('En Vercel: configurar las 4 variables de .env.example y NO poner NEXT_PUBLIC_DEMO_MODE=true');
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((err: unknown) => {
+  const e = err as Error & { cause?: Error };
+  console.error('\n❌ Seed fallido:', e.message);
+  if (e.cause) console.error('   Causa:', e.cause.message);
+  if (String(e.message).includes('fetch failed')) {
+    console.error('\nComprueba:');
+    console.error('  1. NEXT_PUBLIC_SUPABASE_URL = Project URL exacta de Supabase → Settings → API');
+    console.error('  2. La URL debe coincidir con el ref de tus claves JWT (mismo id de proyecto)');
+    console.error('  3. Migraciones 001, 002 y 004 ejecutadas en SQL Editor');
+    console.error('  4. Proyecto Supabase no pausado\n');
+  }
   process.exit(1);
 });
