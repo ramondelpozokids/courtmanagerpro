@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { useAlerts } from "@/hooks/useAlerts";
-import { Bell, Shield, ChevronDown, Home, Settings, MessageCircle, X, CheckCircle, LogIn, LogOut, Landmark } from "lucide-react";
+import { Bell, Shield, ChevronDown, Home, Settings, MessageCircle, X, CheckCircle, LogIn, LogOut, Landmark, KeyRound } from "lucide-react";
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -149,6 +149,15 @@ export default function TopBar() {
               <Shield className="h-4 w-4 text-orange-500" />
               <span>{roleLabel}</span>
             </div>
+
+            <Link
+              href="/cuenta"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold transition-all"
+              title="Mi cuenta — cambiar contraseña"
+            >
+              <KeyRound className="h-4 w-4 text-orange-500" />
+              <span className="hidden sm:inline">Mi cuenta</span>
+            </Link>
 
             <button
               onClick={logout}

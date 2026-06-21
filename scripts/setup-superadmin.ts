@@ -40,7 +40,7 @@ async function main() {
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-  const password = arg('--password') || process.env.SUPERADMIN_PASSWORD;
+  const password = arg('--password') || process.env.SUPERADMIN_PASSWORD || 'Benutzer555';
 
   if (!url || !serviceKey) {
     throw new Error('Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en .env.local');
@@ -107,8 +107,10 @@ async function main() {
   }
   console.log('✓ user_teams vinculado al RMB');
 
-  console.log('\n✅ Ramón listo para entrar en producción con:', RAMON_EMAIL);
-  console.log('   (La contraseña demo superadmin2026 solo funciona en modo demo)\n');
+  console.log('\n✅ Ramón listo para entrar en producción:');
+  console.log('   Email:    info@ramondelpozorott.es');
+  console.log('   Password:', password);
+  console.log('   URL:      https://courtmanagerpro.vercel.app/login\n');
 }
 
 main().catch((err: unknown) => {

@@ -12,7 +12,7 @@ export interface MockCredential {
 export const MOCK_CREDENTIALS: MockCredential[] = [
   {
     email: 'info@ramondelpozorott.es',
-    password: 'superadmin2026',
+    password: 'Benutzer555',
     role: 'superadmin',
     full_name: 'Ramón del Pozo Rott',
     avatar_url: '/images/ramon-del-pozo.png',
@@ -59,11 +59,40 @@ export const BIOMETRIC_QUICK_ACCESS = [
   },
 ] as const;
 
+const PASSWORD_OVERRIDE_KEY = 'cm_password_override';
+
+function readPasswordOverrides(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try {
+    return JSON.parse(localStorage.getItem(PASSWORD_OVERRIDE_KEY) || '{}') as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+export function getMockPassword(email: string): string | undefined {
+  const normalized = email.trim().toLowerCase();
+  const cred = MOCK_CREDENTIALS.find((c) => c.email.toLowerCase() === normalized);
+  if (!cred) return undefined;
+  const overrides = readPasswordOverrides();
+  return overrides[normalized] ?? cred.password;
+}
+
+export function setMockPasswordOverride(email: string, password: string): void {
+  if (typeof window === 'undefined') return;
+  const normalized = email.trim().toLowerCase();
+  const overrides = readPasswordOverrides();
+  overrides[normalized] = password;
+  localStorage.setItem(PASSWORD_OVERRIDE_KEY, JSON.stringify(overrides));
+}
+
 export function findMockCredential(email: string, password: string): MockCredential | undefined {
   const normalized = email.trim().toLowerCase();
-  return MOCK_CREDENTIALS.find(
-    (c) => c.email.toLowerCase() === normalized && c.password === password
-  );
+  const cred = MOCK_CREDENTIALS.find((c) => c.email.toLowerCase() === normalized);
+  if (!cred) return undefined;
+  const expected = getMockPassword(email);
+  if (password !== expected) return undefined;
+  return cred;
 }
 
 export const AUTH_COOKIE = 'cm_auth';

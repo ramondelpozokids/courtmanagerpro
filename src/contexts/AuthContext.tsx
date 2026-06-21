@@ -8,6 +8,7 @@ import {
   findMockCredential,
   setAuthCookies,
   clearAuthCookies,
+  setMockPasswordOverride,
   ROLE_COOKIE,
   AUTH_COOKIE,
 } from '@/lib/auth-credentials';
@@ -31,6 +32,7 @@ interface AuthContextValue {
   register: (form: RegisterForm) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   hasPermission: (roles: string[]) => boolean;
   isSuperadmin: boolean;
   userEmail: string | null;
@@ -356,6 +358,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser((prev: any) => prev ? { ...prev, profile: enriched } : null);
   }, [user, mockAuth, supabase, session?.user?.email]);
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    const email = resolveUserEmail({
+      profileEmail: user?.profile?.email,
+      userEmail: user?.email,
+      sessionEmail: session?.user?.email,
+    });
+    if (!email) throw new Error('No hay sesión activa.');
+
+    const trimmedNew = newPassword.trim();
+    if (trimmedNew.length < 8) {
+      throw new Error('La nueva contraseña debe tener al menos 8 caracteres.');
+    }
+    if (trimmedNew === currentPassword) {
+      throw new Error('La nueva contraseña debe ser distinta de la actual.');
+    }
+
+    if (mockAuth) {
+      const cred = findMockCredential(email, currentPassword);
+      if (!cred) throw new Error('Contraseña actual incorrecta.');
+      setMockPasswordOverride(email, trimmedNew);
+      return;
+    }
+
+    const { error: verifyError } = await supabase.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+    if (verifyError) throw new Error('Contraseña actual incorrecta.');
+
+    const { error } = await supabase.auth.updateUser({ password: trimmedNew });
+    if (error) throw new Error(error.message);
+  }, [user, mockAuth, supabase, session?.user?.email]);
+
   const setCurrentTeam = useCallback((team: Team) => {
     setCurrentTeamState(team);
     localStorage.setItem('currentTeamId', team.id);
@@ -395,6 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       updateProfile,
+      changePassword,
       hasPermission,
       isSuperadmin,
       userEmail,

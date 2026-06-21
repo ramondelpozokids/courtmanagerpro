@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
   Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
-  ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag
+  ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag, KeyRound
 } from 'lucide-react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { cn } from '@/lib/utils';
@@ -193,10 +193,20 @@ export function Sidebar() {
                 {full_name.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold truncate text-slate-100">{full_name}</p>
+            <Link href="/cuenta" className="flex-1 min-w-0 group">
+              <p className="text-xs font-bold truncate text-slate-100 group-hover:text-orange-300 transition-colors">{full_name}</p>
               <p className="text-[10px] text-slate-400 truncate uppercase tracking-wider font-semibold mt-0.5">{user_role.replace("_", " ")}</p>
-            </div>
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="text-slate-400 hover:text-white hover:bg-slate-850 h-8 w-8"
+            >
+              <Link href="/cuenta" title="Mi cuenta">
+                <KeyRound className="h-4 w-4" />
+              </Link>
+            </Button>
             <Button
               variant="ghost"
               size="icon"
