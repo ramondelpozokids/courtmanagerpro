@@ -30,13 +30,19 @@ export async function POST(request: Request) {
     );
 
     const passkeys = await getPasskeysForEmail(normalized);
+    const useDiscoverable = body.discoverable === true;
 
     const options = await generateAuthenticationOptions({
       rpID,
-      userVerification: 'required',
-      allowCredentials: passkeys.map((p) => ({
-        id: p.credentialID,
-      })),
+      userVerification: 'preferred',
+      ...(useDiscoverable || passkeys.length === 0
+        ? {}
+        : {
+            allowCredentials: passkeys.map((p) => ({
+              id: p.credentialID,
+              transports: p.transports,
+            })),
+          }),
     });
 
     await setChallenge(`login:${normalized}`, options.challenge);

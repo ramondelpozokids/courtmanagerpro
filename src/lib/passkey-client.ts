@@ -70,11 +70,11 @@ export async function registerPasskey(email: string, password: string): Promise<
   markLocalPasskey(email);
 }
 
-export async function loginWithPasskey(email: string): Promise<PasskeyLoginResult> {
+export async function loginWithPasskey(email: string, discoverable = false): Promise<PasskeyLoginResult> {
   const optionsRes = await fetch('/api/auth/webauthn/login-options', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(webauthnPayload({ email })),
+    body: JSON.stringify(webauthnPayload({ email, discoverable })),
   });
   if (!optionsRes.ok) {
     const err = await optionsRes.json();
@@ -82,7 +82,15 @@ export async function loginWithPasskey(email: string): Promise<PasskeyLoginResul
   }
   const options = await optionsRes.json();
 
-  const assertion = await startAuthentication({ optionsJSON: options });
+  let assertion;
+  try {
+    assertion = await startAuthentication({ optionsJSON: options });
+  } catch (err) {
+    if (!discoverable) {
+      return loginWithPasskey(email, true);
+    }
+    throw err;
+  }
 
   const verifyRes = await fetch('/api/auth/webauthn/login-verify', {
     method: 'POST',

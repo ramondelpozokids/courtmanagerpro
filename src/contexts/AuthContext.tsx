@@ -28,7 +28,7 @@ interface AuthContextValue {
   currentTeam: Team | null;
   setCurrentTeam: (team: Team) => void;
   login: (form: LoginForm) => Promise<void>;
-  loginWithBiometric: (email: string) => Promise<void>;
+  loginWithBiometric: (email: string, discoverable?: boolean) => Promise<void>;
   register: (form: RegisterForm) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
@@ -273,7 +273,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
+    if (error) {
+      const msg = /invalid login credentials/i.test(error.message)
+        ? 'Email o contraseña incorrectos. Comprueba que usas info@ramondelpozorott.es (superadmin) y la contraseña activa en Supabase.'
+        : error.message;
+      throw new Error(msg);
+    }
     if (data.session?.user) {
       setSession(data.session);
       const userData = await loadUserData(data.session.user.id, data.session.user.email);
@@ -284,8 +289,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [mockAuth, supabase, buildUserFromRole, loadUserData]);
 
-  const loginWithBiometric = useCallback(async (email: string) => {
-    const result = await loginWithPasskey(email);
+  const loginWithBiometric = useCallback(async (email: string, discoverable = false) => {
+    const result = await loginWithPasskey(email, discoverable);
 
     if (mockAuth) {
       const userData = buildUserFromRole(result.role as ExtendedRole, {

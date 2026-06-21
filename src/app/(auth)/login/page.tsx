@@ -14,6 +14,10 @@ import {
   registerPasskey,
 } from '@/lib/passkey-client';
 
+function isWebAuthnCancelError(message: string): boolean {
+  return /cancel|abort|not allowed|denied|timed out|timeout|expired|expirada|reconocida/i.test(message);
+}
+
 export default function LoginPage() {
   const { login, loginWithBiometric } = useAuth();
   const router = useRouter();
@@ -21,9 +25,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [bioHint, setBioHint] = useState('');
   const [loading, setLoading] = useState(false);
   const [bioSupported, setBioSupported] = useState(false);
-  const [localPasskeys, setLocalPasskeys] = useState<Record<string, boolean>>({});
   const [serverPasskeys, setServerPasskeys] = useState<Record<string, boolean>>({});
   const [setupUser, setSetupUser] = useState<(typeof BIOMETRIC_QUICK_ACCESS)[number] | null>(null);
   const [setupPassword, setSetupPassword] = useState('');
@@ -31,18 +35,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     isWebAuthnSupported().then(setBioSupported);
-    fetchBiometricStatus().then((status) => {
-      setServerPasskeys(status);
-      const local: Record<string, boolean> = {};
-      for (const user of BIOMETRIC_QUICK_ACCESS) {
-        local[user.email] = hasLocalPasskey(user.email);
-      }
-      setLocalPasskeys(local);
-    });
+    fetchBiometricStatus().then(setServerPasskeys);
   }, []);
-
-  const hasRegisteredPasskey = (userEmail: string) =>
-    hasLocalPasskey(userEmail) || !!serverPasskeys[userEmail.toLowerCase()];
 
   const openSetup = (userEmail: string) => {
     const user = BIOMETRIC_QUICK_ACCESS.find((u) => u.email === userEmail);
@@ -52,11 +46,12 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setBioHint('');
     setLoading(true);
     try {
       await login({ email, password });
-      router.push('/');
       router.refresh();
+      router.push('/');
     } catch (err: any) {
       setError(err.message || 'Credenciales incorrectas. Verifica email y contraseña.');
     } finally {
@@ -66,23 +61,28 @@ export default function LoginPage() {
 
   const handleBiometricLogin = async (userEmail: string) => {
     setError('');
+    setBioHint('');
     setBioLoading(userEmail);
+    const normalized = userEmail.toLowerCase();
+    const local = hasLocalPasskey(userEmail);
+    const onServer = !!serverPasskeys[normalized];
+
     try {
-      if (!hasRegisteredPasskey(userEmail)) {
+      if (!local && !onServer) {
         openSetup(userEmail);
         return;
       }
-      await loginWithBiometric(userEmail);
-      router.push('/');
+      await loginWithBiometric(userEmail, !local && onServer);
       router.refresh();
+      router.push('/');
     } catch (err: any) {
       const message = err.message || 'No se pudo completar el acceso biométrico.';
-      if (/cancel|abort|not allowed|denied|expired|expirada|reconocida/i.test(message)) {
-        setError(`${message} Usa email y contraseña o configura de nuevo.`);
+      if (isWebAuthnCancelError(message)) {
+        setBioHint('Acceso biométrico cancelado o no disponible en este PC. Usa el formulario de arriba con email y contraseña.');
       } else if (/no disponible|404|configura/i.test(message)) {
         openSetup(userEmail);
       } else {
-        setError(message);
+        setBioHint(message);
       }
     } finally {
       setBioLoading(null);
@@ -95,19 +95,26 @@ export default function LoginPage() {
     const targetEmail = setupUser.email;
     const targetPassword = setupPassword;
     setError('');
+    setBioHint('');
     setBioLoading(targetEmail);
     try {
       await registerPasskey(targetEmail, targetPassword);
       markLocalPasskey(targetEmail);
       setServerPasskeys((prev) => ({ ...prev, [targetEmail]: true }));
-      setLocalPasskeys((prev) => ({ ...prev, [targetEmail]: true }));
       setSetupUser(null);
       setSetupPassword('');
       await login({ email: targetEmail, password: targetPassword });
-      router.push('/');
       router.refresh();
+      router.push('/');
     } catch (err: any) {
-      setError(err.message || 'No se pudo configurar el acceso biométrico.');
+      const message = err.message || 'No se pudo configurar el acceso biométrico.';
+      if (isWebAuthnCancelError(message)) {
+        setBioHint('Registro biométrico cancelado. Ya puedes entrar con email y contraseña arriba.');
+        setSetupUser(null);
+        setSetupPassword('');
+      } else {
+        setError(message);
+      }
     } finally {
       setBioLoading(null);
     }
@@ -129,58 +136,10 @@ export default function LoginPage() {
             </div>
           )}
 
-          {bioSupported && (
-            <div className="space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">
-                Acceso rápido — Huella / Face ID
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {BIOMETRIC_QUICK_ACCESS.map((user) => (
-                  <button
-                    key={user.email}
-                    type="button"
-                    disabled={bioLoading !== null}
-                    onClick={() => handleBiometricLogin(user.email)}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all disabled:opacity-60"
-                  >
-                    <img src={user.avatar} alt={user.shortName} className="h-10 w-10 rounded-full object-cover border-2 border-white shadow" />
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{user.shortName}</span>
-                    <span className="flex items-center gap-1 text-[10px] text-orange-600 font-semibold">
-                      {bioLoading === user.email ? (
-                        'Verificando...'
-                      ) : hasRegisteredPasskey(user.email) ? (
-                        <>
-                          <Fingerprint className="h-3 w-3" />
-                          Entrar
-                        </>
-                      ) : (
-                        <>
-                          <ScanFace className="h-3 w-3" />
-                          Configurar
-                        </>
-                      )}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-                Opcional: registra huella, Face ID o llave de acceso del navegador. Si falla, usa email y contraseña abajo.
-              </p>
-            </div>
-          )}
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white dark:bg-slate-900 px-3 text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                O con email
-              </span>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">
+              Iniciar sesión con email
+            </p>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Correo electrónico</label>
               <input
@@ -190,7 +149,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="tu@email.com"
+                placeholder="info@ramondelpozorott.es"
               />
             </div>
 
@@ -219,13 +178,71 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || bioLoading !== null}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-bold transition-all shadow-md"
             >
               <LogIn className="h-4 w-4" />
               {loading ? 'Accediendo...' : 'Iniciar sesión'}
             </button>
           </form>
+
+          {bioSupported && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200 dark:border-slate-700" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-white dark:bg-slate-900 px-3 text-[10px] font-bold uppercase text-slate-400 tracking-wider">
+                    Opcional — huella / Face ID
+                  </span>
+                </div>
+              </div>
+
+              {bioHint && (
+                <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs font-semibold leading-relaxed">
+                  {bioHint}
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                {BIOMETRIC_QUICK_ACCESS.map((user) => {
+                  const local = hasLocalPasskey(user.email);
+                  const onServer = !!serverPasskeys[user.email.toLowerCase()];
+                  return (
+                    <button
+                      key={user.email}
+                      type="button"
+                      disabled={bioLoading !== null || loading}
+                      onClick={() => handleBiometricLogin(user.email)}
+                      className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all disabled:opacity-60"
+                    >
+                      <img src={user.avatar} alt={user.shortName} className="h-10 w-10 rounded-full object-cover border-2 border-white shadow" />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{user.shortName}</span>
+                      <span className="flex items-center gap-1 text-[10px] text-orange-600 font-semibold">
+                        {bioLoading === user.email ? (
+                          'Verificando...'
+                        ) : local || onServer ? (
+                          <>
+                            <Fingerprint className="h-3 w-3" />
+                            {local ? 'Entrar' : 'Entrar aquí'}
+                          </>
+                        ) : (
+                          <>
+                            <ScanFace className="h-3 w-3" />
+                            Configurar
+                          </>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-slate-400 text-center leading-relaxed">
+                No es obligatorio. Si falla o se cancela, usa email y contraseña.
+              </p>
+            </>
+          )}
 
           <p className="text-center text-xs text-slate-400">
             ¿No tienes cuenta?{' '}
@@ -256,7 +273,7 @@ export default function LoginPage() {
               <ScanFace className="h-10 w-10 text-orange-500 mx-auto mb-2" />
               <h3 className="font-bold text-slate-900 dark:text-white">Activar acceso biométrico</h3>
               <p className="text-xs text-slate-400 mt-1">
-                {setupUser.name} — confirma tu contraseña para registrar huella o Face ID en este dispositivo
+                {setupUser.name} — opcional. Confirma contraseña o cierra y entra con email arriba.
               </p>
             </div>
             <input
