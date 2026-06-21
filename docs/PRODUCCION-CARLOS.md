@@ -34,18 +34,23 @@ Carga: equipo RMB, plantilla, cuerpo técnico e inventario base.
 
 ### 4. Usuario Carlos
 
-En Supabase → **Authentication → Users** → crear `charlie-r-k@hotmail.com`.
+**Credenciales producción:**
 
-Luego en SQL Editor (sustituir `<UUID-CARLOS>` por el id real):
+| Campo | Valor |
+|-------|--------|
+| Email | `charlie-r-k@hotmail.com` |
+| Contraseña | `utileria2026` |
 
-```sql
-INSERT INTO profiles (id, email, full_name, role, department, is_active)
-VALUES ('<UUID-CARLOS>', 'charlie-r-k@hotmail.com', 'Carlos Rodriguez Kobe', 'equipment_manager', 'Utilería Principal', true)
-ON CONFLICT (id) DO UPDATE SET role = 'equipment_manager';
+**Script (recomendado):**
 
-INSERT INTO user_teams (user_id, team_id, role, is_active)
-VALUES ('<UUID-CARLOS>', '00000000-0000-4000-8000-000acb123456', 'equipment_manager', true);
+```bash
+npm run setup:carlos
+# o: npx tsx scripts/setup-carlos.ts --password "utileria2026"
 ```
+
+Crea o actualiza el usuario en Supabase Auth, perfil y vínculo al equipo RMB.
+
+**Manual:** Supabase → **Authentication → Users** → crear `charlie-r-k@hotmail.com` con contraseña `utileria2026`.
 
 ### 5. Vercel
 
@@ -79,6 +84,14 @@ npx tsx scripts/setup-superadmin.ts --password "TuContraseñaSegura"
 2. Ejecutar `supabase/migrations/006_vincular_superadmin_ramon.sql` (sustituir `<UUID-RAMON>`)
 
 Ramón entra en `/login` con su email y la contraseña de Supabase. El rol **superadmin** se reconoce por email aunque en SQL el perfil sea `admin`.
+
+**Acceso total de Ramón (superadmin):**
+- Todos los módulos (médico, informes, inventario, etc.) sin restricciones
+- Selector de **4 clubes** en el banner: RMB (producción real), FCB, FBAT, VBC (demos comerciales)
+- Edición de estadísticas de proyecto y configuración
+- Mismo nivel operativo que Carlos, más demos multi-club
+
+Debe entrar con **`info@ramondelpozorott.es`** (no otro email).
 
 ---
 

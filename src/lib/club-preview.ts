@@ -1,7 +1,7 @@
 import type { ClubSlug } from '@/data/clubs/types';
 import { isDemoMode, isProductionApp } from '@/lib/app-mode';
 
-export const SUPERADMIN_PREVIEW_CLUBS = ['rmb', 'fcb', 'vbc'] as const;
+export const SUPERADMIN_PREVIEW_CLUBS = ['rmb', 'fcb', 'fbat', 'vbc'] as const;
 export type SuperadminPreviewClub = (typeof SUPERADMIN_PREVIEW_CLUBS)[number];
 
 const STORAGE_KEY = 'superadminPreviewClub';
@@ -26,7 +26,7 @@ export function setActiveClubPreviewSlug(slug: ClubSlug): void {
 export function readActiveClubPreviewSlug(): ClubSlug {
   if (typeof window === 'undefined') return 'rmb';
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'fcb' || stored === 'vbc' || stored === 'rmb') return stored;
+  if (stored === 'fcb' || stored === 'fbat' || stored === 'vbc' || stored === 'rmb') return stored;
   return 'rmb';
 }
 

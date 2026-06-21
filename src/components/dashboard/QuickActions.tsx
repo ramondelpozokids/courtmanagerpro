@@ -9,7 +9,7 @@ export default function QuickActions() {
   const { user } = useAuth();
   const userRole = user?.profile?.role || "equipment_manager";
 
-  const isReadonly = isReadonlyUser(user?.profile?.role);
+  const isReadonly = isReadonlyUser(user?.profile?.role, user?.profile?.email ?? user?.email);
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">

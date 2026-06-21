@@ -4,7 +4,7 @@
 
 | Rol | Usuario | Acceso |
 |-----|---------|--------|
-| **Superadmin** | Ramón del Pozo Rott · `info@ramondelpozorott.es` | Bypass total — todo visible y editable |
+| **Superadmin** | Ramón del Pozo Rott · `info@ramondelpozorott.es` | **Acceso total sin límites** — todos los módulos, todos los clubes demo (RMB, FCB, FBAT, VBC), edición de proyecto |
 | **Administrador utilería** | Carlos Rodriguez Kobe · `charlie-r-k@hotmail.com` | Inventario, tallas, solicitudes, informes, médico, alertas |
 | **Utillero asistente** | Rol simulado | Operativa diaria sin superadmin |
 | **Staff médico** | Rol simulado | Botiquines + alertas sanitarias |
@@ -34,7 +34,7 @@
 ### Recomendaciones futuras
 1. Middleware que redirija a login si no hay sesión (modo producción estricto)
 2. Auth en APIs de trips/laundry/medical (actualmente parcial)
-3. Usuarios reales en Supabase con contraseñas `RamonSuperadmin2026!` / `CarlosKobe2026!`
+3. Usuarios reales en Supabase: Ramón (`setup:superadmin`) · Carlos `charlie-r-k@hotmail.com` / `utileria2026` (`setup:carlos`)
 
 ## Modo demo vs producción
 

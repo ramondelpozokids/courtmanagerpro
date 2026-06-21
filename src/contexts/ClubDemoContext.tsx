@@ -10,12 +10,10 @@ import {
 } from '@/lib/club-demo-loader';
 import { useAuth } from '@/contexts/AuthContext';
 import { isDemoMode } from '@/lib/app-mode';
-import { isSuperadminUser } from '@/lib/permissions';
 import {
   isPreviewDemoClub,
   readActiveClubPreviewSlug,
   setActiveClubPreviewSlug,
-  SUPERADMIN_PREVIEW_CLUBS,
 } from '@/lib/club-preview';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 
@@ -33,16 +31,11 @@ interface ClubDemoContextValue {
 const ClubDemoContext = createContext<ClubDemoContextValue | null>(null);
 
 const PRODUCTION_CLUB_SLUG: ClubSlug = 'rmb';
-
-function isSuperadminPreviewClub(slug: ClubSlug): slug is (typeof SUPERADMIN_PREVIEW_CLUBS)[number] {
-  return (SUPERADMIN_PREVIEW_CLUBS as readonly string[]).includes(slug);
-}
+const ALL_CLUB_SLUGS = Object.keys(CLUB_PACKS) as ClubSlug[];
 
 export function ClubDemoProvider({ children }: { children: ReactNode }) {
-  const { setCurrentTeam, user, loading: authLoading, session } = useAuth();
+  const { setCurrentTeam, user, loading: authLoading, isSuperadmin } = useAuth();
   const demo = isDemoMode();
-  const authEmail = user?.profile?.email ?? user?.email ?? session?.user?.email ?? null;
-  const isSuperadmin = isSuperadminUser(user?.profile?.role, authEmail);
   const canSwitchClubs = demo || isSuperadmin;
   const isSuperadminPreview = !demo && isSuperadmin;
 
@@ -108,7 +101,6 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
   const switchClub = useCallback(
     (slug: ClubSlug, options?: { redirect?: string }) => {
       if (!canSwitchClubs) return;
-      if (isSuperadminPreview && !isSuperadminPreviewClub(slug)) return;
 
       setSwitching(true);
       applyClub(slug);
@@ -118,7 +110,7 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         window.location.href = options.redirect;
       }
     },
-    [applyClub, canSwitchClubs, isSuperadminPreview]
+    [applyClub, canSwitchClubs]
   );
 
   return (
@@ -131,7 +123,7 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         isDemo: demo,
         canSwitchClubs,
         isSuperadminPreview,
-        previewClubs: isSuperadminPreview ? SUPERADMIN_PREVIEW_CLUBS : (Object.keys(CLUB_PACKS) as ClubSlug[]),
+        previewClubs: ALL_CLUB_SLUGS,
       }}
     >
       {children}
@@ -157,7 +149,7 @@ export function useClubNews() {
   return useClubDemo().club.news;
 }
 
-/** Hook para saber si la vista activa usa datos demo (FCB/VBC). */
+/** Hook para saber si la vista activa usa datos demo (FCB/VBC/FBAT). */
 export function useUsesDemoClubData(): boolean {
   const { clubSlug } = useClubDemo();
   if (isDemoMode()) return true;

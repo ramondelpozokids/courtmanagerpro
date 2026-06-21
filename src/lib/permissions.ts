@@ -4,6 +4,8 @@ export const SUPERADMIN_EMAIL = 'info@ramondelpozorott.es';
 /** Carlos Rodriguez Kobe — acceso operativo total al club. */
 export const CARLOS_EMAIL = 'charlie-r-k@hotmail.com';
 
+export const ALL_CLUB_SLUGS = ['rmb', 'fcb', 'fbat', 'vbc'] as const;
+
 export function normalizeEmail(email?: string | null): string | null {
   return email?.trim().toLowerCase() ?? null;
 }
@@ -13,8 +15,38 @@ export function isSuperadminUser(role?: string | null, email?: string | null): b
   return normalizeEmail(email) === SUPERADMIN_EMAIL;
 }
 
+/** Superadmin: acceso total sin límites (módulos, escritura, demos, proyecto). */
+export function hasUnrestrictedAccess(role?: string | null, email?: string | null): boolean {
+  return isSuperadminUser(role, email);
+}
+
 export function isCarlosUser(email?: string | null): boolean {
   return normalizeEmail(email) === CARLOS_EMAIL;
+}
+
+export function resolveUserEmail(
+  sources: {
+    profileEmail?: string | null;
+    userEmail?: string | null;
+    sessionEmail?: string | null;
+  }
+): string | null {
+  return (
+    normalizeEmail(sources.profileEmail)
+    ?? normalizeEmail(sources.userEmail)
+    ?? normalizeEmail(sources.sessionEmail)
+  );
+}
+
+export function resolveUserAccess(role?: string | null, email?: string | null) {
+  const normalizedEmail = normalizeEmail(email);
+  const isSuperadmin = isSuperadminUser(role, normalizedEmail);
+  return {
+    email: normalizedEmail,
+    role: (isSuperadmin ? 'superadmin' : role ?? null) as string | null,
+    isSuperadmin,
+    unrestricted: isSuperadmin,
+  };
 }
 
 /** Acceso operativo total: todos los módulos y escritura de datos del club. */
@@ -35,11 +67,15 @@ export function canModifyProject(role?: string | null, email?: string | null): b
 export function getPermContext(user?: {
   profile?: { role?: string; email?: string };
   email?: string;
+  sessionEmail?: string;
 } | null): { role: string | null; email: string | null } {
-  return {
-    role: user?.profile?.role ?? null,
-    email: user?.profile?.email ?? user?.email ?? null,
-  };
+  const email = resolveUserEmail({
+    profileEmail: user?.profile?.email,
+    userEmail: user?.email,
+    sessionEmail: user?.sessionEmail,
+  });
+  const access = resolveUserAccess(user?.profile?.role, email);
+  return { role: access.role, email: access.email };
 }
 
 /** Roles with full write access (inventario, tallas, alertas, informes). */
@@ -111,5 +147,5 @@ export const ROLE_ACCESS_SUMMARY = {
   equipment_manager: 'Carlos Kobe — acceso total operativo al club (sin cambios de proyecto)',
   admin: 'Administrador club — operativa completa del día a día',
   medical: 'Staff médico — botiquines y alertas sanitarias',
-  superadmin: 'Ramón del Pozo Rott — único autorizado para modificar el proyecto',
+  superadmin: 'Ramón del Pozo Rott — acceso total sin límites (proyecto + todos los clubes demo)',
 } as const;

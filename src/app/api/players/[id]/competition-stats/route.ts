@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { canModifyProject } from '@/lib/permissions';
+import { getApiUserAccess } from '@/lib/api-access';
 
 import type { CompetitionId, PlayerCompetitionMap } from '@/lib/player-competitions';
 
@@ -17,19 +17,12 @@ interface Params {
 
 export async function PATCH(req: NextRequest, { params }: Params): Promise<NextResponse> {
   const { id } = await params;
-  const supabase = (await createSupabaseServerClient()) as any;
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { supabase, user, access, response } = await getApiUserAccess();
+  if (response || !user || !access) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, email')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  const role = profile?.role ?? null;
-  const email = profile?.email ?? user.email ?? null;
-  if (!canModifyProject(role, email)) {
+  if (!canModifyProject(access.role, access.email)) {
     return NextResponse.json(
       { error: 'Solo el superadmin puede modificar estadísticas del proyecto' },
       { status: 403 }

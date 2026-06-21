@@ -2,14 +2,23 @@ import type { Profile, Team, UserTeam } from '@/types';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { CARLOS_EMAIL, isSuperadminUser, SUPERADMIN_EMAIL } from '@/lib/permissions';
 
-type AppProfile = Omit<Profile, 'role'> & { role: Profile['role'] | 'superadmin' };
+export type AppProfile = Omit<Profile, 'role'> & { role: Profile['role'] | 'superadmin' };
 
-/** Eleva el rol en memoria para Ramón (superadmin no existe en el enum SQL). */
-export function enrichProfileForApp(profile: Profile): AppProfile {
-  if (isSuperadminUser(null, profile.email)) {
-    return { ...profile, role: 'superadmin' as AppProfile['role'] };
+/** Perfil en memoria con rol superadmin cuando corresponde (enum SQL solo tiene admin). */
+export function enrichProfileWithSuperadmin(profile: Profile, authEmail?: string | null): AppProfile {
+  const merged: Profile = {
+    ...profile,
+    email: profile.email || authEmail || profile.email,
+  };
+  if (isSuperadminUser(null, authEmail) || isSuperadminUser(null, merged.email)) {
+    return { ...merged, role: 'superadmin' };
   }
-  return profile;
+  return merged as AppProfile;
+}
+
+/** @deprecated Use enrichProfileWithSuperadmin */
+export function enrichProfileForApp(profile: Profile): AppProfile {
+  return enrichProfileWithSuperadmin(profile, profile.email);
 }
 
 function isKnownProductionEmail(email: string): boolean {

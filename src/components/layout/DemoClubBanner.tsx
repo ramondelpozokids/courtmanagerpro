@@ -43,8 +43,8 @@ export default function DemoClubBanner() {
             <>
               <strong>Superadmin</strong> — {branding.name}
               {clubSlug === 'rmb'
-                ? ' · producción real'
-                : ' · demo comercial (datos ilustrativos)'}
+                ? ' · producción real · acceso total'
+                : ' · demo comercial · acceso total'}
             </>
           ) : (
             <>
