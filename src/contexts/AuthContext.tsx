@@ -272,20 +272,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthCookies(cred.role);
       return;
     }
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      const msg = /invalid login credentials/i.test(error.message)
-        ? 'Email o contraseña incorrectos. Comprueba que usas info@ramondelpozorott.es (superadmin) y la contraseña activa en Supabase.'
-        : error.message;
-      throw new Error(msg);
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      credentials: 'include',
+    });
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(payload.error || 'Email o contraseña incorrectos.');
     }
-    if (data.session?.user) {
-      setSession(data.session);
-      const userData = await loadUserData(data.session.user.id, data.session.user.email);
+
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session?.user) {
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      if (!refreshed.session?.user) {
+        throw new Error('Sesión iniciada pero no se pudo cargar. Recarga la página e inténtalo de nuevo.');
+      }
+      setSession(refreshed.session);
+      const userData = await loadUserData(refreshed.session.user.id, refreshed.session.user.email);
       if (userData) {
         setUser(userData);
         if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
       }
+      return;
+    }
+
+    setSession(session);
+    const userData = await loadUserData(session.user.id, session.user.email);
+    if (userData) {
+      setUser(userData);
+      if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
     }
   }, [mockAuth, supabase, buildUserFromRole, loadUserData]);
 

@@ -32,10 +32,21 @@ export default function LoginPage() {
   const [setupUser, setSetupUser] = useState<(typeof BIOMETRIC_QUICK_ACCESS)[number] | null>(null);
   const [setupPassword, setSetupPassword] = useState('');
   const [bioLoading, setBioLoading] = useState<string | null>(null);
+  const [configWarning, setConfigWarning] = useState('');
 
   useEffect(() => {
     isWebAuthnSupported().then(setBioSupported);
     fetchBiometricStatus().then(setServerPasskeys);
+    fetch('/api/auth/config')
+      .then((r) => r.json())
+      .then((cfg) => {
+        if (cfg.production && !cfg.supabaseConfigured) {
+          setConfigWarning(
+            'Este deploy no tiene Supabase configurado en Vercel. Añade NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en Environment Variables.'
+          );
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const openSetup = (userEmail: string) => {
@@ -50,8 +61,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login({ email, password });
-      router.refresh();
-      router.push('/');
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+      window.location.href = redirect;
     } catch (err: any) {
       setError(err.message || 'Credenciales incorrectas. Verifica email y contraseña.');
     } finally {
@@ -104,8 +115,8 @@ export default function LoginPage() {
       setSetupUser(null);
       setSetupPassword('');
       await login({ email: targetEmail, password: targetPassword });
-      router.refresh();
-      router.push('/');
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+      window.location.href = redirect;
     } catch (err: any) {
       const message = err.message || 'No se pudo configurar el acceso biométrico.';
       if (isWebAuthnCancelError(message)) {
@@ -130,6 +141,12 @@ export default function LoginPage() {
         </div>
 
         <div className="p-6 space-y-5 text-left">
+          {configWarning && (
+            <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs font-semibold leading-relaxed">
+              {configWarning}
+            </div>
+          )}
+
           {error && (
             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-600 text-xs font-semibold">
               {error}
