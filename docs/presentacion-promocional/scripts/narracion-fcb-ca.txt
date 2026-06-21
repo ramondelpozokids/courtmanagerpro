@@ -1,0 +1,15 @@
+Benvingut al FC Barcelona. Aquesta és la proposta de CourtManager Pro per al departament esportiu i utileria del Barça.
+
+CourtManager Pro centralitza plantilla, talles, inventari amb codi QR, sol·licituds, viatges de Liga Endesa i Eurolliga, bugaderia i material mèdic en una sola aplicació web, accessible des del mòbil al pavelló Olímpic o a qualsevol desplaçament.
+
+La plataforma està pensada per a clubs d'elit com el Barça: múltiples competicions, plantilla amplia, staff tècnic i alertes en temps real abans de cada partit.
+
+El dashboard mostra jugadors, estoc, sol·licituds pendents i viatges. La demo inclou disset jugadors i quatre competicions, amb flux validat per un cap d'utileria de club ACB.
+
+Els mòduls clau per al Barça: matriu de talles amb més de vint-i-sis productes per jugador, inventari QR al vestidor i magatzem, packing lists per desplaçaments europeus, alertes de caducitat mèdica i informes CSV per a direcció esportiva.
+
+El pla recomanat per a un club de primer nivell com el FC Barcelona és Elite, amb onboarding personalitzat, colors del club i suport prioritari.
+
+Un club que perd vint mil euros l'any en material recupera la inversió des del primer mes. CourtManager Pro redueix errors de talla, pèrdues en aeroports i hores de gestió manual.
+
+Sol·liciteu una demo de trenta minuts sense compromís. Contacte: info arroba ramondelpozorott punt es. Demo en directe: courtmanagerpro punt vercel punt app. Gràcies i visca el Barça.

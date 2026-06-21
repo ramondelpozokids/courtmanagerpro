@@ -1,0 +1,7 @@
+# Netlify: index.html por defecto; sin SPA redirects necesarios
+
+/index.html /index.html 200
+/es.html /es.html 200
+/ca.html /ca.html 200
+/en.html /en.html 200
+/fcb-ca.html /fcb-ca.html 200

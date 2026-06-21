@@ -10,7 +10,8 @@
     "seed:roster": "npx tsx scripts/seed-roster.ts",
     "seed:roster:sql": "npx tsx scripts/seed-roster.ts --sql",
     "seed:production": "npx tsx scripts/seed-production.ts",
-    "setup:superadmin": "npx tsx scripts/setup-superadmin.ts"
+    "setup:superadmin": "npx tsx scripts/setup-superadmin.ts",
+    "setup:carlos": "npx tsx scripts/setup-carlos.ts"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.3.0",

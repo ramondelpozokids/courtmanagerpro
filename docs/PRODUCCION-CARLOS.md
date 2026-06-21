@@ -70,7 +70,14 @@ Carlos entra en `/login` con su email y contraseña de Supabase Auth.
 
 ### 7. Superadmin Ramón
 
-En producción **no** vale la contraseña demo `superadmin2026`. Ramón debe existir en Supabase Auth.
+En producción Ramón entra con:
+
+| Campo | Valor |
+|-------|--------|
+| **Email** | `info@ramondelpozorott.es` |
+| **Contraseña** | `Benutzer555` |
+
+Para resetear en Supabase: `npx tsx scripts/setup-superadmin.ts --password "Benutzer555"`
 
 **Opción A — script (recomendado):**
 

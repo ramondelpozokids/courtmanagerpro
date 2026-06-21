@@ -1,0 +1,21 @@
+Bienvenido a CourtManager Pro. Te guío por esta presentación.
+
+CourtManager Pro es una plataforma SaaS para la gestión profesional de utilería en baloncesto: ACB, Euroliga y academias de élite. Sustituye Excel y WhatsApp por una sola aplicación web accesible desde móvil.
+
+En la cabecera encontrarás la demo en vivo, módulos, precios e inversores. Puedes cambiar entre español, catalán e inglés en cualquier momento.
+
+El dashboard es tu centro de mando: jugadores registrados, stock, solicitudes pendientes y viajes en preparación. La demo incluye diecisiete jugadores y cuatro competiciones: Liga Endesa, Euroliga, Copa del Rey y Supercopa.
+
+En la demo en vivo puedes explorar la app desplegada en Vercel sin instalar nada. El flujo cubre plantilla y tallas, solicitudes, viajes y alertas, e informes ejecutivos.
+
+Los nueve módulos principales son: plantilla profesional, matriz de tallas con más de veintiséis productos, inventario con código QR, solicitudes de material, viajes y packing lists, lavandería, material médico con alertas de caducidad, dashboard de KPIs y alertas inteligentes.
+
+Los precios son transparentes: plan Starter desde cuarenta y nueve euros al mes para canteras. Plan Pro a trescientos cuarenta y nueve euros para clubes ACB. Plan Elite a mil novecientos noventa euros para Euroliga. Facturación mensual o anual con diecisiete por ciento de ahorro.
+
+Para inversores: coste de reemplazo del MVP unos cuarenta y cinco mil euros, margen bruto del ochenta y cinco al noventa por cento. Objetivo realista de ingresos recurrentes en el primer año: más de ciento veinte mil euros. Mercado: más de treinta y seis clubes ACB y Euroliga en España.
+
+El equipo lo lideran Ramón del Pozo Rott, fundador y superadmin, y Carlos Rodriguez Kobe, jefe de utilería que valida la operativa real del club.
+
+Un club que pierde veinte mil euros al año en material invierte menos de cuatro mil doscientos en la plataforma. CourtManager Pro se amortiza desde el primer mes.
+
+Prueba la demo en courtmanagerpro punto vercel punto app, o escribe a info arroba ramondelpozorott punto es. Gracias por escuchar.

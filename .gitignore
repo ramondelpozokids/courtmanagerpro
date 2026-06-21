@@ -36,7 +36,8 @@ Thumbs.db
 # Dossier comercial local — no subir a GitHub
 docs/dossier-lanzamiento-saas/
 
-# Local junk / exports
+# Local deploy artifacts
+dist/
 page_*
 *.jp2
 Desktop/

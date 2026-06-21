@@ -1,0 +1,21 @@
+# CourtManager Pro — presentación estática (ES / CA / EN / FCB)
+# Deploy: arrastrar esta carpeta a Netlify Drop o ejecutar scripts/deploy-presentacion-netlify.ps1
+
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, immutable"
+
+[[headers]]
+  for = "/audio/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, immutable"

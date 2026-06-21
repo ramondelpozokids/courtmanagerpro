@@ -1,0 +1,21 @@
+Benvingut a CourtManager Pro. Et guio per aquesta presentació.
+
+CourtManager Pro és una plataforma SaaS per a la gestió professional de material esportiu en bàsquet: ACB, Eurolliga i acadèmies d'elit. Substitueix l'Excel i el WhatsApp per una sola aplicació web accessible des del mòbil.
+
+A la capçalera trobaràs la demo en directe, mòduls, preus i inversors. Pots canviar entre català, castellà i anglès en qualsevol moment.
+
+El dashboard és el teu centre de comandament: jugadors registrats, estoc, sol·licituds pendents i viatges en preparació. La demo inclou disset jugadors i quatre competicions: Liga Endesa, Eurolliga, Copa del Rei i Supercopa.
+
+A la demo en directe pots explorar l'app desplegada a Vercel sense instal·lar res. El flux cobreix plantilla i talles, sol·licituds, viatges i alertes, i informes executius.
+
+Els nou mòduls principals són: plantilla professional, matriu de talles amb més de vint-i-sis productes, inventari amb codi QR, sol·licituds de material, viatges i packing lists, bugaderia, material mèdic amb alertes de caducitat, dashboard de KPIs i alertes intel·ligents.
+
+Els preus són transparents: pla Starter des de quaranta-nou euros al mes per a canteres. Pla Pro a tres-cents quaranta-nou euros per a clubs ACB. Pla Elite a mil nou-cents noranta euros per a Eurolliga. Facturació mensual o anual amb disset per cent d'estalvi.
+
+Per a inversors: cost de reemplaçament del MVP uns quaranta-cinc mil euros, marge brut del vuitanta-cinc al noranta per cent. Objectiu realista d'ingressos recurrents el primer any: més de cent vint mil euros. Mercat: més de trenta-sis clubs ACB i Eurolliga a Espanya.
+
+L'equip el lideren Ramón del Pozo Rott, fundador i superadmin, i Carlos Rodriguez Kobe, cap d'utileria que valida l'operativa real del club.
+
+Un club que perd vint mil euros l'any en material inverteix menys de quatre mil dos-cents en la plataforma. CourtManager Pro s'amortitza des del primer mes.
+
+Prova la demo a courtmanagerpro punt vercel punt app, o escriu a info arroba ramondelpozorott punt es. Gràcies per escoltar.

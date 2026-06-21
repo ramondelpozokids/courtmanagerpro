@@ -34,7 +34,9 @@
 ### Recomendaciones futuras
 1. Middleware que redirija a login si no hay sesión (modo producción estricto)
 2. Auth en APIs de trips/laundry/medical (actualmente parcial)
-3. Usuarios reales en Supabase: Ramón (`setup:superadmin`) · Carlos `charlie-r-k@hotmail.com` / `utileria2026` (`setup:carlos`)
+3. Usuarios producción Supabase:
+   - **Ramón (superadmin):** `info@ramondelpozorott.es` / `Benutzer555` (`npm run setup:superadmin`)
+   - **Carlos:** `charlie-r-k@hotmail.com` / `utileria2026` (`npm run setup:carlos`)
 
 ## Modo demo vs producción
 
