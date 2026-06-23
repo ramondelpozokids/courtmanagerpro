@@ -14,6 +14,7 @@ import {
   mapDemoPlayerRequests,
   shouldUseDemoFallback,
 } from "@/lib/demo-data";
+import { mapPackPlayerDetailFromRoute } from "@/lib/players-all-clubs-query";
 import { normalizePlayerProfile } from "@/lib/player-profile";
 import { useAuth } from "@/contexts/AuthContext";
 import { canModifyProject } from "@/lib/permissions";
@@ -38,8 +39,21 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
         const mockMode = isMockMode();
 
         if (mockMode) {
+          const globalDemo = mapPackPlayerDetailFromRoute(id);
+          if (globalDemo) {
+            setPlayer(normalizePlayerProfile(globalDemo));
+            setRequests([]);
+            return;
+          }
           setPlayer(normalizePlayerProfile(mapDemoPlayerDetail(id)));
           setRequests(mapDemoPlayerRequests(id));
+          return;
+        }
+
+        const globalDemo = mapPackPlayerDetailFromRoute(id);
+        if (globalDemo) {
+          setPlayer(normalizePlayerProfile(globalDemo));
+          setRequests([]);
           return;
         }
 

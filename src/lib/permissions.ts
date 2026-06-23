@@ -20,6 +20,11 @@ export function hasUnrestrictedAccess(role?: string | null, email?: string | nul
   return isSuperadminUser(role, email);
 }
 
+/** Superadmin: vista global de jugadores de todos los clubes demo. */
+export function canViewAllClubPlayers(role?: string | null, email?: string | null): boolean {
+  return isSuperadminUser(role, email);
+}
+
 export function isCarlosUser(email?: string | null): boolean {
   return normalizeEmail(email) === CARLOS_EMAIL;
 }

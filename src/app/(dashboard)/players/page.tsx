@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback } from "react";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { persistDemoDb } from "@/lib/demo-persistence";
 import { apiPlayerToFormValues } from "@/lib/player-form-mapper";
-import { canWriteClubData } from "@/lib/permissions";
+import { canWriteClubData, canViewAllClubPlayers } from "@/lib/permissions";
 import type { Player } from "@/types";
 import type { Player as FormPlayer } from "@/domain/entities/Player";
 import {
@@ -22,13 +22,14 @@ type StaffMember = StaffFormData & { id: string; photo_url?: string | null; traj
 export default function PlayersPage() {
   const { user, currentTeam } = useAuth();
   const branding = useClubBranding();
+  const viewAllClubs = canViewAllClubPlayers(user?.profile?.role, user?.profile?.email ?? user?.email);
   const {
     players,
     loading,
     createPlayerFromForm,
     updatePlayerFromForm,
     deletePlayer,
-  } = usePlayers(currentTeam?.id);
+  } = usePlayers(currentTeam?.id, { allClubs: viewAllClubs });
 
   const [showPlayerForm, setShowPlayerForm] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<FormPlayer | null>(null);
@@ -108,7 +109,11 @@ export default function PlayersPage() {
 
   const filteredPlayers = players.filter((p) => {
     const fullName = (p.full_name || "").toLowerCase();
-    const matchesSearch = fullName.includes(search.toLowerCase()) || String(p.dorsal) === search;
+    const clubLabel = String((p.metadata as { clubShortName?: string })?.clubShortName ?? "").toLowerCase();
+    const matchesSearch =
+      fullName.includes(search.toLowerCase()) ||
+      String(p.dorsal) === search ||
+      (viewAllClubs && clubLabel.includes(search.toLowerCase()));
     const matchesPosition =
       positionFilter === "ALL" ||
       p.position === positionFilter.toLowerCase() ||

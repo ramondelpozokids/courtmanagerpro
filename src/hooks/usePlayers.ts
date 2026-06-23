@@ -13,9 +13,19 @@ import {
   formDataToUpdatePayload,
 } from '@/lib/player-form-mapper';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import {
+  fetchAllClubPlayersFromSupabase,
+  mapAllClubPlayersFromPacks,
+  sortAllClubPlayers,
+} from '@/lib/players-all-clubs-query';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
 
-export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
+export interface UsePlayersOptions {
+  allClubs?: boolean;
+}
+
+export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayersOptions = {}) {
+  const allClubs = options.allClubs === true;
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +36,30 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
   const demoActive = mockMode || usingDemoData;
 
   const fetchPlayers = useCallback(async () => {
-    if (!teamId) return;
+    if (!teamId && !allClubs) return;
     setLoading(true);
     setError(null);
 
     try {
+      if (allClubs) {
+        if (mockMode || usesDemoClubData()) {
+          setUsingDemoData(true);
+          setPlayers(sortAllClubPlayers(mapAllClubPlayersFromPacks()));
+          return;
+        }
+
+        try {
+          const merged = await fetchAllClubPlayersFromSupabase(supabase);
+          setUsingDemoData(false);
+          setPlayers(merged);
+        } catch (fetchError: any) {
+          setError(fetchError.message || 'Error al cargar jugadores globales');
+          setUsingDemoData(true);
+          setPlayers(sortAllClubPlayers(mapAllClubPlayersFromPacks()));
+        }
+        return;
+      }
+
       if (mockMode || usesDemoClubData()) {
         setUsingDemoData(true);
         setPlayers(mapDemoPlayers(teamId));
@@ -72,7 +101,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID) {
     } finally {
       setLoading(false);
     }
-  }, [teamId, mockMode, supabase]);
+  }, [allClubs, teamId, mockMode, supabase]);
 
   useEffect(() => {
     fetchPlayers();
