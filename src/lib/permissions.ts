@@ -10,9 +10,34 @@ export function normalizeEmail(email?: string | null): string | null {
   return email?.trim().toLowerCase() ?? null;
 }
 
-export function isSuperadminUser(role?: string | null, email?: string | null): boolean {
+export function isSuperadminUser(
+  role?: string | null,
+  email?: string | null,
+  ...moreEmails: Array<string | null | undefined>
+): boolean {
   if (role === 'superadmin') return true;
-  return normalizeEmail(email) === SUPERADMIN_EMAIL;
+  const candidates = [email, ...moreEmails].map(normalizeEmail);
+  return candidates.some((candidate) => candidate === SUPERADMIN_EMAIL);
+}
+
+export function isSuperadminFromSources(sources: {
+  role?: string | null;
+  profileEmail?: string | null;
+  userEmail?: string | null;
+  sessionEmail?: string | null;
+}): boolean {
+  if (sources.role === 'superadmin') return true;
+  const resolved = resolveUserEmail(sources);
+  return resolved === SUPERADMIN_EMAIL;
+}
+
+/** SuperAdmin: acceso ilimitado a cualquier comprobación de módulo o ruta. */
+export function grantSuperadminAccess(
+  role?: string | null,
+  email?: string | null,
+  ...moreEmails: Array<string | null | undefined>
+): boolean {
+  return isSuperadminUser(role, email, ...moreEmails);
 }
 
 /** Superadmin: acceso total sin límites (módulos, escritura, demos, proyecto). */
@@ -36,11 +61,18 @@ export function resolveUserEmail(
     sessionEmail?: string | null;
   }
 ): string | null {
-  return (
-    normalizeEmail(sources.profileEmail)
-    ?? normalizeEmail(sources.userEmail)
-    ?? normalizeEmail(sources.sessionEmail)
-  );
+  const session = normalizeEmail(sources.sessionEmail);
+  const profile = normalizeEmail(sources.profileEmail);
+  const user = normalizeEmail(sources.userEmail);
+
+  if (session === SUPERADMIN_EMAIL || profile === SUPERADMIN_EMAIL || user === SUPERADMIN_EMAIL) {
+    return SUPERADMIN_EMAIL;
+  }
+  if (session === CARLOS_EMAIL || profile === CARLOS_EMAIL || user === CARLOS_EMAIL) {
+    return CARLOS_EMAIL;
+  }
+
+  return profile ?? user ?? session;
 }
 
 export function resolveUserAccess(role?: string | null, email?: string | null) {
@@ -85,6 +117,7 @@ export function getPermContext(user?: {
 
 /** Roles with full write access (inventario, tallas, alertas, informes). */
 export function canWriteClubData(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return true;
   if (hasFullClubAccess(role, email)) return true;
   if (!role) return false;
   if (role === 'consulta' || role === 'player' || role === 'coach') return false;
@@ -93,16 +126,19 @@ export function canWriteClubData(role?: string | null, email?: string | null): b
 
 /** Invitado: solo lectura en módulos públicos del club. */
 export function isGuestReadonly(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return false;
   if (hasFullClubAccess(role, email)) return false;
   return role === 'consulta';
 }
 
 export function isReadonlyUser(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return false;
   if (hasFullClubAccess(role, email)) return false;
   return role === 'consulta' || role === 'player' || role === 'coach';
 }
 
 export function canAccessMedical(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return true;
   if (hasFullClubAccess(role, email)) return true;
   if (!role) return false;
   if (role === 'consulta') return false;
@@ -110,6 +146,7 @@ export function canAccessMedical(role?: string | null, email?: string | null): b
 }
 
 export function canAccessReports(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return true;
   if (hasFullClubAccess(role, email)) return true;
   if (!role) return false;
   if (role === 'consulta') return false;
@@ -117,6 +154,7 @@ export function canAccessReports(role?: string | null, email?: string | null): b
 }
 
 export function canManageAlerts(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return true;
   if (hasFullClubAccess(role, email)) return true;
   if (!role) return false;
   if (role === 'consulta') return false;
@@ -124,12 +162,14 @@ export function canManageAlerts(role?: string | null, email?: string | null): bo
 }
 
 export function canViewAlerts(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return true;
   if (!role && !email) return false;
   if (role === 'consulta') return true;
   return canManageAlerts(role, email);
 }
 
 export function canProcessRequests(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return true;
   if (hasFullClubAccess(role, email)) return true;
   if (!role) return false;
   if (isGuestReadonly(role, email) || role === 'player' || role === 'coach') return false;
@@ -137,6 +177,7 @@ export function canProcessRequests(role?: string | null, email?: string | null):
 }
 
 export function canCreateRequest(role?: string | null, email?: string | null): boolean {
+  if (grantSuperadminAccess(role, email)) return true;
   if (hasFullClubAccess(role, email)) return true;
   if (!role) return false;
   if (role === 'consulta') return false;

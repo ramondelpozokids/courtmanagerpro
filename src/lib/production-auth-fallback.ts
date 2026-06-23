@@ -6,14 +6,27 @@ export type AppProfile = Omit<Profile, 'role'> & { role: Profile['role'] | 'supe
 
 /** Perfil en memoria con rol superadmin cuando corresponde (enum SQL solo tiene admin). */
 export function enrichProfileWithSuperadmin(profile: Profile, authEmail?: string | null): AppProfile {
+  const sessionEmail = normalizeEmail(authEmail);
   const merged: Profile = {
     ...profile,
-    email: profile.email || authEmail || profile.email,
+    email: sessionEmail ?? profile.email ?? '',
   };
-  if (isSuperadminUser(null, authEmail) || isSuperadminUser(null, merged.email)) {
-    return { ...merged, role: 'superadmin' };
+
+  if (isSuperadminUser(null, sessionEmail) || isSuperadminUser(null, merged.email)) {
+    return {
+      ...merged,
+      role: 'superadmin',
+      email: SUPERADMIN_EMAIL,
+      full_name: merged.full_name || 'Ramón del Pozo Rott',
+      avatar_url: merged.avatar_url || '/images/ramon-del-pozo.png',
+      department: merged.department || 'Superadmin',
+    };
   }
   return merged as AppProfile;
+}
+
+function normalizeEmail(email?: string | null): string | null {
+  return email?.trim().toLowerCase() ?? null;
 }
 
 /** @deprecated Use enrichProfileWithSuperadmin */

@@ -36,13 +36,12 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, currentTeam, logout, hasPermission } = useAuth();
+  const { user, currentTeam, logout, hasPermission, userEmail } = useAuth();
   const branding = useClubBranding();
   const { sidebarOpen, toggleSidebar } = useApp();
   const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
 
   const userRole = user?.profile?.role || 'equipment_manager';
-  const userEmail = user?.profile?.email ?? user?.email;
 
   const visibleItems = NAV_ITEMS.filter(item => {
     if (item.href === '/medical') return canAccessMedical(userRole, userEmail);

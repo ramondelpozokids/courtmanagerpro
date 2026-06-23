@@ -1,7 +1,7 @@
 import type { Profile } from '@/types';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
-import { resolveUserAccess } from '@/lib/permissions';
+import { resolveUserAccess, resolveUserEmail } from '@/lib/permissions';
 
 /** Perfil de API con rol superadmin elevado por email (Ramón). */
 export async function getApiUserAccess() {
@@ -20,7 +20,10 @@ export async function getApiUserAccess() {
     .eq('id', user.id)
     .maybeSingle();
 
-  const email = profileRow?.email ?? user.email ?? null;
+  const email = resolveUserEmail({
+    profileEmail: profileRow?.email,
+    sessionEmail: user.email,
+  });
   const access = resolveUserAccess(profileRow?.role, email);
 
   return { supabase, user, access, profileRow, response: null };

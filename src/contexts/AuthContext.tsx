@@ -12,7 +12,7 @@ import {
   ROLE_COOKIE,
   AUTH_COOKIE,
 } from '@/lib/auth-credentials';
-import { canModifyProject, hasFullClubAccess, isSuperadminUser, resolveUserEmail } from '@/lib/permissions';
+import { canModifyProject, grantSuperadminAccess, hasFullClubAccess, isSuperadminUser, resolveUserEmail } from '@/lib/permissions';
 import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { isDemoMode } from '@/lib/app-mode';
@@ -119,13 +119,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const teams = userTeams.map((ut: any) => ut.team).filter(Boolean) as Team[];
 
       const storedTeamId = typeof window !== 'undefined' ? localStorage.getItem('currentTeamId') : null;
-      const defaultTeam = storedTeamId ? teams.find(t => t.id === storedTeamId) || teams[0] : teams[0];
+      let defaultTeam = storedTeamId ? teams.find(t => t.id === storedTeamId) || teams[0] : teams[0];
+
+      if (!defaultTeam && isSuperadminUser(profile.role, profile.email, authEmail)) {
+        const { data: teamRow } = await supabase
+          .from('teams')
+          .select('*')
+          .eq('id', DEFAULT_TEAM_ID)
+          .maybeSingle();
+        defaultTeam = (teamRow as Team | null) ?? defaultMockTeam;
+      }
+
+      const resolvedEmail = resolveUserEmail({
+        profileEmail: profile.email,
+        sessionEmail: authEmail,
+      });
 
       return {
         id: userId,
-        email: profile.email,
+        email: resolvedEmail ?? profile.email,
         profile,
-        teams: userTeams,
+        teams: userTeams.length > 0
+          ? userTeams
+          : defaultTeam
+            ? [{ team: defaultTeam, role: 'admin' as UserRole, is_active: true }]
+            : [],
         currentTeam: defaultTeam || null,
       };
     } catch (err) {
@@ -436,17 +454,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const hasPermission = useCallback((roles: string[]): boolean => {
     if (!user) return false;
+    if (grantSuperadminAccess(user?.profile?.role, userEmail)) return true;
     const userRole = user?.profile?.role || 'assistant';
-    const email = resolveUserEmail({
-      profileEmail: user?.profile?.email,
-      userEmail: user?.email,
-      sessionEmail: session?.user?.email,
-    });
-    if (hasFullClubAccess(userRole, email)) return true;
+    if (hasFullClubAccess(userRole, userEmail)) return true;
     if (!currentTeam) return false;
     const userTeam = user.teams.find((ut: any) => (ut.team as unknown as Team).id === currentTeam.id);
     return userTeam ? roles.includes(userTeam.role) : false;
-  }, [user, currentTeam, session?.user?.email]);
+  }, [user, currentTeam, userEmail]);
 
   return (
     <AuthContext.Provider value={{
