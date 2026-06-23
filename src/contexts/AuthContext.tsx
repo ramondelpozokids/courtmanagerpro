@@ -13,10 +13,11 @@ import {
   AUTH_COOKIE,
 } from '@/lib/auth-credentials';
 import { canModifyProject, grantSuperadminAccess, hasFullClubAccess, isSuperadminUser, resolveUserEmail } from '@/lib/permissions';
+import { isSuperadminIdentity } from '@/lib/superadmin-access';
 import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { isDemoMode } from '@/lib/app-mode';
-import { buildFallbackProductionUser, enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
+import { buildFallbackProductionUser, buildGuaranteedSuperadminUser, enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -159,6 +160,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (activeSession: Session) => {
       setSession(activeSession);
       const authEmail = activeSession.user.email;
+
+      const guaranteed = buildGuaranteedSuperadminUser(activeSession.user.id, authEmail);
+      if (guaranteed) {
+        setUser(guaranteed);
+        setCurrentTeamState(guaranteed.currentTeam ?? defaultMockTeam);
+        return;
+      }
+
       let userData = await loadUserData(activeSession.user.id, authEmail);
       if (!userData && authEmail) {
         userData = await buildFallbackProductionUser(supabase, activeSession.user.id, authEmail);
@@ -305,42 +314,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthCookies(cred.role);
       return;
     }
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-      credentials: 'include',
+    const normalizedEmail = email.trim().toLowerCase();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
     });
-    const payload = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(payload.error || 'Email o contraseña incorrectos.');
+    if (error) {
+      throw new Error(error.message || 'Email o contraseña incorrectos.');
     }
-
-    if (payload.access_token && payload.refresh_token) {
-      const { data: sessionData, error: setSessionError } = await supabase.auth.setSession({
-        access_token: payload.access_token,
-        refresh_token: payload.refresh_token,
-      });
-      if (setSessionError) {
-        throw new Error(setSessionError.message || 'No se pudo establecer la sesión.');
-      }
-      if (sessionData.session) {
-        await applySessionUser(sessionData.session);
-        return;
-      }
+    if (!data.session?.user) {
+      throw new Error('Sesión iniciada pero no se pudo cargar. Recarga la página e inténtalo de nuevo.');
     }
-
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !session?.user) {
-      const { data: refreshed } = await supabase.auth.refreshSession();
-      if (!refreshed.session?.user) {
-        throw new Error('Sesión iniciada pero no se pudo cargar. Recarga la página e inténtalo de nuevo.');
-      }
-      await applySessionUser(refreshed.session);
-      return;
-    }
-
-    await applySessionUser(session);
+    await applySessionUser(data.session);
   }, [mockAuth, supabase, buildUserFromRole, applySessionUser]);
 
   const loginWithBiometric = useCallback(async (email: string, discoverable = false) => {
@@ -464,19 +449,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userEmail: user?.email,
     sessionEmail: session?.user?.email,
   });
-  const isSuperadmin =
-    isSuperadminUser(user?.profile?.role, userEmail)
-    || isSuperadminUser(null, session?.user?.email);
+  const isSuperadmin = isSuperadminIdentity({
+    role: user?.profile?.role,
+    profileEmail: user?.profile?.email,
+    userEmail: user?.email,
+    sessionEmail: session?.user?.email,
+  });
 
   const hasPermission = useCallback((roles: string[]): boolean => {
+    if (isSuperadmin) return true;
     if (!user) return false;
-    if (grantSuperadminAccess(user?.profile?.role, userEmail)) return true;
+    if (grantSuperadminAccess(user?.profile?.role, userEmail, session?.user?.email)) return true;
     const userRole = user?.profile?.role || 'assistant';
     if (hasFullClubAccess(userRole, userEmail)) return true;
     if (!currentTeam) return false;
     const userTeam = user.teams.find((ut: any) => (ut.team as unknown as Team).id === currentTeam.id);
     return userTeam ? roles.includes(userTeam.role) : false;
-  }, [user, currentTeam, userEmail]);
+  }, [user, currentTeam, userEmail, isSuperadmin, session?.user?.email]);
 
   return (
     <AuthContext.Provider value={{

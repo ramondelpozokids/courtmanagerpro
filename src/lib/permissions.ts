@@ -1,4 +1,11 @@
 /** Ramón del Pozo Rott — único superadmin con permisos de proyecto. */
+import {
+  isSuperadminIdentity,
+  type SuperadminAccessSources,
+} from '@/lib/superadmin-access';
+
+export type { SuperadminAccessSources };
+
 export const SUPERADMIN_EMAIL = 'info@ramondelpozorott.es';
 
 /** Carlos Rodriguez Kobe — acceso operativo total al club. */
@@ -15,20 +22,16 @@ export function isSuperadminUser(
   email?: string | null,
   ...moreEmails: Array<string | null | undefined>
 ): boolean {
-  if (role === 'superadmin') return true;
-  const candidates = [email, ...moreEmails].map(normalizeEmail);
-  return candidates.some((candidate) => candidate === SUPERADMIN_EMAIL);
+  return isSuperadminIdentity({
+    role,
+    profileEmail: email,
+    userEmail: email,
+    sessionEmail: moreEmails[0] ?? email,
+  }) || moreEmails.some((e) => normalizeEmail(e) === SUPERADMIN_EMAIL);
 }
 
-export function isSuperadminFromSources(sources: {
-  role?: string | null;
-  profileEmail?: string | null;
-  userEmail?: string | null;
-  sessionEmail?: string | null;
-}): boolean {
-  if (sources.role === 'superadmin') return true;
-  const resolved = resolveUserEmail(sources);
-  return resolved === SUPERADMIN_EMAIL;
+export function isSuperadminFromSources(sources: SuperadminAccessSources): boolean {
+  return isSuperadminIdentity(sources);
 }
 
 /** SuperAdmin: acceso ilimitado a cualquier comprobación de módulo o ruta. */
@@ -37,7 +40,12 @@ export function grantSuperadminAccess(
   email?: string | null,
   ...moreEmails: Array<string | null | undefined>
 ): boolean {
-  return isSuperadminUser(role, email, ...moreEmails);
+  return isSuperadminIdentity({
+    role,
+    profileEmail: email,
+    userEmail: email,
+    sessionEmail: moreEmails[0],
+  }) || moreEmails.some((e) => normalizeEmail(e) === SUPERADMIN_EMAIL);
 }
 
 /** Superadmin: acceso total sin límites (módulos, escritura, demos, proyecto). */
