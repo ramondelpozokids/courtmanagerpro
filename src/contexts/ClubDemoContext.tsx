@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ClubDemoPack, ClubSlug } from '@/data/clubs/types';
 import { CLUB_PACKS, getClubPack } from '@/data/clubs';
 import {
@@ -33,8 +33,17 @@ const ClubDemoContext = createContext<ClubDemoContextValue | null>(null);
 const PRODUCTION_CLUB_SLUG: ClubSlug = 'rmb';
 const ALL_CLUB_SLUGS = Object.keys(CLUB_PACKS) as ClubSlug[];
 
+function applyProductionClub(
+  setClubSlug: (slug: ClubSlug) => void,
+  setClub: (pack: ClubDemoPack) => void
+) {
+  setClubSlug(PRODUCTION_CLUB_SLUG);
+  setClub(getClubPack(PRODUCTION_CLUB_SLUG));
+  setActiveClubPreviewSlug(PRODUCTION_CLUB_SLUG);
+}
+
 export function ClubDemoProvider({ children }: { children: ReactNode }) {
-  const { setCurrentTeam, user, loading: authLoading, isSuperadmin } = useAuth();
+  const { setCurrentTeam, loading: authLoading, isSuperadmin } = useAuth();
   const demo = isDemoMode();
   const canSwitchClubs = demo || isSuperadmin;
   const isSuperadminPreview = !demo && isSuperadmin;
@@ -42,6 +51,7 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
   const [clubSlug, setClubSlug] = useState<ClubSlug>(PRODUCTION_CLUB_SLUG);
   const [club, setClub] = useState<ClubDemoPack>(() => getClubPack(PRODUCTION_CLUB_SLUG));
   const [switching, setSwitching] = useState(false);
+  const initKeyRef = useRef('');
 
   const applyClub = useCallback(
     (slug: ClubSlug) => {
@@ -52,23 +62,14 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         const team = loadClubBySlug(slug);
         persistDemoClubSlug(slug);
         setCurrentTeam(team);
-      } else if (isSuperadmin) {
-        if (isPreviewDemoClub(slug)) {
-          const team = loadClubBySlug(slug);
-          setCurrentTeam(team);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);
-          }
-        } else {
-          const productionTeam = user?.currentTeam ?? user?.teams?.[0]?.team;
-          if (productionTeam) {
-            setCurrentTeam(productionTeam);
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('currentTeamId', productionTeam.id);
-            }
-          }
+      } else if (isSuperadmin && isPreviewDemoClub(slug)) {
+        const team = loadClubBySlug(slug);
+        setCurrentTeam(team);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);
         }
       }
+      // RMB producción: no tocar currentTeam (igual que Carlos — ya viene de AuthContext)
 
       setClubSlug(slug);
       setClub(pack);
@@ -77,37 +78,32 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         window.dispatchEvent(new CustomEvent('club-demo-changed', { detail: { slug } }));
       }
     },
-    [demo, isSuperadmin, setCurrentTeam, user]
+    [demo, isSuperadmin, setCurrentTeam]
   );
 
   useEffect(() => {
+    if (authLoading) return;
+
+    const initKey = `${demo ? 'demo' : 'prod'}-${isSuperadmin ? 'sa' : 'user'}`;
+    if (initKeyRef.current === initKey) return;
+    initKeyRef.current = initKey;
+
     if (demo) {
       applyClub(readStoredDemoClubSlug());
       return;
     }
-
-    if (authLoading) return;
 
     if (isSuperadmin) {
       const storedSlug = readActiveClubPreviewSlug();
       if (isPreviewDemoClub(storedSlug)) {
         applyClub(storedSlug);
       } else {
-        // Mismo contexto que Carlos: RMB producción, sin recargar demo pack
-        setClubSlug(PRODUCTION_CLUB_SLUG);
-        setClub(getClubPack(PRODUCTION_CLUB_SLUG));
-        setActiveClubPreviewSlug(PRODUCTION_CLUB_SLUG);
-        const productionTeam = user?.currentTeam ?? user?.teams?.[0]?.team;
-        if (productionTeam) {
-          setCurrentTeam(productionTeam);
-        }
+        applyProductionClub(setClubSlug, setClub);
       }
       return;
     }
 
-    setClubSlug(PRODUCTION_CLUB_SLUG);
-    setClub(getClubPack(PRODUCTION_CLUB_SLUG));
-    setActiveClubPreviewSlug(PRODUCTION_CLUB_SLUG);
+    applyProductionClub(setClubSlug, setClub);
   }, [applyClub, authLoading, demo, isSuperadmin]);
 
   const switchClub = useCallback(

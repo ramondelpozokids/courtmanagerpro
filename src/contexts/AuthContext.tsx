@@ -17,7 +17,7 @@ import { isSuperadminIdentity } from '@/lib/superadmin-access';
 import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { isDemoMode } from '@/lib/app-mode';
-import { buildFallbackProductionUser, buildGuaranteedSuperadminUser, enrichProfileWithSuperadmin, normalizeSuperadminLikeCarlos } from '@/lib/production-auth-fallback';
+import { buildFallbackProductionUser, buildGuaranteedSuperadminUser, enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -165,18 +165,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(activeSession);
       const authEmail = activeSession.user.email;
 
-      // Mismo flujo que Carlos: Supabase primero, fallback después
+      // SuperAdmin: usuario garantizado al instante (evita bloqueos de BD/RLS)
+      if (isSuperadminUser(null, authEmail)) {
+        const guaranteed = buildGuaranteedSuperadminUser(activeSession.user.id, authEmail);
+        if (guaranteed) {
+          setUser(guaranteed);
+          setCurrentTeamState(guaranteed.currentTeam ?? defaultMockTeam);
+          return;
+        }
+      }
+
+      // Flujo estándar (Carlos y resto)
       let userData = await loadUserData(activeSession.user.id, authEmail);
       if (!userData && authEmail) {
         userData = await buildFallbackProductionUser(supabase, activeSession.user.id, authEmail);
       }
-
-      if (userData && isSuperadminUser(userData.profile?.role, authEmail, userData.profile?.email, userData.email)) {
-        userData = normalizeSuperadminLikeCarlos(userData, authEmail);
-      } else if (!userData && isSuperadminUser(null, authEmail)) {
-        userData = buildGuaranteedSuperadminUser(activeSession.user.id, authEmail);
-      }
-
       if (userData) {
         setUser(userData);
         setCurrentTeamState(userData.currentTeam ?? defaultMockTeam);
@@ -448,9 +451,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, mockAuth, supabase, session?.user?.email]);
 
   const setCurrentTeam = useCallback((team: Team) => {
-    setCurrentTeamState(team);
+    setCurrentTeamState((prev) => (prev?.id === team.id ? prev : team));
     localStorage.setItem('currentTeamId', team.id);
-    setUser((prev: any) => prev ? { ...prev, currentTeam: team } : null);
+    setUser((prev: any) => {
+      if (!prev) return null;
+      if (prev.currentTeam?.id === team.id) return prev;
+      return { ...prev, currentTeam: team };
+    });
   }, []);
 
   const userEmail = resolveUserEmail({
