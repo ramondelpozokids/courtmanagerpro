@@ -36,15 +36,15 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, currentTeam, logout, hasPermission, userEmail, isSuperadmin } = useAuth();
+  const { user, currentTeam, logout, hasPermission, userEmail, hasOperationalAccess, effectiveRole } = useAuth();
   const branding = useClubBranding();
   const { sidebarOpen, toggleSidebar } = useApp();
   const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
 
-  const userRole = user?.profile?.role || 'equipment_manager';
+  const userRole = effectiveRole;
 
   const visibleItems = NAV_ITEMS.filter(item => {
-    if (isSuperadmin) return true;
+    if (hasOperationalAccess) return true;
     if (item.href === '/medical') return canAccessMedical(userRole, userEmail);
     if (item.href === '/reports') return canAccessReports(userRole, userEmail);
     return item.roles.length === 0 || hasPermission(item.roles);

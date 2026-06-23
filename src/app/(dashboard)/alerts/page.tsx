@@ -8,12 +8,12 @@ import { canManageAlerts, canViewAlerts } from "@/lib/permissions";
 import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw } from "lucide-react";
 
 export default function AlertsPage() {
-  const { user, userEmail, isSuperadmin } = useAuth();
+  const { user, userEmail, hasOperationalAccess } = useAuth();
   const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts();
 
   const userRole = user?.profile?.role;
-  const hasAccess = isSuperadmin || canViewAlerts(userRole, userEmail);
-  const canEdit = isSuperadmin || canManageAlerts(userRole, userEmail);
+  const hasAccess = hasOperationalAccess || canViewAlerts(userRole, userEmail);
+  const canEdit = hasOperationalAccess || canManageAlerts(userRole, userEmail);
 
   if (!hasAccess) {
     return (

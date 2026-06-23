@@ -43,7 +43,7 @@ export function buildGuaranteedSuperadminUser(userId: string, authEmail?: string
 
   const userTeams: UserTeam[] = [{
     team: DEFAULT_SUPERADMIN_TEAM,
-    role: 'admin',
+    role: 'equipment_manager',
     is_active: true,
   }];
 
@@ -57,9 +57,9 @@ export function buildGuaranteedSuperadminUser(userId: string, authEmail?: string
 }
 
 /** Perfil en memoria con rol superadmin cuando corresponde (enum SQL solo tiene admin). */
-export function enrichProfileWithSuperadmin(profile: Profile, authEmail?: string | null): AppProfile {
+export function enrichProfileWithSuperadmin(profile: Profile | AppProfile, authEmail?: string | null): AppProfile {
   const sessionEmail = normalizeEmail(authEmail);
-  const merged: Profile = {
+  const merged: AppProfile = {
     ...profile,
     email: sessionEmail ?? profile.email ?? '',
   };
@@ -75,6 +75,32 @@ export function enrichProfileWithSuperadmin(profile: Profile, authEmail?: string
     };
   }
   return merged as AppProfile;
+}
+
+/** SuperAdmin con el mismo acceso operativo que Carlos (equipment_manager + equipo RMB). */
+export function normalizeSuperadminLikeCarlos(
+  userData: {
+    id: string;
+    email?: string;
+    profile: AppProfile | Profile;
+    teams?: UserTeam[];
+    currentTeam?: Team | null;
+  },
+  authEmail?: string | null
+) {
+  const profile = enrichProfileWithSuperadmin(userData.profile, authEmail);
+  const team = userData.currentTeam ?? userData.teams?.[0]?.team ?? DEFAULT_SUPERADMIN_TEAM;
+  const teams: UserTeam[] = userData.teams?.length
+    ? userData.teams.map((ut) => ({ ...ut, role: 'equipment_manager' as UserTeam['role'] }))
+    : [{ team, role: 'equipment_manager', is_active: true }];
+
+  return {
+    ...userData,
+    email: SUPERADMIN_EMAIL,
+    profile,
+    teams,
+    currentTeam: team,
+  };
 }
 
 function normalizeEmail(email?: string | null): string | null {
@@ -144,7 +170,7 @@ export async function buildFallbackProductionUser(
   const userTeams: UserTeam[] = currentTeam
     ? [{
         team: currentTeam,
-        role: role === 'superadmin' ? 'admin' : (role as UserTeam['role']),
+        role: role === 'superadmin' ? 'equipment_manager' : (role as UserTeam['role']),
         is_active: true,
       }]
     : [];

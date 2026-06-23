@@ -97,6 +97,11 @@ export function hasFullClubAccess(role?: string | null, email?: string | null): 
   return false;
 }
 
+/** Alias: Carlos y SuperAdmin comparten la misma regla de acceso operativo. */
+export function hasOperationalAccess(role?: string | null, email?: string | null): boolean {
+  return hasFullClubAccess(role, email);
+}
+
 /**
  * Cambios de proyecto / plataforma (stats oficiales, configuración, roles).
  * Solo Ramón — ni Carlos ni ningún otro usuario.

@@ -5,7 +5,6 @@ import type { ClubDemoPack, ClubSlug } from '@/data/clubs/types';
 import { CLUB_PACKS, getClubPack } from '@/data/clubs';
 import {
   loadClubBySlug,
-  loadClubPack,
   persistDemoClubSlug,
   readStoredDemoClubSlug,
 } from '@/lib/club-demo-loader';
@@ -61,7 +60,6 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);
           }
         } else {
-          loadClubPack(getClubPack('rmb'));
           const productionTeam = user?.currentTeam ?? user?.teams?.[0]?.team;
           if (productionTeam) {
             setCurrentTeam(productionTeam);
@@ -91,7 +89,19 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
     if (authLoading) return;
 
     if (isSuperadmin) {
-      applyClub(readActiveClubPreviewSlug());
+      const storedSlug = readActiveClubPreviewSlug();
+      if (isPreviewDemoClub(storedSlug)) {
+        applyClub(storedSlug);
+      } else {
+        // Mismo contexto que Carlos: RMB producción, sin recargar demo pack
+        setClubSlug(PRODUCTION_CLUB_SLUG);
+        setClub(getClubPack(PRODUCTION_CLUB_SLUG));
+        setActiveClubPreviewSlug(PRODUCTION_CLUB_SLUG);
+        const productionTeam = user?.currentTeam ?? user?.teams?.[0]?.team;
+        if (productionTeam) {
+          setCurrentTeam(productionTeam);
+        }
+      }
       return;
     }
 

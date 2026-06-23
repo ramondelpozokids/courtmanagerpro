@@ -12,12 +12,12 @@ import {
   ROLE_COOKIE,
   AUTH_COOKIE,
 } from '@/lib/auth-credentials';
-import { canModifyProject, grantSuperadminAccess, hasFullClubAccess, isSuperadminUser, resolveUserEmail } from '@/lib/permissions';
+import { canModifyProject, hasFullClubAccess, isSuperadminUser, resolveUserEmail } from '@/lib/permissions';
 import { isSuperadminIdentity } from '@/lib/superadmin-access';
 import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { isDemoMode } from '@/lib/app-mode';
-import { buildFallbackProductionUser, buildGuaranteedSuperadminUser, enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
+import { buildFallbackProductionUser, buildGuaranteedSuperadminUser, enrichProfileWithSuperadmin, normalizeSuperadminLikeCarlos } from '@/lib/production-auth-fallback';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -36,6 +36,10 @@ interface AuthContextValue {
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   hasPermission: (roles: string[]) => boolean;
   isSuperadmin: boolean;
+  /** Mismo acceso operativo que Carlos (equipment_manager). */
+  hasOperationalAccess: boolean;
+  /** Rol efectivo para permisos de navegación (Carlos = equipment_manager). */
+  effectiveRole: string;
   userEmail: string | null;
   switchRole: (role: ExtendedRole) => void;
   buildUserFromRole: (role: ExtendedRole, profileOverrides?: Partial<Profile>) => any;
@@ -143,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         teams: userTeams.length > 0
           ? userTeams
           : defaultTeam
-            ? [{ team: defaultTeam, role: 'admin' as UserRole, is_active: true }]
+            ? [{ team: defaultTeam, role: 'equipment_manager' as UserRole, is_active: true }]
             : [],
         currentTeam: defaultTeam || null,
       };
@@ -161,17 +165,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(activeSession);
       const authEmail = activeSession.user.email;
 
-      const guaranteed = buildGuaranteedSuperadminUser(activeSession.user.id, authEmail);
-      if (guaranteed) {
-        setUser(guaranteed);
-        setCurrentTeamState(guaranteed.currentTeam ?? defaultMockTeam);
-        return;
-      }
-
+      // Mismo flujo que Carlos: Supabase primero, fallback después
       let userData = await loadUserData(activeSession.user.id, authEmail);
       if (!userData && authEmail) {
         userData = await buildFallbackProductionUser(supabase, activeSession.user.id, authEmail);
       }
+
+      if (userData && isSuperadminUser(userData.profile?.role, authEmail, userData.profile?.email, userData.email)) {
+        userData = normalizeSuperadminLikeCarlos(userData, authEmail);
+      } else if (!userData && isSuperadminUser(null, authEmail)) {
+        userData = buildGuaranteedSuperadminUser(activeSession.user.id, authEmail);
+      }
+
       if (userData) {
         setUser(userData);
         setCurrentTeamState(userData.currentTeam ?? defaultMockTeam);
@@ -459,17 +464,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userEmail: user?.email,
     sessionEmail: session?.user?.email,
   });
+  const hasOperationalAccess =
+    isSuperadmin || hasFullClubAccess(user?.profile?.role, userEmail);
+  const effectiveRole = hasOperationalAccess
+    ? (isSuperadmin ? 'equipment_manager' : (user?.profile?.role || 'equipment_manager'))
+    : (user?.profile?.role || 'assistant');
 
   const hasPermission = useCallback((roles: string[]): boolean => {
-    if (isSuperadmin) return true;
+    if (hasOperationalAccess) return true;
     if (!user) return false;
-    if (grantSuperadminAccess(user?.profile?.role, userEmail, session?.user?.email)) return true;
     const userRole = user?.profile?.role || 'assistant';
-    if (hasFullClubAccess(userRole, userEmail)) return true;
     if (!currentTeam) return false;
     const userTeam = user.teams.find((ut: any) => (ut.team as unknown as Team).id === currentTeam.id);
     return userTeam ? roles.includes(userTeam.role) : false;
-  }, [user, currentTeam, userEmail, isSuperadmin, session?.user?.email]);
+  }, [user, currentTeam, hasOperationalAccess]);
 
   return (
     <AuthContext.Provider value={{
@@ -486,6 +494,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       changePassword,
       hasPermission,
       isSuperadmin,
+      hasOperationalAccess,
+      effectiveRole,
       userEmail,
       switchRole,
       buildUserFromRole,

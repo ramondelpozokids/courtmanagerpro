@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback } from "react";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { persistDemoDb } from "@/lib/demo-persistence";
 import { apiPlayerToFormValues } from "@/lib/player-form-mapper";
-import { canWriteClubData, canViewAllClubPlayers } from "@/lib/permissions";
+import { canWriteClubData } from "@/lib/permissions";
 import type { Player } from "@/types";
 import type { Player as FormPlayer } from "@/domain/entities/Player";
 import {
@@ -20,16 +20,15 @@ import {
 type StaffMember = StaffFormData & { id: string; photo_url?: string | null; trajectory?: string; palmares?: string[]; birth_date?: string; birth_place?: string };
 
 export default function PlayersPage() {
-  const { user, currentTeam, userEmail, isSuperadmin } = useAuth();
+  const { user, currentTeam, userEmail, hasOperationalAccess } = useAuth();
   const branding = useClubBranding();
-  const viewAllClubs = isSuperadmin || canViewAllClubPlayers(user?.profile?.role, userEmail);
   const {
     players,
     loading,
     createPlayerFromForm,
     updatePlayerFromForm,
     deletePlayer,
-  } = usePlayers(currentTeam?.id, { allClubs: viewAllClubs });
+  } = usePlayers(currentTeam?.id);
 
   const [showPlayerForm, setShowPlayerForm] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<FormPlayer | null>(null);
@@ -44,7 +43,7 @@ export default function PlayersPage() {
   const [positionFilter, setPositionFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
+  const canWrite = hasOperationalAccess || canWriteClubData(user?.profile?.role, userEmail);
 
   const loadStaff = useCallback(() => {
     setStaff([...(db.coachingStaff as StaffMember[])]);
@@ -109,11 +108,9 @@ export default function PlayersPage() {
 
   const filteredPlayers = players.filter((p) => {
     const fullName = (p.full_name || "").toLowerCase();
-    const clubLabel = String((p.metadata as { clubShortName?: string })?.clubShortName ?? "").toLowerCase();
     const matchesSearch =
       fullName.includes(search.toLowerCase()) ||
-      String(p.dorsal) === search ||
-      (viewAllClubs && clubLabel.includes(search.toLowerCase()));
+      String(p.dorsal) === search;
     const matchesPosition =
       positionFilter === "ALL" ||
       p.position === positionFilter.toLowerCase() ||
