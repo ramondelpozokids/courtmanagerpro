@@ -7,7 +7,7 @@ import { canWriteClubData } from "@/lib/permissions";
 import { Plane, Calendar, CheckSquare, Square, CheckCircle, RefreshCw, AlertCircle, ShoppingBag, Plus, Trash2 } from "lucide-react";
 
 export default function TripsPage() {
-  const { user } = useAuth();
+  const { user, userEmail, isSuperadmin } = useAuth();
   const { trips, loading, packItem, addPackingItem, removePackingItem } = useTrips();
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [showAddItem, setShowAddItem] = useState(false);
@@ -15,7 +15,7 @@ export default function TripsPage() {
   const [newItemCategory, setNewItemCategory] = useState("Equipaje");
   const [newItemQty, setNewItemQty] = useState(1);
 
-  const canWrite = canWriteClubData(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
 
   const activeTrip = trips.find((t) => t.id === selectedTripId) || trips[0];
 

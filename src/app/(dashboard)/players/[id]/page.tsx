@@ -26,8 +26,8 @@ interface PlayerProfileProps {
 
 export default function PlayerProfilePage({ params }: PlayerProfileProps) {
   const { id } = use(params);
-  const { user } = useAuth();
-  const canEditStats = canModifyProject(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const { user, userEmail, isSuperadmin } = useAuth();
+  const canEditStats = isSuperadmin || canModifyProject(user?.profile?.role, userEmail);
   const [player, setPlayer] = useState<any | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);

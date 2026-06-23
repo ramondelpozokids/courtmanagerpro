@@ -6,10 +6,10 @@ import { PlusCircle, QrCode, ClipboardList, Plane, Droplet } from "lucide-react"
 import Link from "next/link";
 
 export default function QuickActions() {
-  const { user } = useAuth();
+  const { user, userEmail, isSuperadmin } = useAuth();
   const userRole = user?.profile?.role || "equipment_manager";
 
-  const isReadonly = isReadonlyUser(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const isReadonly = !isSuperadmin && isReadonlyUser(user?.profile?.role, userEmail);
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">

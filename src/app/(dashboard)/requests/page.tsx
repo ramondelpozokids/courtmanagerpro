@@ -16,17 +16,16 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function RequestsPage() {
-  const { user } = useAuth();
+  const { user, userEmail, isSuperadmin } = useAuth();
   const { requests, loading, createRequest, updateStatus } = useRequests();
   const [showAddForm, setShowAddForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
 
   const userRole = user?.profile?.role || "assistant";
-  const userEmail = user?.profile?.email ?? user?.email;
   const userId = user?.id || "u1";
-  const canProcess = canProcessRequests(userRole, userEmail);
-  const canCreate = canCreateRequest(userRole, userEmail);
+  const canProcess = isSuperadmin || canProcessRequests(userRole, userEmail);
+  const canCreate = isSuperadmin || canCreateRequest(userRole, userEmail);
   const isPlayer = userRole === "player";
 
   const stats = useMemo(() => ({

@@ -1,21 +1,17 @@
-/** Ramón del Pozo Rott — único superadmin con permisos de proyecto. */
+import {
+  SUPERADMIN_EMAIL,
+  CARLOS_EMAIL,
+  normalizeEmail,
+} from '@/lib/access-constants';
 import {
   isSuperadminIdentity,
   type SuperadminAccessSources,
 } from '@/lib/superadmin-access';
 
 export type { SuperadminAccessSources };
-
-export const SUPERADMIN_EMAIL = 'info@ramondelpozorott.es';
-
-/** Carlos Rodriguez Kobe — acceso operativo total al club. */
-export const CARLOS_EMAIL = 'charlie-r-k@hotmail.com';
+export { SUPERADMIN_EMAIL, CARLOS_EMAIL, normalizeEmail };
 
 export const ALL_CLUB_SLUGS = ['rmb', 'fcb', 'fbat', 'vbc'] as const;
-
-export function normalizeEmail(email?: string | null): string | null {
-  return email?.trim().toLowerCase() ?? null;
-}
 
 export function isSuperadminUser(
   role?: string | null,
@@ -113,16 +109,20 @@ export function getPermContext(user?: {
   profile?: { role?: string; email?: string };
   email?: string;
   sessionEmail?: string;
-} | null): { role: string | null; email: string | null } {
+} | null): { role: string | null; email: string | null; isSuperadmin: boolean } {
   const email = resolveUserEmail({
     profileEmail: user?.profile?.email,
     userEmail: user?.email,
     sessionEmail: user?.sessionEmail,
   });
-  const role = grantSuperadminAccess(user?.profile?.role, email, user?.sessionEmail)
-    ? 'superadmin'
-    : user?.profile?.role ?? null;
-  return { role, email };
+  const isSuperadmin = isSuperadminIdentity({
+    role: user?.profile?.role,
+    profileEmail: user?.profile?.email,
+    userEmail: user?.email,
+    sessionEmail: user?.sessionEmail,
+  });
+  const role = isSuperadmin ? 'superadmin' : user?.profile?.role ?? null;
+  return { role, email, isSuperadmin };
 }
 
 /** Roles with full write access (inventario, tallas, alertas, informes). */

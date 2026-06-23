@@ -231,7 +231,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const switchRole = useCallback((role: ExtendedRole) => {
     const currentRole = user?.profile?.role;
-    const email = user?.profile?.email ?? user?.email;
+    const email = resolveUserEmail({
+      profileEmail: user?.profile?.email,
+      userEmail: user?.email,
+      sessionEmail: session?.user?.email,
+    });
     if (!canModifyProject(currentRole, email)) {
       throw new Error('Solo el superadmin (Ramón) puede cambiar la configuración del proyecto.');
     }
@@ -239,7 +243,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData);
     setCurrentTeamState(defaultMockTeam);
     setAuthCookies(role);
-  }, [buildUserFromRole, user]);
+  }, [buildUserFromRole, user, session?.user?.email]);
 
   const restoreMockSession = useCallback(() => {
     if (typeof window === 'undefined') return false;

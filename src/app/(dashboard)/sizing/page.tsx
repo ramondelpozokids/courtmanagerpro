@@ -71,8 +71,8 @@ function propagateNewProduct(product: SizingProduct, catalog: SizingProduct[]) {
 }
 
 export default function SizingTablePage() {
-  const { user } = useAuth();
-  const canWrite = canWriteClubData(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const { user, userEmail, isSuperadmin } = useAuth();
+  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
 
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [customProducts, setCustomProducts] = useState<SizingProduct[]>([]);

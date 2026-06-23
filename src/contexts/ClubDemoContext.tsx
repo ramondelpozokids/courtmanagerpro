@@ -5,6 +5,7 @@ import type { ClubDemoPack, ClubSlug } from '@/data/clubs/types';
 import { CLUB_PACKS, getClubPack } from '@/data/clubs';
 import {
   loadClubBySlug,
+  loadClubPack,
   persistDemoClubSlug,
   readStoredDemoClubSlug,
 } from '@/lib/club-demo-loader';
@@ -60,6 +61,7 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);
           }
         } else {
+          loadClubPack(getClubPack('rmb'));
           const productionTeam = user?.currentTeam ?? user?.teams?.[0]?.team;
           if (productionTeam) {
             setCurrentTeam(productionTeam);

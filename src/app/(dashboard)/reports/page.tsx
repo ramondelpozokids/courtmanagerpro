@@ -12,12 +12,12 @@ import {
 } from "lucide-react";
 
 export default function ReportsPage() {
-  const { user, userEmail } = useAuth();
+  const { user, userEmail, isSuperadmin } = useAuth();
   const branding = useClubBranding();
   const { items } = useInventory();
   const { players } = usePlayers();
   const role = user?.profile?.role;
-  const canExport = canWriteClubData(role, userEmail);
+  const canExport = isSuperadmin || canWriteClubData(role, userEmail);
 
   const totalValue = items.reduce((acc, item) => acc + (item.unit_cost || 0) * item.stock_available, 0);
   const outOfStockCount = items.filter((item) => item.stock_available === 0).length;
@@ -52,7 +52,7 @@ export default function ReportsPage() {
     exportSizingCsv(branding.slug, db.players, db.coachingStaff, db.customSizingProducts);
   };
 
-  if (!canAccessReports(role, userEmail)) {
+  if (!isSuperadmin && !canAccessReports(role, userEmail)) {
     return (
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-16 text-center text-slate-400">
         <AlertCircle className="h-12 w-12 mx-auto mb-3 text-red-500" />

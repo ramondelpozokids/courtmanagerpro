@@ -10,13 +10,13 @@ import { Search, PlusCircle, Package, ArrowUpRight, ArrowDownRight, QrCode, Clip
 import Link from "next/link";
 
 export default function InventoryPage() {
-  const { user } = useAuth();
+  const { user, userEmail, isSuperadmin } = useAuth();
   const { items, loading, createItem, adjustStock, deleteItem } = useInventory();
   const [showAddForm, setShowAddForm] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
 
-  const canWrite = canWriteClubData(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
 
   const categories = [
     { code: "ALL", name: "Todos" },

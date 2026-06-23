@@ -34,8 +34,11 @@ export function loadClubPack(pack: ClubDemoPack): Team {
     db.customSizingProducts = [];
   }
 
-  const players = saved?.players ?? pack.players;
-  const coachingStaff = saved?.coachingStaff ?? pack.coachingStaff;
+  const players = saved?.players && saved.players.length > 0 ? saved.players : pack.players;
+  const coachingStaff =
+    saved?.coachingStaff && saved.coachingStaff.length > 0
+      ? saved.coachingStaff
+      : pack.coachingStaff;
 
   const garmentUnits = buildGarmentUnitsForClub(
     slug,

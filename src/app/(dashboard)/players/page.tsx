@@ -20,9 +20,9 @@ import {
 type StaffMember = StaffFormData & { id: string; photo_url?: string | null; trajectory?: string; palmares?: string[]; birth_date?: string; birth_place?: string };
 
 export default function PlayersPage() {
-  const { user, currentTeam } = useAuth();
+  const { user, currentTeam, userEmail, isSuperadmin } = useAuth();
   const branding = useClubBranding();
-  const viewAllClubs = canViewAllClubPlayers(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const viewAllClubs = isSuperadmin || canViewAllClubPlayers(user?.profile?.role, userEmail);
   const {
     players,
     loading,
@@ -44,7 +44,7 @@ export default function PlayersPage() {
   const [positionFilter, setPositionFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const canWrite = canWriteClubData(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
 
   const loadStaff = useCallback(() => {
     setStaff([...(db.coachingStaff as StaffMember[])]);

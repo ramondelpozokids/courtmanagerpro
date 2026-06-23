@@ -6,6 +6,7 @@ import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isMockMode, mapDemoPlayers, shouldUseDemoFallback } from '@/lib/demo-data';
 import { usesDemoClubData, usesProductionClubData } from '@/lib/club-preview';
 import { persistDemoDb } from '@/lib/demo-persistence';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   type PlayerFormData,
   formDataToCreatePlayerForm,
@@ -25,7 +26,8 @@ export interface UsePlayersOptions {
 }
 
 export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayersOptions = {}) {
-  const allClubs = options.allClubs === true;
+  const { isSuperadmin } = useAuth();
+  const allClubs = options.allClubs === true || isSuperadmin;
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,14 +77,14 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
 
       if (error) {
         setError(error.message);
-        if (usesProductionClubData()) {
+        if (usesProductionClubData() && !isSuperadmin) {
           setUsingDemoData(false);
           setPlayers([]);
         } else {
           setUsingDemoData(true);
           setPlayers(mapDemoPlayers(teamId));
         }
-      } else if (shouldUseDemoFallback(data)) {
+      } else if (shouldUseDemoFallback(data) || (isSuperadmin && (!data || data.length === 0))) {
         setUsingDemoData(true);
         setPlayers(mapDemoPlayers(teamId));
       } else {
@@ -91,7 +93,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar jugadores');
-      if (usesProductionClubData()) {
+      if (usesProductionClubData() && !isSuperadmin) {
         setUsingDemoData(false);
         setPlayers([]);
       } else {
@@ -101,7 +103,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
     } finally {
       setLoading(false);
     }
-  }, [allClubs, teamId, mockMode, supabase]);
+  }, [allClubs, teamId, mockMode, supabase, isSuperadmin]);
 
   useEffect(() => {
     fetchPlayers();

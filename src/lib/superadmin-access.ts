@@ -2,11 +2,7 @@
  * Punto central único de acceso SuperAdmin.
  * Toda comprobación de permisos debe pasar por aquí primero.
  */
-import {
-  SUPERADMIN_EMAIL,
-  normalizeEmail,
-  resolveUserEmail,
-} from '@/lib/permissions';
+import { SUPERADMIN_EMAIL, normalizeEmail } from '@/lib/access-constants';
 
 export type SuperadminAccessSources = {
   role?: string | null;
@@ -32,13 +28,4 @@ export function isSuperadminIdentity(sources?: SuperadminAccessSources | null): 
 /** SuperAdmin = acceso total a cualquier módulo, ruta o acción. */
 export function superadminHasFullAccess(sources?: SuperadminAccessSources | null): boolean {
   return isSuperadminIdentity(sources);
-}
-
-export function superadminEmailFromSources(sources?: SuperadminAccessSources | null): string | null {
-  if (!isSuperadminIdentity(sources)) return null;
-  return resolveUserEmail({
-    profileEmail: sources?.profileEmail,
-    userEmail: sources?.userEmail,
-    sessionEmail: sources?.sessionEmail,
-  });
 }

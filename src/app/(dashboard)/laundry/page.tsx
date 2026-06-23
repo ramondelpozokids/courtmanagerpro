@@ -7,7 +7,7 @@ import { canWriteClubData } from "@/lib/permissions";
 import { Droplet, Wind, CheckCircle, Clock, PlusCircle, RefreshCw, User, Trash2 } from "lucide-react";
 
 export default function LaundryPage() {
-  const { user } = useAuth();
+  const { user, userEmail, isSuperadmin } = useAuth();
   const { batches, loading, updateBatchStatus, createBatch, deleteBatch } = useLaundry();
   const [showAddForm, setShowAddForm] = useState(false);
   
@@ -16,7 +16,7 @@ export default function LaundryPage() {
   const [itemCount, setItemCount] = useState<number>(20);
   const [responsible, setResponsible] = useState("Carlos (Utillero)");
 
-  const canWrite = canWriteClubData(user?.profile?.role, user?.profile?.email ?? user?.email);
+  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
 
   const handleDeleteBatch = async (batchId: string) => {
     if (!confirm("¿Eliminar este lote de lavandería?")) return;
