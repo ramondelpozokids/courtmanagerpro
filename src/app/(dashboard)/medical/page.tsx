@@ -18,7 +18,7 @@ const KIT_LABELS: Record<string, string> = {
 };
 
 export default function MedicalStockPage() {
-  const { user } = useAuth();
+  const { user, userEmail } = useAuth();
   const { items, loading, adjustQty, createItem } = useMedical();
   const [search, setSearch] = useState("");
   const [kitFilter, setKitFilter] = useState("ALL");
@@ -30,7 +30,6 @@ export default function MedicalStockPage() {
   const [newExpiry, setNewExpiry] = useState("2027-12-31");
 
   const role = user?.profile?.role;
-  const userEmail = user?.profile?.email ?? user?.email;
   const hasAccess = canAccessMedical(role, userEmail);
   const canEdit = canWriteClubData(role, userEmail) || role === "medical";
 

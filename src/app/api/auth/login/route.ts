@@ -53,6 +53,8 @@ export async function POST(request: NextRequest) {
     ok: true,
     userId: data.user?.id,
     email: data.user?.email,
+    access_token: data.session?.access_token,
+    refresh_token: data.session?.refresh_token,
   });
 
   pendingCookies.forEach(({ name, value, options }) => {

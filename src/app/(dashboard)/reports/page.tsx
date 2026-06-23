@@ -12,12 +12,11 @@ import {
 } from "lucide-react";
 
 export default function ReportsPage() {
-  const { user } = useAuth();
+  const { user, userEmail } = useAuth();
   const branding = useClubBranding();
   const { items } = useInventory();
   const { players } = usePlayers();
   const role = user?.profile?.role;
-  const userEmail = user?.profile?.email ?? user?.email;
   const canExport = canWriteClubData(role, userEmail);
 
   const totalValue = items.reduce((acc, item) => acc + (item.unit_cost || 0) * item.stock_available, 0);

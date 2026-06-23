@@ -111,8 +111,10 @@ export function getPermContext(user?: {
     userEmail: user?.email,
     sessionEmail: user?.sessionEmail,
   });
-  const access = resolveUserAccess(user?.profile?.role, email);
-  return { role: access.role, email: access.email };
+  const role = grantSuperadminAccess(user?.profile?.role, email, user?.sessionEmail)
+    ? 'superadmin'
+    : user?.profile?.role ?? null;
+  return { role, email };
 }
 
 /** Roles with full write access (inventario, tallas, alertas, informes). */

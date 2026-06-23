@@ -148,9 +148,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     } catch (err) {
       console.error("Error loading user data from Supabase:", err);
+      if (authEmail) {
+        return buildFallbackProductionUser(supabase, userId, authEmail);
+      }
       return null;
     }
   }, [supabase]);
+
+  const applySessionUser = useCallback(
+    async (activeSession: Session) => {
+      setSession(activeSession);
+      const authEmail = activeSession.user.email;
+      let userData = await loadUserData(activeSession.user.id, authEmail);
+      if (!userData && authEmail) {
+        userData = await buildFallbackProductionUser(supabase, activeSession.user.id, authEmail);
+      }
+      if (userData) {
+        setUser(userData);
+        setCurrentTeamState(userData.currentTeam ?? defaultMockTeam);
+      }
+    },
+    [loadUserData, supabase]
+  );
 
   // Role switching — solo roles internos autorizados (sin jugador ni invitado)
   const buildUserFromRole = useCallback((role: ExtendedRole, profileOverrides?: Partial<Profile>) => {
@@ -238,9 +257,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase.auth.getSession().then(async ({ data: { session } }: any) => {
         setSession(session);
         if (session?.user) {
-          const userData = await loadUserData(session.user.id, session.user.email);
-          setUser(userData);
-          if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
+          await applySessionUser(session);
         } else {
           setUser(null);
           setCurrentTeamState(null);
@@ -255,9 +272,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
         setSession(session);
         if (session?.user) {
-          const userData = await loadUserData(session.user.id, session.user.email);
-          setUser(userData);
-          if (userData?.currentTeam) setCurrentTeamState(userData.currentTeam);
+          await applySessionUser(session);
         } else {
           setUser(null);
           setCurrentTeamState(null);
@@ -274,7 +289,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         subscription.unsubscribe();
       }
     };
-  }, [loadUserData, mockAuth, supabase, restoreMockSession]);
+  }, [applySessionUser, loadUserData, mockAuth, supabase, restoreMockSession]);
 
   const login = useCallback(async ({ email, password }: LoginForm) => {
     if (mockAuth) {
@@ -301,28 +316,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(payload.error || 'Email o contraseña incorrectos.');
     }
 
+    if (payload.access_token && payload.refresh_token) {
+      const { data: sessionData, error: setSessionError } = await supabase.auth.setSession({
+        access_token: payload.access_token,
+        refresh_token: payload.refresh_token,
+      });
+      if (setSessionError) {
+        throw new Error(setSessionError.message || 'No se pudo establecer la sesión.');
+      }
+      if (sessionData.session) {
+        await applySessionUser(sessionData.session);
+        return;
+      }
+    }
+
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session?.user) {
       const { data: refreshed } = await supabase.auth.refreshSession();
       if (!refreshed.session?.user) {
         throw new Error('Sesión iniciada pero no se pudo cargar. Recarga la página e inténtalo de nuevo.');
       }
-      setSession(refreshed.session);
-      const userData = await loadUserData(refreshed.session.user.id, refreshed.session.user.email);
-      if (userData) {
-        setUser(userData);
-        if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
-      }
+      await applySessionUser(refreshed.session);
       return;
     }
 
-    setSession(session);
-    const userData = await loadUserData(session.user.id, session.user.email);
-    if (userData) {
-      setUser(userData);
-      if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
-    }
-  }, [mockAuth, supabase, buildUserFromRole, loadUserData]);
+    await applySessionUser(session);
+  }, [mockAuth, supabase, buildUserFromRole, applySessionUser]);
 
   const loginWithBiometric = useCallback(async (email: string, discoverable = false) => {
     const result = await loginWithPasskey(email, discoverable);
@@ -343,13 +362,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('No se pudo iniciar sesión tras el acceso biométrico.');
     }
     setSession(session);
-    const userData = await loadUserData(session.user.id, session.user.email);
-    if (!userData) {
-      throw new Error('No se encontró el perfil del usuario.');
-    }
-    setUser(userData);
-    if (userData.currentTeam) setCurrentTeamState(userData.currentTeam);
-  }, [mockAuth, supabase, buildUserFromRole, loadUserData]);
+    await applySessionUser(session);
+  }, [mockAuth, supabase, buildUserFromRole, applySessionUser]);
 
   const register = useCallback(async ({ email, password, full_name, role }: RegisterForm) => {
     if (mockAuth) {
@@ -450,7 +464,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userEmail: user?.email,
     sessionEmail: session?.user?.email,
   });
-  const isSuperadmin = isSuperadminUser(user?.profile?.role, userEmail);
+  const isSuperadmin =
+    isSuperadminUser(user?.profile?.role, userEmail)
+    || isSuperadminUser(null, session?.user?.email);
 
   const hasPermission = useCallback((roles: string[]): boolean => {
     if (!user) return false;

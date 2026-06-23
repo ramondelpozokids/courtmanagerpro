@@ -63,6 +63,7 @@ export async function middleware(request: NextRequest) {
       },
     });
 
+    await supabase.auth.getSession();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
