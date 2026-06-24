@@ -15,9 +15,13 @@ import {
 
 const DEFAULT_SEASON = '2025/26';
 const DOC_VERSION = 'v1.0';
+/** Logo claro para impresión (Realmadrid + dirección, fondo blanco). */
+const PDF_REPORT_LOGO = '/logo_csv.png';
 const BRAND_GOLD: [number, number, number] = [180, 140, 60];
 const BRAND_NAVY: [number, number, number] = [15, 23, 42];
 const TEXT_MUTED: [number, number, number] = [100, 116, 139];
+const BG_LIGHT: [number, number, number] = [248, 250, 252];
+const TABLE_HEAD_BG: [number, number, number] = [241, 245, 249];
 
 type PdfDoc = {
   internal: { pageSize: { getWidth: () => number; getHeight: () => number } };
@@ -118,30 +122,29 @@ function addCorporateHeader(
 ): number {
   const season = options?.season ?? DEFAULT_SEASON;
   const pageWidth = doc.internal.pageSize.getWidth();
-  let y = 18;
+  let y = 14;
 
-  doc.setFillColor(...BRAND_NAVY);
-  doc.rect(0, 0, pageWidth, 52, 'F');
+  doc.setFillColor(...BG_LIGHT);
+  doc.rect(0, 0, pageWidth, 48, 'F');
   doc.setFillColor(...BRAND_GOLD);
-  doc.rect(0, 52, pageWidth, 1.2, 'F');
+  doc.rect(0, 48, pageWidth, 0.8, 'F');
 
-  doc.setTextColor(255, 255, 255);
+  doc.setTextColor(...BRAND_NAVY);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.text(identity.department.toUpperCase(), pageWidth / 2, y, { align: 'center' });
-  y += 7;
+  doc.setFontSize(12);
+  doc.text(identity.department.toUpperCase(), pageWidth / 2, y + 4, { align: 'center' });
+  y += 8;
 
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.text('Departamento de Utilería y Operaciones', pageWidth / 2, y, { align: 'center' });
-  y += 5;
+  y += 4;
   doc.text(`Temporada ${season}`, pageWidth / 2, y, { align: 'center' });
-  y += 5;
+  y += 4;
   const { venue, city } = pdfVenueLines(identity);
   doc.text(`${venue} · ${city}`, pageWidth / 2, y, { align: 'center' });
 
-  doc.setTextColor(...BRAND_NAVY);
-  y = 62;
+  y = 58;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
   doc.text('INFORME OFICIAL', 14, y);
@@ -168,42 +171,31 @@ async function addLogoToCover(
   const pageHeight = doc.internal.pageSize.getHeight();
   const season = options?.season ?? DEFAULT_SEASON;
 
-  doc.setFillColor(...BRAND_NAVY);
+  doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
   doc.setFillColor(...BRAND_GOLD);
-  doc.rect(0, pageHeight * 0.42, pageWidth, 0.8, 'F');
+  doc.rect(14, pageHeight * 0.62, pageWidth - 28, 0.6, 'F');
 
-  const logo = await loadLogoBase64(identity.logoPath);
+  const logo = await loadLogoBase64(PDF_REPORT_LOGO);
   if (logo) {
     try {
-      doc.addImage(logo, 'PNG', pageWidth / 2 - 22, 38, 44, 44);
+      doc.addImage(logo, 'PNG', pageWidth / 2 - 35, 28, 70, 70);
     } catch {
       /* logo opcional */
     }
   }
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
-  doc.text(identity.department.toUpperCase(), pageWidth / 2, 98, { align: 'center' });
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Departamento de Utilería y Operaciones', pageWidth / 2, 108, { align: 'center' });
-  doc.text(`Temporada ${season}`, pageWidth / 2, 116, { align: 'center' });
-  const { venue, city } = pdfVenueLines(identity);
-  doc.text(venue, pageWidth / 2, 124, { align: 'center' });
-  doc.text(city, pageWidth / 2, 131, { align: 'center' });
-
+  doc.setTextColor(...BRAND_NAVY);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
-  doc.text('INFORME OFICIAL', pageWidth / 2, pageHeight * 0.52, { align: 'center' });
+  doc.text('INFORME OFICIAL', pageWidth / 2, pageHeight * 0.58, { align: 'center' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
-  doc.text(reportTitle, pageWidth / 2, pageHeight * 0.52 + 10, { align: 'center' });
+  doc.text(reportTitle, pageWidth / 2, pageHeight * 0.58 + 10, { align: 'center' });
 
   doc.setFontSize(9);
-  doc.setTextColor(200, 210, 220);
+  doc.setTextColor(...TEXT_MUTED);
+  doc.text(`Temporada ${season}`, pageWidth / 2, pageHeight * 0.58 + 22, { align: 'center' });
   doc.text(`Fecha de generación: ${formatExportDateTime()}`, pageWidth / 2, pageHeight - 36, { align: 'center' });
   doc.text(`Versión del documento: ${DOC_VERSION}`, pageWidth / 2, pageHeight - 28, { align: 'center' });
   doc.text('Documento interno — CourtManager Pro', pageWidth / 2, pageHeight - 18, { align: 'center' });
@@ -268,12 +260,12 @@ function renderCsvLinesToPdf(doc: PdfDoc, autoTable: AutoTableFn, lines: string[
       body: tableBody,
       styles: { fontSize: 7, cellPadding: 2.5, textColor: BRAND_NAVY },
       headStyles: {
-        fillColor: BRAND_NAVY,
-        textColor: [255, 255, 255],
+        fillColor: TABLE_HEAD_BG,
+        textColor: BRAND_NAVY,
         fontStyle: 'bold',
         fontSize: 7,
       },
-      alternateRowStyles: { fillColor: [248, 250, 252] },
+      alternateRowStyles: { fillColor: [255, 255, 255] },
       margin: { left: 14, right: 14 },
     });
     y = doc.lastAutoTable?.finalY ?? y;
