@@ -16,7 +16,7 @@ import {
 const DEFAULT_SEASON = '2025/26';
 const DOC_VERSION = 'v1.0';
 /** Logo claro para impresión (Realmadrid + dirección, fondo blanco). */
-const PDF_REPORT_LOGO = '/logo_csv.png';
+const PDF_REPORT_LOGO = '/logo_pdf.webp';
 const BRAND_GOLD: [number, number, number] = [180, 140, 60];
 const BRAND_NAVY: [number, number, number] = [15, 23, 42];
 const TEXT_MUTED: [number, number, number] = [100, 116, 139];
@@ -98,17 +98,34 @@ function pdfVenueLines(identity: ClubCsvIdentity): { venue: string; city: string
   return { venue: identity.venue, city: identity.cityLine };
 }
 
-async function loadLogoBase64(logoPath: string): Promise<string | null> {
+/** jsPDF no admite WebP; rasterizamos vía canvas a PNG. */
+async function loadLogoForPdf(logoPath: string): Promise<string | null> {
   try {
     const res = await fetch(logoPath);
     if (!res.ok) return null;
     const blob = await res.blob();
-    return await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(typeof reader.result === 'string' ? reader.result : null);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
+    const objectUrl = URL.createObjectURL(blob);
+    try {
+      return await new Promise<string>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('canvas'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => reject(new Error('img'));
+        img.src = objectUrl;
+      });
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
   } catch {
     return null;
   }
@@ -176,7 +193,7 @@ async function addLogoToCover(
   doc.setFillColor(...BRAND_GOLD);
   doc.rect(14, pageHeight * 0.62, pageWidth - 28, 0.6, 'F');
 
-  const logo = await loadLogoBase64(PDF_REPORT_LOGO);
+  const logo = await loadLogoForPdf(PDF_REPORT_LOGO);
   if (logo) {
     try {
       doc.addImage(logo, 'PNG', pageWidth / 2 - 35, 28, 70, 70);
