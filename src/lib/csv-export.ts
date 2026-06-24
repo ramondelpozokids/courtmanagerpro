@@ -589,11 +589,9 @@ export function exportInventoryCsv(
   items: InventoryCsvRow[],
   options?: CsvExportOptions
 ): void {
-  const identity = CLUB_CSV_IDENTITY[slug];
-  const lines = buildInventoryCsvLines(identity, items, options);
-  const fileSlug = identity.brandLine.toLowerCase().replace(/\s+/g, '_');
-  const seasonSlug = (options?.season ?? DEFAULT_SEASON).replace('/', '-');
-  downloadCsv(`inventario_utileria_${fileSlug}_${seasonSlug}.csv`, lines);
+  void import('@/lib/pdf-export').then(({ exportInventoryPdf }) => {
+    exportInventoryPdf(slug, items, options);
+  });
 }
 
 export function exportSizingCsv(
@@ -603,9 +601,7 @@ export function exportSizingCsv(
   customProducts: SizingProduct[] = [],
   options?: CsvExportOptions
 ): void {
-  const identity = CLUB_CSV_IDENTITY[slug];
-  const lines = buildSizingCsvLines(identity, players, staff, customProducts, options);
-  const fileSlug = identity.brandLine.toLowerCase().replace(/\s+/g, '_');
-  const seasonSlug = (options?.season ?? DEFAULT_SEASON).replace('/', '-');
-  downloadCsv(`tabla_tallas_${fileSlug}_${seasonSlug}.csv`, lines);
+  void import('@/lib/pdf-export').then(({ exportSizingPdf }) => {
+    exportSizingPdf(slug, players, staff, customProducts, options);
+  });
 }
