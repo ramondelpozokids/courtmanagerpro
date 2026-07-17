@@ -34,10 +34,13 @@ export function loadClubPack(pack: ClubDemoPack): Team {
     db.customSizingProducts = [];
   }
 
-  const players = saved?.players && saved.players.length > 0 ? saved.players : pack.players;
+  const players =
+    saved?.players && saved.players.length > 0
+      ? mergeRosterKeepingSizes(pack.players, saved.players)
+      : pack.players;
   const coachingStaff =
     saved?.coachingStaff && saved.coachingStaff.length > 0
-      ? saved.coachingStaff
+      ? mergeStaffKeepingSizes(pack.coachingStaff || [], saved.coachingStaff)
       : pack.coachingStaff;
 
   const garmentUnits = buildGarmentUnitsForClub(
@@ -80,4 +83,35 @@ export function readStoredDemoClubSlug(): ClubSlug {
   const stored = localStorage.getItem(DEMO_CLUB_STORAGE_KEY);
   if (stored === 'fcb' || stored === 'fbat' || stored === 'vbc' || stored === 'rmb') return stored;
   return 'rmb';
+}
+
+/** Prefer pack (official) profile fields; keep local size edits from persistence. */
+function mergeRosterKeepingSizes(packPlayers: any[], savedPlayers: any[]) {
+  if (!packPlayers?.length) return savedPlayers;
+  const savedById = new Map(savedPlayers.map((p) => [p.id, p]));
+  return packPlayers.map((p) => {
+    const saved = savedById.get(p.id);
+    if (!saved) return p;
+    return {
+      ...p,
+      sizes: saved.sizes || p.sizes,
+      status: saved.status || p.status,
+    };
+  });
+}
+
+function mergeStaffKeepingSizes(packStaff: any[], savedStaff: any[]) {
+  if (!packStaff?.length) return savedStaff;
+  const savedById = new Map(savedStaff.map((s) => [s.id, s]));
+  return packStaff.map((s) => {
+    const saved = savedById.get(s.id);
+    if (!saved) return s;
+    return {
+      ...s,
+      shirt_size: saved.shirt_size || s.shirt_size,
+      shorts_size: saved.shorts_size || s.shorts_size,
+      shoe_size: saved.shoe_size ?? s.shoe_size,
+      email: saved.email || s.email,
+    };
+  });
 }

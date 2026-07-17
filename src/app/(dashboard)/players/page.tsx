@@ -7,6 +7,7 @@ import PlayerCard from "@/components/players/PlayerCard";
 import PlayerForm from "@/components/players/PlayerForm";
 import StaffForm, { type StaffFormData } from "@/components/players/StaffForm";
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { persistDemoDb } from "@/lib/demo-persistence";
 import { apiPlayerToFormValues } from "@/lib/player-form-mapper";
@@ -14,12 +15,21 @@ import { canWriteClubData } from "@/lib/permissions";
 import type { Player } from "@/types";
 import type { Player as FormPlayer } from "@/domain/entities/Player";
 import {
-  PlusCircle, Search, User, Filter, RefreshCw, Shirt, Landmark, Globe, X, Trophy, Calendar, Pencil, Trash2, ExternalLink,
+  PlusCircle, Search, User, Filter, RefreshCw, Globe, Pencil, Trash2, ExternalLink,
 } from "lucide-react";
 import { normalizeStaffProfile } from "@/lib/player-profile";
 import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
 
-type StaffMember = StaffFormData & { id: string; photo_url?: string | null; trajectory?: string; palmares?: string[]; birth_date?: string; birth_place?: string; profile_url?: string };
+type StaffMember = StaffFormData & {
+  id: string;
+  photo_url?: string | null;
+  trajectory?: string;
+  trajectory_items?: string[];
+  palmares?: string[];
+  birth_date?: string;
+  birth_place?: string;
+  profile_url?: string;
+};
 
 const OFFICIAL_PLANTILLA_URL = RMB_OFFICIAL_SOURCE;
 
@@ -39,7 +49,6 @@ export default function PlayersPage() {
 
   const [activeTab, setActiveTab] = useState<"players" | "staff">("players");
   const [staff, setStaff] = useState<StaffMember[]>([]);
-  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [showStaffForm, setShowStaffForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
 
@@ -109,7 +118,6 @@ export default function PlayersPage() {
     db.coachingStaff = db.coachingStaff.filter((s) => s.id !== id);
     persistDemoDb();
     loadStaff();
-    if (selectedStaff?.id === id) setSelectedStaff(null);
   };
 
   const filteredPlayers = players.filter((p) => {
@@ -319,6 +327,18 @@ export default function PlayersPage() {
                   <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
                     <Globe className="h-3 w-3" /> {member.nationality || "España"}
                   </p>
+                  {(member.birth_place || member.birth_date) && (
+                    <p className="text-[10px] text-slate-500 mt-1 truncate">
+                      {[
+                        member.birth_date?.includes("-")
+                          ? member.birth_date.split("-").reverse().join("/")
+                          : member.birth_date,
+                        member.birth_place,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -341,12 +361,12 @@ export default function PlayersPage() {
               </div>
 
               <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex gap-2">
-                <button
-                  onClick={() => setSelectedStaff(member)}
+                <Link
+                  href={`/players/staff/${member.id}`}
                   className="flex-1 text-center py-2 rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-slate-800 text-orange-600 text-xs font-bold"
                 >
                   Ver Ficha
-                </button>
+                </Link>
                 {canWrite && (
                   <>
                     <button
@@ -368,127 +388,6 @@ export default function PlayersPage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {selectedStaff && (
-        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start gap-4 text-left">
-              <div className="flex gap-4">
-                <div className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-orange-200 shrink-0 flex items-center justify-center">
-                  {selectedStaff.photo_url ? (
-                    <img src={selectedStaff.photo_url} alt={selectedStaff.full_name} className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-xl font-bold text-orange-600">{selectedStaff.full_name[0]}</span>
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-lg leading-none">{selectedStaff.full_name}</h3>
-                  <p className="text-xs text-orange-500 font-bold mt-1.5">{selectedStaff.role}</p>
-                  <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-                    <Globe className="h-3 w-3" /> Nacionalidad: {selectedStaff.nationality || "España"}
-                  </p>
-                </div>
-              </div>
-              <button onClick={() => setSelectedStaff(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-5 text-left max-h-[70vh] overflow-y-auto">
-              {(selectedStaff.birth_place || selectedStaff.birth_date) && (
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4" /> Datos Personales
-                  </h4>
-                  <div className="bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-xl border text-xs space-y-1.5">
-                    {selectedStaff.birth_date && (
-                      <p><strong>Fecha de nacimiento:</strong> {selectedStaff.birth_date.split("-").reverse().join("/")}</p>
-                    )}
-                    {selectedStaff.birth_place && (
-                      <p><strong>Lugar de nacimiento:</strong> {selectedStaff.birth_place}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Shirt className="h-4 w-4" /> Medidas de Utilería
-                </h4>
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border">
-                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">Chaqueta</span>
-                    <span className="text-sm font-black block mt-0.5">{selectedStaff.shirt_size || "L"}</span>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border">
-                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">Pantalón</span>
-                    <span className="text-sm font-black block mt-0.5">{selectedStaff.shorts_size || "L"}</span>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border">
-                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">Calzado</span>
-                    <span className="text-sm font-black block mt-0.5">{selectedStaff.shoe_size || "43"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {selectedStaff.trajectory && (
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Landmark className="h-4 w-4" /> Trayectoria
-                  </h4>
-                  <div className="bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-xl border text-xs leading-relaxed max-h-36 overflow-y-auto">
-                    {selectedStaff.trajectory}
-                  </div>
-                </div>
-              )}
-
-              {selectedStaff.palmares && selectedStaff.palmares.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Trophy className="h-4 w-4 text-orange-500" /> Palmarés
-                  </h4>
-                  <div className="bg-orange-50/15 border border-orange-100 p-3.5 rounded-xl space-y-1.5">
-                    {selectedStaff.palmares.map((achievement, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5 text-xs font-medium">
-                        <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shrink-0" />
-                        <span>{achievement}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border-t flex justify-end gap-2">
-              {selectedStaff.profile_url && (
-                <a
-                  href={selectedStaff.profile_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold"
-                >
-                  Ver en realmadrid.com
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
-              {canWrite && (
-                <button
-                  onClick={() => { setEditingStaff(selectedStaff); setShowStaffForm(true); setSelectedStaff(null); }}
-                  className="px-4 py-2 rounded-lg border border-orange-200 text-orange-600 text-xs font-bold"
-                >
-                  Editar
-                </button>
-              )}
-              <button
-                onClick={() => setSelectedStaff(null)}
-                className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-extrabold"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

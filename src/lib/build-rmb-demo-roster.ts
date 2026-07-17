@@ -57,6 +57,16 @@ function mapOfficialPlayerToDemo(p: RmbOfficialPlayerProfile) {
   };
 }
 
+function nationalityFromBirthPlace(birthPlace?: string | null, nationality?: string | null) {
+  if (nationality) return nationality;
+  if (!birthPlace) return 'España';
+  const lower = birthPlace.toLowerCase();
+  if (lower.includes('españa') || lower.includes('spain') || lower.includes('barcelona') || lower.includes('madrid')) {
+    return 'España';
+  }
+  return 'España';
+}
+
 function mapOfficialStaffToDemo(s: RmbOfficialStaffProfile) {
   const sizes = RMB_STAFF_SIZE_OVERRIDES[s.slug] ?? DEFAULT_STAFF_SIZES;
   const emailLocal = s.full_name
@@ -75,11 +85,12 @@ function mapOfficialStaffToDemo(s: RmbOfficialStaffProfile) {
     shorts_size: sizes.shorts_size,
     shoe_size: sizes.shoe_size,
     photo_url: s.photo_url,
-    nationality: s.nationality || 'España',
+    nationality: nationalityFromBirthPlace(s.birth_place, s.nationality),
     profile_url: s.profile_url,
     birth_place: s.birth_place || undefined,
     birth_date: s.birth_date || undefined,
     trajectory: s.trajectory || undefined,
+    trajectory_items: s.trajectory_items || [],
     palmares: s.palmares || [],
     slug: s.slug,
     source: 'realmadrid.com' as const,

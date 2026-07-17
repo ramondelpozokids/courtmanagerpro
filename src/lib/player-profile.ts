@@ -44,17 +44,26 @@ export function normalizeStaffProfile(staff: Record<string, unknown> | null) {
   const legacyId =
     typeof staff.id === 'string' && /^c\d+$/i.test(staff.id) ? staff.id : null;
   const official = legacyId ? getOfficialStaffByLegacyId(legacyId) : null;
+  const birthPlace = (official?.birth_place ?? staff.birth_place) as string | null | undefined;
+  let nationality = (official?.nationality ?? staff.nationality) as string | null | undefined;
+  if (!nationality) {
+    nationality = birthPlace?.toLowerCase().includes('españa') ? 'España' : 'España';
+  }
 
   return {
     ...staff,
     full_name: official?.full_name ?? staff.full_name,
     role: official?.role === 'Entrenador' ? 'Entrenador Principal' : official?.role ?? staff.role,
-    nationality: official?.nationality ?? staff.nationality,
+    nationality,
     birth_date: official?.birth_date ?? staff.birth_date,
-    birth_place: official?.birth_place ?? staff.birth_place,
+    birth_place: birthPlace,
     photo_url: official?.photo_url ?? staff.photo_url,
     profile_url: official?.profile_url ?? staff.profile_url,
     trajectory: official?.trajectory ?? staff.trajectory,
+    trajectory_items:
+      official?.trajectory_items?.length
+        ? official.trajectory_items
+        : staff.trajectory_items ?? [],
     palmares: official?.palmares?.length ? official.palmares : staff.palmares,
   };
 }
