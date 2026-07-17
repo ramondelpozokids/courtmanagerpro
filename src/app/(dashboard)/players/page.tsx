@@ -14,10 +14,14 @@ import { canWriteClubData } from "@/lib/permissions";
 import type { Player } from "@/types";
 import type { Player as FormPlayer } from "@/domain/entities/Player";
 import {
-  PlusCircle, Search, User, Filter, RefreshCw, Shirt, Landmark, Globe, X, Trophy, Calendar, Pencil, Trash2,
+  PlusCircle, Search, User, Filter, RefreshCw, Shirt, Landmark, Globe, X, Trophy, Calendar, Pencil, Trash2, ExternalLink,
 } from "lucide-react";
+import { normalizeStaffProfile } from "@/lib/player-profile";
+import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
 
-type StaffMember = StaffFormData & { id: string; photo_url?: string | null; trajectory?: string; palmares?: string[]; birth_date?: string; birth_place?: string };
+type StaffMember = StaffFormData & { id: string; photo_url?: string | null; trajectory?: string; palmares?: string[]; birth_date?: string; birth_place?: string; profile_url?: string };
+
+const OFFICIAL_PLANTILLA_URL = RMB_OFFICIAL_SOURCE;
 
 export default function PlayersPage() {
   const { user, currentTeam, userEmail, hasOperationalAccess } = useAuth();
@@ -46,7 +50,9 @@ export default function PlayersPage() {
   const canWrite = hasOperationalAccess || canWriteClubData(user?.profile?.role, userEmail);
 
   const loadStaff = useCallback(() => {
-    setStaff([...(db.coachingStaff as StaffMember[])]);
+    setStaff(
+      db.coachingStaff.map((s) => normalizeStaffProfile(s) as StaffMember).filter(Boolean) as StaffMember[]
+    );
   }, []);
 
   useEffect(() => {
@@ -146,18 +152,38 @@ export default function PlayersPage() {
             Plantilla y Personal — {branding.shortName}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Fichas técnicas, tallas y equipamiento — {branding.venue}
+            Datos oficiales realmadrid.com · {branding.venue}
+            {RMB_OFFICIAL_SYNCED_AT ? ` · sync ${new Date(RMB_OFFICIAL_SYNCED_AT).toLocaleDateString('es-ES')}` : ''}
           </p>
         </div>
-        {canWrite && (
-          <button
-            onClick={activeTab === "players" ? openAddPlayer : openAddStaff}
-            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/15"
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href={OFFICIAL_PLANTILLA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-bold hover:border-orange-400 hover:text-orange-600 transition-all"
           >
-            <PlusCircle className="h-4.5 w-4.5" />
-            {activeTab === "players" ? "Añadir Jugador" : "Añadir Staff"}
-          </button>
-        )}
+            Plantilla oficial
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+          {canWrite && (
+            <button
+              onClick={activeTab === "players" ? openAddPlayer : openAddStaff}
+              className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/15"
+            >
+              <PlusCircle className="h-4.5 w-4.5" />
+              {activeTab === "players" ? "Añadir Jugador" : "Añadir Staff"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
+        Jugadores y cuerpo técnico se sincronizan desde la{' '}
+        <a href={OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-orange-700 dark:text-orange-400 underline-offset-2 hover:underline">
+          plantilla oficial del Real Madrid
+        </a>
+        {' '}(imagen, ficha, trayectoria y palmarés). Para actualizar: <code className="text-[11px] bg-white/70 dark:bg-slate-900/60 px-1.5 py-0.5 rounded">npm run sync:rm-plantilla</code>
       </div>
 
       <div className="flex border-b border-slate-200 dark:border-slate-800">
@@ -436,6 +462,17 @@ export default function PlayersPage() {
             </div>
 
             <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border-t flex justify-end gap-2">
+              {selectedStaff.profile_url && (
+                <a
+                  href={selectedStaff.profile_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold"
+                >
+                  Ver en realmadrid.com
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
               {canWrite && (
                 <button
                   onClick={() => { setEditingStaff(selectedStaff); setShowStaffForm(true); setSelectedStaff(null); }}
