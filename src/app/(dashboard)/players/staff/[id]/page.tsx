@@ -65,19 +65,17 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
     );
   }
 
-  const trajectoryItems: string[] =
-    (Array.isArray(staff.trajectory_items) && staff.trajectory_items.length > 0
+  const trajectoryItems =
+    staff.trajectory_items.length > 0
       ? staff.trajectory_items
-      : String(staff.trajectory || "")
+      : staff.trajectory
           .split(",")
-          .map((s: string) => s.trim())
-          .filter(Boolean)) || [];
+          .map((s) => s.trim())
+          .filter(Boolean);
 
-  const palmares: string[] = Array.isArray(staff.palmares) ? staff.palmares : [];
-  const birthDate =
-    typeof staff.birth_date === "string" && staff.birth_date.includes("-")
-      ? staff.birth_date.split("-").reverse().join("/")
-      : staff.birth_date || "—";
+  const birthDate = staff.birth_date?.includes("-")
+    ? staff.birth_date.split("-").reverse().join("/")
+    : staff.birth_date || "—";
 
   return (
     <div className="space-y-6 text-left max-w-5xl mx-auto">
@@ -93,8 +91,8 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
         <div className="h-36 w-28 rounded-xl overflow-hidden bg-slate-100 border border-orange-200 shrink-0 flex items-center justify-center">
           {staff.photo_url ? (
             <img
-              src={String(staff.photo_url)}
-              alt={String(staff.full_name)}
+              src={staff.photo_url}
+              alt={staff.full_name}
               className="h-full w-full object-cover object-top"
             />
           ) : (
@@ -105,32 +103,32 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
         <div className="flex-1 text-center md:text-left space-y-3">
           <div>
             <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
-              {String(staff.full_name)}
+              {staff.full_name}
             </h1>
-            <p className="text-sm font-bold text-orange-600 mt-1">{String(staff.role)}</p>
+            <p className="text-sm font-bold text-orange-600 mt-1">{staff.role}</p>
           </div>
 
           <div className="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-2 text-xs text-slate-500">
             <span className="inline-flex items-center gap-1.5">
               <Globe className="h-3.5 w-3.5" />
-              {String(staff.nationality || "España")}
+              {staff.nationality}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5" />
               Nacimiento: {birthDate}
             </span>
-            {staff.birth_place && (
+            {staff.birth_place ? (
               <span className="inline-flex items-center gap-1.5">
                 <Landmark className="h-3.5 w-3.5" />
-                {String(staff.birth_place)}
+                {staff.birth_place}
               </span>
-            )}
-            {staff.email && (
+            ) : null}
+            {staff.email ? (
               <span className="inline-flex items-center gap-1.5">
                 <Mail className="h-3.5 w-3.5" />
-                {String(staff.email)}
+                {staff.email}
               </span>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -138,9 +136,9 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
           <span className="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20">
             Activo
           </span>
-          {staff.profile_url && (
+          {staff.profile_url ? (
             <a
-              href={String(staff.profile_url)}
+              href={staff.profile_url}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-extrabold shadow-sm transition-colors"
@@ -148,7 +146,7 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
               <Sparkles className="h-3.5 w-3.5" />
               Ver Ficha Oficial Real Madrid
             </a>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -162,17 +160,15 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
             <dl className="space-y-3 text-xs">
               <div className="flex justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <dt className="text-slate-400 font-semibold">Nombre completo</dt>
-                <dd className="font-bold text-slate-800 dark:text-slate-100 text-right">{String(staff.full_name)}</dd>
+                <dd className="font-bold text-slate-800 dark:text-slate-100 text-right">{staff.full_name}</dd>
               </div>
               <div className="flex justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <dt className="text-slate-400 font-semibold">Cargo</dt>
-                <dd className="font-bold text-slate-800 dark:text-slate-100 text-right">{String(staff.role)}</dd>
+                <dd className="font-bold text-slate-800 dark:text-slate-100 text-right">{staff.role}</dd>
               </div>
               <div className="flex justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <dt className="text-slate-400 font-semibold">Nacionalidad</dt>
-                <dd className="font-bold text-slate-800 dark:text-slate-100 text-right">
-                  {String(staff.nationality || "España")}
-                </dd>
+                <dd className="font-bold text-slate-800 dark:text-slate-100 text-right">{staff.nationality}</dd>
               </div>
               <div className="flex justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <dt className="text-slate-400 font-semibold">Fecha de nacimiento</dt>
@@ -181,7 +177,7 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
               <div className="flex justify-between gap-3">
                 <dt className="text-slate-400 font-semibold">Lugar de nacimiento</dt>
                 <dd className="font-bold text-slate-800 dark:text-slate-100 text-right">
-                  {String(staff.birth_place || "—")}
+                  {staff.birth_place || "—"}
                 </dd>
               </div>
             </dl>
@@ -196,19 +192,19 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
               <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                 <span className="text-[10px] text-slate-400 block font-bold uppercase">Chaqueta</span>
                 <span className="text-lg font-black text-slate-800 dark:text-slate-100">
-                  {String(staff.shirt_size || "L")}
+                  {staff.shirt_size || "L"}
                 </span>
               </div>
               <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                 <span className="text-[10px] text-slate-400 block font-bold uppercase">Pantalón</span>
                 <span className="text-lg font-black text-slate-800 dark:text-slate-100">
-                  {String(staff.shorts_size || "L")}
+                  {staff.shorts_size || "L"}
                 </span>
               </div>
               <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                 <span className="text-[10px] text-slate-400 block font-bold uppercase">Calzado</span>
                 <span className="text-lg font-black text-slate-800 dark:text-slate-100">
-                  {String(staff.shoe_size || "43")}
+                  {staff.shoe_size ?? "43"}
                 </span>
               </div>
             </div>
@@ -245,11 +241,11 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
               <Trophy className="h-5 w-5 text-orange-500" />
               Palmarés
             </h2>
-            {palmares.length === 0 ? (
+            {staff.palmares.length === 0 ? (
               <p className="text-xs text-slate-400 py-8 text-center">Sin palmarés publicado.</p>
             ) : (
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {palmares.map((item, idx) => (
+                {staff.palmares.map((item, idx) => (
                   <li
                     key={`${item}-${idx}`}
                     className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 bg-orange-50/40 dark:bg-orange-950/10 border border-orange-100 dark:border-orange-900/30 rounded-xl px-3 py-2.5"
@@ -275,9 +271,9 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
               </a>
               .
             </p>
-            {staff.profile_url && (
+            {staff.profile_url ? (
               <a
-                href={String(staff.profile_url)}
+                href={staff.profile_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-700 dark:text-orange-400"
@@ -285,7 +281,7 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
                 Abrir perfil en realmadrid.com
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

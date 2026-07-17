@@ -39,32 +39,77 @@ export function normalizePlayerProfile(player: Record<string, unknown> | null) {
   };
 }
 
-export function normalizeStaffProfile(staff: Record<string, unknown> | null) {
+export type NormalizedStaffProfile = {
+  id?: string;
+  full_name: string;
+  role: string;
+  nationality: string;
+  birth_date: string | null;
+  birth_place: string | null;
+  photo_url: string | null;
+  profile_url: string | null;
+  trajectory: string;
+  trajectory_items: string[];
+  palmares: string[];
+  email?: string | null;
+  shirt_size?: string | null;
+  shorts_size?: string | null;
+  shoe_size?: string | number | null;
+};
+
+export function normalizeStaffProfile(
+  staff: Record<string, unknown> | null
+): NormalizedStaffProfile | null {
   if (!staff) return null;
   const legacyId =
     typeof staff.id === 'string' && /^c\d+$/i.test(staff.id) ? staff.id : null;
   const official = legacyId ? getOfficialStaffByLegacyId(legacyId) : null;
-  const birthPlace = (official?.birth_place ?? staff.birth_place) as string | null | undefined;
-  let nationality = (official?.nationality ?? staff.nationality) as string | null | undefined;
-  if (!nationality) {
-    nationality = birthPlace?.toLowerCase().includes('españa') ? 'España' : 'España';
-  }
+  const birthPlace =
+    (official?.birth_place ?? (typeof staff.birth_place === 'string' ? staff.birth_place : null)) ||
+    null;
+  const nationalityRaw =
+    official?.nationality ?? (typeof staff.nationality === 'string' ? staff.nationality : null);
+  const nationality = nationalityRaw || 'España';
+  const trajectoryItems = official?.trajectory_items?.length
+    ? official.trajectory_items
+    : Array.isArray(staff.trajectory_items)
+      ? (staff.trajectory_items as string[])
+      : [];
+  const palmares = official?.palmares?.length
+    ? official.palmares
+    : Array.isArray(staff.palmares)
+      ? (staff.palmares as string[])
+      : [];
 
   return {
-    ...staff,
-    full_name: official?.full_name ?? staff.full_name,
-    role: official?.role === 'Entrenador' ? 'Entrenador Principal' : official?.role ?? staff.role,
+    id: typeof staff.id === 'string' ? staff.id : legacyId || undefined,
+    full_name: String(official?.full_name ?? staff.full_name ?? ''),
+    role: String(
+      official?.role === 'Entrenador'
+        ? 'Entrenador Principal'
+        : official?.role ?? staff.role ?? 'Cuerpo técnico'
+    ),
     nationality,
-    birth_date: official?.birth_date ?? staff.birth_date,
+    birth_date:
+      official?.birth_date ??
+      (typeof staff.birth_date === 'string' ? staff.birth_date : null),
     birth_place: birthPlace,
-    photo_url: official?.photo_url ?? staff.photo_url,
-    profile_url: official?.profile_url ?? staff.profile_url,
-    trajectory: official?.trajectory ?? staff.trajectory,
-    trajectory_items:
-      official?.trajectory_items?.length
-        ? official.trajectory_items
-        : staff.trajectory_items ?? [],
-    palmares: official?.palmares?.length ? official.palmares : staff.palmares,
+    photo_url:
+      official?.photo_url ??
+      (typeof staff.photo_url === 'string' ? staff.photo_url : null),
+    profile_url:
+      official?.profile_url ??
+      (typeof staff.profile_url === 'string' ? staff.profile_url : null),
+    trajectory: String(official?.trajectory ?? staff.trajectory ?? ''),
+    trajectory_items: trajectoryItems,
+    palmares,
+    email: typeof staff.email === 'string' ? staff.email : null,
+    shirt_size: typeof staff.shirt_size === 'string' ? staff.shirt_size : null,
+    shorts_size: typeof staff.shorts_size === 'string' ? staff.shorts_size : null,
+    shoe_size:
+      typeof staff.shoe_size === 'string' || typeof staff.shoe_size === 'number'
+        ? staff.shoe_size
+        : null,
   };
 }
 
