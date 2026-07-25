@@ -9,7 +9,7 @@
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs';
 
 const PLANTILLA_URL = 'https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla';
-const SEASON = '2025-2026';
+const SEASON = '2026-2027';
 
 const SLUG_TO_ID = {
   'liga-endesa': 'liga_endesa',

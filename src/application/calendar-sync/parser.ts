@@ -81,9 +81,55 @@ export function officialMatchUrl(slug: string): string {
   return `https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/partidos/${slug}`;
 }
 
+export function isBasketballFirstTeamFixture(f: {
+  official_url?: string | null;
+  competition?: string | null;
+  official_slug?: string | null;
+}): boolean {
+  const url = (f.official_url || '').toLowerCase();
+  const slug = (f.official_slug || '').toLowerCase();
+  const competition = (f.competition || '').toLowerCase();
+  const blob = `${url} ${slug} ${competition}`;
+
+  if (/futbol|football|soccer|castilla|madrid cff|cantera/i.test(blob)) return false;
+  if (/laliga|champions league|uefa europa|premier league|serie a|bundesliga|mundial de clubes/i.test(competition)) {
+    return false;
+  }
+
+  // Rutas oficiales del primer equipo de baloncesto
+  if (url.includes('/baloncesto/primer-equipo/')) return true;
+
+  // Competiciones típicas ACB / Euroliga
+  if (
+    /endesa|euroliga|euroleague|copa del rey|supercopa|amist|basket|baloncesto|acb|intercontinental/i.test(
+      competition
+    )
+  ) {
+    return true;
+  }
+
+  return url.includes('baloncesto');
+}
+
 export function mapDiaryItemToFixture(item: Record<string, unknown>): OfficialFixture | null {
   const slug = String(item.slug || '');
   if (!slug) return null;
+
+  // Descartar fútbol / otros equipos si el slug o tags lo delatan
+  const raw = JSON.stringify(item).toLowerCase();
+  if (
+    raw.includes('futbol') ||
+    raw.includes('football') ||
+    raw.includes('soccer') ||
+    raw.includes('castilla') ||
+    raw.includes('madrid-cff') ||
+    (raw.includes('deportes/futbol') && !raw.includes('baloncesto'))
+  ) {
+    // Permitir solo si el tag de baloncesto primer equipo está presente
+    if (!raw.includes('baloncesto/primer-equipo') && !raw.includes('baloncesto-primer-equipo') && !raw.includes('primer-equipo-masculino')) {
+      return null;
+    }
+  }
 
   const competition = (item.competition || {}) as Record<string, unknown>;
   const homeTeam = (item.homeTeam || {}) as Record<string, unknown>;
@@ -123,7 +169,7 @@ export function mapDiaryItemToFixture(item: Record<string, unknown>): OfficialFi
     score_text = `${score_home}-${score_away}`;
   }
 
-  return {
+  const fixture: OfficialFixture = {
     official_id: item.id ? String(item.id) : item.optaId ? String(item.optaId) : null,
     official_slug: slug,
     match_datetime: dateTime,
@@ -145,6 +191,9 @@ export function mapDiaryItemToFixture(item: Record<string, unknown>): OfficialFi
     result,
     official_url: officialMatchUrl(slug),
   };
+
+  if (!isBasketballFirstTeamFixture(fixture)) return null;
+  return fixture;
 }
 
 export function categorizeCompetition(name: string): string {

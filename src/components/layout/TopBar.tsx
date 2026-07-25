@@ -26,7 +26,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function TopBar() {
-  const { user, logout } = useAuth();
+  const { user, logout, isSuperadmin } = useAuth();
   const branding = useClubBranding();
   const { alerts } = useAlerts();
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
@@ -43,7 +43,9 @@ export default function TopBar() {
 
   const userRole = user?.profile?.role || "equipment_manager";
   const userName = user?.profile?.full_name || "Usuario";
-  const userAvatar = user?.profile?.avatar_url || '/images/carlos_kobe.png';
+  const userAvatar = isSuperadmin
+    ? '/images/ramon-avatar.png?v=5'
+    : '/images/carlos-avatar.png?v=5';
   const roleLabel = ROLE_LABELS[userRole] || userRole.replace("_", " ");
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -189,9 +191,9 @@ export default function TopBar() {
 
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
           <img
-            src={userAvatar || undefined}
+            src={userAvatar}
             alt={userName}
-            className="h-9 w-9 rounded-full bg-orange-100 border border-orange-200 animate-in fade-in zoom-in"
+            className="h-9 w-9 rounded-full object-cover object-top bg-slate-800 border border-slate-700 animate-in fade-in zoom-in"
           />
           <div className="hidden lg:block leading-none text-left">
             <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">{userName}</h4>

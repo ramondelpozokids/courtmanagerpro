@@ -26,9 +26,32 @@ import {
   ArrowLeft, Users, ShieldCheck, Search, Ruler,
   Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown,
 } from "lucide-react";
+import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
 
 function saveSizingDemo() {
   persistDemoDb();
+}
+
+function playerPhoto(p: {
+  imageUrl?: string | null;
+  slug?: string | null;
+  firstName?: string;
+  lastName?: string;
+}) {
+  return resolvePlayerPhotoUrl({
+    slug: p.slug,
+    imageUrl: p.imageUrl,
+    fullName: `${p.firstName || ""} ${p.lastName || ""}`.trim(),
+  });
+}
+
+function staffPhoto(s: { photo_url?: string | null; slug?: string | null; full_name?: string }) {
+  return resolvePlayerPhotoUrl({
+    slug: s.slug,
+    photo_url: s.photo_url,
+    fullName: s.full_name,
+    isStaff: true,
+  });
 }
 
 const ALL_CATEGORIES: (SizingCategory | "ALL")[] = [
@@ -473,15 +496,29 @@ export default function SizingTablePage() {
                 {filteredPlayers.map((p) => {
                   const fullName = `${p.firstName} ${p.lastName}`;
                   const sizes = normalizeSizes(p.sizes, catalog);
+                  const photo = playerPhoto(p);
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
                       <td className="p-3 sticky left-0 bg-white dark:bg-slate-900 z-[1]">
                         <div className="h-9 w-8 rounded-md overflow-hidden bg-slate-100 border flex items-center justify-center">
-                          {p.imageUrl ? (
-                            <img src={p.imageUrl} alt={fullName} className="h-full w-full object-cover" />
-                          ) : (
-                            <span className="text-[10px] font-bold text-orange-600">{p.firstName[0]}</span>
-                          )}
+                          {photo ? (
+                            <img
+                              src={photo}
+                              alt={fullName}
+                              className="h-full w-full object-cover object-top"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                                const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;
+                                if (sibling) sibling.style.display = "flex";
+                              }}
+                            />
+                          ) : null}
+                          <span
+                            className="text-[10px] font-bold text-orange-600 items-center justify-center h-full w-full"
+                            style={{ display: photo ? "none" : "flex" }}
+                          >
+                            {p.firstName?.[0] || "?"}
+                          </span>
                         </div>
                       </td>
                       <td className="p-3 font-bold sticky left-10 bg-white dark:bg-slate-900 z-[1] whitespace-nowrap">{fullName}</td>
@@ -523,15 +560,29 @@ export default function SizingTablePage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredStaff.map((s) => {
                   const sizes = staffToSizes(s, catalog);
+                  const photo = staffPhoto(s);
                   return (
                     <tr key={s.id} className="hover:bg-slate-50/50">
                       <td className="p-3 sticky left-0 bg-white dark:bg-slate-900">
                         <div className="h-9 w-9 rounded-full overflow-hidden bg-slate-100 border flex items-center justify-center">
-                          {s.photo_url ? (
-                            <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
-                          ) : (
-                            <span className="text-[10px] font-bold text-orange-600">{s.full_name[0]}</span>
-                          )}
+                          {photo ? (
+                            <img
+                              src={photo}
+                              alt={s.full_name}
+                              className="h-full w-full object-cover object-top"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                                const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;
+                                if (sibling) sibling.style.display = "flex";
+                              }}
+                            />
+                          ) : null}
+                          <span
+                            className="text-[10px] font-bold text-orange-600 items-center justify-center h-full w-full"
+                            style={{ display: photo ? "none" : "flex" }}
+                          >
+                            {s.full_name?.[0] || "?"}
+                          </span>
                         </div>
                       </td>
                       <td className="p-3 font-bold sticky left-10 bg-white dark:bg-slate-900 whitespace-nowrap">{s.full_name}</td>

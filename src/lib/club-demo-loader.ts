@@ -15,7 +15,7 @@ export function packToTeam(pack: ClubDemoPack): Team {
     logo_url: branding.logoUrl,
     primary_color: branding.primaryColor,
     secondary_color: branding.secondaryColor,
-    season: '2025-2026',
+    season: '2026-2027',
     league: 'ACB',
     is_active: true,
     metadata: { demoSlug: branding.slug },

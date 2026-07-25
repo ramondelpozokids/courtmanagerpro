@@ -1,10 +1,10 @@
 import type { MatchHomeAway, MatchResult, MatchStatus, SyncTrigger } from '@/types';
 
 export const OFFICIAL_CALENDAR_PAGE_URL =
-  'https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball=';
+  'https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball=realmadrid-com:sports/baloncesto/primer-equipo-masculino';
 
 export const OFFICIAL_CALENDAR_SOURCE_ID = 'real_madrid_official_calendar';
-export const OFFICIAL_CALENDAR_SOURCE_LABEL = 'Real Madrid Oficial';
+export const OFFICIAL_CALENDAR_SOURCE_LABEL = 'Real Madrid — Primer Equipo Baloncesto';
 
 export const BASKETBALL_FIRST_TEAM_TAG =
   'realmadrid-com:sports/baloncesto/primer-equipo-masculino';

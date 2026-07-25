@@ -42,7 +42,7 @@ export async function getBiometricLoginUser(email: string): Promise<BiometricLog
         role: 'superadmin',
         email: normalized,
         full_name: 'Ramón del Pozo Rott',
-        avatar_url: '/images/ramon-del-pozo.png',
+        avatar_url: '/images/ramon-avatar.png',
       };
     }
     if (normalized === CARLOS_EMAIL) {

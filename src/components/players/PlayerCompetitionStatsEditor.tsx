@@ -20,7 +20,7 @@ interface PlayerCompetitionStatsEditorProps {
 }
 
 const EMPTY_FORM: PlayerCompetitionStats = {
-  season: "2025-2026",
+  season: "2026-2027",
   phase: "Fase Regular",
   matches_played: 0,
   points: 0,

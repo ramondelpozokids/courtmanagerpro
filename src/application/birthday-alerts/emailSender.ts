@@ -1,5 +1,6 @@
 import {
-  BIRTHDAY_ALERT_RECIPIENT,
+  BIRTHDAY_ALERT_RECIPIENT_EMAILS,
+  BIRTHDAY_ALERT_RECIPIENTS,
   BIRTHDAY_EMAIL_SUBJECT,
 } from '@/config/birthday-alerts';
 import { formatBirthDateEs } from './dateUtils';
@@ -7,6 +8,10 @@ import type { BirthdayEmailSendResult, BirthdayPerson } from './types';
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function recipientsLabel(): string {
+  return BIRTHDAY_ALERT_RECIPIENTS.map((r) => `${r.name} <${r.email}>`).join(' · ');
 }
 
 export function buildBirthdayEmailHtml(people: BirthdayPerson[]): string {
@@ -43,13 +48,13 @@ export function buildBirthdayEmailHtml(people: BirthdayPerson[]): string {
           <div style="font-size:20px;font-weight:bold;margin-top:6px;">🎂 Recordatorio de cumpleaños</div>
         </td></tr>
         <tr><td style="padding:24px;font-family:Arial,sans-serif;color:#334155;font-size:15px;line-height:1.6;">
-          <p>Buenos días, Carlos.</p>
+          <p>Buenos días,</p>
           <p>CourtManager Pro ha detectado que mañana cumple años un miembro del Primer Equipo de Baloncesto del Real Madrid.</p>
           <p><strong>Información:</strong></p>
         </td></tr>
         ${cards}
         <tr><td style="padding:20px 24px;font-family:Arial,sans-serif;font-size:12px;color:#94a3b8;">
-          Este correo se envía automáticamente a ${BIRTHDAY_ALERT_RECIPIENT.email}. Fuente: plantilla oficial Real Madrid.
+          Enviado automáticamente a ${recipientsLabel()}. Fuente: plantilla oficial Real Madrid.
         </td></tr>
       </table>
     </td></tr>
@@ -66,13 +71,15 @@ export function buildBirthdayEmailText(people: BirthdayPerson[]): string {
     )
     .join('\n\n');
 
-  return `Buenos días, Carlos.
+  return `Buenos días,
 
 CourtManager Pro ha detectado que mañana cumple años un miembro del Primer Equipo de Baloncesto del Real Madrid.
 
 Información:
 
 ${blocks}
+
+Destinatarios: ${recipientsLabel()}
 `;
 }
 
@@ -80,7 +87,18 @@ async function sendViaResend(html: string, text: string): Promise<{ ok: boolean;
   const key = process.env.RESEND_API_KEY?.trim();
   if (!key) return { ok: false, error: 'RESEND_API_KEY no configurada' };
 
-  const from = process.env.BIRTHDAY_EMAIL_FROM?.trim() || 'CourtManager Pro <onboarding@resend.dev>';
+  const from =
+    process.env.BIRTHDAY_EMAIL_FROM?.trim() ||
+    'CourtManager Pro <noreply@ramondelpozorott.es>';
+
+  if (from.toLowerCase().includes('resend.dev') || from.toLowerCase().includes('onboarding@')) {
+    return {
+      ok: false,
+      error:
+        'BIRTHDAY_EMAIL_FROM no puede usar resend.dev. Verifica el dominio ramondelpozorott.es en Resend y usa noreply@ramondelpozorott.es',
+    };
+  }
+
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -89,7 +107,7 @@ async function sendViaResend(html: string, text: string): Promise<{ ok: boolean;
     },
     body: JSON.stringify({
       from,
-      to: [BIRTHDAY_ALERT_RECIPIENT.email],
+      to: [...BIRTHDAY_ALERT_RECIPIENT_EMAILS],
       subject: BIRTHDAY_EMAIL_SUBJECT,
       html,
       text,
@@ -121,7 +139,7 @@ async function sendViaSmtp(html: string, text: string): Promise<{ ok: boolean; e
     const from = process.env.BIRTHDAY_EMAIL_FROM?.trim() || user;
     await transporter.sendMail({
       from,
-      to: BIRTHDAY_ALERT_RECIPIENT.email,
+      to: BIRTHDAY_ALERT_RECIPIENT_EMAILS.join(', '),
       subject: BIRTHDAY_EMAIL_SUBJECT,
       html,
       text,
@@ -144,19 +162,17 @@ export async function sendBirthdayEmailWithRetries(
   const text = buildBirthdayEmailText(people);
 
   const hasResend = Boolean(process.env.RESEND_API_KEY?.trim());
-  const hasSmtp = Boolean(process.env.SMTP_HOST?.trim() && process.env.SMTP_USER?.trim());
+  const hasSmtp = Boolean(
+    process.env.SMTP_HOST?.trim() && process.env.SMTP_USER?.trim() && process.env.SMTP_PASS?.trim()
+  );
 
   if (!hasResend && !hasSmtp) {
-    console.info('[birthday-email] simulated send (no RESEND/SMTP configured)', {
-      to: BIRTHDAY_ALERT_RECIPIENT.email,
-      people: people.map((p) => p.full_name),
-    });
     return {
-      ok: true,
-      attempts: 1,
-      error: null,
-      provider: 'simulated',
-      simulated: true,
+      ok: false,
+      attempts: 0,
+      error:
+        'Falta proveedor real de correo: configura RESEND_API_KEY + dominio verificado, o SMTP completo',
+      provider: 'none',
     };
   }
 
@@ -177,5 +193,10 @@ export async function sendBirthdayEmailWithRetries(
     if (attempt < maxAttempts) await sleep(800 * attempt);
   }
 
-  return { ok: false, attempts: maxAttempts, error: lastError, provider: hasResend ? 'resend' : 'smtp' };
+  return {
+    ok: false,
+    attempts: maxAttempts,
+    error: lastError,
+    provider: hasResend ? 'resend' : 'smtp',
+  };
 }

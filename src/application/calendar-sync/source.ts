@@ -5,7 +5,7 @@ import {
   OFFICIAL_CALENDAR_SOURCE_LABEL,
   type OfficialCalendarSnapshot,
 } from './types';
-import { mapDiaryItemToFixture } from './parser';
+import { mapDiaryItemToFixture, isBasketballFirstTeamFixture } from './parser';
 
 const HEADERS = {
   'User-Agent':
@@ -47,20 +47,20 @@ function seasonWindow(): { from: string; to: string } {
   const now = new Date();
   const y = now.getUTCFullYear();
   const m = now.getUTCMonth(); // 0-11
-  // Season roughly Aug Y → Jul Y+1
-  const startYear = m >= 7 ? y : y - 1;
+  // Temporada ACB ~ jul/ago Y → jun/jul Y+1. Desde julio ya apuntamos a Y/(Y+1).
+  const startYear = m >= 6 ? y : y - 1;
   return {
-    from: `${startYear}-08-01T00:00:00.000Z`,
+    from: `${startYear}-07-01T00:00:00.000Z`,
     to: `${startYear + 1}-07-31T23:59:00.000Z`,
   };
 }
 
-/** Also pull next season amistosos if present. */
+/** Ventana amplia: temporada anterior (resultados) + nueva (amistosos/liga cuando existan). */
 function extendedWindow(): { from: string; to: string } {
   const { from } = seasonWindow();
   const startYear = Number(from.slice(0, 4));
   return {
-    from: `${startYear}-08-01T00:00:00.000Z`,
+    from: `${startYear - 1}-08-01T00:00:00.000Z`,
     to: `${startYear + 1}-12-31T23:59:00.000Z`,
   };
 }
@@ -81,7 +81,8 @@ export async function fetchOfficialBasketballCalendar(): Promise<OfficialCalenda
   const items = json.data?.matchList?.items || [];
   const fixtures = items
     .map((item) => mapDiaryItemToFixture(item))
-    .filter((f): f is NonNullable<typeof f> => Boolean(f));
+    .filter((f): f is NonNullable<typeof f> => Boolean(f))
+    .filter((f) => isBasketballFirstTeamFixture(f));
 
   // Deduplicate by slug
   const bySlug = new Map(fixtures.map((f) => [f.official_slug, f]));

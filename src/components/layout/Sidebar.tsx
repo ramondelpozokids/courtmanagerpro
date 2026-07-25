@@ -5,18 +5,18 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
   Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
-  ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag, KeyRound, FileUp
+  ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag, KeyRound, FileUp, HardHat
 } from 'lucide-react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { cn } from '@/lib/utils';
-import { canAccessMedical, canAccessReports } from '@/lib/permissions';
+import { canAccessMedical, canAccessReports, isCarlosUser } from '@/lib/permissions';
+import { canAccessEquipmentTeam } from '@/modules/equipment-team';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useClubBranding } from '@/contexts/ClubDemoContext';
 import { useAlerts } from '@/hooks/useAlerts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger
 } from '@/components/ui/tooltip';
@@ -24,38 +24,61 @@ import {
 const NAV_ITEMS = [
   { href: '/',           label: 'Dashboard',    icon: LayoutDashboard, roles: [] },
   { href: '/players',    label: 'Jugadores',     icon: Users,           roles: [] },
+  { href: '/sizing',     label: 'Tabla de Tallas', icon: Table,         roles: [] },
   { href: '/inventory',  label: 'Inventario',    icon: Package,         roles: [] },
   { href: '/inventory/update', label: 'Actualizar inventario', icon: FileUp, roles: [] },
-  { href: '/calendario', label: 'Calendario Oficial', icon: Calendar, roles: [] },
-  { href: '/tienda', label: 'Tienda Oficial', icon: ShoppingBag, roles: [] },
-  { href: '/sizing',     label: 'Tabla de Tallas', icon: Table,         roles: [] },
+  { href: '/equipment-team', label: 'Equipo de Utillería', icon: HardHat, roles: [] },
   { href: '/requests',   label: 'Solicitudes',   icon: ClipboardList,   roles: [] },
   { href: '/trips',      label: 'Viajes',        icon: Plane,           roles: [] },
   { href: '/laundry',    label: 'Lavandería',    icon: Shirt,           roles: [] },
-  { href: '/medical',    label: 'Material Médico', icon: Stethoscope,   roles: ['admin', 'equipment_manager', 'medical'] },
-  { href: '/reports',    label: 'Informes',      icon: BarChart3,       roles: ['admin', 'equipment_manager'] },
+  { href: '/medical',    label: 'Material Médico', icon: Stethoscope,   roles: [] },
+  { href: '/reports',    label: 'Informes',      icon: BarChart3,       roles: [] },
   { href: '/alerts',     label: 'Alertas',       icon: Bell,            roles: [] },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, currentTeam, logout, hasPermission, userEmail, hasOperationalAccess, effectiveRole } = useAuth();
+  const { user, currentTeam, logout, hasPermission, userEmail, hasOperationalAccess, effectiveRole, isSuperadmin } = useAuth();
   const branding = useClubBranding();
   const { sidebarOpen, toggleSidebar } = useApp();
   const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
 
   const userRole = effectiveRole;
+  // Ramón y Carlos: exactamente el mismo menú (lista vertical completa)
+  const sameFullMenu =
+    isSuperadmin ||
+    hasOperationalAccess ||
+    isCarlosUser(userEmail) ||
+    isCarlosUser(user?.email) ||
+    isCarlosUser(user?.profile?.email);
 
-  const visibleItems = NAV_ITEMS.filter(item => {
-    if (hasOperationalAccess) return true;
-    if (item.href === '/medical') return canAccessMedical(userRole, userEmail);
-    if (item.href === '/reports') return canAccessReports(userRole, userEmail);
-    return item.roles.length === 0 || hasPermission(item.roles);
-  });
+  const visibleItems = sameFullMenu
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter(item => {
+        if (item.href === '/medical') return canAccessMedical(userRole, userEmail);
+        if (item.href === '/equipment-team') return canAccessEquipmentTeam(userRole, userEmail);
+        if (item.href === '/reports') return canAccessReports(userRole, userEmail);
+        return item.roles.length === 0 || hasPermission(item.roles);
+      });
 
-  const full_name = user?.profile?.full_name || "Carlos Rodriguez Kobe";
-  const user_role = user?.profile?.role || "equipment_manager";
-  const user_avatar = user?.profile?.avatar_url || undefined;
+  const full_name = user?.profile?.full_name || (isSuperadmin ? 'Ramón del Pozo Rott' : 'Carlos Rodriguez Kobe');
+  const user_role = user?.profile?.role || (isSuperadmin ? 'superadmin' : 'equipment_manager');
+  const isCarlos =
+    isCarlosUser(userEmail) ||
+    isCarlosUser(user?.email) ||
+    isCarlosUser(user?.profile?.email);
+  const user_avatar = isSuperadmin
+    ? '/images/ramon-avatar.png?v=5'
+    : isCarlos
+      ? '/images/carlos-avatar.png?v=5'
+      : (user?.profile?.avatar_url || '/images/carlos-avatar.png');
+
+  // Temporada operativa actual (nunca mostrar 2025-2026 en RMB)
+  const seasonLabel =
+    currentTeam?.season === '2025-2026' || !currentTeam?.season
+      ? '2026-2027'
+      : currentTeam.season;
+
 
   return (
     <aside className={cn(
@@ -100,7 +123,7 @@ export function Sidebar() {
             />
             <p className="text-sm font-bold truncate">{currentTeam.name}</p>
           </div>
-          <p className="text-[10px] text-orange-400 font-bold mt-0.5">{currentTeam.season} · {currentTeam.league}</p>
+          <p className="text-[10px] text-orange-400 font-bold mt-0.5">{seasonLabel} · {currentTeam.league}</p>
         </div>
       )}
 
@@ -156,10 +179,10 @@ export function Sidebar() {
         <div className="mx-3 my-1 p-3 rounded-xl bg-slate-950/40 border border-slate-800 text-left space-y-1 shrink-0">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-orange-500 animate-pulse" />
-            <span className="text-xs font-black uppercase text-slate-200 tracking-wider">Calendario Oficial</span>
+            <span className="text-xs font-black uppercase text-slate-200 tracking-wider">Calendario Baloncesto</span>
           </div>
           <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
-            Fechas oficiales de los partidos del primer equipo de baloncesto.
+            Solo primer equipo de baloncesto del Real Madrid (oficial).
           </p>
           <Link
             href="/calendario"
@@ -189,16 +212,19 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* User section */}
+      {/* User section — foto real, sin iniciales */}
       <div className="p-4 border-t border-slate-800 bg-slate-950/20 text-left shrink-0">
         {sidebarOpen ? (
           <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={user_avatar || undefined} />
-              <AvatarFallback className="bg-gray-700 text-white text-xs">
-                {full_name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+            <img
+              key={user_avatar}
+              src={user_avatar}
+              alt=""
+              width={32}
+              height={32}
+              decoding="async"
+              className="h-8 w-8 rounded-full object-cover border border-slate-700 bg-slate-800 shrink-0"
+            />
             <Link href="/cuenta" className="flex-1 min-w-0 group">
               <p className="text-xs font-bold truncate text-slate-100 group-hover:text-orange-300 transition-colors">{full_name}</p>
               <p className="text-[10px] text-slate-400 truncate uppercase tracking-wider font-semibold mt-0.5">{user_role.replace("_", " ")}</p>
@@ -221,11 +247,15 @@ export function Sidebar() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <Avatar className="h-8 w-8 mx-auto">
-              <AvatarFallback className="bg-gray-700 text-white text-xs">
-                {full_name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+            <img
+              key={user_avatar}
+              src={user_avatar}
+              alt=""
+              width={32}
+              height={32}
+              decoding="async"
+              className="h-8 w-8 rounded-full object-cover border border-slate-700 bg-slate-800"
+            />
             <Button
               variant="ghost"
               size="icon"

@@ -15,14 +15,14 @@ export const MOCK_CREDENTIALS: MockCredential[] = [
     password: 'Benutzer555',
     role: 'superadmin',
     full_name: 'Ramón del Pozo Rott',
-    avatar_url: '/images/ramon-del-pozo.png',
+    avatar_url: '/images/ramon-avatar.png',
   },
   {
     email: 'charlie-r-k@hotmail.com',
     password: 'utileria2026',
     role: 'equipment_manager',
     full_name: 'Carlos Rodriguez Kobe',
-    avatar_url: '/images/carlos_kobe.png',
+    avatar_url: '/images/carlos-avatar.png',
   },
   {
     email: 'marta.lopez@realmadrid.com',
@@ -49,13 +49,13 @@ export const BIOMETRIC_QUICK_ACCESS = [
     email: 'info@ramondelpozorott.es',
     name: 'Ramón del Pozo Rott',
     shortName: 'Ramón',
-    avatar: '/images/ramon-del-pozo.png',
+    avatar: '/images/ramon-avatar.png',
   },
   {
     email: 'charlie-r-k@hotmail.com',
     name: 'Carlos Rodriguez Kobe',
     shortName: 'Carlos',
-    avatar: '/images/carlos_kobe.png',
+    avatar: '/images/carlos-avatar.png',
   },
 ] as const;
 

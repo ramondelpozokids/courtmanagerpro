@@ -10,6 +10,7 @@ import {
   RMB_PLAYER_SIZE_OVERRIDES,
   RMB_STAFF_SIZE_OVERRIDES,
 } from '@/data/rmb-sizing-overrides';
+import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 
 /** Demo player shape used by InMemoryDB / club packs. */
 export function buildRmbDemoPlayersFromOfficial() {
@@ -38,7 +39,11 @@ function mapOfficialPlayerToDemo(p: RmbOfficialPlayerProfile) {
     },
     nationality: p.nationality || 'España',
     birthDate: p.birth_date || undefined,
-    imageUrl: p.photo_url || undefined,
+    imageUrl: resolvePlayerPhotoUrl({
+      slug: p.slug,
+      photo_url: p.photo_url,
+      fullName: p.full_name,
+    }) || undefined,
     profile_url: p.profile_url,
     birth_place: p.birth_place || undefined,
     weight: p.weight || undefined,
@@ -84,7 +89,12 @@ function mapOfficialStaffToDemo(s: RmbOfficialStaffProfile) {
     shirt_size: sizes.shirt_size,
     shorts_size: sizes.shorts_size,
     shoe_size: sizes.shoe_size,
-    photo_url: s.photo_url,
+    photo_url: resolvePlayerPhotoUrl({
+      slug: s.slug,
+      photo_url: s.photo_url,
+      fullName: s.full_name,
+      isStaff: true,
+    }),
     nationality: nationalityFromBirthPlace(s.birth_place, s.nationality),
     profile_url: s.profile_url,
     birth_place: s.birth_place || undefined,

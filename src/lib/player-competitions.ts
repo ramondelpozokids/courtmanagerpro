@@ -71,7 +71,7 @@ const EMPTY_STATS: PlayerCompetitionStats = {
   apg: 0,
 };
 
-export function emptyCompetitionMap(season = '2025-2026'): PlayerCompetitionMap {
+export function emptyCompetitionMap(season = '2026-2027'): PlayerCompetitionMap {
   return {
     liga_endesa: { stats: { ...EMPTY_STATS, season } },
     euroliga: { stats: { ...EMPTY_STATS, season } },

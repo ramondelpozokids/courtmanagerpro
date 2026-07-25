@@ -14,6 +14,7 @@ import {
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { categorizeCompetition } from '@/application/calendar-sync/parser';
+import { OFFICIAL_CALENDAR_PAGE_URL } from '@/application/calendar-sync/types';
 import type { OfficialMatch } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -193,10 +194,10 @@ export default function CalendarioPage() {
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
             <CalendarIcon className="h-6 w-6 text-orange-500" />
-            Calendario Oficial
+            Calendario · Primer Equipo Baloncesto
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Fuente: {source}
+            Solo partidos oficiales del Real Madrid de baloncesto (no fútbol ni otros equipos). Fuente: {source}
             {lastUpdated
               ? ` · Última sync ${new Date(lastUpdated).toLocaleString('es-ES')}`
               : ''}
@@ -213,12 +214,12 @@ export default function CalendarioPage() {
             Actualizar calendario oficial
           </button>
           <a
-            href="https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball="
+            href={OFFICIAL_CALENDAR_PAGE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-xs font-bold"
           >
-            Web oficial
+            Web oficial (baloncesto)
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>

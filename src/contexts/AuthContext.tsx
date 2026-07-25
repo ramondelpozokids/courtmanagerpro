@@ -59,7 +59,7 @@ const defaultMockProfile: Profile = {
   id: "u_manager",
   email: "charlie-r-k@hotmail.com",
   full_name: "Carlos Rodriguez Kobe",
-  avatar_url: "/images/carlos_kobe.png",
+  avatar_url: "/images/carlos-avatar.png",
   role: "equipment_manager",
   phone: "+34 622 991 928",
   department: "Utilería Principal",
@@ -77,7 +77,7 @@ const defaultMockTeam: Team = {
   logo_url: null,
   primary_color: "#FFFFFF", // Real Madrid White
   secondary_color: "#2C3E50", // Royal Blue
-  season: "2025-2026",
+  season: "2026-2027",
   league: "ACB",
   is_active: true,
   metadata: {},
@@ -192,16 +192,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const buildUserFromRole = useCallback((role: ExtendedRole, profileOverrides?: Partial<Profile>) => {
     let name = "Carlos Rodriguez Kobe";
     let email = "charlie-r-k@hotmail.com";
-    let avatar_url: string | undefined = "/images/carlos_kobe.png";
+    let avatar_url: string | undefined = "/images/carlos-avatar.png";
 
     if (role === "superadmin") {
       name = "Ramón del Pozo Rott";
       email = "info@ramondelpozorott.es";
-      avatar_url = "/images/ramon-del-pozo.png";
+      avatar_url = "/images/ramon-avatar.png";
     } else if (role === "admin") {
       name = "Carlos Rodriguez Kobe";
       email = "charlie-r-k@hotmail.com";
-      avatar_url = "/images/carlos_kobe.png";
+      avatar_url = "/images/carlos-avatar.png";
     } else if (role === "assistant") {
       name = "Marta López";
       email = "marta.lopez@realmadrid.com";
@@ -472,7 +472,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionEmail: session?.user?.email,
   });
   const hasOperationalAccess =
-    isSuperadmin || hasFullClubAccess(user?.profile?.role, userEmail);
+    isSuperadmin ||
+    hasFullClubAccess(user?.profile?.role, userEmail) ||
+    hasFullClubAccess(user?.profile?.role, user?.email) ||
+    hasFullClubAccess(user?.profile?.role, session?.user?.email) ||
+    hasFullClubAccess(user?.profile?.role, user?.profile?.email);
   const effectiveRole = hasOperationalAccess
     ? (isSuperadmin ? 'equipment_manager' : (user?.profile?.role || 'equipment_manager'))
     : (user?.profile?.role || 'assistant');

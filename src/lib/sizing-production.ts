@@ -1,5 +1,7 @@
+import type { Player } from '@/types';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 import {
   mergeSizingCatalog,
   normalizeSizes,
@@ -7,7 +9,6 @@ import {
   sizesToStaffFields,
   type SizingProduct,
 } from '@/content/sizing-products';
-import type { Player } from '@/types';
 
 export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
   const meta = ((p.metadata as Record<string, unknown>)?.sizing as Record<string, string>) || {};
@@ -20,6 +21,11 @@ export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
     ...meta,
   };
   const parts = p.full_name.split(' ');
+  const imageUrl = resolvePlayerPhotoUrl({
+    official_slug: p.official_slug,
+    photo_url: p.photo_url,
+    fullName: p.full_name,
+  });
   return {
     id: p.id,
     firstName: parts[0] || '',
@@ -29,18 +35,29 @@ export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
     status: p.is_active ? 'ACTIVE' : 'INACTIVE',
     nationality: p.nationality || 'España',
     birthDate: p.birth_date || '',
+    imageUrl: imageUrl || undefined,
+    slug: p.official_slug || undefined,
     sizes: normalizeSizes(legacy, catalog),
   };
 }
 
 export function supabaseStaffToSizingRow(s: Record<string, unknown>, catalog: SizingProduct[]) {
   const meta = (s.sizing_metadata as Record<string, string>) || {};
+  const fullName = String(s.full_name || '');
+  const photo_url = resolvePlayerPhotoUrl({
+    official_slug: typeof s.official_slug === 'string' ? s.official_slug : null,
+    slug: typeof s.slug === 'string' ? s.slug : null,
+    photo_url: typeof s.photo_url === 'string' ? s.photo_url : null,
+    fullName,
+    isStaff: true,
+  });
   return {
     id: s.id,
     full_name: s.full_name,
     role: s.role,
     email: s.email,
     nationality: s.nationality,
+    photo_url,
     ...sizesToStaffFields(staffToSizes({ ...s, ...meta } as any, catalog)),
   };
 }

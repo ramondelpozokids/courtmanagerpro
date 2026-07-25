@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   BIRTHDAY_ALERT_RECIPIENT,
+  BIRTHDAY_ALERT_RECIPIENT_EMAILS,
+  BIRTHDAY_ALERT_RECIPIENTS,
   BIRTHDAY_SEND_HOUR_MADRID,
 } from '@/config/birthday-alerts';
 import { buildDedupeKey, getMadridNowParts } from './dateUtils';
@@ -108,14 +110,14 @@ async function createDashboardFailureAlert(
     type: 'cumpleanos_email_error',
     severity: 'critical',
     title: 'Correo de cumpleaños no enviado',
-    message: `No se pudo enviar el recordatorio a ${BIRTHDAY_ALERT_RECIPIENT.email}: ${errorMessage}. Personas: ${people.map((p) => p.full_name).join(', ')}`,
+    message: `No se pudo enviar el recordatorio a ${BIRTHDAY_ALERT_RECIPIENT_EMAILS.join(', ')}: ${errorMessage}. Personas: ${people.map((p) => p.full_name).join(', ')}`,
     entity_type: 'birthday_notification',
     entity_id: null,
     is_read: false,
     is_dismissed: false,
     auto_generated: true,
     metadata: {
-      recipient: BIRTHDAY_ALERT_RECIPIENT.email,
+      recipients: BIRTHDAY_ALERT_RECIPIENT_EMAILS,
       people: people.map((p) => p.full_name),
     },
   };
@@ -196,14 +198,14 @@ export async function runBirthdayEmailJob(params: {
     };
   }
 
-  // Dedupe: one email per day covering all people — key by recipient + tomorrow date
+  // Dedupe: one email per day covering all people — key by recipients + tomorrow date
   const batchKey = buildDedupeKey(
     `batch:${tomorrow
       .map((p) => p.official_slug || p.id)
       .sort()
       .join(',')}`,
     tomorrow[0].next_birthday,
-    BIRTHDAY_ALERT_RECIPIENT.email
+    BIRTHDAY_ALERT_RECIPIENT_EMAILS.join('+')
   );
 
   if (!params.force && (await alreadySent(params.supabase, teamId, batchKey))) {
@@ -233,23 +235,27 @@ export async function runBirthdayEmailJob(params: {
       person_id: tomorrow.map((p) => p.id).join(','),
       birthday_date: tomorrow[0].next_birthday,
       turning_age: tomorrow[0].turning_age,
-      recipient_email: BIRTHDAY_ALERT_RECIPIENT.email,
-      recipient_name: BIRTHDAY_ALERT_RECIPIENT.name,
+      recipient_email: BIRTHDAY_ALERT_RECIPIENT_EMAILS.join(', '),
+      recipient_name: BIRTHDAY_ALERT_RECIPIENTS.map((r) => r.name).join(', '),
       sent_at: now,
       status: 'sent',
       attempts: send.attempts,
-      error_message: send.simulated ? 'Simulado (sin proveedor SMTP/Resend)' : null,
+      error_message: null,
       dedupe_key: batchKey,
       metadata: {
         people: tomorrow,
         provider: send.provider,
-        simulated: Boolean(send.simulated),
+        recipients: BIRTHDAY_ALERT_RECIPIENT_EMAILS,
       },
     });
 
     // Also per-person rows for historial detail
     for (const p of tomorrow) {
-      const personKey = buildDedupeKey(p.official_slug || p.id, p.next_birthday, BIRTHDAY_ALERT_RECIPIENT.email);
+      const personKey = buildDedupeKey(
+        p.official_slug || p.id,
+        p.next_birthday,
+        BIRTHDAY_ALERT_RECIPIENT_EMAILS.join('+')
+      );
       await recordNotification(params.supabase, {
         team_id: teamId,
         person_name: p.full_name,
@@ -258,14 +264,14 @@ export async function runBirthdayEmailJob(params: {
         person_id: p.id,
         birthday_date: p.next_birthday,
         turning_age: p.turning_age,
-        recipient_email: BIRTHDAY_ALERT_RECIPIENT.email,
-        recipient_name: BIRTHDAY_ALERT_RECIPIENT.name,
+        recipient_email: BIRTHDAY_ALERT_RECIPIENT_EMAILS.join(', '),
+        recipient_name: BIRTHDAY_ALERT_RECIPIENTS.map((r) => r.name).join(', '),
         sent_at: now,
         status: 'sent',
         attempts: send.attempts,
         error_message: null,
         dedupe_key: personKey,
-        metadata: { batch: batchKey, provider: send.provider },
+        metadata: { batch: batchKey, provider: send.provider, recipients: BIRTHDAY_ALERT_RECIPIENT_EMAILS },
       });
     }
 
@@ -290,14 +296,18 @@ export async function runBirthdayEmailJob(params: {
     person_id: tomorrow.map((p) => p.id).join(','),
     birthday_date: tomorrow[0].next_birthday,
     turning_age: tomorrow[0].turning_age,
-    recipient_email: BIRTHDAY_ALERT_RECIPIENT.email,
-    recipient_name: BIRTHDAY_ALERT_RECIPIENT.name,
+    recipient_email: BIRTHDAY_ALERT_RECIPIENT_EMAILS.join(', '),
+    recipient_name: BIRTHDAY_ALERT_RECIPIENTS.map((r) => r.name).join(', '),
     sent_at: now,
     status: 'failed',
     attempts: send.attempts,
     error_message: send.error,
     dedupe_key: `${batchKey}|failed|${now}`,
-    metadata: { people: tomorrow, provider: send.provider },
+    metadata: {
+      people: tomorrow,
+      provider: send.provider,
+      recipients: BIRTHDAY_ALERT_RECIPIENT_EMAILS,
+    },
   });
 
   await createDashboardFailureAlert(params.supabase, teamId, send.error || 'Error desconocido', tomorrow);
@@ -324,5 +334,6 @@ export async function getBirthdayDashboardData(params: {
     upcoming: getUpcomingBirthdaysList(people, 10),
     tomorrow: filterTomorrowBirthdays(people),
     recipient: BIRTHDAY_ALERT_RECIPIENT,
+    recipients: BIRTHDAY_ALERT_RECIPIENTS,
   };
 }

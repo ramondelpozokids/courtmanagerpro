@@ -92,7 +92,7 @@ VALUES (
   '${DEFAULT_TEAM_ID}'::uuid,
   'Real Madrid Baloncesto',
   'RMB',
-  '2025-2026',
+  '2026-2027',
   'ACB',
   '#FFFFFF',
   '#2C3E50',

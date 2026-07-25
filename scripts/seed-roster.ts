@@ -56,7 +56,7 @@ async function main() {
     id: DEFAULT_TEAM_ID,
     name: 'Real Madrid Baloncesto',
     short_name: 'RMB',
-    season: '2025-2026',
+    season: '2026-2027',
     league: 'ACB',
     primary_color: '#FFFFFF',
     secondary_color: '#2C3E50',

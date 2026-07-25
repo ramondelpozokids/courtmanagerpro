@@ -13,6 +13,7 @@ import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import QuickActions from "@/components/dashboard/QuickActions";
 import { RosterSyncStatus } from "@/components/dashboard/RosterSyncStatus";
 import { OfficialStoreCard } from "@/modules/official-store";
+import { EquipmentTeamCard } from "@/modules/equipment-team";
 import { UpcomingBirthdaysCard } from "@/components/dashboard/UpcomingBirthdaysCard";
 import { Users, Package, FileText, Plane, ShoppingBag, Trophy, Landmark } from "lucide-react";
 
@@ -68,7 +69,7 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-slate-900 to-orange-900/60 text-white rounded-2xl p-6 md:p-8 border border-slate-800 shadow-lg text-left">
         <span className="bg-orange-500/20 text-orange-400 font-semibold px-2.5 py-1 rounded-full text-xs tracking-wider uppercase border border-orange-500/30">
-          Liga Endesa 2025/2026
+          Liga Endesa 2026/2027
         </span>
         <h2 className="text-2xl md:text-3.5xl font-extrabold mt-3 tracking-tight">
           ¡Hola de nuevo, <span className="text-orange-400">{user?.profile?.full_name || "Carlos"}</span>!
@@ -125,6 +126,7 @@ export default function DashboardPage() {
           <RosterSyncStatus />
           <UpcomingBirthdaysCard />
           <OfficialStoreCard />
+          <EquipmentTeamCard teamId={teamId || undefined} />
           <QuickActions />
           
           {/* Quick status box */}

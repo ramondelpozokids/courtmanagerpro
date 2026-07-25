@@ -86,7 +86,11 @@ export type AlertType =
   | 'calendario_nuevo'
   | 'calendario_resultado'
   | 'cumpleanos'
-  | 'cumpleanos_email_error';
+  | 'cumpleanos_email_error'
+  | 'utileria_aviso'
+  | 'utileria_tarea'
+  | 'utileria_nota'
+  | 'utileria_informe';
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
 
