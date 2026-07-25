@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
   Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
-  ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag, KeyRound
+  ChevronRight, LogOut, Settings, Calendar, Table, ShoppingBag, KeyRound, FileUp
 } from 'lucide-react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,9 @@ const NAV_ITEMS = [
   { href: '/',           label: 'Dashboard',    icon: LayoutDashboard, roles: [] },
   { href: '/players',    label: 'Jugadores',     icon: Users,           roles: [] },
   { href: '/inventory',  label: 'Inventario',    icon: Package,         roles: [] },
+  { href: '/inventory/update', label: 'Actualizar inventario', icon: FileUp, roles: [] },
+  { href: '/calendario', label: 'Calendario Oficial', icon: Calendar, roles: [] },
+  { href: '/tienda', label: 'Tienda Oficial', icon: ShoppingBag, roles: [] },
   { href: '/sizing',     label: 'Tabla de Tallas', icon: Table,         roles: [] },
   { href: '/requests',   label: 'Solicitudes',   icon: ClipboardList,   roles: [] },
   { href: '/trips',      label: 'Viajes',        icon: Plane,           roles: [] },
@@ -105,7 +108,10 @@ export function Sidebar() {
       <nav className="flex-1 py-4 space-y-1 px-2 overflow-y-auto text-left">
         <TooltipProvider delayDuration={0}>
           {visibleItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`));
+            const isActive =
+              item.href === '/inventory'
+                ? pathname === '/inventory' || (pathname.startsWith('/inventory/') && !pathname.startsWith('/inventory/update'))
+                : pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`));
             const Icon = item.icon;
             const showBadge = item.href === '/alerts' && unreadCount > 0;
 

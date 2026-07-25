@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { normalizeStaffProfile } from "@/lib/player-profile";
 import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
+import { UpdateOfficialRosterButton } from "@/components/roster/UpdateOfficialRosterButton";
 
 type StaffMember = StaffFormData & {
   id: string;
@@ -165,6 +166,12 @@ export default function PlayersPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <UpdateOfficialRosterButton
+            onDone={() => {
+              loadStaff();
+              window.location.reload();
+            }}
+          />
           <a
             href={OFFICIAL_PLANTILLA_URL}
             target="_blank"
@@ -187,11 +194,11 @@ export default function PlayersPage() {
       </div>
 
       <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
-        Jugadores y cuerpo técnico se sincronizan desde la{' '}
+        Jugadores y cuerpo técnico se sincronizan automáticamente al iniciar la app (y cada 24 h) desde la{' '}
         <a href={OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-orange-700 dark:text-orange-400 underline-offset-2 hover:underline">
           plantilla oficial del Real Madrid
         </a>
-        {' '}(imagen, ficha, trayectoria y palmarés). Para actualizar: <code className="text-[11px] bg-white/70 dark:bg-slate-900/60 px-1.5 py-0.5 rounded">npm run sync:rm-plantilla</code>
+        . También puedes forzar una actualización con el botón «Actualizar plantilla oficial».
       </div>
 
       <div className="flex border-b border-slate-200 dark:border-slate-800">

@@ -81,7 +81,12 @@ export type AlertType =
   | 'item_deteriorado'
   | 'viaje_proximo'
   | 'lavanderia_pendiente'
-  | 'asignacion_vencida';
+  | 'asignacion_vencida'
+  | 'calendario_cambio'
+  | 'calendario_nuevo'
+  | 'calendario_resultado'
+  | 'cumpleanos'
+  | 'cumpleanos_email_error';
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
 
@@ -144,8 +149,153 @@ export interface Player extends PlayerSizes {
   contract_end: string | null;
   notes: string | null;
   metadata: Record<string, unknown>;
+  source?: string;
+  activated_at?: string | null;
+  deactivated_at?: string | null;
+  official_slug?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type RosterChangeType =
+  | 'alta'
+  | 'baja'
+  | 'dorsal'
+  | 'posicion'
+  | 'foto'
+  | 'nombre'
+  | 'staff_alta'
+  | 'staff_baja'
+  | 'staff_cargo'
+  | 'staff_foto'
+  | 'staff_nombre';
+
+export type SyncTrigger = 'startup' | 'cron' | 'manual';
+export type SyncStatus = 'ok' | 'partial' | 'error' | 'offline_cache' | 'skipped';
+
+export type MatchStatus =
+  | 'pendiente'
+  | 'en_juego'
+  | 'finalizado'
+  | 'suspendido'
+  | 'aplazado';
+
+export type MatchHomeAway = 'local' | 'visitante' | 'neutral';
+
+export type MatchResult = 'victoria' | 'derrota' | 'empate' | 'prorroga';
+
+export interface OfficialMatch {
+  id: string;
+  team_id: string;
+  official_id: string | null;
+  official_slug: string;
+  match_date: string;
+  match_time: string | null;
+  match_datetime: string | null;
+  rival: string;
+  home_away: MatchHomeAway;
+  competition: string;
+  competition_slug: string | null;
+  jornada: string | null;
+  venue: string | null;
+  city: string | null;
+  country: string | null;
+  status: MatchStatus;
+  score_home: number | null;
+  score_away: number | null;
+  score_text: string | null;
+  partial_score: string | null;
+  result: MatchResult | null;
+  official_url: string | null;
+  source: string;
+  last_synced_at: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MatchHistoryEntry {
+  id: string;
+  team_id: string;
+  match_id: string | null;
+  changed_at: string;
+  change_type: string;
+  entity_name: string;
+  old_value: string | null;
+  new_value: string | null;
+  source: string;
+  sync_log_id: string | null;
+  created_at: string;
+}
+
+export interface MatchSyncLog {
+  id: string;
+  team_id: string;
+  started_at: string;
+  finished_at: string | null;
+  duration_ms: number | null;
+  status: SyncStatus;
+  matches_added: number;
+  matches_updated: number;
+  matches_removed: number;
+  results_updated: number;
+  changes_count: number;
+  error_message: string | null;
+  source_url: string | null;
+  trigger: SyncTrigger;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface SyncLog {
+  id: string;
+  team_id: string;
+  started_at: string;
+  finished_at: string | null;
+  duration_ms: number | null;
+  status: SyncStatus;
+  players_added: number;
+  players_removed: number;
+  players_updated: number;
+  staff_added: number;
+  staff_removed: number;
+  staff_updated: number;
+  changes_count: number;
+  error_message: string | null;
+  source_url: string | null;
+  trigger: SyncTrigger;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface RosterHistoryEntry {
+  id: string;
+  team_id: string;
+  changed_at: string;
+  change_type: RosterChangeType | string;
+  entity_type: 'player' | 'staff';
+  entity_id: string | null;
+  entity_name: string;
+  old_value: string | null;
+  new_value: string | null;
+  source: string;
+  sync_log_id: string | null;
+  created_at: string;
+}
+
+export interface InventoryHistoryEntry {
+  id: string;
+  team_id: string;
+  changed_at: string;
+  user_id: string | null;
+  document_origin: string | null;
+  change_type: 'alta' | 'baja' | 'modificacion' | 'cantidad';
+  item_id: string | null;
+  item_name: string;
+  old_qty: number | null;
+  new_qty: number | null;
+  payload: Record<string, unknown>;
+  created_at: string;
 }
 
 export interface PlayerWithAssignments extends Player {

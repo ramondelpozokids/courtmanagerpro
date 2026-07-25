@@ -7,5 +7,19 @@
     "env": {
       "VERCEL_PREVIEW_FEEDBACK_ENABLED": "0"
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/roster/sync?trigger=cron",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/calendar/sync?trigger=cron",
+      "schedule": "0 */12 * * *"
+    },
+    {
+      "path": "/api/birthdays/send",
+      "schedule": "5 * * * *"
+    }
+  ]
 }

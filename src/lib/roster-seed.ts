@@ -20,6 +20,9 @@ export interface RosterSeedRow {
   jersey_name: string | null;
   contract_end: string;
   metadata: Record<string, unknown>;
+  source?: string;
+  official_slug?: string | null;
+  activated_at?: string;
 }
 
 function sqlString(value: string | null | undefined): string {
@@ -50,6 +53,9 @@ export function buildRosterSeedRows(): RosterSeedRow[] {
     jersey_name: player.lastName?.toUpperCase() || null,
     contract_end: '2027-06-30',
     metadata: buildPlayerMetadataExtras(player),
+    source: player.source || 'realmadrid.com',
+    official_slug: player.slug || null,
+    activated_at: new Date().toISOString(),
   }));
 }
 

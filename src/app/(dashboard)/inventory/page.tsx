@@ -53,6 +53,13 @@ export default function InventoryPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/inventory/update"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
+          >
+            <ClipboardList className="h-4.5 w-4.5" />
+            Actualizar inventario
+          </Link>
+          <Link
             href="/inventory/scanner"
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
           >

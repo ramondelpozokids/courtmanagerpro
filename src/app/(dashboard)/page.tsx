@@ -11,6 +11,9 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import AlertsWidget from "@/components/dashboard/AlertsWidget";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import QuickActions from "@/components/dashboard/QuickActions";
+import { RosterSyncStatus } from "@/components/dashboard/RosterSyncStatus";
+import { OfficialStoreCard } from "@/modules/official-store";
+import { UpcomingBirthdaysCard } from "@/components/dashboard/UpcomingBirthdaysCard";
 import { Users, Package, FileText, Plane, ShoppingBag, Trophy, Landmark } from "lucide-react";
 
 export default function DashboardPage() {
@@ -119,6 +122,9 @@ export default function DashboardPage() {
 
         {/* Quick Actions & Tasks */}
         <div className="space-y-6">
+          <RosterSyncStatus />
+          <UpcomingBirthdaysCard />
+          <OfficialStoreCard />
           <QuickActions />
           
           {/* Quick status box */}
