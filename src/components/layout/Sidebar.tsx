@@ -21,6 +21,7 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger
 } from '@/components/ui/tooltip';
 
+/** Orden fijo Ramón + Carlos (no filtrar ni reordenar). */
 const NAV_ITEMS = [
   { href: '/',           label: 'Dashboard',    icon: LayoutDashboard, roles: [] },
   { href: '/players',    label: 'Jugadores',     icon: Users,           roles: [] },
@@ -44,7 +45,7 @@ export function Sidebar() {
   const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
 
   const userRole = effectiveRole;
-  // Ramón y Carlos: exactamente el mismo menú (lista vertical completa)
+  // Ramón y Carlos: exactamente el mismo menú en el mismo orden
   const sameFullMenu =
     isSuperadmin ||
     hasOperationalAccess ||
@@ -53,8 +54,8 @@ export function Sidebar() {
     isCarlosUser(user?.profile?.email);
 
   const visibleItems = sameFullMenu
-    ? NAV_ITEMS
-    : NAV_ITEMS.filter(item => {
+    ? [...NAV_ITEMS]
+    : NAV_ITEMS.filter((item) => {
         if (item.href === '/medical') return canAccessMedical(userRole, userEmail);
         if (item.href === '/equipment-team') return canAccessEquipmentTeam(userRole, userEmail);
         if (item.href === '/reports') return canAccessReports(userRole, userEmail);
@@ -68,16 +69,12 @@ export function Sidebar() {
     isCarlosUser(user?.email) ||
     isCarlosUser(user?.profile?.email);
   const user_avatar = isSuperadmin
-    ? '/images/ramon-avatar.png?v=5'
+    ? '/images/ramon-avatar.png?v=6'
     : isCarlos
-      ? '/images/carlos-avatar.png?v=5'
+      ? '/images/carlos-avatar.png?v=6'
       : (user?.profile?.avatar_url || '/images/carlos-avatar.png');
 
-  // Temporada operativa actual (nunca mostrar 2025-2026 en RMB)
-  const seasonLabel =
-    currentTeam?.season === '2025-2026' || !currentTeam?.season
-      ? '2026-2027'
-      : currentTeam.season;
+  const seasonLabel = '2026-2027';
 
 
   return (
