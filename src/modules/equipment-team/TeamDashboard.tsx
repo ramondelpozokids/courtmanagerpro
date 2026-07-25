@@ -49,6 +49,7 @@ export function TeamDashboard({ teamId = DEFAULT_TEAM_ID }: { teamId?: string })
     data,
     loading,
     error,
+    demoMode,
     refresh,
     search,
     createMember,
@@ -120,6 +121,19 @@ export function TeamDashboard({ teamId = DEFAULT_TEAM_ID }: { teamId?: string })
           Actualizar
         </button>
       </div>
+
+      {demoMode && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-700 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
+          Modo demo: faltan las tablas de utillería en Supabase. Los cambios no se guardan de forma permanente hasta
+          aplicar la migración <code className="text-xs">011_equipment_team_hub.sql</code> en el SQL Editor.
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-800 dark:text-red-100">
+          {error}
+        </div>
+      )}
 
       <div className="relative max-w-lg">
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />

@@ -15,7 +15,7 @@ import { RosterSyncStatus } from "@/components/dashboard/RosterSyncStatus";
 import { OfficialStoreCard } from "@/modules/official-store";
 import { EquipmentTeamCard } from "@/modules/equipment-team";
 import { UpcomingBirthdaysCard } from "@/components/dashboard/UpcomingBirthdaysCard";
-import { Users, Package, FileText, Plane, ShoppingBag, Trophy, Landmark } from "lucide-react";
+import { Users, Package, FileText, Plane, Trophy, Landmark } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, currentTeam } = useAuth();
@@ -113,41 +113,89 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Dashboard Widgets Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Alerts & Urgent Updates */}
-        <div className="lg:col-span-2 space-y-6">
-          <AlertsWidget />
-          <ActivityFeed />
+      {/* Bloque 1 — Centro operativo (alertas, actividad, sync, cumpleaños) */}
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-slate-50 to-orange-50/40 dark:from-slate-950 dark:to-orange-950/20">
+          <div className="text-left">
+            <p className="text-[10px] font-black uppercase tracking-widest text-orange-500">
+              Centro operativo
+            </p>
+            <h3 className="text-base font-extrabold text-slate-800 dark:text-white">
+              Alertas, actividad y plantilla
+            </h3>
+          </div>
+          <span className="text-[11px] font-semibold text-slate-400">
+            Temporada 2026/2027 · RMB
+          </span>
         </div>
 
-        {/* Quick Actions & Tasks */}
-        <div className="space-y-6">
-          <RosterSyncStatus />
-          <UpcomingBirthdaysCard />
-          <OfficialStoreCard />
-          <EquipmentTeamCard teamId={teamId || undefined} />
-          <QuickActions />
-          
-          {/* Quick status box */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-white text-left">
-            <h4 className="text-xs font-bold text-orange-400 uppercase tracking-widest">Estado del Pabellón</h4>
-            <div className="mt-4 space-y-3 text-xs text-slate-300">
-              <div className="flex justify-between">
-                <span>Temperatura Almacén Principal:</span>
-                <span className="font-bold text-emerald-400">21°C (Óptima)</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Humedad relativa:</span>
-                <span className="font-bold text-emerald-400">45%</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Conectividad de básculas:</span>
-                <span className="font-bold text-emerald-400">ONLINE</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Sincronización PWA offline:</span>
-                <span className="font-bold text-orange-400">ACTIVA (Local)</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-slate-100 dark:divide-slate-800">
+          <div className="p-5 lg:col-span-1">
+            <AlertsWidget compact />
+          </div>
+          <div className="p-5 lg:col-span-1">
+            <ActivityFeed compact />
+          </div>
+          <div className="p-5 space-y-5 lg:col-span-1 bg-slate-50/50 dark:bg-slate-950/30">
+            <RosterSyncStatus className="!shadow-none !border-0 !bg-transparent !p-0 !rounded-none" />
+            <div className="h-px bg-slate-200 dark:bg-slate-800" />
+            <UpcomingBirthdaysCard className="!shadow-none !border-0 !bg-transparent !p-0 !rounded-none" />
+          </div>
+        </div>
+      </div>
+
+      {/* Bloque 2 — Accesos y operaciones */}
+      <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950/50 shadow-xl overflow-hidden text-white">
+        <div className="px-6 py-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="text-left">
+            <p className="text-[10px] font-black uppercase tracking-widest text-orange-400">
+              Accesos y operaciones
+            </p>
+            <h3 className="text-base font-extrabold text-white">
+              Tienda, utillería, atajos y pabellón
+            </h3>
+          </div>
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Sistemas online
+          </span>
+        </div>
+
+        <div className="p-5 md:p-6 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-emerald-500/30 transition-colors">
+              <OfficialStoreCard />
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-orange-500/30 transition-colors">
+              <EquipmentTeamCard teamId={teamId || undefined} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div className="lg:col-span-3 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <QuickActions embedded />
+            </div>
+            <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-5 text-left">
+              <h4 className="text-xs font-bold text-orange-400 uppercase tracking-widest">
+                Estado del Pabellón
+              </h4>
+              <div className="mt-4 space-y-3 text-xs text-slate-300">
+                <div className="flex justify-between gap-3 items-center py-2 border-b border-white/5">
+                  <span>Temperatura almacén</span>
+                  <span className="font-bold text-emerald-400">21°C · Óptima</span>
+                </div>
+                <div className="flex justify-between gap-3 items-center py-2 border-b border-white/5">
+                  <span>Humedad relativa</span>
+                  <span className="font-bold text-emerald-400">45%</span>
+                </div>
+                <div className="flex justify-between gap-3 items-center py-2 border-b border-white/5">
+                  <span>Conectividad básculas</span>
+                  <span className="font-bold text-emerald-400">ONLINE</span>
+                </div>
+                <div className="flex justify-between gap-3 items-center py-2">
+                  <span>PWA offline</span>
+                  <span className="font-bold text-orange-400">ACTIVA</span>
+                </div>
               </div>
             </div>
           </div>

@@ -8,7 +8,7 @@ import {
 } from '@/modules/equipment-team/store';
 import type { EquipmentNote } from '@/modules/equipment-team/types';
 import { notifyEquipmentEvent } from '@/modules/equipment-team/notifications';
-import { actorFromUser, insertHistory, teamIdFrom, withEquipmentAuth } from '@/modules/equipment-team/server';
+import { actorFromUser, equipmentDbAvailable, insertHistory, isMissingTableError, teamIdFrom, withEquipmentAuth } from '@/modules/equipment-team/server';
 
 export async function GET(req: NextRequest) {
   const teamId = teamIdFrom(req);
@@ -68,6 +68,34 @@ export async function POST(req: NextRequest) {
     const pg = supabase as any;
     const actor = body.author_name || actorFromUser(user);
 
+    const writeDemo = () => {
+      const t = nowIso();
+      const note: EquipmentNote = {
+        id: uid('note'),
+        team_id: teamId,
+        author_id: body.author_id || null,
+        author_name: actor,
+        content,
+        created_at: t,
+        updated_at: t,
+      };
+      getEquipmentStore().notes.unshift(note);
+      pushHistory(teamId, note.author_name, 'publicó una nota', 'note', note.id, content.slice(0, 80));
+      notifyEquipmentEvent({
+        teamId,
+        type: 'utileria_nota',
+        title: 'Nueva nota de utillería',
+        message: content.slice(0, 120),
+        entityType: 'note',
+        entityId: note.id,
+      });
+      return note;
+    };
+
+    if (!(await equipmentDbAvailable(pg))) {
+      return NextResponse.json({ data: writeDemo(), meta: { fallback: 'demo' } }, { status: 201 });
+    }
+
     const { data, error } = await pg
       .from('equipment_notes')
       .insert({
@@ -78,7 +106,12 @@ export async function POST(req: NextRequest) {
       })
       .select()
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      if (isMissingTableError(error)) {
+        return NextResponse.json({ data: writeDemo(), meta: { fallback: 'demo' } }, { status: 201 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     await insertHistory(pg, teamId, actor, 'publicó una nota', 'note', data.id, content.slice(0, 80));
     return NextResponse.json({ data }, { status: 201 });
   } catch (err: unknown) {
@@ -106,8 +139,28 @@ export async function DELETE(req: NextRequest) {
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = actorFromUser(user);
+
+    if (!(await equipmentDbAvailable(pg))) {
+      const store = getEquipmentStore();
+      const idx = store.notes.findIndex((n) => n.id === id && n.team_id === teamId);
+      if (idx === -1) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      store.notes.splice(idx, 1);
+      pushHistory(teamId, actor, 'eliminó una nota', 'note', id, null);
+      return NextResponse.json({ success: true, meta: { fallback: 'demo' } });
+    }
+
     const { error } = await pg.from('equipment_notes').delete().eq('id', id).eq('team_id', teamId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      if (isMissingTableError(error)) {
+        const store = getEquipmentStore();
+        const idx = store.notes.findIndex((n) => n.id === id && n.team_id === teamId);
+        if (idx === -1) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+        store.notes.splice(idx, 1);
+        pushHistory(teamId, actor, 'eliminó una nota', 'note', id, null);
+        return NextResponse.json({ success: true, meta: { fallback: 'demo' } });
+      }
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     await insertHistory(pg, teamId, actor, 'eliminó una nota', 'note', id, null);
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

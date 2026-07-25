@@ -55,10 +55,7 @@ export function OfficialStoreCard({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-white/10 bg-slate-950/80 backdrop-blur-md',
-        'shadow-lg shadow-black/20 p-6 text-left',
-        'transition-all duration-150 ease-out',
-        'hover:border-emerald-500/30',
+        'text-left transition-all duration-150 ease-out',
         className
       )}
     >
@@ -68,16 +65,15 @@ export function OfficialStoreCard({
         </div>
         <div>
           <h3 className="text-sm font-black uppercase tracking-wider text-white">
-            🛍 Tienda Oficial
+            Tienda Oficial
           </h3>
-          <p className="mt-2 text-sm text-slate-300 leading-relaxed max-w-md">
-            Accede a la tienda oficial del Real Madrid y descubre equipaciones, ropa técnica,
-            accesorios y colecciones oficiales.
+          <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">
+            Equipaciones, ropa técnica, accesorios y colecciones oficiales del Real Madrid.
           </p>
         </div>
       </div>
 
-      <div className="mt-5 space-y-4">
+      <div className="mt-4 space-y-3">
         <OfficialStoreButtons
           onOpen={openOfficialStore}
           onRefresh={() => void refresh()}

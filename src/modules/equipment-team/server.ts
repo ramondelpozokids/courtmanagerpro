@@ -9,6 +9,28 @@ export function teamIdFrom(req: NextRequest, body?: { team_id?: string }): strin
   );
 }
 
+export function isMissingTableError(error: unknown): boolean {
+  const msg = String(
+    (error as { message?: string } | null)?.message || error || ''
+  );
+  return /does not exist|schema cache|could not find the table|relation .* does not exist/i.test(
+    msg
+  );
+}
+
+/** false = tablas 011 no aplicadas → usar store demo (lectura/escritura). */
+export async function equipmentDbAvailable(
+  supabase: { from: (t: string) => any }
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('equipment_team_members').select('id').limit(1);
+    if (!error) return true;
+    return !isMissingTableError(error);
+  } catch (err) {
+    return !isMissingTableError(err);
+  }
+}
+
 export async function withEquipmentAuth() {
   if (!isServerProduction()) {
     return { supabase: null as null, user: null as null, response: null as NextResponse | null };
@@ -27,7 +49,7 @@ export async function insertHistory(
   entity_id: string | null,
   details?: string | null
 ) {
-  await supabase.from('equipment_history').insert({
+  const { error } = await supabase.from('equipment_history').insert({
     team_id: teamId,
     actor_name,
     action,
@@ -35,6 +57,9 @@ export async function insertHistory(
     entity_id,
     details: details || null,
   });
+  if (error && !isMissingTableError(error)) {
+    console.warn('[equipment-history]', error.message);
+  }
 }
 
 export function actorFromUser(user: { email?: string | null; user_metadata?: Record<string, unknown> } | null): string {

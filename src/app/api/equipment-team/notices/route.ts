@@ -8,7 +8,63 @@ import {
 } from '@/modules/equipment-team/store';
 import type { EquipmentNotice, EquipmentNoticeType } from '@/modules/equipment-team/types';
 import { noticeSeverity, notifyEquipmentEvent } from '@/modules/equipment-team/notifications';
-import { actorFromUser, insertHistory, teamIdFrom, withEquipmentAuth } from '@/modules/equipment-team/server';
+import {
+  actorFromUser,
+  equipmentDbAvailable,
+  insertHistory,
+  isMissingTableError,
+  teamIdFrom,
+  withEquipmentAuth,
+} from '@/modules/equipment-team/server';
+
+function writeDemoNotice(
+  teamId: string,
+  actor: string,
+  notice_type: EquipmentNoticeType,
+  title: string,
+  description: string,
+  is_active: boolean
+) {
+  const notice: EquipmentNotice = {
+    id: uid('notice'),
+    team_id: teamId,
+    notice_type,
+    title,
+    description,
+    author_name: actor,
+    is_active,
+    created_at: nowIso(),
+  };
+  getEquipmentStore().notices.unshift(notice);
+  pushHistory(teamId, actor, 'publicó un aviso', 'notice', notice.id, title);
+  notifyEquipmentEvent({
+    teamId,
+    type: 'utileria_aviso',
+    title: `Aviso ${notice_type}: ${title}`,
+    message: notice.description.slice(0, 120),
+    severity: noticeSeverity(notice_type),
+    entityType: 'notice',
+    entityId: notice.id,
+  });
+  return notice;
+}
+
+function patchDemoNotice(teamId: string, id: string, body: Record<string, unknown>, actor: string) {
+  const store = getEquipmentStore();
+  const idx = store.notices.findIndex((n) => n.id === id && n.team_id === teamId);
+  if (idx === -1) return null;
+  const prev = store.notices[idx];
+  const updated: EquipmentNotice = {
+    ...prev,
+    notice_type: (body.notice_type as EquipmentNoticeType) || prev.notice_type,
+    title: (body.title as string) ?? prev.title,
+    description: (body.description as string) ?? prev.description,
+    is_active: typeof body.is_active === 'boolean' ? body.is_active : prev.is_active,
+  };
+  store.notices[idx] = updated;
+  pushHistory(teamId, actor, 'actualizó un aviso', 'notice', id, updated.title);
+  return updated;
+}
 
 export async function GET(req: NextRequest) {
   const teamId = teamIdFrom(req);
@@ -28,7 +84,15 @@ export async function GET(req: NextRequest) {
     .select('*')
     .eq('team_id', teamId)
     .order('created_at', { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    if (isMissingTableError(error)) {
+      return NextResponse.json({
+        data: getEquipmentStore().notices.filter((n) => n.team_id === teamId),
+        meta: { fallback: 'demo' },
+      });
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ data: data ?? [] });
 }
 
@@ -39,30 +103,23 @@ export async function POST(req: NextRequest) {
     const title = String(body.title || '').trim();
     if (!title) return NextResponse.json({ error: 'título obligatorio' }, { status: 400 });
     const notice_type = (body.notice_type || 'info') as EquipmentNoticeType;
+    const description = String(body.description || '');
+    const is_active = body.is_active !== false;
 
     if (!isServerProduction()) {
-      const notice: EquipmentNotice = {
-        id: uid('notice'),
-        team_id: teamId,
-        notice_type,
-        title,
-        description: String(body.description || ''),
-        author_name: body.author_name || 'Carlos Rodríguez Kobe',
-        is_active: body.is_active !== false,
-        created_at: nowIso(),
-      };
-      getEquipmentStore().notices.unshift(notice);
-      pushHistory(teamId, notice.author_name || 'Sistema', 'publicó un aviso', 'notice', notice.id, title);
-      notifyEquipmentEvent({
-        teamId,
-        type: 'utileria_aviso',
-        title: `Aviso ${notice_type}: ${title}`,
-        message: notice.description.slice(0, 120),
-        severity: noticeSeverity(notice_type),
-        entityType: 'notice',
-        entityId: notice.id,
-      });
-      return NextResponse.json({ data: notice }, { status: 201 });
+      return NextResponse.json(
+        {
+          data: writeDemoNotice(
+            teamId,
+            body.author_name || 'Carlos Rodríguez Kobe',
+            notice_type,
+            title,
+            description,
+            is_active
+          ),
+        },
+        { status: 201 }
+      );
     }
 
     const { supabase, user, response } = await withEquipmentAuth();
@@ -70,19 +127,40 @@ export async function POST(req: NextRequest) {
     const pg = supabase as any;
     const actor = body.author_name || actorFromUser(user);
 
+    if (!(await equipmentDbAvailable(pg))) {
+      return NextResponse.json(
+        {
+          data: writeDemoNotice(teamId, actor, notice_type, title, description, is_active),
+          meta: { fallback: 'demo' },
+        },
+        { status: 201 }
+      );
+    }
+
     const { data, error } = await pg
       .from('equipment_notices')
       .insert({
         team_id: teamId,
         notice_type,
         title,
-        description: String(body.description || ''),
+        description,
         author_name: actor,
-        is_active: body.is_active !== false,
+        is_active,
       })
       .select()
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      if (isMissingTableError(error)) {
+        return NextResponse.json(
+          {
+            data: writeDemoNotice(teamId, actor, notice_type, title, description, is_active),
+            meta: { fallback: 'demo' },
+          },
+          { status: 201 }
+        );
+      }
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     await insertHistory(pg, teamId, actor, 'publicó un aviso', 'notice', data.id, title);
     return NextResponse.json({ data }, { status: 201 });
   } catch (err: unknown) {
@@ -99,19 +177,8 @@ export async function PATCH(req: NextRequest) {
     const teamId = teamIdFrom(req, body);
 
     if (!isServerProduction()) {
-      const store = getEquipmentStore();
-      const idx = store.notices.findIndex((n) => n.id === id && n.team_id === teamId);
-      if (idx === -1) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-      const prev = store.notices[idx];
-      const updated: EquipmentNotice = {
-        ...prev,
-        notice_type: (body.notice_type as EquipmentNoticeType) || prev.notice_type,
-        title: body.title ?? prev.title,
-        description: body.description ?? prev.description,
-        is_active: typeof body.is_active === 'boolean' ? body.is_active : prev.is_active,
-      };
-      store.notices[idx] = updated;
-      pushHistory(teamId, 'Carlos Rodríguez Kobe', 'actualizó un aviso', 'notice', id, updated.title);
+      const updated = patchDemoNotice(teamId, id, body, 'Carlos Rodríguez Kobe');
+      if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
       return NextResponse.json({ data: updated });
     }
 
@@ -119,6 +186,13 @@ export async function PATCH(req: NextRequest) {
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = actorFromUser(user);
+
+    if (!(await equipmentDbAvailable(pg))) {
+      const updated = patchDemoNotice(teamId, id, body, actor);
+      if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      return NextResponse.json({ data: updated, meta: { fallback: 'demo' } });
+    }
+
     const patch: Record<string, unknown> = {};
     for (const key of ['notice_type', 'title', 'description', 'is_active']) {
       if (body[key] !== undefined) patch[key] = body[key];
@@ -132,6 +206,11 @@ export async function PATCH(req: NextRequest) {
       .select()
       .single();
     if (error || !data) {
+      if (isMissingTableError(error)) {
+        const updated = patchDemoNotice(teamId, id, body, actor);
+        if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+        return NextResponse.json({ data: updated, meta: { fallback: 'demo' } });
+      }
       return NextResponse.json({ error: error?.message || 'No encontrado' }, { status: 404 });
     }
     await insertHistory(pg, teamId, actor, 'actualizó un aviso', 'notice', id, data.title);
@@ -148,12 +227,19 @@ export async function DELETE(req: NextRequest) {
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
     const teamId = teamIdFrom(req);
 
-    if (!isServerProduction()) {
+    const deleteDemo = (actor: string) => {
       const store = getEquipmentStore();
       const idx = store.notices.findIndex((n) => n.id === id && n.team_id === teamId);
-      if (idx === -1) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      if (idx === -1) return false;
       store.notices.splice(idx, 1);
-      pushHistory(teamId, 'Carlos Rodríguez Kobe', 'eliminó un aviso', 'notice', id, null);
+      pushHistory(teamId, actor, 'eliminó un aviso', 'notice', id, null);
+      return true;
+    };
+
+    if (!isServerProduction()) {
+      if (!deleteDemo('Carlos Rodríguez Kobe')) {
+        return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      }
       return NextResponse.json({ success: true });
     }
 
@@ -161,8 +247,20 @@ export async function DELETE(req: NextRequest) {
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = actorFromUser(user);
+
+    if (!(await equipmentDbAvailable(pg))) {
+      if (!deleteDemo(actor)) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      return NextResponse.json({ success: true, meta: { fallback: 'demo' } });
+    }
+
     const { error } = await pg.from('equipment_notices').delete().eq('id', id).eq('team_id', teamId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      if (isMissingTableError(error)) {
+        if (!deleteDemo(actor)) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+        return NextResponse.json({ success: true, meta: { fallback: 'demo' } });
+      }
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     await insertHistory(pg, teamId, actor, 'eliminó un aviso', 'notice', id, null);
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

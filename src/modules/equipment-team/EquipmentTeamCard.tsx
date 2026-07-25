@@ -35,24 +35,17 @@ export function EquipmentTeamCard({
   const urgent: EquipmentNotice[] = summary?.urgentNotices ?? [];
 
   return (
-    <div
-      className={cn(
-        'rounded-2xl border border-white/10 bg-slate-950/80 backdrop-blur-md',
-        'shadow-lg shadow-black/20 p-6 text-left',
-        'transition-all duration-150 ease-out hover:border-orange-500/30',
-        className
-      )}
-    >
+    <div className={cn('text-left transition-all duration-150 ease-out', className)}>
       <div className="flex items-start gap-3 mb-3">
         <div className="rounded-xl bg-orange-500/15 border border-orange-500/20 p-2.5">
           <HardHat className="h-5 w-5 text-orange-400" />
         </div>
         <div>
           <h3 className="text-sm font-black uppercase tracking-wider text-white">
-            👥 Equipo de Utillería
+            Equipo de Utillería
           </h3>
-          <p className="mt-2 text-sm text-slate-300 leading-relaxed max-w-md">
-            Centro de comunicación interno: compañeros, notas, informes, tareas y avisos.
+          <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">
+            Compañeros, notas, informes, tareas y avisos del hub interno.
           </p>
         </div>
       </div>
@@ -81,7 +74,7 @@ export function EquipmentTeamCard({
 
       <Link
         href="/equipment-team"
-        className="mt-5 block text-center py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all shadow-md"
+        className="mt-5 block text-center py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all shadow-md"
       >
         Abrir hub de utillería
       </Link>

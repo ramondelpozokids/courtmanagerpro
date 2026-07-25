@@ -30,20 +30,32 @@ export interface EquipmentSearchResult {
   notices: EquipmentNotice[];
 }
 
-async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
+async function jsonFetch<T>(
+  url: string,
+  init?: RequestInit
+): Promise<{ data: T; fallbackDemo: boolean }> {
   const res = await fetch(url, {
     ...init,
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
   });
-  const payload = await res.json();
-  if (!res.ok) throw new Error(payload.error || 'Error de red');
-  return payload.data as T;
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = (payload as { error?: string }).error || `Error HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+  const meta = (payload as { meta?: { fallback?: string } }).meta;
+  return {
+    data: (payload as { data: T }).data,
+    fallbackDemo: meta?.fallback === 'demo',
+  };
 }
 
 export function useEquipmentTeam(teamId: string = DEFAULT_TEAM_ID) {
   const [data, setData] = useState<EquipmentBootstrap | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -52,7 +64,8 @@ export function useEquipmentTeam(teamId: string = DEFAULT_TEAM_ID) {
       const next = await jsonFetch<EquipmentBootstrap>(
         `/api/equipment-team?team_id=${encodeURIComponent(teamId)}`
       );
-      setData(next);
+      setData(next.data);
+      setDemoMode(next.fallbackDemo);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -66,9 +79,10 @@ export function useEquipmentTeam(teamId: string = DEFAULT_TEAM_ID) {
 
   const search = useCallback(
     async (q: string) => {
-      return jsonFetch<EquipmentSearchResult>(
+      const result = await jsonFetch<EquipmentSearchResult>(
         `/api/equipment-team/search?team_id=${encodeURIComponent(teamId)}&q=${encodeURIComponent(q)}`
       );
+      return result.data;
     },
     [teamId]
   );
@@ -219,6 +233,7 @@ export function useEquipmentTeam(teamId: string = DEFAULT_TEAM_ID) {
     data,
     loading,
     error,
+    demoMode,
     refresh,
     search,
     createMember,

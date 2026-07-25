@@ -83,27 +83,47 @@ export default function CalendarioPage() {
   const [view, setView] = useState<ViewMode>('month');
   const [filter, setFilter] = useState<(typeof COMPETITION_FILTERS)[number]>('Todas');
   const [cursor, setCursor] = useState(() => new Date());
+  const [cursorSynced, setCursorSynced] = useState(false);
   const [, setTick] = useState(0);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/calendar/sync/status?team_id=${encodeURIComponent(teamId)}`);
       const json = await res.json();
-      setMatches(json.data?.matches || []);
-      setNextMatch(json.data?.nextMatch || null);
+      const list = (json.data?.matches || []) as OfficialMatch[];
+      const next = (json.data?.nextMatch || null) as OfficialMatch | null;
+      setMatches(list);
+      setNextMatch(next);
       setNextFive(json.data?.nextFive || []);
       setRecentResults(json.data?.recentResults || []);
       setSource(json.data?.source || json.data?.sourceLabel || 'Real Madrid Oficial');
       setLastUpdated(json.data?.lastUpdatedAt || null);
+      return { list, next };
     } catch (err) {
       console.warn(err);
+      return { list: [] as OfficialMatch[], next: null as OfficialMatch | null };
     } finally {
       setLoading(false);
     }
   }, [teamId]);
 
   useEffect(() => {
-    void load();
+    void (async () => {
+      const { list, next } = await load();
+      // Si la caché está vacía o sin próximo partido, forzar sync con la web oficial.
+      if (list.length === 0 || !next) {
+        try {
+          await fetch('/api/calendar/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trigger: 'manual', team_id: teamId, force: true }),
+          });
+          await load();
+        } catch {
+          /* keep previous */
+        }
+      }
+    })();
     const onSync = () => void load();
     window.addEventListener('calendar-sync-complete', onSync);
     const id = setInterval(() => setTick((t) => t + 1), 30000);
@@ -111,7 +131,16 @@ export default function CalendarioPage() {
       window.removeEventListener('calendar-sync-complete', onSync);
       clearInterval(id);
     };
-  }, [load]);
+  }, [load, teamId]);
+
+  // Abrir el mes del próximo partido (julio suele estar vacío; los amistosos empiezan en sep).
+  useEffect(() => {
+    if (cursorSynced || !nextMatch?.match_date) return;
+    const [y, m] = nextMatch.match_date.split('-').map(Number);
+    if (!y || !m) return;
+    setCursor(new Date(y, m - 1, 1));
+    setCursorSynced(true);
+  }, [nextMatch, cursorSynced]);
 
   async function syncNow() {
     setSyncing(true);
@@ -350,7 +379,66 @@ export default function CalendarioPage() {
       </div>
 
       {(view === 'month' || view === 'week') && (
-        <div className="flex items-center justify-between">
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(() => {
+              const seasonStart =
+                cursor.getMonth() >= 6 ? cursor.getFullYear() : cursor.getFullYear() - 1;
+              const labels = [
+                'Jul',
+                'Ago',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dic',
+                'Ene',
+                'Feb',
+                'Mar',
+                'Abr',
+                'May',
+                'Jun',
+              ];
+              return labels.map((label, i) => {
+                const monthIndex = (6 + i) % 12;
+                const year = monthIndex >= 6 ? seasonStart : seasonStart + 1;
+                const active = cursor.getMonth() === monthIndex && cursor.getFullYear() === year;
+                const hasGames = filtered.some((m) => {
+                  const [y, mo] = m.match_date.split('-').map(Number);
+                  return y === year && mo === monthIndex + 1;
+                });
+                return (
+                  <button
+                    key={`${year}-${monthIndex}`}
+                    type="button"
+                    onClick={() => setCursor(new Date(year, monthIndex, 1))}
+                    className={cn(
+                      'px-3 py-1.5 rounded-full text-xs font-bold transition',
+                      active
+                        ? 'bg-[#002654] text-white'
+                        : hasGames
+                          ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'
+                          : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                    )}
+                  >
+                    {label}
+                  </button>
+                );
+              });
+            })()}
+            {nextMatch && (
+              <button
+                type="button"
+                onClick={() => {
+                  const [y, m] = nextMatch.match_date.split('-').map(Number);
+                  if (y && m) setCursor(new Date(y, m - 1, 1));
+                }}
+                className="ml-auto px-3 py-1.5 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+              >
+                Ir al próximo partido
+              </button>
+            )}
+          </div>
+          <div className="flex items-center justify-between">
           <button
             type="button"
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -388,6 +476,7 @@ export default function CalendarioPage() {
           >
             <ChevronRight className="h-4 w-4" />
           </button>
+          </div>
         </div>
       )}
 

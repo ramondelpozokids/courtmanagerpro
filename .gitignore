@@ -46,3 +46,7 @@ uploads/
 .~lock.*
 *.odt#
 Acceso CourtManager Pro.odt
+
+.vercel
+.env*.local
+.env

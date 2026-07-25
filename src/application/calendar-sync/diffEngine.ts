@@ -168,21 +168,20 @@ export function computeMatchDiff(
     if (updated) matches_updated += 1;
   }
 
+  // Partidos activos en DB que ya no vienen en el feed oficial → baja (soft-delete).
+  // matched = ids enlazados por slug al snapshot; lo que no esté ahí sale del calendario.
   for (const row of dbRows) {
     if (!row.is_active) continue;
     if (matched.has(row.id)) continue;
-    if (![...bySlug.keys()].includes(row.official_slug) && !snapshot.fixtures.some((f) => f.official_slug === row.official_slug)) {
-      // Fixture no longer in official calendar → soft deactivate only if was official
-      matches_removed += 1;
-      changes.push({
-        change_type: 'baja',
-        match_id: row.id,
-        entity_name: `vs ${row.rival}`,
-        old_value: 'activo',
-        new_value: 'retirado del calendario oficial',
-        slug: row.official_slug,
-      });
-    }
+    matches_removed += 1;
+    changes.push({
+      change_type: 'baja',
+      match_id: row.id,
+      entity_name: `vs ${row.rival}`,
+      old_value: 'activo',
+      new_value: 'retirado del calendario oficial',
+      slug: row.official_slug,
+    });
   }
 
   return {

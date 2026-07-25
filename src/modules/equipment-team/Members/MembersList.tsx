@@ -79,7 +79,11 @@ export function MembersList({
                   type="button"
                   onClick={async () => {
                     if (!confirm('¿Eliminar este compañero?')) return;
-                    await onDelete(m.id);
+                    try {
+                      await onDelete(m.id);
+                    } catch (err) {
+                      alert(err instanceof Error ? err.message : 'No se pudo eliminar');
+                    }
                   }}
                   className="p-1.5 rounded-lg bg-slate-950/50 text-slate-300 hover:text-red-400"
                   title="Eliminar"
@@ -108,6 +112,8 @@ export function MembersList({
                 else await onCreate(values);
                 setShowForm(false);
                 setEditing(null);
+              } catch (err) {
+                alert(err instanceof Error ? err.message : 'No se pudo guardar');
               } finally {
                 setBusy(false);
               }

@@ -8,7 +8,73 @@ import {
 } from '@/modules/equipment-team/store';
 import type { EquipmentTask, EquipmentTaskPriority, EquipmentTaskStatus } from '@/modules/equipment-team/types';
 import { notifyEquipmentEvent } from '@/modules/equipment-team/notifications';
-import { actorFromUser, insertHistory, teamIdFrom, withEquipmentAuth } from '@/modules/equipment-team/server';
+import {
+  actorFromUser,
+  equipmentDbAvailable,
+  insertHistory,
+  isMissingTableError,
+  teamIdFrom,
+  withEquipmentAuth,
+} from '@/modules/equipment-team/server';
+
+function writeDemoTask(
+  teamId: string,
+  actor: string,
+  body: Record<string, unknown>,
+  title: string,
+  priority: EquipmentTaskPriority,
+  status: EquipmentTaskStatus
+) {
+  const t = nowIso();
+  const task: EquipmentTask = {
+    id: uid('task'),
+    team_id: teamId,
+    title,
+    description: String(body.description || ''),
+    assignee_id: (body.assignee_id as string) || null,
+    assignee_name: (body.assignee_name as string) || null,
+    priority,
+    status,
+    due_date: (body.due_date as string) || null,
+    created_by_name: actor,
+    created_at: t,
+    updated_at: t,
+  };
+  getEquipmentStore().tasks.unshift(task);
+  pushHistory(teamId, actor, 'creó una tarea', 'task', task.id, title);
+  notifyEquipmentEvent({
+    teamId,
+    type: 'utileria_tarea',
+    title: 'Nueva tarea de utillería',
+    message: title,
+    severity: priority === 'urgente' || priority === 'alta' ? 'warning' : 'info',
+    entityType: 'task',
+    entityId: task.id,
+  });
+  return task;
+}
+
+function patchDemoTask(teamId: string, id: string, body: Record<string, unknown>, actor: string) {
+  const store = getEquipmentStore();
+  const idx = store.tasks.findIndex((t) => t.id === id && t.team_id === teamId);
+  if (idx === -1) return null;
+  const prev = store.tasks[idx];
+  const updated: EquipmentTask = {
+    ...prev,
+    title: (body.title as string) ?? prev.title,
+    description: (body.description as string) ?? prev.description,
+    assignee_id: body.assignee_id !== undefined ? (body.assignee_id as string | null) : prev.assignee_id,
+    assignee_name:
+      body.assignee_name !== undefined ? (body.assignee_name as string | null) : prev.assignee_name,
+    priority: (body.priority as EquipmentTaskPriority) || prev.priority,
+    status: (body.status as EquipmentTaskStatus) || prev.status,
+    due_date: body.due_date !== undefined ? (body.due_date as string | null) : prev.due_date,
+    updated_at: nowIso(),
+  };
+  store.tasks[idx] = updated;
+  pushHistory(teamId, actor, 'actualizó una tarea', 'task', id, updated.title);
+  return updated;
+}
 
 export async function GET(req: NextRequest) {
   const teamId = teamIdFrom(req);
@@ -28,7 +94,15 @@ export async function GET(req: NextRequest) {
     .select('*')
     .eq('team_id', teamId)
     .order('created_at', { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    if (isMissingTableError(error)) {
+      return NextResponse.json({
+        data: getEquipmentStore().tasks.filter((t) => t.team_id === teamId),
+        meta: { fallback: 'demo' },
+      });
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ data: data ?? [] });
 }
 
@@ -43,39 +117,35 @@ export async function POST(req: NextRequest) {
     const status = (body.status || 'pendiente') as EquipmentTaskStatus;
 
     if (!isServerProduction()) {
-      const t = nowIso();
-      const task: EquipmentTask = {
-        id: uid('task'),
-        team_id: teamId,
-        title,
-        description: String(body.description || ''),
-        assignee_id: body.assignee_id || null,
-        assignee_name: body.assignee_name || null,
-        priority,
-        status,
-        due_date: body.due_date || null,
-        created_by_name: body.created_by_name || 'Carlos Rodríguez Kobe',
-        created_at: t,
-        updated_at: t,
-      };
-      getEquipmentStore().tasks.unshift(task);
-      pushHistory(teamId, task.created_by_name || 'Sistema', 'creó una tarea', 'task', task.id, title);
-      notifyEquipmentEvent({
-        teamId,
-        type: 'utileria_tarea',
-        title: 'Nueva tarea de utillería',
-        message: title,
-        severity: priority === 'urgente' || priority === 'alta' ? 'warning' : 'info',
-        entityType: 'task',
-        entityId: task.id,
-      });
-      return NextResponse.json({ data: task }, { status: 201 });
+      return NextResponse.json(
+        {
+          data: writeDemoTask(
+            teamId,
+            body.created_by_name || 'Carlos Rodríguez Kobe',
+            body,
+            title,
+            priority,
+            status
+          ),
+        },
+        { status: 201 }
+      );
     }
 
     const { supabase, user, response } = await withEquipmentAuth();
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = body.created_by_name || actorFromUser(user);
+
+    if (!(await equipmentDbAvailable(pg))) {
+      return NextResponse.json(
+        {
+          data: writeDemoTask(teamId, actor, body, title, priority, status),
+          meta: { fallback: 'demo' },
+        },
+        { status: 201 }
+      );
+    }
 
     const { data, error } = await pg
       .from('equipment_tasks')
@@ -92,7 +162,18 @@ export async function POST(req: NextRequest) {
       })
       .select()
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      if (isMissingTableError(error)) {
+        return NextResponse.json(
+          {
+            data: writeDemoTask(teamId, actor, body, title, priority, status),
+            meta: { fallback: 'demo' },
+          },
+          { status: 201 }
+        );
+      }
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     await insertHistory(pg, teamId, actor, 'creó una tarea', 'task', data.id, title);
     return NextResponse.json({ data }, { status: 201 });
   } catch (err: unknown) {
@@ -109,23 +190,8 @@ export async function PATCH(req: NextRequest) {
     const teamId = teamIdFrom(req, body);
 
     if (!isServerProduction()) {
-      const store = getEquipmentStore();
-      const idx = store.tasks.findIndex((t) => t.id === id && t.team_id === teamId);
-      if (idx === -1) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-      const prev = store.tasks[idx];
-      const updated: EquipmentTask = {
-        ...prev,
-        title: body.title ?? prev.title,
-        description: body.description ?? prev.description,
-        assignee_id: body.assignee_id !== undefined ? body.assignee_id : prev.assignee_id,
-        assignee_name: body.assignee_name !== undefined ? body.assignee_name : prev.assignee_name,
-        priority: (body.priority as EquipmentTaskPriority) || prev.priority,
-        status: (body.status as EquipmentTaskStatus) || prev.status,
-        due_date: body.due_date !== undefined ? body.due_date : prev.due_date,
-        updated_at: nowIso(),
-      };
-      store.tasks[idx] = updated;
-      pushHistory(teamId, 'Carlos Rodríguez Kobe', 'actualizó una tarea', 'task', id, updated.title);
+      const updated = patchDemoTask(teamId, id, body, 'Carlos Rodríguez Kobe');
+      if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
       return NextResponse.json({ data: updated });
     }
 
@@ -133,6 +199,12 @@ export async function PATCH(req: NextRequest) {
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = actorFromUser(user);
+
+    if (!(await equipmentDbAvailable(pg))) {
+      const updated = patchDemoTask(teamId, id, body, actor);
+      if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      return NextResponse.json({ data: updated, meta: { fallback: 'demo' } });
+    }
 
     const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
     for (const key of ['title', 'description', 'assignee_id', 'assignee_name', 'priority', 'status', 'due_date']) {
@@ -147,6 +219,11 @@ export async function PATCH(req: NextRequest) {
       .select()
       .single();
     if (error || !data) {
+      if (isMissingTableError(error)) {
+        const updated = patchDemoTask(teamId, id, body, actor);
+        if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+        return NextResponse.json({ data: updated, meta: { fallback: 'demo' } });
+      }
       return NextResponse.json({ error: error?.message || 'No encontrado' }, { status: 404 });
     }
     await insertHistory(pg, teamId, actor, 'actualizó una tarea', 'task', id, data.title);
@@ -163,12 +240,19 @@ export async function DELETE(req: NextRequest) {
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
     const teamId = teamIdFrom(req);
 
-    if (!isServerProduction()) {
+    const deleteDemo = (actor: string) => {
       const store = getEquipmentStore();
       const idx = store.tasks.findIndex((t) => t.id === id && t.team_id === teamId);
-      if (idx === -1) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      if (idx === -1) return false;
       store.tasks.splice(idx, 1);
-      pushHistory(teamId, 'Carlos Rodríguez Kobe', 'eliminó una tarea', 'task', id, null);
+      pushHistory(teamId, actor, 'eliminó una tarea', 'task', id, null);
+      return true;
+    };
+
+    if (!isServerProduction()) {
+      if (!deleteDemo('Carlos Rodríguez Kobe')) {
+        return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      }
       return NextResponse.json({ success: true });
     }
 
@@ -176,8 +260,20 @@ export async function DELETE(req: NextRequest) {
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = actorFromUser(user);
+
+    if (!(await equipmentDbAvailable(pg))) {
+      if (!deleteDemo(actor)) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+      return NextResponse.json({ success: true, meta: { fallback: 'demo' } });
+    }
+
     const { error } = await pg.from('equipment_tasks').delete().eq('id', id).eq('team_id', teamId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      if (isMissingTableError(error)) {
+        if (!deleteDemo(actor)) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+        return NextResponse.json({ success: true, meta: { fallback: 'demo' } });
+      }
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     await insertHistory(pg, teamId, actor, 'eliminó una tarea', 'task', id, null);
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
