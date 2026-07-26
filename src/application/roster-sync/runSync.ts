@@ -2,9 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { applyRosterDiff } from './applyDiff';
 import { computeRosterDiff } from './diffEngine';
 import { syncPhotosForSnapshot } from './photoSync';
-import { createDefaultRosterSource } from './sources/realMadridOfficial';
+import { createRosterSourceForTeam, plantillaUrlForTeam } from './sources/realMadridOfficial';
 import {
-  REAL_MADRID_PLANTILLA_URL,
   REAL_MADRID_SOURCE_LABEL,
   type DbPlayerRow,
   type DbStaffRow,
@@ -19,6 +18,7 @@ import { isDemoMode } from '@/lib/app-mode';
 const DEFAULT_SKIP_HOURS = 23;
 
 function emptyResult(
+  teamId: string,
   partial: Partial<RunSyncResult> & Pick<RunSyncResult, 'status' | 'durationMs'>
 ): RunSyncResult {
   return {
@@ -32,7 +32,7 @@ function emptyResult(
     staffRemoved: 0,
     staffUpdated: 0,
     errorMessage: null,
-    sourceUrl: REAL_MADRID_PLANTILLA_URL,
+    sourceUrl: plantillaUrlForTeam(teamId),
     fetchedAt: null,
     usedCache: false,
     ...partial,
@@ -70,7 +70,7 @@ async function createSyncLog(
       started_at: startedAt,
       status: 'ok',
       trigger,
-      source_url: REAL_MADRID_PLANTILLA_URL,
+      source_url: plantillaUrlForTeam(teamId),
     })
     .select('id')
     .single();
@@ -141,7 +141,7 @@ export async function runRosterSync(params: {
   const startedAt = new Date().toISOString();
   const { options } = params;
   const skipHours = options.skipIfRecentHours ?? DEFAULT_SKIP_HOURS;
-  const source = params.source || createDefaultRosterSource();
+  const source = params.source || createRosterSourceForTeam(options.teamId);
   const downloadPhotos = params.downloadPhotos !== false;
 
   // Demo / offline path
@@ -179,7 +179,7 @@ export async function runRosterSync(params: {
           changes_count: 0,
           metadata: { reason: 'recent_sync', ageHours: ageH },
         });
-        return emptyResult({
+        return emptyResult(options.teamId, {
           skipped: true,
           status: 'skipped',
           syncLogId,
@@ -236,7 +236,7 @@ export async function runRosterSync(params: {
         changes_count: 0,
       });
     }
-    return emptyResult({
+    return emptyResult(options.teamId, {
       status: 'error',
       syncLogId,
       durationMs,
@@ -331,7 +331,7 @@ export async function runRosterSync(params: {
         error_message: msg,
       });
     }
-    return emptyResult({
+    return emptyResult(options.teamId, {
       status: 'error',
       syncLogId,
       durationMs,

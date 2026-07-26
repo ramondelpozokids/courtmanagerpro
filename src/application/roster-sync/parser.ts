@@ -34,6 +34,37 @@ export function mapPosition(position: unknown, optaPosition?: unknown): PlayerPo
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/_/g, '-')
     .replace(/\s+/g, '-');
+
+  // Fútbol
+  if (p.includes('portero') || p.includes('goalkeeper') || p === 'gk') return 'portero';
+  if (
+    p.includes('defensa') ||
+    p.includes('defender') ||
+    p.includes('lateral') ||
+    p.includes('central') ||
+    p.includes('back')
+  ) {
+    return 'defensa';
+  }
+  if (
+    p.includes('centrocamp') ||
+    p.includes('medio') ||
+    p.includes('midfield') ||
+    p.includes('volante')
+  ) {
+    return 'centrocampista';
+  }
+  if (
+    p.includes('delantero') ||
+    p.includes('forward') ||
+    p.includes('extremo') ||
+    p.includes('striker') ||
+    p.includes('atacante')
+  ) {
+    return 'delantero';
+  }
+
+  // Baloncesto
   if (p.includes('pivot') && p.includes('ala')) return 'ala_pivot';
   if (p.includes('pivot')) return 'pivot';
   if (p.includes('alero')) return 'alero';
@@ -91,8 +122,15 @@ export function parseSquadFromHtmlFallback(html: string, plantillaUrl: string): 
   const coaches: Array<Record<string, unknown>> = [];
   const seen = new Set<string>();
 
-  const linkRe =
-    /href="([^"]*\/baloncesto\/primer-equipo\/plantilla\/([^"?#]+))"[^>]*>([\s\S]*?)<\/a>/gi;
+  const isFootball = /\/futbol\//i.test(plantillaUrl);
+  const pathFragment = isFootball
+    ? '/futbol/primer-equipo-masculino/plantilla/'
+    : '/baloncesto/primer-equipo/plantilla/';
+
+  const linkRe = new RegExp(
+    `href="([^"]*${pathFragment.replace(/\//g, '\\/')}([^"?#]+))"[^>]*>([\\s\\S]*?)<\\/a>`,
+    'gi'
+  );
   let m: RegExpExecArray | null;
   while ((m = linkRe.exec(html))) {
     const slug = m[2];
@@ -104,8 +142,9 @@ export function parseSquadFromHtmlFallback(html: string, plantillaUrl: string): 
     const name = inner.replace(/\b\d{1,2}\b/g, '').trim() || slug.replace(/-/g, ' ');
 
     const isCoach =
-      /entrenador|asistente|preparador|fisioterapeuta|medico|utilero|staff/i.test(inner) ||
-      /entrenador|asistente|preparador/i.test(slug);
+      /entrenador|asistente|preparador|fisioterapeuta|medico|utilero|staff|analista|sciences/i.test(
+        inner
+      ) || /entrenador|asistente|preparador|mourinho|tralhao/i.test(slug);
 
     const item = {
       slug,
@@ -122,8 +161,7 @@ export function parseSquadFromHtmlFallback(html: string, plantillaUrl: string): 
   }
 
   if (players.length === 0 && coaches.length === 0) {
-    // Second pass: any plantilla slug mentions
-    const slugRe = /\/baloncesto\/primer-equipo\/plantilla\/([a-z0-9-]+)/gi;
+    const slugRe = new RegExp(`${pathFragment.replace(/\//g, '\\/')}([a-z0-9-]+)`, 'gi');
     while ((m = slugRe.exec(html))) {
       const slug = m[1];
       if (!slug || seen.has(slug)) continue;
@@ -139,6 +177,5 @@ export function parseSquadFromHtmlFallback(html: string, plantillaUrl: string): 
     }
   }
 
-  void plantillaUrl;
   return { players, coaches };
 }

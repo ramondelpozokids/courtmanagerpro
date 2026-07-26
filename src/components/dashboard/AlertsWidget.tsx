@@ -1,11 +1,19 @@
 "use client";
 
 import { useAlerts } from "@/hooks/useAlerts";
+import { useAuth } from "@/contexts/AuthContext";
+import { useClubDemo } from "@/contexts/ClubDemoContext";
+import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import { AlertCircle, AlertTriangle, Info, Check, Bell, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 export default function AlertsWidget({ compact }: { compact?: boolean }) {
-  const { alerts, markAsRead, markAllAsRead } = useAlerts();
+  const { currentTeam } = useAuth();
+  const { clubSlug, club } = useClubDemo();
+  const teamId =
+    CLUB_TEAM_IDS[clubSlug] || club.branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
+  const { alerts, markAsRead, markAllAsRead } = useAlerts(teamId);
   const unreadAlerts = alerts.filter((a) => !a.is_read);
 
   const getSeverityStyles = (severity: string) => {

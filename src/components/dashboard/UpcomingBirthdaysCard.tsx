@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Cake } from 'lucide-react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { useAuth } from '@/contexts/AuthContext';
-import { useClubBranding } from '@/contexts/ClubDemoContext';
+import { useClubDemo } from '@/contexts/ClubDemoContext';
 import type { BirthdayPerson } from '@/application/birthday-alerts/types';
 import { formatBirthDateEs } from '@/application/birthday-alerts/dateUtils';
 import { cn } from '@/lib/utils';
@@ -17,29 +18,36 @@ function daysLabel(days: number): string {
 
 export function UpcomingBirthdaysCard({ className }: { className?: string }) {
   const { currentTeam } = useAuth();
-  const branding = useClubBranding();
-  // Preferir teamId del club activo (RMF/FCB/…) — Auth a veces sigue en RMB en preview
-  const teamId = branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
+  const { clubSlug, club } = useClubDemo();
+  // Club activo (slug) manda: evita mezclar cumpleaños RMB en RMF
+  const teamId =
+    CLUB_TEAM_IDS[clubSlug] || club.branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
   const [upcoming, setUpcoming] = useState<BirthdayPerson[]>([]);
   const [loading, setLoading] = useState(true);
   const [sendError, setSendError] = useState<string | null>(null);
+  const requestSeq = useRef(0);
 
   const load = useCallback(async () => {
+    const seq = ++requestSeq.current;
     try {
       setLoading(true);
       const res = await fetch(`/api/birthdays/upcoming?team_id=${encodeURIComponent(teamId)}`);
       const json = await res.json();
+      if (seq !== requestSeq.current) return;
       setUpcoming(json.data?.upcoming || []);
       const failed = (json.data?.history || []).find((h: { status?: string }) => h.status === 'failed');
       setSendError(failed?.error_message || null);
     } catch {
+      if (seq !== requestSeq.current) return;
       setUpcoming([]);
     } finally {
-      setLoading(false);
+      if (seq === requestSeq.current) setLoading(false);
     }
   }, [teamId]);
 
   useEffect(() => {
+    setUpcoming([]);
+    setLoading(true);
     void load();
     const onRoster = () => void load();
     const onClub = () => void load();

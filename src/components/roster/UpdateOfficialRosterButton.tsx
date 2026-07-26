@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { useAuth } from '@/contexts/AuthContext';
+import { useClubDemo } from '@/contexts/ClubDemoContext';
 import { cn } from '@/lib/utils';
 
 export function UpdateOfficialRosterButton({
@@ -14,7 +16,9 @@ export function UpdateOfficialRosterButton({
   onDone?: () => void;
 }) {
   const { currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const { clubSlug, club } = useClubDemo();
+  const teamId =
+    CLUB_TEAM_IDS[clubSlug] || club.branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -35,10 +39,11 @@ export function UpdateOfficialRosterButton({
         setMessage('Ya estaba actualizada');
       } else {
         const n = data?.changesCount ?? 0;
+        const src = clubSlug === 'rmf' ? 'fútbol' : 'baloncesto';
         setMessage(
           n === 0
-            ? 'Plantilla al día — sin cambios'
-            : `Sincronizado: ${n} cambio${n === 1 ? '' : 's'} aplicado${n === 1 ? '' : 's'}`
+            ? `Plantilla ${src} al día — sin cambios`
+            : `Sincronizado (${src}): ${n} cambio${n === 1 ? '' : 's'} aplicado${n === 1 ? '' : 's'}`
         );
         window.dispatchEvent(new CustomEvent('roster-sync-complete', { detail: data }));
         onDone?.();

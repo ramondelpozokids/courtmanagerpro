@@ -1,4 +1,5 @@
 import {
+  REAL_MADRID_FOOTBALL_PLANTILLA_URL,
   REAL_MADRID_PLANTILLA_URL,
   REAL_MADRID_SOURCE_ID,
   REAL_MADRID_SOURCE_LABEL,
@@ -16,6 +17,7 @@ import {
   num,
   parseSquadFromHtmlFallback,
 } from '../parser';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 
 const HEADERS = {
   'User-Agent':
@@ -91,7 +93,11 @@ function listItemToStaff(item: Record<string, unknown>, plantillaUrl: string): O
 export class RealMadridOfficialSource implements RosterSource {
   id = REAL_MADRID_SOURCE_ID;
   label = REAL_MADRID_SOURCE_LABEL;
-  url = REAL_MADRID_PLANTILLA_URL;
+  url: string;
+
+  constructor(plantillaUrl: string = REAL_MADRID_PLANTILLA_URL) {
+    this.url = plantillaUrl;
+  }
 
   async fetchRoster(): Promise<OfficialRosterSnapshot> {
     const html = await fetchHtmlWithRetry(this.url);
@@ -136,6 +142,17 @@ export class RealMadridOfficialSource implements RosterSource {
   }
 }
 
+/** RMB → baloncesto; RMF → fútbol primer equipo masculino. */
+export function plantillaUrlForTeam(teamId: string): string {
+  if (teamId === CLUB_TEAM_IDS.rmf) return REAL_MADRID_FOOTBALL_PLANTILLA_URL;
+  return REAL_MADRID_PLANTILLA_URL;
+}
+
+export function createRosterSourceForTeam(teamId: string): RosterSource {
+  return new RealMadridOfficialSource(plantillaUrlForTeam(teamId));
+}
+
+/** @deprecated Prefer createRosterSourceForTeam(teamId) */
 export function createDefaultRosterSource(): RosterSource {
-  return new RealMadridOfficialSource();
+  return new RealMadridOfficialSource(REAL_MADRID_PLANTILLA_URL);
 }

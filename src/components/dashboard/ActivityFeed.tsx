@@ -2,6 +2,10 @@
 
 import { useRequests } from "@/hooks/useRequests";
 import { useLaundry } from "@/hooks/useLaundry";
+import { useAuth } from "@/contexts/AuthContext";
+import { useClubDemo } from "@/contexts/ClubDemoContext";
+import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import {
   ShoppingBag,
   RefreshCw,
@@ -13,7 +17,11 @@ import {
 import Link from "next/link";
 
 export default function ActivityFeed({ compact }: { compact?: boolean }) {
-  const { requests } = useRequests();
+  const { currentTeam } = useAuth();
+  const { clubSlug, club } = useClubDemo();
+  const teamId =
+    CLUB_TEAM_IDS[clubSlug] || club.branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
+  const { requests } = useRequests(teamId);
   const { batches } = useLaundry();
 
   const activities = [

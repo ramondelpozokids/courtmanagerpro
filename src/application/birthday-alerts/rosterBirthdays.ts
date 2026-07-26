@@ -226,6 +226,10 @@ export async function collectBirthdayPeople(params: {
       base = fromClubPack(params.teamId, todayIso);
       if (base.length === 0 && isRmbBasketball) base = fromOfficialBundled(todayIso);
     }
+    // RMF (y otros no-RMB): si BD vacía, plantilla del pack — nunca roster de baloncesto
+    if (base.length === 0 && !isRmbBasketball) {
+      base = fromClubPack(params.teamId, todayIso);
+    }
   } else {
     const packPeople = fromClubPack(params.teamId, todayIso);
     if (packPeople.length > 0) {
@@ -238,6 +242,7 @@ export async function collectBirthdayPeople(params: {
     }
   }
 
+  // Solo baloncesto RMB: completar con roster oficial embebido
   if (isRmbBasketball) {
     const bundled = fromOfficialBundled(todayIso);
     const keys = new Set(base.map((p) => (p.official_slug || p.full_name).toLowerCase()));

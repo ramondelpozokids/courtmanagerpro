@@ -4,11 +4,14 @@ import {
   RMB_OFFICIAL_STAFF,
   RMB_OFFICIAL_SYNCED_AT,
 } from '@/data/rmb-official-roster';
+import { getClubPack } from '@/data/clubs';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { computeRosterDiff } from './diffEngine';
 import { mapPosition } from './parser';
-import { createDefaultRosterSource } from './sources/realMadridOfficial';
+import { createRosterSourceForTeam, plantillaUrlForTeam } from './sources/realMadridOfficial';
 import {
+  REAL_MADRID_FOOTBALL_PLANTILLA_URL,
   REAL_MADRID_PLANTILLA_URL,
   REAL_MADRID_SOURCE_ID,
   REAL_MADRID_SOURCE_LABEL,
@@ -66,7 +69,7 @@ function uuid(): string {
   return `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`;
 }
 
-function officialFromBundled(): OfficialRosterSnapshot {
+function officialFromBundledBasketball(): OfficialRosterSnapshot {
   const players: OfficialPlayer[] = RMB_OFFICIAL_PLAYERS.map((p) => ({
     slug: p.slug,
     full_name: p.full_name,
@@ -102,8 +105,76 @@ function officialFromBundled(): OfficialRosterSnapshot {
   };
 }
 
+function officialFromRmfPack(): OfficialRosterSnapshot {
+  const pack = getClubPack('rmf');
+  const players: OfficialPlayer[] = (pack.players || []).map((p: any) => {
+    const slug =
+      String(p.profile_url || '')
+        .split('/')
+        .filter(Boolean)
+        .pop() ||
+      `${p.firstName || ''}-${p.lastName || ''}`
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+    return {
+      slug,
+      full_name: p.full_name || `${p.firstName || ''} ${p.lastName || ''}`.trim(),
+      first_name: p.firstName || '',
+      last_name: p.lastName || '',
+      dorsal: Number(p.number ?? p.dorsal ?? 0),
+      position: p.position || null,
+      position_demo: mapPosition(p.position),
+      photo_url: p.imageUrl || p.photo_url || null,
+      nationality: p.nationality || null,
+      birth_date: p.birthDate || p.birth_date || null,
+      profile_url: p.profile_url || `${REAL_MADRID_FOOTBALL_PLANTILLA_URL}/${slug}`,
+    };
+  });
+
+  const staff: OfficialStaff[] = (pack.coachingStaff || []).map((s: any) => {
+    const slug =
+      String(s.profile_url || '')
+        .split('/')
+        .filter(Boolean)
+        .pop() ||
+      String(s.full_name || s.name || 'staff')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+    return {
+      slug,
+      full_name: String(s.full_name || s.name || ''),
+      first_name: String(s.full_name || s.name || '').split(' ')[0] || '',
+      last_name: String(s.full_name || s.name || '').split(' ').slice(1).join(' '),
+      role: String(s.role || 'Cuerpo técnico'),
+      photo_url: s.photo_url || s.imageUrl || null,
+      nationality: s.nationality || null,
+      profile_url: s.profile_url || `${REAL_MADRID_FOOTBALL_PLANTILLA_URL}/${slug}`,
+    };
+  });
+
+  return {
+    source_id: REAL_MADRID_SOURCE_ID,
+    source_url: REAL_MADRID_FOOTBALL_PLANTILLA_URL,
+    source_label: REAL_MADRID_SOURCE_LABEL,
+    fetched_at: new Date().toISOString(),
+    players,
+    staff,
+  };
+}
+
+function officialFallbackForTeam(teamId: string): OfficialRosterSnapshot {
+  if (teamId === CLUB_TEAM_IDS.rmf) return officialFromRmfPack();
+  return officialFromBundledBasketball();
+}
+
 export function loadDemoCache(teamId: string): OfficialRosterSnapshot | null {
-  return demoCacheByTeam.get(teamId) || officialFromBundled();
+  return demoCacheByTeam.get(teamId) || officialFallbackForTeam(teamId);
 }
 
 function dbRowsFromMemory(): { players: DbPlayerRow[]; staff: DbStaffRow[] } {
@@ -234,7 +305,7 @@ export function getDemoSyncStatus(teamId: string) {
     a.started_at < b.started_at ? 1 : -1
   )[0];
 
-  const bundled = officialFromBundled();
+  const bundled = officialFallbackForTeam(teamId);
   return {
     lastSync: last || null,
     sourceLabel: REAL_MADRID_SOURCE_LABEL,
@@ -268,7 +339,8 @@ export async function applyDemoRosterSync(params: {
 }): Promise<RunSyncResult> {
   const started = Date.now();
   const startedAt = new Date().toISOString();
-  const source = params.source || createDefaultRosterSource();
+  const source = params.source || createRosterSourceForTeam(params.teamId);
+  const plantillaUrl = plantillaUrlForTeam(params.teamId);
 
   if (!params.force && params.trigger === 'startup') {
     const last = getDemoSyncStatus(params.teamId).lastSync as DemoSyncLog | null;
@@ -291,7 +363,7 @@ export async function applyDemoRosterSync(params: {
           staff_updated: 0,
           changes_count: 0,
           error_message: null,
-          source_url: REAL_MADRID_PLANTILLA_URL,
+          source_url: plantillaUrl,
           trigger: params.trigger,
           metadata: { reason: 'recent_sync' },
           created_at: startedAt,
@@ -309,7 +381,7 @@ export async function applyDemoRosterSync(params: {
           staffRemoved: 0,
           staffUpdated: 0,
           errorMessage: null,
-          sourceUrl: REAL_MADRID_PLANTILLA_URL,
+          sourceUrl: plantillaUrl,
           fetchedAt: last.started_at,
           usedCache: false,
         };
@@ -331,7 +403,7 @@ export async function applyDemoRosterSync(params: {
   }
 
   if (!snapshot || snapshot.players.length === 0) {
-    snapshot = officialFromBundled();
+    snapshot = officialFallbackForTeam(params.teamId);
     usedCache = true;
   }
 

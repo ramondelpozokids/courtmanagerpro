@@ -1,8 +1,13 @@
 import type { PlayerPosition } from '@/types';
 import type { SyncTrigger } from '@/types';
 
+/** Plantilla oficial — Real Madrid Baloncesto */
 export const REAL_MADRID_PLANTILLA_URL =
   'https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla';
+
+/** Plantilla oficial — Real Madrid Fútbol (primer equipo masculino) */
+export const REAL_MADRID_FOOTBALL_PLANTILLA_URL =
+  'https://www.realmadrid.com/es-ES/futbol/primer-equipo-masculino/plantilla';
 
 export const REAL_MADRID_SOURCE_ID = 'real_madrid_official';
 export const REAL_MADRID_SOURCE_LABEL = 'Real Madrid Oficial';
