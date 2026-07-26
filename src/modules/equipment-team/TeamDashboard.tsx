@@ -65,6 +65,9 @@ export function TeamDashboard({ teamId = DEFAULT_TEAM_ID }: { teamId?: string })
     createNotice,
     updateNotice,
     deleteNotice,
+    deleteHistory,
+    deleteHistoryMany,
+    clearHistory,
   } = useEquipmentTeam(teamId);
 
   const [tab, setTab] = useState<TabId>('resumen');
@@ -320,7 +323,15 @@ export function TeamDashboard({ teamId = DEFAULT_TEAM_ID }: { teamId?: string })
             />
           )}
 
-          {tab === 'historial' && data && <HistoryFeed history={data.history} />}
+          {tab === 'historial' && data && (
+            <HistoryFeed
+              history={data.history}
+              canEdit={canEdit}
+              onDelete={deleteHistory}
+              onDeleteMany={deleteHistoryMany}
+              onClearAll={clearHistory}
+            />
+          )}
         </>
       )}
     </div>

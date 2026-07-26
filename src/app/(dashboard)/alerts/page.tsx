@@ -5,11 +5,14 @@ import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/contexts/AuthContext";
 import { canManageAlerts, canViewAlerts } from "@/lib/permissions";
-import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw } from "lucide-react";
+import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 export default function AlertsPage() {
-  const { user, userEmail, hasOperationalAccess } = useAuth();
-  const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts();
+  const { user, userEmail, hasOperationalAccess, currentTeam } = useAuth();
+  const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts(
+    currentTeam?.id || DEFAULT_TEAM_ID
+  );
 
   const userRole = user?.profile?.role;
   const hasAccess = hasOperationalAccess || canViewAlerts(userRole, userEmail);
@@ -28,6 +31,19 @@ export default function AlertsPage() {
   }
 
   const unreadCount = alerts.filter((a) => !a.is_read).length;
+
+  function resolveHref(alert: { type?: string; entity_type?: string | null }): string | null {
+    const t = String(alert.type || '');
+    const e = String(alert.entity_type || '');
+    if (t.includes('stock') || e.includes('inventory')) return '/almacen';
+    if (t.includes('caducidad') || e.includes('medical')) return '/medical';
+    if (t.includes('solicitud') || e.includes('request')) return '/requests';
+    if (t.includes('viaje') || e.includes('trip')) return '/trips';
+    if (t.includes('calendario') || e.includes('match')) return '/calendario';
+    if (t.includes('lavander') || e.includes('laundry')) return '/laundry';
+    if (t.includes('cumple')) return '/players';
+    return null;
+  }
 
   return (
     <div className="space-y-6 text-left">
@@ -65,6 +81,21 @@ export default function AlertsPage() {
             >
               <CheckCircle className="h-4 w-4 text-emerald-500" />
               Marcar todas como leídas
+            </button>
+          )}
+          {alerts.length > 0 && (
+            <button
+              type="button"
+              onClick={async () => {
+                if (!confirm(`¿Eliminar las ${alerts.length} alerta(s) de la bandeja?`)) return;
+                for (const a of alerts) {
+                  await dismissAlert(a.id);
+                }
+              }}
+              className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs font-bold text-red-600 transition-all"
+            >
+              <Trash2 className="h-4 w-4" />
+              Vaciar bandeja
             </button>
           )}
           </>
@@ -140,28 +171,41 @@ export default function AlertsPage() {
                   }`}>
                     {alert.message}
                   </p>
+                  {resolveHref(alert) && (
+                    <Link
+                      href={resolveHref(alert)!}
+                      className="inline-flex items-center gap-1 mt-2 text-[11px] font-bold text-orange-600 hover:underline"
+                    >
+                      Resolver <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  )}
                 </div>
 
                 {/* Action buttons (Read / Dismiss-Delete) */}
                 {canEdit && (
-                <div className="shrink-0 self-center">
-                  {!alert.is_read ? (
+                <div className="shrink-0 self-center flex items-center gap-1">
+                  {!alert.is_read && (
                     <button
+                      type="button"
                       onClick={() => markAsRead(alert.id)}
                       className="p-1.5 text-slate-400 hover:text-emerald-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
                       title="Marcar como leída"
                     >
                       <Check className="h-4.5 w-4.5" />
                     </button>
-                  ) : (
-                    <button
-                      onClick={() => dismissAlert && dismissAlert(alert.id)}
-                      className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-                      title="Eliminar de forma permanente"
-                    >
-                      <Trash2 className="h-4.5 w-4.5" />
-                    </button>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('¿Eliminar esta alerta de la bandeja?')) {
+                        void dismissAlert(alert.id);
+                      }
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                    title="Eliminar alerta"
+                  >
+                    <Trash2 className="h-4.5 w-4.5" />
+                  </button>
                 </div>
                 )}
               </div>

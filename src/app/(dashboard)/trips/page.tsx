@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTrips } from "@/hooks/useTrips";
 import { useAuth } from "@/contexts/AuthContext";
 import { canWriteClubData } from "@/lib/permissions";
 import { Plane, Calendar, CheckSquare, Square, CheckCircle, RefreshCw, AlertCircle, ShoppingBag, Plus, Trash2 } from "lucide-react";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 
 export default function TripsPage() {
   const { user, userEmail, isSuperadmin } = useAuth();
+  const branding = useClubBranding();
   const { trips, loading, packItem, addPackingItem, removePackingItem } = useTrips();
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [showAddItem, setShowAddItem] = useState(false);
@@ -16,6 +18,16 @@ export default function TripsPage() {
   const [newItemQty, setNewItemQty] = useState(1);
 
   const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
+
+  useEffect(() => {
+    if (!trips.length) {
+      setSelectedTripId(null);
+      return;
+    }
+    if (!selectedTripId || !trips.some((t) => t.id === selectedTripId)) {
+      setSelectedTripId(trips[0].id);
+    }
+  }, [trips, selectedTripId]);
 
   const activeTrip = trips.find((t) => t.id === selectedTripId) || trips[0];
 
@@ -49,7 +61,9 @@ export default function TripsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-left">
-        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Logística de Viajes y Equipaje ACB</h2>
+        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
+          Logística de Viajes y Equipaje {branding.sport === 'football' ? '· Fútbol' : 'ACB'}
+        </h2>
         <p className="text-xs text-slate-400 mt-1">Gestión del material deportivo y equipamiento necesario para los partidos oficiales fuera de casa.</p>
       </div>
 

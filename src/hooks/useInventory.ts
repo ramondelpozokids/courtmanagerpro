@@ -88,6 +88,11 @@ export function useInventory(
 
   useEffect(() => {
     fetchItems();
+    const onClub = () => {
+      void fetchItems();
+    };
+    window.addEventListener('club-demo-changed', onClub);
+    return () => window.removeEventListener('club-demo-changed', onClub);
   }, [fetchItems]);
 
   const createItem = useCallback(async (form: CreateInventoryItemForm): Promise<InventoryItem> => {

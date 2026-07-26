@@ -28,6 +28,16 @@ export const CLUB_CSV_IDENTITY: Record<ClubSlug, ClubCsvIdentity> = {
     department: 'Real Madrid Baloncesto',
     sportSection: 'Baloncesto — Primer Equipo',
   },
+  rmf: {
+    brandLine: 'Realmadrid',
+    legalName: 'REAL MADRID C.F.',
+    venue: 'Estadio Santiago Bernabéu',
+    addressLine: 'Av. Concha Espina, 1',
+    cityLine: '28036 Madrid',
+    logoPath: '/clubs/rmf/logo.png',
+    department: 'Real Madrid Fútbol',
+    sportSection: 'Fútbol — Primer Equipo',
+  },
   fcb: {
     brandLine: 'FC Barcelona',
     legalName: 'FC BARCELONA',
@@ -37,16 +47,6 @@ export const CLUB_CSV_IDENTITY: Record<ClubSlug, ClubCsvIdentity> = {
     logoPath: '/clubs/fcb/logo.svg',
     department: 'FC Barcelona Basquet',
     sportSection: 'Baloncesto — Primer Equipo',
-  },
-  fbat: {
-    brandLine: 'FC Barcelona',
-    legalName: 'FC BARCELONA',
-    venue: 'Ciutat Esportiva Joan Gamper',
-    addressLine: 'Carrer Aristides Maillol s/n',
-    cityLine: '08028 Barcelona',
-    logoPath: '/clubs/fcb/logo.svg',
-    department: 'Barça Atlètic',
-    sportSection: 'Baloncesto — Cantera U22',
   },
   vbc: {
     brandLine: 'Valencia Basket',

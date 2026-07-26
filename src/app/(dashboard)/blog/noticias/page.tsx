@@ -25,17 +25,18 @@ export default function BlogNoticiasPage() {
             Noticias de Actualidad — {branding.shortName}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Crónicas, premios y momentos icónicos del {branding.name} esta temporada.
+            {branding.sport === 'football'
+              ? 'Fuente oficial: realmadrid.com/es-ES/noticias/futbol'
+              : `Crónicas y actualidad del ${branding.name} esta temporada.`}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsList.map((news) => (
-          <div
-            key={news.id}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-          >
+        {newsList.map((news) => {
+          const href = news.url || (branding.sport === 'football' ? 'https://www.realmadrid.com/es-ES/noticias/futbol' : undefined);
+          const CardInner = (
+            <>
             <div className="relative aspect-[4/3] w-full bg-slate-950 flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
               <img
                 src={news.image}
@@ -63,15 +64,35 @@ export default function BlogNoticiasPage() {
               <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider pt-2.5 border-t border-slate-100 dark:border-slate-800/60">
                 <span className="flex items-center gap-1">
                   <ShieldCheck className="h-3.5 w-3.5 text-orange-500" />
-                  {branding.shortName} Demo
+                  {branding.sport === 'football' ? 'realmadrid.com' : `${branding.shortName} Demo`}
                 </span>
                 {news.date && (
                   <span suppressHydrationWarning>{new Date(news.date).toLocaleDateString()}</span>
                 )}
               </div>
             </div>
+            </>
+          );
+
+          return href ? (
+            <a
+              key={news.id}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+            >
+              {CardInner}
+            </a>
+          ) : (
+          <div
+            key={news.id}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          >
+            {CardInner}
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

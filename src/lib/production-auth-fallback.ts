@@ -31,7 +31,7 @@ export function buildGuaranteedSuperadminUser(userId: string, authEmail?: string
     id: userId,
     email: SUPERADMIN_EMAIL,
     full_name: 'Ramón del Pozo Rott',
-    avatar_url: '/images/ramon-avatar.png',
+    avatar_url: '/images/ramon-del-pozo.png',
     role: 'superadmin',
     phone: null,
     department: 'Superadmin',
@@ -70,7 +70,7 @@ export function enrichProfileWithSuperadmin(profile: Profile | AppProfile, authE
       role: 'superadmin',
       email: SUPERADMIN_EMAIL,
       full_name: merged.full_name || 'Ramón del Pozo Rott',
-      avatar_url: '/images/ramon-avatar.png',
+      avatar_url: '/images/ramon-del-pozo.png',
       department: merged.department || 'Superadmin',
     };
   }
@@ -133,7 +133,7 @@ export async function buildFallbackProductionUser(
 
   if (isSuperadminUser(null, normalized)) {
     full_name = 'Ramón del Pozo Rott';
-    avatar_url = '/images/ramon-avatar.png';
+    avatar_url = '/images/ramon-del-pozo.png';
     role = 'superadmin';
     department = 'Superadmin';
   } else if (normalized === CARLOS_EMAIL) {

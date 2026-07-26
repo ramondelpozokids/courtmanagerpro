@@ -17,7 +17,11 @@ export default function PlayerCard({ player, onDelete, onEdit, canWrite }: Playe
     escolta: "Escolta (SG)",
     alero: "Alero (SF)",
     ala_pivot: "Ala-Pívot (PF)",
-    pivot: "Pívot (C)"
+    pivot: "Pívot (C)",
+    portero: "Portero",
+    defensa: "Defensa",
+    centrocampista: "Centrocampista",
+    delantero: "Delantero",
   };
 
   return (

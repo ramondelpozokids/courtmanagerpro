@@ -15,7 +15,7 @@ export const MOCK_CREDENTIALS: MockCredential[] = [
     password: 'Benutzer555',
     role: 'superadmin',
     full_name: 'Ramón del Pozo Rott',
-    avatar_url: '/images/ramon-avatar.png',
+    avatar_url: '/images/ramon-del-pozo.png',
   },
   {
     email: 'charlie-r-k@hotmail.com',
@@ -49,7 +49,7 @@ export const BIOMETRIC_QUICK_ACCESS = [
     email: 'info@ramondelpozorott.es',
     name: 'Ramón del Pozo Rott',
     shortName: 'Ramón',
-    avatar: '/images/ramon-avatar.png',
+    avatar: '/images/ramon-del-pozo.png',
   },
   {
     email: 'charlie-r-k@hotmail.com',

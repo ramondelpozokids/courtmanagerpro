@@ -24,7 +24,7 @@ export default function DemoSelectorPage() {
             <img src="/logo.png" alt="CourtManager Pro" className="h-8 w-8 object-contain" />
             <div>
               <p className="font-black text-sm tracking-tight">CourtManager Pro</p>
-              <p className="text-[10px] text-orange-400 font-bold uppercase tracking-widest">Demo Comercial ACB</p>
+              <p className="text-[10px] text-orange-400 font-bold uppercase tracking-widest">Demo Comercial Multi-deporte</p>
             </div>
           </div>
           <Link
@@ -45,10 +45,10 @@ export default function DemoSelectorPage() {
           </span>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
             Así quedaría CourtManager Pro<br />
-            <span className="text-orange-400">en tu club de la ACB</span>
+            <span className="text-orange-400">en tu club profesional</span>
           </h1>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-            Selecciona uno de los clubes de la Liga Endesa y explora la plataforma con plantilla,
+            Selecciona una sección (baloncesto o fútbol) y explora la plataforma con plantilla,
             inventario, blog, noticias, viajes y utilería personalizada con la identidad de cada equipo.
           </p>
         </section>

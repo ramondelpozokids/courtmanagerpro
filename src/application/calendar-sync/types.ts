@@ -1,13 +1,53 @@
 import type { MatchHomeAway, MatchResult, MatchStatus, SyncTrigger } from '@/types';
+import { getClubPack, getClubSlugByTeamId } from '@/data/clubs';
 
-export const OFFICIAL_CALENDAR_PAGE_URL =
+export type CalendarSport = 'basketball' | 'football';
+
+export const BASKETBALL_FIRST_TEAM_TAG =
+  'realmadrid-com:sports/baloncesto/primer-equipo-masculino';
+
+export const FOOTBALL_FIRST_TEAM_TAG =
+  'realmadrid-com:sports/futbol/primer-equipo-masculino';
+
+export const BASKETBALL_CALENDAR_PAGE_URL =
   'https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball=realmadrid-com:sports/baloncesto/primer-equipo-masculino';
+
+export const FOOTBALL_CALENDAR_PAGE_URL =
+  'https://www.realmadrid.com/es-ES/calendario?filter-football=realmadrid-com:sports/futbol/primer-equipo-masculino&filter-basketball=';
+
+/** @deprecated Use getOfficialCalendarMeta(sport).pageUrl */
+export const OFFICIAL_CALENDAR_PAGE_URL = BASKETBALL_CALENDAR_PAGE_URL;
 
 export const OFFICIAL_CALENDAR_SOURCE_ID = 'real_madrid_official_calendar';
 export const OFFICIAL_CALENDAR_SOURCE_LABEL = 'Real Madrid — Primer Equipo Baloncesto';
 
-export const BASKETBALL_FIRST_TEAM_TAG =
-  'realmadrid-com:sports/baloncesto/primer-equipo-masculino';
+export const FOOTBALL_CALENDAR_SOURCE_ID = 'real_madrid_official_football_calendar';
+export const FOOTBALL_CALENDAR_SOURCE_LABEL = 'Real Madrid — Primer Equipo Fútbol';
+
+export function getOfficialCalendarMeta(sport: CalendarSport) {
+  if (sport === 'football') {
+    return {
+      sport,
+      tag: FOOTBALL_FIRST_TEAM_TAG,
+      pageUrl: FOOTBALL_CALENDAR_PAGE_URL,
+      sourceId: FOOTBALL_CALENDAR_SOURCE_ID,
+      sourceLabel: FOOTBALL_CALENDAR_SOURCE_LABEL,
+    } as const;
+  }
+  return {
+    sport,
+    tag: BASKETBALL_FIRST_TEAM_TAG,
+    pageUrl: BASKETBALL_CALENDAR_PAGE_URL,
+    sourceId: OFFICIAL_CALENDAR_SOURCE_ID,
+    sourceLabel: OFFICIAL_CALENDAR_SOURCE_LABEL,
+  } as const;
+}
+
+export function calendarSportForTeamId(teamId: string): CalendarSport {
+  const slug = getClubSlugByTeamId(teamId);
+  if (!slug) return 'basketball';
+  return getClubPack(slug).branding.sport === 'football' ? 'football' : 'basketball';
+}
 
 export interface OfficialFixture {
   official_id: string | null;

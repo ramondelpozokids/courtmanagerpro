@@ -1,41 +1,66 @@
-import { useState, useEffect } from "react";
-import { MedicalItem } from "../domain/entities/MedicalItem";
+import { useState, useEffect, useCallback } from 'react';
+import type { MedicalItem } from '@/domain/entities/MedicalItem';
+import { useAuth } from '@/contexts/AuthContext';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { usesDemoClubData } from '@/lib/club-preview';
+import { isMockMode } from '@/lib/demo-data';
+import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+
+type MedicalUi = MedicalItem & {
+  kit?: string;
+  brand?: string;
+  category?: string;
+  prescription_required?: boolean;
+};
 
 export function useMedical() {
-  const [items, setItems] = useState<MedicalItem[]>([]);
+  const { currentTeam } = useAuth();
+  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const [items, setItems] = useState<MedicalUi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMedical = async () => {
+  const fetchMedical = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/medical");
-      if (!res.ok) throw new Error("Error fetching medical stock");
+      setError(null);
+
+      if (isMockMode() || usesDemoClubData()) {
+        setItems([...(db.medical || [])] as MedicalUi[]);
+        return;
+      }
+
+      const res = await fetch(`/api/medical?team_id=${encodeURIComponent(teamId)}`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Error fetching medical stock');
       const data = await res.json();
-      setItems(data);
+      setItems(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [teamId]);
 
   useEffect(() => {
-    fetchMedical();
-  }, []);
+    void fetchMedical();
+    const onClub = () => void fetchMedical();
+    window.addEventListener('club-demo-changed', onClub);
+    return () => window.removeEventListener('club-demo-changed', onClub);
+  }, [fetchMedical]);
 
   const adjustQty = async (itemId: string, quantity: number) => {
     try {
-      const res = await fetch("/api/medical", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId, quantity }),
+      const res = await fetch('/api/medical', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ itemId, quantity, team_id: teamId }),
       });
-      if (!res.ok) throw new Error("Failed to adjust medical qty");
+      if (!res.ok) throw new Error('Failed to adjust medical qty');
       const updated = await res.json();
-      setItems((prev) =>
-        prev.map((i) => (i.id === itemId ? updated : i))
-      );
+      setItems((prev) => prev.map((i) => (i.id === itemId ? updated : i)));
       return updated;
     } catch (err: any) {
       setError(err.message);
@@ -43,14 +68,18 @@ export function useMedical() {
     }
   };
 
-  const createItem = async (itemData: any) => {
+  const createItem = async (itemData: Record<string, unknown>) => {
     try {
-      const res = await fetch("/api/medical", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(itemData),
+      const res = await fetch('/api/medical', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...itemData, team_id: teamId }),
       });
-      if (!res.ok) throw new Error("Failed to add medical supply");
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || 'Failed to add medical supply');
+      }
       const newItem = await res.json();
       setItems((prev) => [...prev, newItem]);
       return newItem;

@@ -14,8 +14,23 @@ const DB_TO_UI: Record<string, LaundryBatch['status']> = {
   entregado: 'READY',
 };
 
+function parseLaundryMeta(row: Record<string, unknown>): Record<string, unknown> {
+  if (row.metadata && typeof row.metadata === 'object') {
+    return row.metadata as Record<string, unknown>;
+  }
+  const notes = String(row.notes || '');
+  if (notes.startsWith('{')) {
+    try {
+      return JSON.parse(notes) as Record<string, unknown>;
+    } catch {
+      /* ignore */
+    }
+  }
+  return {};
+}
+
 export function laundryRowToUi(row: Record<string, unknown>): LaundryBatch {
-  const meta = (row.metadata as Record<string, unknown>) || {};
+  const meta = parseLaundryMeta(row);
   const status = DB_TO_UI[String(row.status)] || 'PENDING';
   return {
     id: String(row.id),
@@ -33,16 +48,18 @@ export function laundryUiToDb(
   teamId: string,
   userId: string
 ) {
+  const meta = {
+    itemCount: batch.itemCount ?? 0,
+    responsible: batch.responsible ?? 'Utilería',
+  };
   return {
     team_id: teamId,
     name: batch.name,
     created_by: userId,
     status: batch.status ? UI_TO_DB[batch.status] : 'sucio',
     returned_at: batch.status === 'READY' ? new Date().toISOString() : null,
-    metadata: {
-      itemCount: batch.itemCount ?? 0,
-      responsible: batch.responsible ?? 'Utilería',
-    },
+    notes: JSON.stringify(meta),
+    metadata: meta,
   };
 }
 

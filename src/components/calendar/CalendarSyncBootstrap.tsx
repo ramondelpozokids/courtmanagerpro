@@ -7,19 +7,23 @@ import { useAuth } from '@/contexts/AuthContext';
 /** Transparent calendar sync on dashboard mount (every ~12h / once per session window). */
 export function CalendarSyncBootstrap() {
   const { currentTeam } = useAuth();
-  const ran = useRef(false);
+  const lastTeamRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
-
     const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+    const teamChanged = lastTeamRef.current != null && lastTeamRef.current !== teamId;
+    lastTeamRef.current = teamId;
+
     const key = `cm-calendar-sync-startup:${teamId}`;
     try {
-      const last = sessionStorage.getItem(key);
-      if (last) {
-        const ageH = (Date.now() - Number(last)) / 3_600_000;
-        if (ageH < 1) return;
+      if (!teamChanged) {
+        const last = sessionStorage.getItem(key);
+        if (last) {
+          const ageH = (Date.now() - Number(last)) / 3_600_000;
+          if (ageH < 1) return;
+        }
+      } else {
+        sessionStorage.removeItem(key);
       }
     } catch {
       /* ignore */
@@ -28,7 +32,14 @@ export function CalendarSyncBootstrap() {
     void fetch('/api/calendar/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ trigger: 'startup', team_id: teamId }),
+      credentials: 'include',
+      body: JSON.stringify({
+        // Force: amistosos nuevos (p.ej. Costa del Sol sep) no deben quedar fuera
+        // por un sync "ok" reciente con calendario incompleto.
+        trigger: teamChanged ? 'manual' : 'startup',
+        team_id: teamId,
+        force: true,
+      }),
     })
       .then(async (res) => {
         try {

@@ -1,11 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db as memoryDb } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { laundryRowToUi, laundryStatusToDb, laundryUiToDb } from '@/lib/laundry-mapper';
 import type { LaundryBatch } from '@/domain/entities/LaundryBatch';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
+
   if (!isServerProduction()) {
     return NextResponse.json(memoryDb.laundry);
   }
@@ -17,16 +19,19 @@ export async function GET() {
   const { data, error } = await pg
     .from('laundry_batches')
     .select('*')
-    .eq('team_id', DEFAULT_TEAM_ID)
+    .eq('team_id', teamId)
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json((data ?? []).map(laundryRowToUi));
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const teamId = resolveTeamId(
+      body.team_id || request.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID
+    );
 
     if (!isServerProduction()) {
       if (body.batchId && body.status) {
@@ -64,6 +69,7 @@ export async function POST(request: Request) {
           updated_at: new Date().toISOString(),
         })
         .eq('id', body.batchId)
+        .eq('team_id', teamId)
         .select()
         .single();
 
@@ -73,7 +79,7 @@ export async function POST(request: Request) {
       return NextResponse.json(laundryRowToUi(data));
     }
 
-    const insert = laundryUiToDb(body, DEFAULT_TEAM_ID, user.id);
+    const insert = laundryUiToDb(body, teamId, user.id);
     const { data, error } = await pg.from('laundry_batches').insert(insert).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
@@ -84,10 +90,9 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const batchId = searchParams.get('batchId');
+    const batchId = request.nextUrl.searchParams.get('batchId');
     if (!batchId) return NextResponse.json({ error: 'batchId required' }, { status: 400 });
 
     if (!isServerProduction()) {

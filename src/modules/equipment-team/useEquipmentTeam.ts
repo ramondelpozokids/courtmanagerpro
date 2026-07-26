@@ -229,6 +229,36 @@ export function useEquipmentTeam(teamId: string = DEFAULT_TEAM_ID) {
     [teamId, refresh]
   );
 
+  const deleteHistory = useCallback(
+    async (id: string) => {
+      await jsonFetch(`/api/equipment-team/history`, {
+        method: 'DELETE',
+        body: JSON.stringify({ team_id: teamId, ids: [id] }),
+      });
+      await refresh();
+    },
+    [teamId, refresh]
+  );
+
+  const deleteHistoryMany = useCallback(
+    async (ids: string[]) => {
+      await jsonFetch(`/api/equipment-team/history`, {
+        method: 'DELETE',
+        body: JSON.stringify({ team_id: teamId, ids }),
+      });
+      await refresh();
+    },
+    [teamId, refresh]
+  );
+
+  const clearHistory = useCallback(async () => {
+    await jsonFetch(`/api/equipment-team/history`, {
+      method: 'DELETE',
+      body: JSON.stringify({ team_id: teamId, all: true }),
+    });
+    await refresh();
+  }, [teamId, refresh]);
+
   return {
     data,
     loading,
@@ -249,5 +279,8 @@ export function useEquipmentTeam(teamId: string = DEFAULT_TEAM_ID) {
     createNotice,
     updateNotice,
     deleteNotice,
+    deleteHistory,
+    deleteHistoryMany,
+    clearHistory,
   };
 }

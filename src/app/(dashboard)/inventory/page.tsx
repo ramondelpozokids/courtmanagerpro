@@ -8,9 +8,11 @@ import ItemForm from "@/components/inventory/ItemForm";
 import { useState } from "react";
 import { Search, PlusCircle, Package, ArrowUpRight, ArrowDownRight, QrCode, ClipboardList, Trash2, Edit2 } from "lucide-react";
 import Link from "next/link";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 
 export default function InventoryPage() {
   const { user, userEmail, isSuperadmin } = useAuth();
+  const branding = useClubBranding();
   const { items, loading, createItem, adjustStock, deleteItem } = useInventory();
   const [showAddForm, setShowAddForm] = useState(false);
   const [search, setSearch] = useState("");
@@ -23,7 +25,7 @@ export default function InventoryPage() {
     { code: "camiseta_juego", name: "Camisetas Juego" },
     { code: "pantalon_juego", name: "Pantalones" },
     { code: "camiseta_entrenamiento", name: "Entrenamiento" },
-    { code: "zapatillas", name: "Zapatillas" },
+    { code: "zapatillas", name: branding.sport === 'football' ? 'Botas' : 'Zapatillas' },
     { code: "calcetines", name: "Calcetines" },
     { code: "chaqueta", name: "Chaquetas" },
   ];
@@ -49,7 +51,10 @@ export default function InventoryPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Inventario de Utilería Profesional</h2>
-          <p className="text-xs text-slate-400 mt-1">Control de stock, QR por prenda (móvil) y asignación de ropa técnica ACB.</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Control de stock, QR por prenda (móvil) y asignación de ropa técnica{' '}
+            {branding.sport === 'football' ? 'de fútbol.' : 'ACB.'}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Link

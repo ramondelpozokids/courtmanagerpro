@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { createSupabaseAdminClient, createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { supabaseServiceRoleKey } from '@/infrastructure/supabase/env';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { getCalendarSyncStatus } from '@/application/calendar-sync/runSync';
@@ -7,6 +8,14 @@ import { getDemoOfficialMatches } from '@/application/calendar-sync/demoStore';
 import type { OfficialMatch } from '@/types';
 
 export const runtime = 'nodejs';
+
+function hasRealServiceRole(): boolean {
+  return Boolean(
+    supabaseServiceRoleKey &&
+      supabaseServiceRoleKey.length > 40 &&
+      !supabaseServiceRoleKey.includes('dummy')
+  );
+}
 
 export async function GET(req: NextRequest) {
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
@@ -16,14 +25,18 @@ export async function GET(req: NextRequest) {
     if (response || !user) return response!;
   }
 
-  const supabase = isServerProduction() ? await createSupabaseServerClient() : null;
+  const userClient = isServerProduction() ? await createSupabaseServerClient() : null;
+  const reader =
+    isServerProduction() && hasRealServiceRole()
+      ? createSupabaseAdminClient()
+      : userClient;
 
   try {
-    const status = await getCalendarSyncStatus(supabase as any, teamId);
+    const status = await getCalendarSyncStatus((reader || userClient) as any, teamId);
     let matches: OfficialMatch[] = [];
 
-    if (supabase && isServerProduction()) {
-      const { data } = await (supabase as any)
+    if (reader && isServerProduction()) {
+      const { data } = await (reader as any)
         .from('official_matches')
         .select('*')
         .eq('team_id', teamId)

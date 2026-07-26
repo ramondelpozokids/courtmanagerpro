@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Cake } from 'lucide-react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useClubBranding } from '@/contexts/ClubDemoContext';
 import type { BirthdayPerson } from '@/application/birthday-alerts/types';
 import { formatBirthDateEs } from '@/application/birthday-alerts/dateUtils';
 import { cn } from '@/lib/utils';
@@ -16,13 +17,16 @@ function daysLabel(days: number): string {
 
 export function UpcomingBirthdaysCard({ className }: { className?: string }) {
   const { currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const branding = useClubBranding();
+  // Preferir teamId del club activo (RMF/FCB/…) — Auth a veces sigue en RMB en preview
+  const teamId = branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
   const [upcoming, setUpcoming] = useState<BirthdayPerson[]>([]);
   const [loading, setLoading] = useState(true);
   const [sendError, setSendError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await fetch(`/api/birthdays/upcoming?team_id=${encodeURIComponent(teamId)}`);
       const json = await res.json();
       setUpcoming(json.data?.upcoming || []);
@@ -38,11 +42,14 @@ export function UpcomingBirthdaysCard({ className }: { className?: string }) {
   useEffect(() => {
     void load();
     const onRoster = () => void load();
+    const onClub = () => void load();
     window.addEventListener('roster-sync-complete', onRoster);
     window.addEventListener('birthday-job-complete', onRoster);
+    window.addEventListener('club-demo-changed', onClub);
     return () => {
       window.removeEventListener('roster-sync-complete', onRoster);
       window.removeEventListener('birthday-job-complete', onRoster);
+      window.removeEventListener('club-demo-changed', onClub);
     };
   }, [load]);
 

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { normalizeStaffProfile } from "@/lib/player-profile";
 import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
+import { RMF_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/rmf-data";
 import { UpdateOfficialRosterButton } from "@/components/roster/UpdateOfficialRosterButton";
 
 type StaffMember = StaffFormData & {
@@ -161,19 +162,26 @@ export default function PlayersPage() {
             Plantilla y Personal — {branding.shortName}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Datos oficiales realmadrid.com · {branding.venue}
-            {RMB_OFFICIAL_SYNCED_AT ? ` · sync ${new Date(RMB_OFFICIAL_SYNCED_AT).toLocaleDateString('es-ES')}` : ''}
+            {branding.slug === 'rmb'
+              ? `Datos oficiales realmadrid.com · ${branding.venue}${RMB_OFFICIAL_SYNCED_AT ? ` · sync ${new Date(RMB_OFFICIAL_SYNCED_AT).toLocaleDateString('es-ES')}` : ''}`
+              : `${branding.name} · ${branding.venue} · ${branding.league}`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <UpdateOfficialRosterButton
-            onDone={() => {
-              loadStaff();
-              window.location.reload();
-            }}
-          />
+          {branding.slug === 'rmb' && (
+            <UpdateOfficialRosterButton
+              onDone={() => {
+                loadStaff();
+                window.location.reload();
+              }}
+            />
+          )}
           <a
-            href={OFFICIAL_PLANTILLA_URL}
+            href={
+              branding.sport === 'football'
+                ? RMF_OFFICIAL_PLANTILLA_URL
+                : OFFICIAL_PLANTILLA_URL
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-bold hover:border-orange-400 hover:text-orange-600 transition-all"
@@ -193,6 +201,7 @@ export default function PlayersPage() {
         </div>
       </div>
 
+      {branding.slug === 'rmb' && (
       <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
         Jugadores y cuerpo técnico se sincronizan automáticamente al iniciar la app (y cada 24 h) desde la{' '}
         <a href={OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-orange-700 dark:text-orange-400 underline-offset-2 hover:underline">
@@ -200,6 +209,17 @@ export default function PlayersPage() {
         </a>
         . También puedes forzar una actualización con el botón «Actualizar plantilla oficial».
       </div>
+      )}
+      {branding.slug === 'rmf' && (
+      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
+        Demo comercial del <strong>primer equipo de fútbol</strong> — plantilla, utilería, viajes y lavandería adaptados a LaLiga / Champions.
+        Plantilla de referencia:{' '}
+        <a href={RMF_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-blue-700 dark:text-blue-400 underline-offset-2 hover:underline">
+          realmadrid.com/futbol
+        </a>
+        .
+      </div>
+      )}
 
       <div className="flex border-b border-slate-200 dark:border-slate-800">
         <button
@@ -264,11 +284,22 @@ export default function PlayersPage() {
                 className="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg p-2 focus:outline-none text-slate-700 dark:text-slate-200"
               >
                 <option value="ALL">Todas las Posiciones</option>
-                <option value="base">Bases</option>
-                <option value="escolta">Escoltas</option>
-                <option value="alero">Aleros</option>
-                <option value="ala-pivot">Ala-Pívots</option>
-                <option value="pivot">Pívots</option>
+                {branding.sport === 'football' ? (
+                  <>
+                    <option value="portero">Porteros</option>
+                    <option value="defensa">Defensas</option>
+                    <option value="centrocampista">Centrocampistas</option>
+                    <option value="delantero">Delanteros</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="base">Bases</option>
+                    <option value="escolta">Escoltas</option>
+                    <option value="alero">Aleros</option>
+                    <option value="ala-pivot">Ala-Pívots</option>
+                    <option value="pivot">Pívots</option>
+                  </>
+                )}
               </select>
             </div>
             <select

@@ -11,10 +11,10 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import AlertsWidget from "@/components/dashboard/AlertsWidget";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import QuickActions from "@/components/dashboard/QuickActions";
-import { RosterSyncStatus } from "@/components/dashboard/RosterSyncStatus";
 import { OfficialStoreCard } from "@/modules/official-store";
 import { EquipmentTeamCard } from "@/modules/equipment-team";
 import { UpcomingBirthdaysCard } from "@/components/dashboard/UpcomingBirthdaysCard";
+import { ClubDashboardHero } from "@/components/dashboard/ClubDashboardHero";
 import { Users, Package, FileText, Plane, Trophy, Landmark } from "lucide-react";
 
 export default function DashboardPage() {
@@ -37,45 +37,22 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       
-      {/* Massive Centered Premium Hero Image */}
       <div className="w-full flex justify-center">
-        <div className="relative w-full max-w-7xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-950">
-          <img
-            src={branding.heroUrl}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1200';
-            }}
-            alt={`CourtManager Pro — ${branding.name}`}
-            className="w-full h-auto object-contain mx-auto block max-h-[550px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent flex flex-col justify-end p-6 sm:p-8 text-left">
-            <div>
-              <span
-                className="text-white text-[10px] sm:text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded shadow-lg"
-                style={{ backgroundColor: branding.accentColor }}
-              >
-                {branding.tagline}
-              </span>
-              <h1 className="text-xl sm:text-3xl font-black text-white mt-3 leading-tight drop-shadow flex items-center gap-2.5">
-                <img src={branding.logoUrl} alt="Logo" className="h-8 w-8 object-contain shrink-0" />
-                <span>CourtManager Pro — {branding.name}</span>
-              </h1>
-            </div>
-          </div>
-        </div>
+        <ClubDashboardHero branding={branding} />
       </div>
 
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-slate-900 to-orange-900/60 text-white rounded-2xl p-6 md:p-8 border border-slate-800 shadow-lg text-left">
         <span className="bg-orange-500/20 text-orange-400 font-semibold px-2.5 py-1 rounded-full text-xs tracking-wider uppercase border border-orange-500/30">
-          Liga Endesa 2026/2027
+          {branding.sport === 'football' ? 'LaLiga 2026/2027' : 'Liga Endesa 2026/2027'}
         </span>
         <h2 className="text-2xl md:text-3.5xl font-extrabold mt-3 tracking-tight">
           ¡Hola de nuevo, <span className="text-orange-400">{user?.profile?.full_name || "Carlos"}</span>!
         </h2>
         <p className="text-sm text-slate-300 mt-2 max-w-xl">
-          Bienvenido al centro de mando de utilería de CourtManager Pro. Controla el inventario, prepara las maletas para los viajes profesionales y gestiona las solicitudes de los jugadores.
+          {branding.sport === 'football'
+            ? 'Centro de mando de utilería del primer equipo de fútbol: inventario, maletas de viaje, camisetas oficiales adidas y solicitudes de plantilla.'
+            : 'Bienvenido al centro de mando de utilería de CourtManager Pro. Controla el inventario, prepara las maletas para los viajes profesionales y gestiona las solicitudes de los jugadores.'}
         </p>
       </div>
 
@@ -84,7 +61,7 @@ export default function DashboardPage() {
         <KPICard
           title="Fichas de Jugadores"
           value={totalPlayers}
-          subtitle="Jugadores ACB registrados"
+          subtitle={branding.sport === 'football' ? 'Jugadores primer equipo' : 'Jugadores ACB registrados'}
           icon={Users}
           trend={{ value: 4.8, label: "este mes" }}
           variant="default"
@@ -92,7 +69,7 @@ export default function DashboardPage() {
         <KPICard
           title="Stock Total Utilería"
           value={`${totalStock} uds`}
-          subtitle="Camisetas, balones, calzado..."
+          subtitle={branding.sport === 'football' ? 'Camisetas, botas, balones...' : 'Camisetas, balones, calzado...'}
           icon={Package}
           trend={{ value: -1.2, label: "hoy" }}
           variant="default"
@@ -113,7 +90,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Bloque 1 — Centro operativo (alertas, actividad, sync, cumpleaños) */}
+      {/* Bloque 1 — Centro operativo (alertas, actividad, cumpleaños) */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-slate-50 to-orange-50/40 dark:from-slate-950 dark:to-orange-950/20">
           <div className="text-left">
@@ -121,11 +98,11 @@ export default function DashboardPage() {
               Centro operativo
             </p>
             <h3 className="text-base font-extrabold text-slate-800 dark:text-white">
-              Alertas, actividad y plantilla
+              Alertas, actividad y cumpleaños
             </h3>
           </div>
           <span className="text-[11px] font-semibold text-slate-400">
-            Temporada 2026/2027 · RMB
+            Temporada 2026/2027 · {branding.shortName}
           </span>
         </div>
 
@@ -136,9 +113,7 @@ export default function DashboardPage() {
           <div className="p-5 lg:col-span-1">
             <ActivityFeed compact />
           </div>
-          <div className="p-5 space-y-5 lg:col-span-1 bg-slate-50/50 dark:bg-slate-950/30">
-            <RosterSyncStatus className="!shadow-none !border-0 !bg-transparent !p-0 !rounded-none" />
-            <div className="h-px bg-slate-200 dark:bg-slate-800" />
+          <div className="p-5 lg:col-span-1 bg-slate-50/50 dark:bg-slate-950/30">
             <UpcomingBirthdaysCard className="!shadow-none !border-0 !bg-transparent !p-0 !rounded-none" />
           </div>
         </div>
@@ -223,7 +198,7 @@ export default function DashboardPage() {
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
               }`}
             >
-              Colección 25/26
+              {branding.sport === 'football' ? 'Colección 26/27' : 'Colección 25/26'}
             </button>
             <button
               onClick={() => setBlogTab("history")}
@@ -233,7 +208,7 @@ export default function DashboardPage() {
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
               }`}
             >
-              Década Dorada
+              {branding.sport === 'football' ? 'Historia' : 'Década Dorada'}
             </button>
             <button
               onClick={() => setBlogTab("palmares")}
@@ -243,7 +218,7 @@ export default function DashboardPage() {
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
               }`}
             >
-              Palmarés (2021-2030)
+              {branding.sport === 'football' ? 'Palmarés oficial' : 'Palmarés (2021-2030)'}
             </button>
           </div>
         </div>

@@ -7,4 +7,8 @@ export interface MedicalItem {
   batchNumber: string;
   status: "OK" | "EXPIRING_SOON" | "EXPIRED";
   location: string;
+  kit?: string;
+  brand?: string;
+  category?: string;
+  prescription_required?: boolean;
 }

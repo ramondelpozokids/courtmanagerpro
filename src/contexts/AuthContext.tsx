@@ -197,7 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (role === "superadmin") {
       name = "Ramón del Pozo Rott";
       email = "info@ramondelpozorott.es";
-      avatar_url = "/images/ramon-avatar.png";
+      avatar_url = "/images/ramon-del-pozo.png";
     } else if (role === "admin") {
       name = "Carlos Rodriguez Kobe";
       email = "charlie-r-k@hotmail.com";

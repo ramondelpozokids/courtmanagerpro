@@ -8,13 +8,17 @@ import {
   HeartPulse, Calendar, AlertTriangle, CheckCircle, RefreshCw, Minus, Plus, Search, MapPin, BriefcaseMedical, PlusCircle,
 } from "lucide-react";
 
+const KIT_OPTIONS = [
+  { value: "Armario Central", label: "Armario Médico Central", location: "Armario Médico" },
+  { value: "Botiquín Partido", label: "Botiquín Partido ACB", location: "Vestuario — Banquillo" },
+  { value: "Botiquín Viaje", label: "Botiquín Viaje Euroliga", location: "Almacén Logística" },
+  { value: "Fisioterapia", label: "Kit Fisioterapia", location: "Botiquín Fisioterapia" },
+  { value: "Vestuario Principal", label: "Nevera Vestuario", location: "Nevera Vestuario" },
+] as const;
+
 const KIT_LABELS: Record<string, string> = {
   ALL: "Todos los botiquines",
-  "Botiquín Partido": "Botiquín Partido ACB",
-  "Botiquín Viaje": "Botiquín Viaje Euroliga",
-  "Fisioterapia": "Kit Fisioterapia",
-  "Vestuario Principal": "Nevera Vestuario",
-  "Armario Central": "Armario Médico Central",
+  ...Object.fromEntries(KIT_OPTIONS.map((k) => [k.value, k.label])),
 };
 
 export default function MedicalStockPage() {
@@ -24,7 +28,7 @@ export default function MedicalStockPage() {
   const [kitFilter, setKitFilter] = useState("ALL");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newLocation, setNewLocation] = useState("Armario Médico Central");
+  const [newKit, setNewKit] = useState<string>("Armario Central");
   const [newQty, setNewQty] = useState(10);
   const [newMinQty, setNewMinQty] = useState(5);
   const [newExpiry, setNewExpiry] = useState("2027-12-31");
@@ -41,9 +45,18 @@ export default function MedicalStockPage() {
   }), [items]);
 
   const kits = useMemo(() => {
-    const set = new Set(items.map((i) => (i as any).kit || i.location));
-    return ["ALL", ...Array.from(set)];
+    const fromData = items.map((i) => (i as any).kit || i.location).filter(Boolean);
+    const ordered = KIT_OPTIONS.map((k) => k.value);
+    const extra = Array.from(new Set(fromData)).filter((k) => !ordered.includes(k as any));
+    return ["ALL", ...ordered, ...extra];
   }, [items]);
+
+  const openAddForm = () => {
+    const preselect =
+      kitFilter !== "ALL" ? kitFilter : "Armario Central";
+    setNewKit(preselect);
+    setShowAddForm(true);
+  };
 
   const getStatusBadge = (status: string, expiry: string) => {
     if (status === "EXPIRED") {
@@ -78,17 +91,19 @@ export default function MedicalStockPage() {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
+    const kitMeta = KIT_OPTIONS.find((k) => k.value === newKit);
     await createItem({
       name: newName.trim(),
-      location: newLocation,
+      kit: newKit,
+      location: kitMeta?.location || newKit,
       quantity: newQty,
       minQuantity: newMinQty,
       expiryDate: newExpiry,
     });
     setNewName("");
     setShowAddForm(false);
+    if (newKit !== "ALL") setKitFilter(newKit);
   };
-
   if (!hasAccess) {
     return (
       <div className="bg-white dark:bg-slate-900 border rounded-xl py-16 text-center">
@@ -113,7 +128,7 @@ export default function MedicalStockPage() {
         {canEdit && (
           <button
             type="button"
-            onClick={() => setShowAddForm(true)}
+            onClick={openAddForm}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all"
           >
             <PlusCircle className="h-4 w-4" />
@@ -131,8 +146,19 @@ export default function MedicalStockPage() {
               <input type="text" required value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
             </div>
             <div>
-              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Ubicación / Botiquín</label>
-              <input type="text" value={newLocation} onChange={(e) => setNewLocation(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
+              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Botiquín / sección</label>
+              <select
+                value={newKit}
+                onChange={(e) => setNewKit(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+              >
+                {KIT_OPTIONS.map((k) => (
+                  <option key={k.value} value={k.value}>{k.label}</option>
+                ))}
+              </select>
+              <p className="text-[10px] text-slate-400 mt-1">
+                Elige dónde vive el producto: partido, viaje, fisio, nevera o armario.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

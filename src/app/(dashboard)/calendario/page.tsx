@@ -14,19 +14,35 @@ import {
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { categorizeCompetition } from '@/application/calendar-sync/parser';
-import { OFFICIAL_CALENDAR_PAGE_URL } from '@/application/calendar-sync/types';
+import {
+  calendarSportForTeamId,
+  getOfficialCalendarMeta,
+  type CalendarSport,
+} from '@/application/calendar-sync/types';
+import { useClubBranding } from '@/contexts/ClubDemoContext';
 import type { OfficialMatch } from '@/types';
 import { cn } from '@/lib/utils';
 
 type ViewMode = 'month' | 'week' | 'timeline';
 
-const COMPETITION_FILTERS = [
+const BASKETBALL_FILTERS = [
   'Todas',
   'Liga Endesa',
   'Euroliga',
   'Copa del Rey',
   'Supercopa',
   'Amistosos',
+  'Torneos internacionales',
+] as const;
+
+const FOOTBALL_FILTERS = [
+  'Todas',
+  'LaLiga',
+  'Champions League',
+  'Copa del Rey',
+  'Supercopa',
+  'Amistosos',
+  'Mundial de Clubes',
   'Torneos internacionales',
 ] as const;
 
@@ -54,9 +70,9 @@ function countdownLabel(dt: string | null): string {
   return `${hours}h ${mins}m`;
 }
 
-function matchInCategory(m: OfficialMatch, filter: string) {
+function matchInCategory(m: OfficialMatch, filter: string, sport: CalendarSport) {
   if (filter === 'Todas') return true;
-  return categorizeCompetition(m.competition) === filter;
+  return categorizeCompetition(m.competition, sport) === filter;
 }
 
 function startOfWeek(d: Date) {
@@ -69,26 +85,32 @@ function startOfWeek(d: Date) {
 
 export default function CalendarioPage() {
   const { currentTeam } = useAuth();
+  const branding = useClubBranding();
   const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const sport = branding.sport === 'football' ? 'football' : calendarSportForTeamId(teamId);
+  const calendarMeta = getOfficialCalendarMeta(sport);
+  const competitionFilters = sport === 'football' ? FOOTBALL_FILTERS : BASKETBALL_FILTERS;
 
   const [matches, setMatches] = useState<OfficialMatch[]>([]);
   const [nextMatch, setNextMatch] = useState<OfficialMatch | null>(null);
   const [nextFive, setNextFive] = useState<OfficialMatch[]>([]);
   const [recentResults, setRecentResults] = useState<OfficialMatch[]>([]);
-  const [source, setSource] = useState('Real Madrid Oficial');
+  const [source, setSource] = useState(calendarMeta.sourceLabel);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
   const [view, setView] = useState<ViewMode>('month');
-  const [filter, setFilter] = useState<(typeof COMPETITION_FILTERS)[number]>('Todas');
+  const [filter, setFilter] = useState<string>('Todas');
   const [cursor, setCursor] = useState(() => new Date());
   const [cursorSynced, setCursorSynced] = useState(false);
   const [, setTick] = useState(0);
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/calendar/sync/status?team_id=${encodeURIComponent(teamId)}`);
+      const res = await fetch(`/api/calendar/sync/status?team_id=${encodeURIComponent(teamId)}`, {
+        credentials: 'include',
+      });
       const json = await res.json();
       const list = (json.data?.matches || []) as OfficialMatch[];
       const next = (json.data?.nextMatch || null) as OfficialMatch | null;
@@ -96,7 +118,7 @@ export default function CalendarioPage() {
       setNextMatch(next);
       setNextFive(json.data?.nextFive || []);
       setRecentResults(json.data?.recentResults || []);
-      setSource(json.data?.source || json.data?.sourceLabel || 'Real Madrid Oficial');
+      setSource(json.data?.source || json.data?.sourceLabel || calendarMeta.sourceLabel);
       setLastUpdated(json.data?.lastUpdatedAt || null);
       return { list, next };
     } catch (err) {
@@ -110,12 +132,13 @@ export default function CalendarioPage() {
   useEffect(() => {
     void (async () => {
       const { list, next } = await load();
-      // Si la caché está vacía o sin próximo partido, forzar sync con la web oficial.
+      // Vacío, sin próximo, o cambio de club (teamId): forzar sync con la web oficial del deporte activo.
       if (list.length === 0 || !next) {
         try {
           await fetch('/api/calendar/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ trigger: 'manual', team_id: teamId, force: true }),
           });
           await load();
@@ -125,10 +148,27 @@ export default function CalendarioPage() {
       }
     })();
     const onSync = () => void load();
+    const onClub = () => {
+      void (async () => {
+        try {
+          await fetch('/api/calendar/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ trigger: 'manual', team_id: teamId, force: true }),
+          });
+        } catch {
+          /* ignore */
+        }
+        await load();
+      })();
+    };
     window.addEventListener('calendar-sync-complete', onSync);
+    window.addEventListener('club-demo-changed', onClub);
     const id = setInterval(() => setTick((t) => t + 1), 30000);
     return () => {
       window.removeEventListener('calendar-sync-complete', onSync);
+      window.removeEventListener('club-demo-changed', onClub);
       clearInterval(id);
     };
   }, [load, teamId]);
@@ -149,6 +189,7 @@ export default function CalendarioPage() {
       const res = await fetch('/api/calendar/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ trigger: 'manual', team_id: teamId, force: true }),
       });
       const json = await res.json();
@@ -172,9 +213,13 @@ export default function CalendarioPage() {
   }
 
   const filtered = useMemo(
-    () => matches.filter((m) => matchInCategory(m, filter)),
-    [matches, filter]
+    () => matches.filter((m) => matchInCategory(m, filter, sport)),
+    [matches, filter, sport]
   );
+
+  useEffect(() => {
+    setFilter('Todas');
+  }, [sport]);
 
   const monthCells = useMemo(() => {
     const year = cursor.getFullYear();
@@ -200,13 +245,12 @@ export default function CalendarioPage() {
   }, [cursor]);
 
   function matchesOnDay(day: Date) {
-    const key = day.toISOString().slice(0, 10);
-    // Compare Madrid date string
+    // Fecha local (no toISOString/UTC: desfasaba el día en ES).
     const y = day.getFullYear();
     const m = String(day.getMonth() + 1).padStart(2, '0');
     const dd = String(day.getDate()).padStart(2, '0');
     const localKey = `${y}-${m}-${dd}`;
-    return filtered.filter((match) => match.match_date === localKey || match.match_date === key);
+    return filtered.filter((match) => match.match_date === localKey);
   }
 
   const timeline = useMemo(
@@ -223,10 +267,13 @@ export default function CalendarioPage() {
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
             <CalendarIcon className="h-6 w-6 text-orange-500" />
-            Calendario · Primer Equipo Baloncesto
+            Calendario · Primer Equipo {sport === 'football' ? 'Fútbol' : 'Baloncesto'}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Solo partidos oficiales del Real Madrid de baloncesto (no fútbol ni otros equipos). Fuente: {source}
+            {sport === 'football'
+              ? 'Solo partidos oficiales del Real Madrid de fútbol (primer equipo masculino).'
+              : 'Solo partidos oficiales del Real Madrid de baloncesto (no fútbol ni otros equipos).'}{' '}
+            Fuente: {source}
             {lastUpdated
               ? ` · Última sync ${new Date(lastUpdated).toLocaleString('es-ES')}`
               : ''}
@@ -243,12 +290,12 @@ export default function CalendarioPage() {
             Actualizar calendario oficial
           </button>
           <a
-            href={OFFICIAL_CALENDAR_PAGE_URL}
+            href={calendarMeta.pageUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-xs font-bold"
           >
-            Web oficial (baloncesto)
+            Web oficial ({sport === 'football' ? 'fútbol' : 'baloncesto'})
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
@@ -339,7 +386,7 @@ export default function CalendarioPage() {
       {/* Filters + views */}
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
         <div className="flex flex-wrap gap-1.5">
-          {COMPETITION_FILTERS.map((c) => (
+          {competitionFilters.map((c) => (
             <button
               key={c}
               type="button"

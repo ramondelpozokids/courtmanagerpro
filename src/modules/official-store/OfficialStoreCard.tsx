@@ -10,6 +10,7 @@ import {
   readStoredStoreStatus,
   type OfficialStoreCheckResult,
 } from './OfficialStoreService';
+import { useClubBranding } from '@/contexts/ClubDemoContext';
 import { cn } from '@/lib/utils';
 
 export function OfficialStoreCard({
@@ -19,6 +20,7 @@ export function OfficialStoreCard({
   className?: string;
   checkOnMount?: boolean;
 }) {
+  const branding = useClubBranding();
   const [result, setResult] = useState<OfficialStoreCheckResult | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -65,10 +67,12 @@ export function OfficialStoreCard({
         </div>
         <div>
           <h3 className="text-sm font-black uppercase tracking-wider text-white">
-            Tienda Oficial
+            Tienda Oficial {branding.shortName}
           </h3>
           <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">
-            Equipaciones, ropa técnica, accesorios y colecciones oficiales del Real Madrid.
+            {branding.sport === 'football'
+              ? 'Camisetas oficiales adidas del primer equipo de fútbol, ropa técnica y colecciones 26/27.'
+              : 'Equipaciones, ropa técnica, accesorios y colecciones oficiales del Real Madrid.'}
           </p>
         </div>
       </div>

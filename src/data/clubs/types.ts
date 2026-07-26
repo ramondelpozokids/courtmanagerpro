@@ -1,4 +1,6 @@
-export type ClubSlug = 'rmb' | 'fcb' | 'fbat' | 'vbc';
+export type ClubSlug = 'rmb' | 'rmf' | 'fcb' | 'vbc';
+
+export type ClubSport = 'basketball' | 'football';
 
 export interface ClubBlogMilestone {
   year: string;
@@ -13,6 +15,8 @@ export interface ClubNewsItem {
   image: string;
   description: string;
   date: string;
+  /** Enlace a la noticia oficial (opcional) */
+  url?: string;
 }
 
 export interface ClubEquipacionItem {
@@ -28,6 +32,8 @@ export interface ClubBranding {
   shortName: string;
   tagline: string;
   venue: string;
+  sport: ClubSport;
+  league: string;
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;

@@ -1,13 +1,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { MatchDiff, OfficialCalendarSnapshot } from './types';
-import { OFFICIAL_CALENDAR_SOURCE_ID } from './types';
 
 export async function applyMatchDiff(params: {
   supabase: SupabaseClient;
   teamId: string;
   diff: MatchDiff;
   snapshot: OfficialCalendarSnapshot;
-  syncLogId: string;
+  syncLogId: string | null;
 }): Promise<void> {
   const { supabase, teamId, diff, snapshot, syncLogId } = params;
   const now = new Date().toISOString();
@@ -90,12 +89,12 @@ export async function applyMatchDiff(params: {
     }));
 
     const { error } = await supabase.from('match_history').insert(history);
-    if (error) throw new Error(`match_history: ${error.message}`);
+    if (error) console.warn('[calendar-sync] match_history:', error.message);
   }
 
   await supabase.from('match_sync_cache').upsert({
     team_id: teamId,
-    source_id: OFFICIAL_CALENDAR_SOURCE_ID,
+    source_id: snapshot.source_id,
     source_url: snapshot.source_url,
     payload: snapshot,
     fetched_at: snapshot.fetched_at,

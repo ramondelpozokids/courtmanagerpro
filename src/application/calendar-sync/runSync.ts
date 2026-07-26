@@ -5,10 +5,10 @@ import {
   applyDemoCalendarSync,
   getDemoMatchSyncStatus,
 } from './demoStore';
-import { fetchOfficialBasketballCalendar } from './source';
+import { fetchOfficialCalendarForTeam } from './source';
 import {
-  OFFICIAL_CALENDAR_PAGE_URL,
-  OFFICIAL_CALENDAR_SOURCE_LABEL,
+  calendarSportForTeamId,
+  getOfficialCalendarMeta,
   type DbMatchRow,
   type OfficialCalendarSnapshot,
   type RunCalendarSyncOptions,
@@ -19,7 +19,8 @@ import { isDemoMode } from '@/lib/app-mode';
 const DEFAULT_SKIP_HOURS = 11;
 
 function emptyResult(
-  partial: Partial<RunCalendarSyncResult> & Pick<RunCalendarSyncResult, 'status' | 'durationMs'>
+  partial: Partial<RunCalendarSyncResult> & Pick<RunCalendarSyncResult, 'status' | 'durationMs'>,
+  sourceUrl?: string
 ): RunCalendarSyncResult {
   return {
     skipped: false,
@@ -30,7 +31,7 @@ function emptyResult(
     matchesRemoved: 0,
     resultsUpdated: 0,
     errorMessage: null,
-    sourceUrl: OFFICIAL_CALENDAR_PAGE_URL,
+    sourceUrl: sourceUrl || getOfficialCalendarMeta('basketball').pageUrl,
     fetchedAt: null,
     usedCache: false,
     ...partial,
@@ -38,6 +39,7 @@ function emptyResult(
 }
 
 export async function getCalendarSyncStatus(supabase: SupabaseClient | null, teamId: string) {
+  const meta = getOfficialCalendarMeta(calendarSportForTeamId(teamId));
   if (!supabase || isDemoMode()) {
     const demo = getDemoMatchSyncStatus(teamId);
     return {
@@ -56,8 +58,8 @@ export async function getCalendarSyncStatus(supabase: SupabaseClient | null, tea
 
   return {
     lastSync: last,
-    sourceLabel: OFFICIAL_CALENDAR_SOURCE_LABEL,
-    source: OFFICIAL_CALENDAR_SOURCE_LABEL,
+    sourceLabel: meta.sourceLabel,
+    source: meta.sourceLabel,
     syncedOk: !last || ['ok', 'offline_cache', 'skipped'].includes(last.status),
     usedCache: last?.status === 'offline_cache',
     lastUpdatedAt: last?.finished_at || last?.started_at || null,
@@ -73,6 +75,7 @@ export async function runCalendarSync(params: {
   const startedAt = new Date().toISOString();
   const { options } = params;
   const skipHours = options.skipIfRecentHours ?? DEFAULT_SKIP_HOURS;
+  const meta = getOfficialCalendarMeta(calendarSportForTeamId(options.teamId));
 
   if (!params.supabase || isDemoMode()) {
     return applyDemoCalendarSync(options);
@@ -102,18 +105,21 @@ export async function runCalendarSync(params: {
             duration_ms: Date.now() - started,
             status: 'skipped',
             trigger: options.trigger,
-            source_url: OFFICIAL_CALENDAR_PAGE_URL,
+            source_url: meta.pageUrl,
             metadata: { reason: 'recent_sync', ageHours: ageH },
           })
           .select('id')
           .single();
-        return emptyResult({
-          skipped: true,
-          status: 'skipped',
-          syncLogId: data?.id || null,
-          durationMs: Date.now() - started,
-          fetchedAt: last.started_at,
-        });
+        return emptyResult(
+          {
+            skipped: true,
+            status: 'skipped',
+            syncLogId: data?.id || null,
+            durationMs: Date.now() - started,
+            fetchedAt: last.started_at,
+          },
+          meta.pageUrl
+        );
       }
     }
   }
@@ -125,7 +131,7 @@ export async function runCalendarSync(params: {
       started_at: startedAt,
       status: 'ok',
       trigger: options.trigger,
-      source_url: OFFICIAL_CALENDAR_PAGE_URL,
+      source_url: meta.pageUrl,
     })
     .select('id')
     .single();
@@ -137,7 +143,7 @@ export async function runCalendarSync(params: {
   let fetchError: string | null = null;
 
   try {
-    snapshot = await fetchOfficialBasketballCalendar();
+    snapshot = await fetchOfficialCalendarForTeam(options.teamId);
   } catch (err) {
     fetchError = err instanceof Error ? err.message : String(err);
     console.error('[calendar-sync] fetch failed:', fetchError);
@@ -165,12 +171,15 @@ export async function runCalendarSync(params: {
         })
         .eq('id', syncLogId);
     }
-    return emptyResult({
-      status: 'error',
-      syncLogId: syncLogId || null,
-      durationMs,
-      errorMessage: fetchError || 'Calendario vacío',
-    });
+    return emptyResult(
+      {
+        status: 'error',
+        syncLogId: syncLogId || null,
+        durationMs,
+        errorMessage: fetchError || 'Calendario vacío',
+      },
+      meta.pageUrl
+    );
   }
 
   try {
@@ -183,16 +192,14 @@ export async function runCalendarSync(params: {
 
     const diff = computeMatchDiff(snapshot, (rows || []) as DbMatchRow[]);
 
-    if (syncLogId) {
-      await applyMatchDiff({
-        supabase,
-        teamId: options.teamId,
-        diff,
-        snapshot,
-        syncLogId,
-      });
-      await createCalendarAlerts({ supabase, teamId: options.teamId, diff });
-    }
+    await applyMatchDiff({
+      supabase,
+      teamId: options.teamId,
+      diff,
+      snapshot,
+      syncLogId: syncLogId || null,
+    });
+    await createCalendarAlerts({ supabase, teamId: options.teamId, diff });
 
     const durationMs = Date.now() - started;
     const status = usedCache ? 'offline_cache' : fetchError ? 'partial' : 'ok';
@@ -248,13 +255,16 @@ export async function runCalendarSync(params: {
         })
         .eq('id', syncLogId);
     }
-    return emptyResult({
-      status: 'error',
-      syncLogId: syncLogId || null,
-      durationMs,
-      errorMessage: msg,
-      usedCache,
-      fetchedAt: snapshot.fetched_at,
-    });
+    return emptyResult(
+      {
+        status: 'error',
+        syncLogId: syncLogId || null,
+        durationMs,
+        errorMessage: msg,
+        usedCache,
+        fetchedAt: snapshot.fetched_at,
+      },
+      meta.pageUrl
+    );
   }
 }

@@ -3,9 +3,11 @@
 import { useRequests } from "@/hooks/useRequests";
 import { useAuth } from "@/contexts/AuthContext";
 import { canCreateRequest, canProcessRequests } from "@/lib/permissions";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
+import { isUuid } from "@/lib/club-team-ids";
 import RequestForm from "@/components/requests/RequestForm";
 import { useMemo, useState } from "react";
-import { PlusCircle, ShoppingBag, CheckCircle, Clock, RefreshCw, Filter } from "lucide-react";
+import { PlusCircle, ShoppingBag, CheckCircle, Clock, RefreshCw, Filter, Trash2 } from "lucide-react";
 
 const CATEGORY_LABELS: Record<string, string> = {
   ALL: "Todas",
@@ -16,38 +18,80 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function RequestsPage() {
-  const { user, userEmail, isSuperadmin } = useAuth();
-  const { requests, loading, createRequest, updateStatus } = useRequests();
+  const { user, userEmail, isSuperadmin, currentTeam } = useAuth();
+  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const { requests, loading, error, realMode, createRequest, updateStatus, deleteRequest } = useRequests(teamId);
   const [showAddForm, setShowAddForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [formOk, setFormOk] = useState<string | null>(null);
 
   const userRole = user?.profile?.role || "assistant";
-  const userId = user?.id || "u1";
+  const userId = user?.id || "";
   const canProcess = isSuperadmin || canProcessRequests(userRole, userEmail);
   const canCreate = isSuperadmin || canCreateRequest(userRole, userEmail);
   const isPlayer = userRole === "player";
 
-  const stats = useMemo(() => ({
-    pending: requests.filter((r) => r.status === "pendiente").length,
-    approved: requests.filter((r) => r.status === "aprobada").length,
-    delivered: requests.filter((r) => r.status === "completada").length,
-    total: requests.length,
-  }), [requests]);
+  const stats = useMemo(
+    () => ({
+      pending: requests.filter((r) => r.status === "pendiente").length,
+      approved: requests.filter((r) => r.status === "aprobada").length,
+      delivered: requests.filter((r) => r.status === "completada").length,
+      total: requests.length,
+    }),
+    [requests]
+  );
 
-  const handleCreateRequest = async (reqData: any) => {
+  const handleCreateRequest = async (reqData: {
+    playerId: string;
+    playerName: string;
+    itemId: string;
+    itemName: string;
+    quantity: number;
+    size: string;
+    notes?: string;
+  }) => {
+    setFormError(null);
+    setFormOk(null);
+
+    if (realMode && !isUuid(userId)) {
+      setFormError("Inicia sesión con un usuario real para guardar en Supabase.");
+      return;
+    }
+
     try {
-      // Map to CreateRequestForm fields
-      await createRequest({
-        title: reqData.itemName,
-        description: reqData.notes,
-        priority: "normal",
-        player_id: reqData.playerId,
-        quantity: reqData.quantity,
-        size: reqData.size
-      }, userId);
+      await createRequest(
+        {
+          title: reqData.itemName,
+          description: reqData.notes
+            ? `${reqData.notes} (Jugador: ${reqData.playerName})`
+            : `Jugador: ${reqData.playerName}`,
+          priority: "normal",
+          player_id: reqData.playerId,
+          quantity: reqData.quantity,
+          size: reqData.size,
+          items: [
+            {
+              item_id: reqData.itemId,
+              item_name: reqData.itemName,
+              quantity: reqData.quantity,
+              size: reqData.size,
+              notes: reqData.notes || null,
+            },
+          ],
+        },
+        userId
+      );
       setShowAddForm(false);
+      setFormOk(
+        realMode
+          ? "Solicitud guardada en Supabase. Visible en Alertas para utillería."
+          : "Solicitud creada (modo demo — no permanente)."
+      );
     } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error al crear la solicitud";
+      setFormError(msg);
       console.error(err);
     }
   };
@@ -62,10 +106,11 @@ export default function RequestsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Solicitudes de Equipamiento</h2>
+          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
+            Solicitudes de Equipamiento
+          </h2>
           <p className="text-sm text-slate-500 mt-1">
             {canProcess
               ? `Workflow de peticiones — ${stats.pending} pendientes · ${stats.approved} aprobadas · ${stats.delivered} entregadas`
@@ -73,17 +118,43 @@ export default function RequestsPage() {
           </p>
         </div>
         {canCreate && (
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/15"
-        >
-          <PlusCircle className="h-4.5 w-4.5" />
-          Nueva Petición
-        </button>
+          <button
+            onClick={() => {
+              setFormError(null);
+              setShowAddForm(true);
+            }}
+            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/15"
+          >
+            <PlusCircle className="h-4.5 w-4.5" />
+            Nueva Petición
+          </button>
         )}
       </div>
 
-      {/* Stats */}
+      <div
+        className={`rounded-xl border px-4 py-2.5 text-xs font-semibold text-left ${
+          realMode
+            ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+            : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
+        }`}
+      >
+        {realMode
+          ? "Modo real (Real Madrid) — las solicitudes se guardan en Supabase y generan alerta para utillería."
+          : "Modo demo (FCB/VBC u offline) — los cambios no son permanentes. Usa RMB o RMF para modo real."}
+      </div>
+
+      {(formOk || formError || error) && (
+        <div
+          className={`rounded-xl border px-4 py-2.5 text-xs font-semibold text-left ${
+            formError || error
+              ? "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300"
+              : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+          }`}
+        >
+          {formError || error || formOk}
+        </div>
+      )}
+
       {canProcess && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
@@ -100,26 +171,35 @@ export default function RequestsPage() {
         </div>
       )}
 
-      {/* Modal request form */}
       {showAddForm && (
         <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="max-h-[90vh] overflow-y-auto w-full max-w-lg">
-            <RequestForm onSubmit={handleCreateRequest} onClose={() => setShowAddForm(false)} />
+            <RequestForm
+              teamId={teamId}
+              onSubmit={handleCreateRequest}
+              onClose={() => setShowAddForm(false)}
+            />
           </div>
         </div>
       )}
 
-      {/* Filtros */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="flex gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
           {["ALL", "pendiente", "aprobada", "completada"].map((status) => {
-            const labels: Record<string, string> = { ALL: "Todas", pendiente: "Pendientes", aprobada: "Aprobadas", completada: "Entregadas" };
+            const labels: Record<string, string> = {
+              ALL: "Todas",
+              pendiente: "Pendientes",
+              aprobada: "Aprobadas",
+              completada: "Entregadas",
+            };
             return (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
-                  statusFilter === status ? "bg-white dark:bg-slate-800 text-orange-600 shadow-sm" : "text-slate-500"
+                  statusFilter === status
+                    ? "bg-white dark:bg-slate-800 text-orange-600 shadow-sm"
+                    : "text-slate-500"
                 }`}
               >
                 {labels[status]}
@@ -135,7 +215,9 @@ export default function RequestsPage() {
               type="button"
               onClick={() => setCategoryFilter(cat)}
               className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                categoryFilter === cat ? "bg-orange-500 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                categoryFilter === cat
+                  ? "bg-orange-500 text-white"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-500"
               }`}
             >
               {CATEGORY_LABELS[cat]}
@@ -144,7 +226,6 @@ export default function RequestsPage() {
         </div>
       </div>
 
-      {/* Requests Grid List */}
       {loading ? (
         <div className="py-20 text-center text-slate-400">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto text-orange-500 mb-2" />
@@ -163,33 +244,52 @@ export default function RequestsPage() {
               key={req.id}
               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex flex-col justify-between"
             >
-              {/* Request Item Header */}
               <div>
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold text-slate-500 tracking-wider uppercase">
                       ID: {req.id.slice(0, 8)}
                     </span>
-                    <h3 className="font-extrabold text-slate-850 dark:text-slate-100 text-base mt-1.5">{req.title}</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">Talla: <span className="font-bold text-slate-700 dark:text-slate-300">{req.size || "Única"}</span> • Cantidad: <span className="font-bold text-slate-700 dark:text-slate-300">{req.quantity || 1} uds</span></p>
+                    <h3 className="font-extrabold text-slate-850 dark:text-slate-100 text-base mt-1.5">
+                      {req.title}
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Talla:{" "}
+                      <span className="font-bold text-slate-700 dark:text-slate-300">
+                        {req.size || "Única"}
+                      </span>{" "}
+                      • Cantidad:{" "}
+                      <span className="font-bold text-slate-700 dark:text-slate-300">
+                        {req.quantity || 1} uds
+                      </span>
+                    </p>
                   </div>
 
-                  {/* Status Tag */}
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                    req.status === "completada"
-                      ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20"
-                      : req.status === "aprobada"
-                      ? "bg-blue-50 text-blue-600 dark:bg-blue-950/20"
-                      : req.status === "pendiente"
-                      ? "bg-amber-50 text-amber-600 dark:bg-amber-950/20"
-                      : "bg-red-50 text-red-600 dark:bg-red-950/20"
-                  }`}>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      req.status === "completada"
+                        ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20"
+                        : req.status === "aprobada"
+                          ? "bg-blue-50 text-blue-600 dark:bg-blue-950/20"
+                          : req.status === "pendiente"
+                            ? "bg-amber-50 text-amber-600 dark:bg-amber-950/20"
+                            : "bg-red-50 text-red-600 dark:bg-red-950/20"
+                    }`}
+                  >
                     {req.status === "completada" ? (
                       <CheckCircle className="h-3 w-3" />
                     ) : req.status === "pendiente" ? (
                       <Clock className="h-3 w-3" />
                     ) : null}
-                    <span>{req.status === "completada" ? "Entregado" : req.status === "aprobada" ? "Aprobado" : req.status === "pendiente" ? "Pendiente" : "Rechazado"}</span>
+                    <span>
+                      {req.status === "completada"
+                        ? "Entregado"
+                        : req.status === "aprobada"
+                          ? "Aprobado"
+                          : req.status === "pendiente"
+                            ? "Pendiente"
+                            : "Rechazado"}
+                    </span>
                   </span>
                 </div>
 
@@ -202,17 +302,18 @@ export default function RequestsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Fecha solicitud:</span>
-                    <span suppressHydrationWarning={true} className="font-medium text-slate-500">{new Date(req.created_at).toLocaleDateString()}</span>
+                    <span suppressHydrationWarning={true} className="font-medium text-slate-500">
+                      {new Date(req.created_at).toLocaleDateString()}
+                    </span>
                   </div>
                   {req.description && (
                     <div className="bg-slate-50 dark:bg-slate-850 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 mt-2 italic leading-relaxed">
-                      "{req.description}"
+                      &ldquo;{req.description}&rdquo;
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Action Buttons for Admins / Managers */}
               {canProcess && req.status !== "completada" && req.status !== "rechazada" && (
                 <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex gap-2">
                   {req.status === "pendiente" && (
@@ -240,6 +341,25 @@ export default function RequestsPage() {
                       Marcar como ENTREGADO (Deducir Stock)
                     </button>
                   )}
+                </div>
+              )}
+
+              {canProcess && (req.status === "aprobada" || req.status === "rechazada" || req.status === "completada") && (
+                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm("¿Eliminar esta solicitud de forma permanente?")) {
+                        void deleteRequest(req.id).catch((err) =>
+                          alert(err instanceof Error ? err.message : "No se pudo eliminar")
+                        );
+                      }
+                    }}
+                    className="w-full py-2 text-xs font-bold rounded-lg border border-red-200 dark:border-red-900/50 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Eliminar solicitud
+                  </button>
                 </div>
               )}
             </div>

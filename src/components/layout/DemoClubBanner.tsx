@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useClubDemo, useClubBranding } from '@/contexts/ClubDemoContext';
 import { CLUB_LIST } from '@/data/clubs';
 import type { ClubSlug } from '@/data/clubs/types';
+import { isPreviewDemoClub, isRealMadridClubSlug } from '@/lib/club-preview';
 import { Sparkles, Crown } from 'lucide-react';
 
 export default function DemoClubBanner() {
@@ -15,6 +16,10 @@ export default function DemoClubBanner() {
     canSwitchClubs,
     isSuperadminPreview,
     previewClubs,
+    realMadridClubs,
+    commercialDemoClubs,
+    presentationMode,
+    setPresentationModeOn,
   } = useClubDemo();
   const branding = useClubBranding();
 
@@ -23,6 +28,43 @@ export default function DemoClubBanner() {
   const clubs = isDemo
     ? CLUB_LIST
     : CLUB_LIST.filter((pack) => previewClubs.includes(pack.branding.slug as ClubSlug));
+
+  const orderedClubs = [...clubs].sort((a, b) => {
+    const sa = a.branding.slug as ClubSlug;
+    const sb = b.branding.slug as ClubSlug;
+    const rank = (s: ClubSlug) =>
+      realMadridClubs.includes(s) ? 0 : commercialDemoClubs.includes(s) ? 1 : 2;
+    return rank(sa) - rank(sb);
+  });
+
+  const modeLabel = (() => {
+    if (!isSuperadminPreview) {
+      return (
+        <>
+          <strong>Demo comercial</strong> — {branding.name} · datos ilustrativos
+        </>
+      );
+    }
+    if (presentationMode) {
+      return (
+        <>
+          <strong>Presentación Real Madrid</strong> — {branding.name} · solo RMB / RMF
+        </>
+      );
+    }
+    if (isRealMadridClubSlug(clubSlug)) {
+      return (
+        <>
+          <strong>Superadmin</strong> — {branding.name} · producción real · Supabase
+        </>
+      );
+    }
+    return (
+      <>
+        <strong>Superadmin</strong> — {branding.name} · demo comercial
+      </>
+    );
+  })();
 
   return (
     <div
@@ -38,25 +80,25 @@ export default function DemoClubBanner() {
         ) : (
           <Sparkles className="h-3.5 w-3.5 shrink-0" style={{ color: branding.accentColor }} />
         )}
-        <span>
-          {isSuperadminPreview ? (
-            <>
-              <strong>Superadmin</strong> — {branding.name}
-              {clubSlug === 'rmb'
-                ? ' · producción real · acceso total'
-                : ' · demo comercial · acceso total'}
-            </>
-          ) : (
-            <>
-              <strong>Demo comercial</strong> — {branding.name} · datos ilustrativos para presentación comercial
-            </>
-          )}
-        </span>
+        <span>{modeLabel}</span>
       </div>
       <div className="flex items-center gap-1.5 flex-wrap">
-        {clubs.map((pack) => {
+        {isSuperadminPreview && (
+          <label className="flex items-center gap-1.5 mr-1 px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 font-bold cursor-pointer">
+            <input
+              type="checkbox"
+              checked={presentationMode}
+              onChange={(e) => setPresentationModeOn(e.target.checked)}
+              className="rounded border-amber-300"
+            />
+            Solo RM
+          </label>
+        )}
+        {orderedClubs.map((pack) => {
           const slug = pack.branding.slug as ClubSlug;
           const active = clubSlug === slug;
+          const isRm = isRealMadridClubSlug(slug);
+          const isCommercial = isPreviewDemoClub(slug);
           return (
             <button
               key={slug}
@@ -65,13 +107,26 @@ export default function DemoClubBanner() {
               onClick={() => switchClub(slug, { redirect: '/' })}
               className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
                 active
-                  ? 'ring-2 ring-offset-1 ring-orange-500 bg-white dark:bg-slate-800 shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-80 hover:opacity-100'
+                  ? isRm
+                    ? 'ring-2 ring-offset-1 ring-amber-500 bg-white dark:bg-slate-800 shadow-sm'
+                    : 'ring-2 ring-offset-1 ring-orange-500 bg-white dark:bg-slate-800 shadow-sm'
+                  : isRm
+                    ? 'bg-white dark:bg-slate-800 border border-amber-300/60 dark:border-amber-600/40 hover:bg-amber-50 dark:hover:bg-slate-700'
+                    : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-70 hover:opacity-100'
               }`}
-              title={pack.branding.name}
+              title={
+                isRm
+                  ? `${pack.branding.name} (producción)`
+                  : `${pack.branding.name} (demo comercial)`
+              }
             >
               <img src={pack.branding.logoUrl} alt="" className="h-4 w-4 object-contain" />
               {pack.branding.shortName}
+              {isCommercial && (
+                <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+                  demo
+                </span>
+              )}
             </button>
           );
         })}

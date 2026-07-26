@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient, createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { supabaseServiceRoleKey } from '@/infrastructure/supabase/env';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { runCalendarSync } from '@/application/calendar-sync/runSync';
 import type { SyncTrigger } from '@/types';
 
 export const runtime = 'nodejs';
+
+function hasRealServiceRole(): boolean {
+  return Boolean(
+    supabaseServiceRoleKey &&
+      supabaseServiceRoleKey.length > 40 &&
+      !supabaseServiceRoleKey.includes('dummy')
+  );
+}
+
+async function getCalendarWriteClient() {
+  if (!isServerProduction()) return null;
+  if (hasRealServiceRole()) return createSupabaseAdminClient();
+  return createSupabaseServerClient();
+}
 
 function isCronAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -46,11 +62,7 @@ export async function POST(req: NextRequest) {
     if (response || !user) return response!;
   }
 
-  const supabase = isServerProduction()
-    ? trigger === 'cron'
-      ? createSupabaseAdminClient()
-      : await createSupabaseServerClient()
-    : null;
+  const supabase = await getCalendarWriteClient();
 
   try {
     const result = await runCalendarSync({
@@ -73,7 +85,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const trigger = (req.nextUrl.searchParams.get('trigger') || 'cron') as SyncTrigger;
   const force = req.nextUrl.searchParams.get('force') === '1';
-  const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
+  const explicitTeam = req.nextUrl.searchParams.get('team_id');
 
   if (trigger === 'cron') {
     if (!isCronAuthorized(req) && isServerProduction()) {
@@ -84,18 +96,32 @@ export async function GET(req: NextRequest) {
     if (response || !user) return response!;
   }
 
-  const supabase = isServerProduction() ? createSupabaseAdminClient() : null;
+  const supabase = await getCalendarWriteClient();
+  const syncTrigger: SyncTrigger =
+    trigger === 'startup' ? 'startup' : trigger === 'manual' ? 'manual' : 'cron';
 
   try {
-    const result = await runCalendarSync({
-      supabase: supabase as any,
-      options: {
-        teamId,
-        trigger: trigger === 'startup' ? 'startup' : trigger === 'manual' ? 'manual' : 'cron',
-        force,
-      },
+    // Cron sin team_id → RMB (baloncesto) + RMF (fútbol)
+    const teamIds =
+      explicitTeam
+        ? [resolveTeamId(explicitTeam)]
+        : syncTrigger === 'cron'
+          ? [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf]
+          : [DEFAULT_TEAM_ID];
+
+    const results = [];
+    for (const teamId of teamIds) {
+      results.push(
+        await runCalendarSync({
+          supabase: supabase as any,
+          options: { teamId, trigger: syncTrigger, force: force || syncTrigger === 'cron' },
+        })
+      );
+    }
+
+    return NextResponse.json({
+      data: results.length === 1 ? results[0] : { teams: results },
     });
-    return NextResponse.json({ data: result });
   } catch (err) {
     console.error('[api/calendar/sync GET]', err);
     return NextResponse.json(

@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { useAlerts } from "@/hooks/useAlerts";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import { Bell, Shield, ChevronDown, Home, Settings, MessageCircle, X, CheckCircle, LogIn, LogOut, Landmark, KeyRound } from "lucide-react";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -14,6 +15,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 import { useState } from "react";
 import Link from "next/link";
+import { CeoAvatar } from "@/components/layout/CeoAvatar";
 
 const ROLE_LABELS: Record<string, string> = {
   superadmin: "Superadmin",
@@ -26,9 +28,9 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function TopBar() {
-  const { user, logout, isSuperadmin } = useAuth();
+  const { user, logout, isSuperadmin, currentTeam } = useAuth();
   const branding = useClubBranding();
-  const { alerts } = useAlerts();
+  const { alerts } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showBlogDropdown, setShowBlogDropdown] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -43,9 +45,7 @@ export default function TopBar() {
 
   const userRole = user?.profile?.role || "equipment_manager";
   const userName = user?.profile?.full_name || "Usuario";
-  const userAvatar = isSuperadmin
-    ? '/images/ramon-avatar.png?v=5'
-    : '/images/carlos-avatar.png?v=5';
+  const showCeoAvatar = isSuperadmin || userRole === "superadmin" || /ram[oó]n/i.test(userName);
   const roleLabel = ROLE_LABELS[userRole] || userRole.replace("_", " ");
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -190,11 +190,18 @@ export default function TopBar() {
         </Link>
 
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
-          <img
-            src={userAvatar}
-            alt={userName}
-            className="h-9 w-9 rounded-full object-cover object-top bg-slate-800 border border-slate-700 animate-in fade-in zoom-in"
-          />
+          {showCeoAvatar ? (
+            <CeoAvatar size={36} title={userName} />
+          ) : (
+            <img
+              src="/images/carlos-avatar.png?v=20"
+              alt=""
+              width={36}
+              height={36}
+              className="h-9 w-9 rounded-full object-cover object-top bg-slate-800 border border-slate-700 shrink-0"
+              draggable={false}
+            />
+          )}
           <div className="hidden lg:block leading-none text-left">
             <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">{userName}</h4>
             <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider">{roleLabel}</span>

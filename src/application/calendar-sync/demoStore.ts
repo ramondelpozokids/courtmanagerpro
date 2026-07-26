@@ -1,9 +1,9 @@
 import type { OfficialMatch } from '@/types';
 import { computeMatchDiff } from './diffEngine';
-import { fetchOfficialBasketballCalendar } from './source';
+import { fetchOfficialCalendarForTeam } from './source';
 import {
-  OFFICIAL_CALENDAR_PAGE_URL,
-  OFFICIAL_CALENDAR_SOURCE_LABEL,
+  calendarSportForTeamId,
+  getOfficialCalendarMeta,
   type MatchDiff,
   type OfficialCalendarSnapshot,
   type OfficialFixture,
@@ -74,12 +74,13 @@ export function getDemoMatchHistory(teamId: string, limit = 50) {
 }
 
 export function getDemoMatchSyncStatus(teamId: string) {
+  const meta = getOfficialCalendarMeta(calendarSportForTeamId(teamId));
   const last = [...logs]
     .filter((l) => l.team_id === teamId)
     .sort((a, b) => (a.started_at < b.started_at ? 1 : -1))[0];
   return {
     lastSync: last || null,
-    sourceLabel: OFFICIAL_CALENDAR_SOURCE_LABEL,
+    sourceLabel: meta.sourceLabel,
     syncedOk: !last || ['ok', 'offline_cache', 'skipped'].includes(last.status),
     usedCache: last?.status === 'offline_cache',
     lastUpdatedAt: last?.finished_at || last?.started_at || null,
@@ -154,6 +155,7 @@ export async function applyDemoCalendarSync(
   const started = Date.now();
   const startedAt = new Date().toISOString();
   const skipHours = options.skipIfRecentHours ?? 11;
+  const meta = getOfficialCalendarMeta(calendarSportForTeamId(options.teamId));
 
   if (!options.force && options.trigger === 'startup') {
     const status = getDemoMatchSyncStatus(options.teamId);
@@ -174,7 +176,7 @@ export async function applyDemoCalendarSync(
           results_updated: 0,
           changes_count: 0,
           error_message: null,
-          source_url: OFFICIAL_CALENDAR_PAGE_URL,
+          source_url: meta.pageUrl,
           trigger: options.trigger,
           created_at: startedAt,
         });
@@ -189,7 +191,7 @@ export async function applyDemoCalendarSync(
           matchesRemoved: 0,
           resultsUpdated: 0,
           errorMessage: null,
-          sourceUrl: OFFICIAL_CALENDAR_PAGE_URL,
+          sourceUrl: meta.pageUrl,
           fetchedAt: status.lastUpdatedAt,
           usedCache: false,
         };
@@ -202,7 +204,7 @@ export async function applyDemoCalendarSync(
   let fetchError: string | null = null;
 
   try {
-    snapshot = await fetchOfficialBasketballCalendar();
+    snapshot = await fetchOfficialCalendarForTeam(options.teamId);
   } catch (err) {
     fetchError = err instanceof Error ? err.message : String(err);
     snapshot = cacheByTeam.get(options.teamId) || null;
@@ -225,7 +227,7 @@ export async function applyDemoCalendarSync(
       results_updated: 0,
       changes_count: 0,
       error_message: fetchError || 'Calendario no disponible',
-      source_url: OFFICIAL_CALENDAR_PAGE_URL,
+      source_url: meta.pageUrl,
       trigger: options.trigger,
       created_at: startedAt,
     });
@@ -240,7 +242,7 @@ export async function applyDemoCalendarSync(
       matchesRemoved: 0,
       resultsUpdated: 0,
       errorMessage: fetchError || 'Calendario no disponible',
-      sourceUrl: OFFICIAL_CALENDAR_PAGE_URL,
+      sourceUrl: meta.pageUrl,
       fetchedAt: null,
       usedCache: false,
     };

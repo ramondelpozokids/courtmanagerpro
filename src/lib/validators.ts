@@ -3,7 +3,17 @@ import { z } from 'zod';
 export const createPlayerSchema = z.object({
   full_name: z.string().min(2, "El nombre completo debe tener al menos 2 caracteres"),
   dorsal: z.number().min(0).max(99, "El dorsal debe estar entre 0 y 99"),
-  position: z.enum(['base', 'escolta', 'alero', 'ala_pivot', 'pivot']),
+  position: z.enum([
+    'base',
+    'escolta',
+    'alero',
+    'ala_pivot',
+    'pivot',
+    'portero',
+    'defensa',
+    'centrocampista',
+    'delantero',
+  ]),
   nationality: z.string().optional().nullable(),
   birth_date: z.string().optional().nullable(),
   shirt_size: z.string().optional().nullable(),

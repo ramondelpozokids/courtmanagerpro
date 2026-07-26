@@ -23,6 +23,11 @@ const DEMO_TO_FORM_POSITION: Record<string, FormPlayer['position']> = {
   pf: 'PF',
   pivot: 'C',
   c: 'C',
+  // Fútbol → mapeo provisional al formulario (hasta UI multi-deporte)
+  portero: 'C',
+  defensa: 'PF',
+  centrocampista: 'PG',
+  delantero: 'SF',
 };
 
 export function demoPositionToForm(position: string): FormPlayer['position'] {

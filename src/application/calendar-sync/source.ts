@@ -1,17 +1,22 @@
 import {
-  BASKETBALL_FIRST_TEAM_TAG,
-  OFFICIAL_CALENDAR_PAGE_URL,
-  OFFICIAL_CALENDAR_SOURCE_ID,
-  OFFICIAL_CALENDAR_SOURCE_LABEL,
+  calendarSportForTeamId,
+  getOfficialCalendarMeta,
+  type CalendarSport,
   type OfficialCalendarSnapshot,
 } from './types';
-import { mapDiaryItemToFixture, isBasketballFirstTeamFixture } from './parser';
+import {
+  mapDiaryItemToFixture,
+  isBasketballFirstTeamFixture,
+  isFootballFirstTeamFixture,
+} from './parser';
 
 const HEADERS = {
   'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
   Accept: 'application/json,text/html',
   'Accept-Language': 'es-ES,es;q=0.9',
+  Referer: 'https://www.realmadrid.com/es-ES/calendario',
+  Origin: 'https://www.realmadrid.com',
 };
 
 async function sleep(ms: number) {
@@ -34,8 +39,8 @@ async function fetchWithRetry(url: string, attempts = 3): Promise<Response> {
   throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
-function diaryUrl(fromIso: string, toIso: string): string {
-  const filterSquad = `{"tag":{"_expressions":[{"_operator":"CONTAINS","value":"${BASKETBALL_FIRST_TEAM_TAG}"}],"_logOp":"OR"}}`;
+function diaryUrl(fromIso: string, toIso: string, tag: string): string {
+  const filterSquad = `{"tag":{"_expressions":[{"_operator":"CONTAINS","value":"${tag}"}],"_logOp":"OR"}}`;
   const alang = '/content/dam/portals/realmadrid-com/es-es/sports/';
   return (
     'https://publish.realmadrid.com/graphql/execute.json/realmadridmastersite/' +
@@ -46,8 +51,7 @@ function diaryUrl(fromIso: string, toIso: string): string {
 function seasonWindow(): { from: string; to: string } {
   const now = new Date();
   const y = now.getUTCFullYear();
-  const m = now.getUTCMonth(); // 0-11
-  // Temporada ACB ~ jul/ago Y → jun/jul Y+1. Desde julio ya apuntamos a Y/(Y+1).
+  const m = now.getUTCMonth();
   const startYear = m >= 6 ? y : y - 1;
   return {
     from: `${startYear}-07-01T00:00:00.000Z`,
@@ -65,9 +69,12 @@ function extendedWindow(): { from: string; to: string } {
   };
 }
 
-export async function fetchOfficialBasketballCalendar(): Promise<OfficialCalendarSnapshot> {
+export async function fetchOfficialCalendar(
+  sport: CalendarSport = 'basketball'
+): Promise<OfficialCalendarSnapshot> {
+  const meta = getOfficialCalendarMeta(sport);
   const { from, to } = extendedWindow();
-  const url = diaryUrl(from, to);
+  const url = diaryUrl(from, to, meta.tag);
   const res = await fetchWithRetry(url);
   const json = (await res.json()) as {
     data?: { matchList?: { items?: Array<Record<string, unknown>> } };
@@ -80,25 +87,44 @@ export async function fetchOfficialBasketballCalendar(): Promise<OfficialCalenda
 
   const items = json.data?.matchList?.items || [];
   const fixtures = items
-    .map((item) => mapDiaryItemToFixture(item))
+    .map((item) => mapDiaryItemToFixture(item, sport))
     .filter((f): f is NonNullable<typeof f> => Boolean(f))
-    .filter((f) => isBasketballFirstTeamFixture(f));
+    .filter((f) =>
+      sport === 'football' ? isFootballFirstTeamFixture(f) : isBasketballFirstTeamFixture(f)
+    );
 
-  // Deduplicate by slug
   const bySlug = new Map(fixtures.map((f) => [f.official_slug, f]));
   const unique = [...bySlug.values()].sort((a, b) =>
     a.match_datetime < b.match_datetime ? -1 : 1
   );
 
   if (unique.length === 0) {
-    throw new Error('Calendario oficial de baloncesto vacío o no parseable');
+    throw new Error(
+      sport === 'football'
+        ? 'Calendario oficial de fútbol vacío o no parseable'
+        : 'Calendario oficial de baloncesto vacío o no parseable'
+    );
   }
 
   return {
-    source_id: OFFICIAL_CALENDAR_SOURCE_ID,
-    source_url: OFFICIAL_CALENDAR_PAGE_URL,
-    source_label: OFFICIAL_CALENDAR_SOURCE_LABEL,
+    source_id: meta.sourceId,
+    source_url: meta.pageUrl,
+    source_label: meta.sourceLabel,
     fetched_at: new Date().toISOString(),
     fixtures: unique,
   };
+}
+
+export async function fetchOfficialBasketballCalendar(): Promise<OfficialCalendarSnapshot> {
+  return fetchOfficialCalendar('basketball');
+}
+
+export async function fetchOfficialFootballCalendar(): Promise<OfficialCalendarSnapshot> {
+  return fetchOfficialCalendar('football');
+}
+
+export async function fetchOfficialCalendarForTeam(
+  teamId: string
+): Promise<OfficialCalendarSnapshot> {
+  return fetchOfficialCalendar(calendarSportForTeamId(teamId));
 }

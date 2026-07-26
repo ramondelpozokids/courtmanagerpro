@@ -597,8 +597,8 @@ BEGIN
     INSERT INTO alerts (team_id, type, severity, title, message, entity_type, entity_id)
     VALUES (
       NEW.team_id,
-      'stock_bajo',
-      CASE WHEN NEW.stock_available = 0 THEN 'critical' ELSE 'warning' END,
+      'stock_bajo'::alert_type,
+      (CASE WHEN NEW.stock_available = 0 THEN 'critical' ELSE 'warning' END)::alert_severity,
       'Stock bajo: ' || NEW.name,
       'Quedan ' || NEW.stock_available || ' unidades de ' || NEW.name || '. Mínimo establecido: ' || NEW.stock_min,
       'inventory_item',
@@ -622,8 +622,8 @@ BEGIN
     INSERT INTO alerts (team_id, type, severity, title, message, entity_type, entity_id)
     VALUES (
       NEW.team_id,
-      'caducidad_proxima',
-      CASE WHEN NEW.expiry_date <= CURRENT_DATE + INTERVAL '7 days' THEN 'critical' ELSE 'warning' END,
+      'caducidad_proxima'::alert_type,
+      (CASE WHEN NEW.expiry_date <= CURRENT_DATE + INTERVAL '7 days' THEN 'critical' ELSE 'warning' END)::alert_severity,
       'Caducidad próxima: ' || NEW.name,
       NEW.name || ' caduca el ' || to_char(NEW.expiry_date, 'DD/MM/YYYY'),
       'medical_item',

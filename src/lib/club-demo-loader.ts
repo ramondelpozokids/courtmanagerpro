@@ -16,7 +16,7 @@ export function packToTeam(pack: ClubDemoPack): Team {
     primary_color: branding.primaryColor,
     secondary_color: branding.secondaryColor,
     season: '2026-2027',
-    league: 'ACB',
+    league: branding.league,
     is_active: true,
     metadata: { demoSlug: branding.slug },
     created_at: new Date().toISOString(),
@@ -81,7 +81,7 @@ export function persistDemoClubSlug(slug: ClubSlug): void {
 export function readStoredDemoClubSlug(): ClubSlug {
   if (typeof window === 'undefined') return 'rmb';
   const stored = localStorage.getItem(DEMO_CLUB_STORAGE_KEY);
-  if (stored === 'fcb' || stored === 'fbat' || stored === 'vbc' || stored === 'rmb') return stored;
+  if (stored === 'rmf' || stored === 'fcb' || stored === 'vbc' || stored === 'rmb') return stored;
   return 'rmb';
 }
 

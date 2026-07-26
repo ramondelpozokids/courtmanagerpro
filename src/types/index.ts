@@ -20,7 +20,12 @@ export type PlayerPosition =
   | 'escolta'
   | 'alero'
   | 'ala_pivot'
-  | 'pivot';
+  | 'pivot'
+  // Fútbol
+  | 'portero'
+  | 'defensa'
+  | 'centrocampista'
+  | 'delantero';
 
 export type ItemCategory =
   | 'camiseta_juego'

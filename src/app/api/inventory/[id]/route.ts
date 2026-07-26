@@ -1,5 +1,35 @@
 import { NextResponse } from "next/server";
 import { inventoryRepository, updateStockUseCase } from "@/lib/di";
+import { isServerProduction } from "@/lib/supabase-route-auth";
+import { isDemoMode } from "@/lib/app-mode";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/infrastructure/supabase/server";
+import { supabaseServiceRoleKey } from "@/infrastructure/supabase/env";
+
+async function logStockMovement(item: {
+  id: string;
+  name?: string;
+  team_id?: string;
+  stock_available?: number;
+}, qtyDelta: number) {
+  if (isDemoMode() || !isServerProduction()) return;
+  try {
+    const hasService =
+      Boolean(supabaseServiceRoleKey) &&
+      supabaseServiceRoleKey.length > 40 &&
+      !supabaseServiceRoleKey.includes("dummy");
+    const client = hasService ? createSupabaseAdminClient() : await createSupabaseServerClient();
+    await (client as any).from("stock_movements").insert({
+      team_id: item.team_id,
+      item_id: item.id,
+      item_name: item.name || "Material",
+      qty_delta: qtyDelta,
+      stock_after: item.stock_available ?? null,
+      reason: "ajuste",
+    });
+  } catch {
+    // Tabla aún no migrada o RLS: no bloquear el ajuste de stock
+  }
+}
 
 export async function GET(
   request: Request,
@@ -27,7 +57,19 @@ export async function PUT(
 
     // Check if it's a specific stock adjustment request
     if (body.action && typeof body.qtyChange === "number") {
+      const before = await inventoryRepository.getById(id);
       const updated = await updateStockUseCase.execute(id, body.qtyChange, body.action);
+      const delta =
+        typeof updated?.stock_available === "number" && typeof before?.stock_available === "number"
+          ? updated.stock_available - before.stock_available
+          : body.action === "REDUCE"
+            ? -Math.abs(body.qtyChange)
+            : body.action === "ADD"
+              ? Math.abs(body.qtyChange)
+              : 0;
+      if (delta !== 0) {
+        void logStockMovement(updated as any, delta);
+      }
       return NextResponse.json(updated);
     }
 

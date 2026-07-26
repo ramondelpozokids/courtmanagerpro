@@ -12,6 +12,7 @@ import {
   saveProductionPlayerSizes,
   saveProductionStaffSizes,
 } from "@/lib/sizing-production";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import {
   DEFAULT_SIZING_PRODUCTS,
   SIZING_CATEGORY_LABELS,
@@ -94,8 +95,9 @@ function propagateNewProduct(product: SizingProduct, catalog: SizingProduct[]) {
 }
 
 export default function SizingTablePage() {
-  const { user, userEmail, isSuperadmin } = useAuth();
+  const { user, userEmail, isSuperadmin, currentTeam } = useAuth();
   const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
+  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
 
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [customProducts, setCustomProducts] = useState<SizingProduct[]>([]);
@@ -168,7 +170,7 @@ export default function SizingTablePage() {
   const refreshFromDb = async () => {
     if (usesProductionClubData()) {
       try {
-        const data = await loadProductionSizing();
+        const data = await loadProductionSizing(teamId);
         setPlayers(data.players);
         setStaff(data.staff);
         setCustomProducts(data.customProducts);
@@ -198,7 +200,8 @@ export default function SizingTablePage() {
       window.removeEventListener("club-demo-changed", onChange);
       window.removeEventListener("demo-db-changed", onChange);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when team switches
+  }, [teamId]);
 
   const handleDeletePlayer = (id: string) => {
     if (confirm("¿Eliminar a este jugador de la plantilla oficial?")) {

@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePlayers } from "@/hooks/usePlayers";
 import { useInventory } from "@/hooks/useInventory";
-import { useState } from "react";
-import { X, Check } from "lucide-react";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
+import { X } from "lucide-react";
 
 interface RequestFormProps {
+  teamId?: string;
   onSubmit: (data: {
     playerId: string;
     playerName: string;
@@ -14,21 +16,39 @@ interface RequestFormProps {
     quantity: number;
     size: string;
     notes?: string;
-  }) => void;
+  }) => void | Promise<void>;
   onClose?: () => void;
 }
 
-export default function RequestForm({ onSubmit, onClose }: RequestFormProps) {
-  const { players } = usePlayers();
-  const { items } = useInventory();
+export default function RequestForm({
+  teamId = DEFAULT_TEAM_ID,
+  onSubmit,
+  onClose,
+}: RequestFormProps) {
+  const { players } = usePlayers(teamId);
+  const { items } = useInventory(teamId);
 
-  const [selectedPlayerId, setSelectedPlayerId] = useState(players[0]?.id || "");
-  const [selectedItemId, setSelectedItemId] = useState(items[0]?.id || "");
+  const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [selectedItemId, setSelectedItemId] = useState("");
   const [quantity, setQuantity] = useState<number>(1);
   const [size, setSize] = useState("XL");
   const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (players.length && !selectedPlayerId) {
+      setSelectedPlayerId(players[0].id);
+    }
+  }, [players, selectedPlayerId]);
+
+  useEffect(() => {
+    if (items.length && !selectedItemId) {
+      setSelectedItemId(items[0].id);
+      if (items[0].size) setSize(String(items[0].size));
+    }
+  }, [items, selectedItemId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const player = players.find((p) => p.id === selectedPlayerId);
@@ -39,34 +59,47 @@ export default function RequestForm({ onSubmit, onClose }: RequestFormProps) {
       return;
     }
 
-    onSubmit({
-      playerId: player.id,
-      playerName: player.full_name,
-      itemId: item.id,
-      itemName: item.name,
-      quantity,
-      size,
-      notes
-    });
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        playerId: player.id,
+        playerName: player.full_name,
+        itemId: item.id,
+        itemName: item.name,
+        quantity,
+        size,
+        notes,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-lg max-w-lg mx-auto space-y-5 text-left">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-lg max-w-lg mx-auto space-y-5 text-left"
+    >
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
         <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-base">
           Nueva Solicitud de Material Deportivo
         </h3>
         {onClose && (
-          <button type="button" onClick={onClose} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
             <X className="h-5 w-5 text-slate-400" />
           </button>
         )}
       </div>
 
       <div className="space-y-4">
-        {/* Player Selection */}
         <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Seleccionar Jugador</label>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+            Seleccionar Jugador
+          </label>
           <select
             value={selectedPlayerId}
             onChange={(e) => setSelectedPlayerId(e.target.value)}
@@ -80,12 +113,17 @@ export default function RequestForm({ onSubmit, onClose }: RequestFormProps) {
           </select>
         </div>
 
-        {/* Item Selection */}
         <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Artículo de Utilería</label>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+            Artículo de Utilería
+          </label>
           <select
             value={selectedItemId}
-            onChange={(e) => setSelectedItemId(e.target.value)}
+            onChange={(e) => {
+              setSelectedItemId(e.target.value);
+              const it = items.find((i) => i.id === e.target.value);
+              if (it?.size) setSize(String(it.size));
+            }}
             className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 text-slate-850 dark:text-slate-100"
           >
             {items.map((i) => (
@@ -96,10 +134,11 @@ export default function RequestForm({ onSubmit, onClose }: RequestFormProps) {
           </select>
         </div>
 
-        {/* Quantity & Size */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Cantidad</label>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+              Cantidad
+            </label>
             <input
               type="number"
               min="1"
@@ -111,7 +150,9 @@ export default function RequestForm({ onSubmit, onClose }: RequestFormProps) {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Talla Requerida</label>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+              Talla Requerida
+            </label>
             <input
               type="text"
               required
@@ -123,9 +164,10 @@ export default function RequestForm({ onSubmit, onClose }: RequestFormProps) {
           </div>
         </div>
 
-        {/* Notes */}
         <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Notas / Motivo de la Solicitud</label>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+            Notas / Motivo de la Solicitud
+          </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -148,9 +190,10 @@ export default function RequestForm({ onSubmit, onClose }: RequestFormProps) {
         )}
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/10"
+          disabled={submitting || !players.length || !items.length}
+          className="px-5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/10"
         >
-          Enviar Solicitud
+          {submitting ? "Enviando…" : "Enviar Solicitud"}
         </button>
       </div>
     </form>

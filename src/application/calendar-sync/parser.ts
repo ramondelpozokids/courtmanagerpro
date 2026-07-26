@@ -1,5 +1,5 @@
 import type { MatchHomeAway, MatchResult, MatchStatus } from '@/types';
-import type { OfficialFixture } from './types';
+import type { CalendarSport, OfficialFixture } from './types';
 
 export function mapOfficialStatus(raw: unknown): MatchStatus {
   const s = String(raw || '')
@@ -61,7 +61,6 @@ export function toMadridParts(iso: string): { match_date: string; match_time: st
   if (Number.isNaN(d.getTime())) {
     return { match_date: iso.slice(0, 10), match_time: null };
   }
-  // Europe/Madrid wall clock via Intl
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Europe/Madrid',
     year: 'numeric',
@@ -77,7 +76,10 @@ export function toMadridParts(iso: string): { match_date: string; match_time: st
   return { match_date, match_time };
 }
 
-export function officialMatchUrl(slug: string): string {
+export function officialMatchUrl(slug: string, sport: CalendarSport = 'basketball'): string {
+  if (sport === 'football') {
+    return `https://www.realmadrid.com/es-ES/futbol/primer-equipo/partidos/${slug}`;
+  }
   return `https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/partidos/${slug}`;
 }
 
@@ -96,10 +98,8 @@ export function isBasketballFirstTeamFixture(f: {
     return false;
   }
 
-  // Rutas oficiales del primer equipo de baloncesto
   if (url.includes('/baloncesto/primer-equipo/')) return true;
 
-  // Competiciones típicas ACB / Euroliga
   if (
     /endesa|euroliga|euroleague|copa del rey|supercopa|amist|basket|baloncesto|acb|intercontinental/i.test(
       competition
@@ -111,23 +111,73 @@ export function isBasketballFirstTeamFixture(f: {
   return url.includes('baloncesto');
 }
 
-export function mapDiaryItemToFixture(item: Record<string, unknown>): OfficialFixture | null {
+export function isFootballFirstTeamFixture(f: {
+  official_url?: string | null;
+  competition?: string | null;
+  official_slug?: string | null;
+}): boolean {
+  const url = (f.official_url || '').toLowerCase();
+  const slug = (f.official_slug || '').toLowerCase();
+  const competition = (f.competition || '').toLowerCase();
+  const blob = `${url} ${slug} ${competition}`;
+
+  if (/baloncesto|basket|castilla|madrid cff|femenino|cantera|juvenil/i.test(blob)) return false;
+  if (/endesa|euroliga|euroleague|acb/i.test(competition)) return false;
+
+  if (url.includes('/futbol/primer-equipo')) return true;
+
+  if (
+    /laliga|la liga|champions|liga de campeones|copa del rey|supercopa|amist|mundial de clubes|uefa|club world/i.test(
+      competition
+    )
+  ) {
+    return true;
+  }
+
+  return url.includes('futbol') || /football|soccer/.test(blob);
+}
+
+export function mapDiaryItemToFixture(
+  item: Record<string, unknown>,
+  sport: CalendarSport = 'basketball'
+): OfficialFixture | null {
   const slug = String(item.slug || '');
   if (!slug) return null;
 
-  // Descartar fútbol / otros equipos si el slug o tags lo delatan
   const raw = JSON.stringify(item).toLowerCase();
-  if (
-    raw.includes('futbol') ||
-    raw.includes('football') ||
-    raw.includes('soccer') ||
-    raw.includes('castilla') ||
-    raw.includes('madrid-cff') ||
-    (raw.includes('deportes/futbol') && !raw.includes('baloncesto'))
-  ) {
-    // Permitir solo si el tag de baloncesto primer equipo está presente
-    if (!raw.includes('baloncesto/primer-equipo') && !raw.includes('baloncesto-primer-equipo') && !raw.includes('primer-equipo-masculino')) {
-      return null;
+
+  if (sport === 'basketball') {
+    if (
+      raw.includes('futbol') ||
+      raw.includes('football') ||
+      raw.includes('soccer') ||
+      raw.includes('castilla') ||
+      raw.includes('madrid-cff') ||
+      (raw.includes('deportes/futbol') && !raw.includes('baloncesto'))
+    ) {
+      if (
+        !raw.includes('baloncesto/primer-equipo') &&
+        !raw.includes('baloncesto-primer-equipo') &&
+        !raw.includes('sports/baloncesto')
+      ) {
+        return null;
+      }
+    }
+  } else {
+    if (
+      raw.includes('baloncesto') ||
+      raw.includes('basket') ||
+      raw.includes('castilla') ||
+      raw.includes('madrid-cff') ||
+      raw.includes('femenino')
+    ) {
+      if (
+        !raw.includes('futbol/primer-equipo') &&
+        !raw.includes('sports/futbol') &&
+        !raw.includes('futbol-primer-equipo')
+      ) {
+        return null;
+      }
     }
   }
 
@@ -189,22 +239,46 @@ export function mapDiaryItemToFixture(item: Record<string, unknown>): OfficialFi
     score_text,
     partial_score: null,
     result,
-    official_url: officialMatchUrl(slug),
+    official_url: officialMatchUrl(slug, sport),
   };
 
-  if (!isBasketballFirstTeamFixture(fixture)) return null;
+  if (sport === 'football') {
+    if (!isFootballFirstTeamFixture(fixture)) return null;
+  } else if (!isBasketballFirstTeamFixture(fixture)) {
+    return null;
+  }
   return fixture;
 }
 
-export function categorizeCompetition(name: string): string {
+export function categorizeCompetition(
+  name: string,
+  sport: CalendarSport = 'basketball'
+): string {
   const n = name
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
+
+  if (sport === 'football') {
+    if (n.includes('champions') || n.includes('liga de campeones')) return 'Champions League';
+    if (n.includes('mundial')) return 'Mundial de Clubes';
+    if (n.includes('supercopa de europa') || n.includes('uefa super')) return 'Supercopa de Europa';
+    if (n.includes('supercopa')) return 'Supercopa';
+    if (n.includes('copa del rey') || (n.includes('copa') && !n.includes('supercopa'))) {
+      return 'Copa del Rey';
+    }
+    if (n.includes('laliga') || n.includes('la liga') || n.includes('liga ea') || n.includes('primera division')) {
+      return 'LaLiga';
+    }
+    if (n.includes('amist')) return 'Amistosos';
+    return 'Torneos internacionales';
+  }
+
   if (n.includes('euroliga') || n.includes('euroleague')) return 'Euroliga';
   if (n.includes('copa')) return 'Copa del Rey';
   if (n.includes('supercopa')) return 'Supercopa';
   if (n.includes('endesa') || n.includes('acb') || n.includes('liga')) return 'Liga Endesa';
-  if (n.includes('amist')) return 'Amistosos';
+  // Amistosos / pretemporada (Costa del Sol, etc.)
+  if (n.includes('amist') || n.includes('torneo') || n.includes('pretempor')) return 'Amistosos';
   return 'Torneos internacionales';
 }

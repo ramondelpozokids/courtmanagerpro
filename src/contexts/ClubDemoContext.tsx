@@ -1,19 +1,24 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { ClubDemoPack, ClubSlug } from '@/data/clubs/types';
 import { CLUB_PACKS, getClubPack } from '@/data/clubs';
 import {
   loadClubBySlug,
+  packToTeam,
   persistDemoClubSlug,
   readStoredDemoClubSlug,
 } from '@/lib/club-demo-loader';
 import { useAuth } from '@/contexts/AuthContext';
 import { isDemoMode } from '@/lib/app-mode';
 import {
+  COMMERCIAL_DEMO_CLUBS,
   isPreviewDemoClub,
+  isRealMadridClubSlug,
   readActiveClubPreviewSlug,
+  readPresentationMode,
   setActiveClubPreviewSlug,
+  setPresentationMode,
 } from '@/lib/club-preview';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 
@@ -26,21 +31,18 @@ interface ClubDemoContextValue {
   canSwitchClubs: boolean;
   isSuperadminPreview: boolean;
   previewClubs: readonly ClubSlug[];
+  /** Clubs destacados para presentación RM (RMB + RMF). */
+  realMadridClubs: readonly ClubSlug[];
+  commercialDemoClubs: readonly ClubSlug[];
+  presentationMode: boolean;
+  setPresentationModeOn: (on: boolean) => void;
 }
 
 const ClubDemoContext = createContext<ClubDemoContextValue | null>(null);
 
 const PRODUCTION_CLUB_SLUG: ClubSlug = 'rmb';
 const ALL_CLUB_SLUGS = Object.keys(CLUB_PACKS) as ClubSlug[];
-
-function applyProductionClub(
-  setClubSlug: (slug: ClubSlug) => void,
-  setClub: (pack: ClubDemoPack) => void
-) {
-  setClubSlug(PRODUCTION_CLUB_SLUG);
-  setClub(getClubPack(PRODUCTION_CLUB_SLUG));
-  setActiveClubPreviewSlug(PRODUCTION_CLUB_SLUG);
-}
+const RM_CLUBS: ClubSlug[] = ['rmb', 'rmf'];
 
 export function ClubDemoProvider({ children }: { children: ReactNode }) {
   const { setCurrentTeam, loading: authLoading, isSuperadmin } = useAuth();
@@ -51,6 +53,7 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
   const [clubSlug, setClubSlug] = useState<ClubSlug>(PRODUCTION_CLUB_SLUG);
   const [club, setClub] = useState<ClubDemoPack>(() => getClubPack(PRODUCTION_CLUB_SLUG));
   const [switching, setSwitching] = useState(false);
+  const [presentationMode, setPresentationModeState] = useState(true);
   const initKeyRef = useRef('');
 
   const applyClub = useCallback(
@@ -63,13 +66,19 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         persistDemoClubSlug(slug);
         setCurrentTeam(team);
       } else if (isSuperadmin && isPreviewDemoClub(slug)) {
+        // FCB / VBC: pack → InMemoryDB
         const team = loadClubBySlug(slug);
         setCurrentTeam(team);
         if (typeof window !== 'undefined') {
           localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);
         }
+      } else if (isSuperadmin && isRealMadridClubSlug(slug)) {
+        // RMB / RMF: branding del pack + team UUID; datos en Supabase
+        setCurrentTeam(packToTeam(pack));
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);
+        }
       }
-      // RMB producción: no tocar currentTeam (igual que Carlos — ya viene de AuthContext)
 
       setClubSlug(slug);
       setClub(pack);
@@ -88,27 +97,40 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
     if (initKeyRef.current === initKey) return;
     initKeyRef.current = initKey;
 
+    setPresentationModeState(readPresentationMode());
+
     if (demo) {
       applyClub(readStoredDemoClubSlug());
       return;
     }
 
     if (isSuperadmin) {
-      const storedSlug = readActiveClubPreviewSlug();
-      if (isPreviewDemoClub(storedSlug)) {
-        applyClub(storedSlug);
-      } else {
-        applyProductionClub(setClubSlug, setClub);
+      let storedSlug = readActiveClubPreviewSlug();
+      if (readPresentationMode() && isPreviewDemoClub(storedSlug)) {
+        storedSlug = 'rmb';
       }
+      applyClub(storedSlug);
       return;
     }
 
-    applyProductionClub(setClubSlug, setClub);
+    applyClub(PRODUCTION_CLUB_SLUG);
   }, [applyClub, authLoading, demo, isSuperadmin]);
+
+  const setPresentationModeOn = useCallback(
+    (on: boolean) => {
+      setPresentationMode(on);
+      setPresentationModeState(on);
+      if (on && isPreviewDemoClub(clubSlug)) {
+        applyClub('rmb');
+      }
+    },
+    [applyClub, clubSlug]
+  );
 
   const switchClub = useCallback(
     (slug: ClubSlug, options?: { redirect?: string }) => {
       if (!canSwitchClubs) return;
+      if (presentationMode && isPreviewDemoClub(slug) && !demo) return;
 
       setSwitching(true);
       applyClub(slug);
@@ -118,8 +140,14 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         window.location.href = options.redirect;
       }
     },
-    [applyClub, canSwitchClubs]
+    [applyClub, canSwitchClubs, presentationMode, demo]
   );
+
+  const previewClubs = useMemo(() => {
+    if (demo) return ALL_CLUB_SLUGS;
+    if (presentationMode) return RM_CLUBS;
+    return ALL_CLUB_SLUGS;
+  }, [demo, presentationMode]);
 
   return (
     <ClubDemoContext.Provider
@@ -131,7 +159,11 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         isDemo: demo,
         canSwitchClubs,
         isSuperadminPreview,
-        previewClubs: ALL_CLUB_SLUGS,
+        previewClubs,
+        realMadridClubs: RM_CLUBS,
+        commercialDemoClubs: COMMERCIAL_DEMO_CLUBS as unknown as ClubSlug[],
+        presentationMode,
+        setPresentationModeOn,
       }}
     >
       {children}
@@ -157,7 +189,7 @@ export function useClubNews() {
   return useClubDemo().club.news;
 }
 
-/** Hook para saber si la vista activa usa datos demo (FCB/VBC/FBAT). */
+/** Hook: vista activa usa datos demo (FCB/VBC o DEMO_MODE). */
 export function useUsesDemoClubData(): boolean {
   const { clubSlug } = useClubDemo();
   if (isDemoMode()) return true;
