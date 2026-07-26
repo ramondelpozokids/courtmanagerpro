@@ -8,43 +8,68 @@ import { medicalRowToUi, medicalUiToDb } from '@/lib/medical-mapper';
 export async function GET(req: NextRequest) {
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
 
-  if (!isServerProduction() || !isRealMadridTeamId(teamId)) {
-    const rows = (db.medical || []).filter(
-      (m: any) => !m.team_id || m.team_id === 'team-acb-123' || m.team_id === teamId
-    );
-    return NextResponse.json(rows.map((m: any) => ({
-      id: m.id,
-      name: m.name,
-      quantity: m.quantity,
-      minQuantity: m.minQuantity,
-      expiryDate: m.expiryDate,
-      batchNumber: m.batchNumber,
-      status: m.status,
-      location: m.location,
-      kit: m.kit,
-      brand: m.brand,
-      category: m.category,
-      prescription_required: m.prescription_required,
-    })));
+  if (isServerProduction()) {
+    const { supabase, user, response } = await requireApiUser();
+    if (response || !user) return response!;
+
+    if (!isRealMadridTeamId(teamId)) {
+      const rows = (db.medical || []).filter(
+        (m: any) => !m.team_id || m.team_id === 'team-acb-123' || m.team_id === teamId
+      );
+      return NextResponse.json(rows.map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        quantity: m.quantity,
+        minQuantity: m.minQuantity,
+        expiryDate: m.expiryDate,
+        batchNumber: m.batchNumber,
+        status: m.status,
+        location: m.location,
+        kit: m.kit,
+        brand: m.brand,
+        category: m.category,
+        prescription_required: m.prescription_required,
+      })));
+    }
+
+    const pg = supabase as any;
+    const { data, error } = await pg
+      .from('medical_items')
+      .select('*')
+      .eq('team_id', teamId)
+      .eq('is_active', true)
+      .order('name');
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json((data ?? []).map(medicalRowToUi));
   }
 
-  const { supabase, user, response } = await requireApiUser();
-  if (response || !user) return response!;
-  const pg = supabase as any;
-
-  const { data, error } = await pg
-    .from('medical_items')
-    .select('*')
-    .eq('team_id', teamId)
-    .eq('is_active', true)
-    .order('name');
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json((data ?? []).map(medicalRowToUi));
+  const rows = (db.medical || []).filter(
+    (m: any) => !m.team_id || m.team_id === 'team-acb-123' || m.team_id === teamId
+  );
+  return NextResponse.json(rows.map((m: any) => ({
+    id: m.id,
+    name: m.name,
+    quantity: m.quantity,
+    minQuantity: m.minQuantity,
+    expiryDate: m.expiryDate,
+    batchNumber: m.batchNumber,
+    status: m.status,
+    location: m.location,
+    kit: m.kit,
+    brand: m.brand,
+    category: m.category,
+    prescription_required: m.prescription_required,
+  })));
 }
 
 export async function POST(request: NextRequest) {
   try {
+    if (isServerProduction()) {
+      const { user, response } = await requireApiUser();
+      if (response || !user) return response!;
+    }
+
     const body = await request.json();
     const teamId = resolveTeamId(
       body.team_id || request.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID
@@ -121,6 +146,11 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    if (isServerProduction()) {
+      const { user, response } = await requireApiUser();
+      if (response || !user) return response!;
+    }
+
     const id = request.nextUrl.searchParams.get('id');
     const teamId = resolveTeamId(request.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });

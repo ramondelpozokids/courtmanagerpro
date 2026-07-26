@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CourtManager Pro — Presentación con audio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c1222;
+      --panel: #141c2e;
+      --text: #f3efe8;
+      --muted: #9aa6b8;
+      --accent: #c9b27a;
+      --line: #2a3548;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse at 20% 0%, #1a3348 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 20%, #2a2418 0%, transparent 40%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.55;
+    }
+    h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 650; letter-spacing: -0.02em; }
+    .wrap { width: min(980px, 92vw); margin: 0 auto; padding: 40px 0 120px; }
+    .top {
+      display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      align-items: flex-end; margin-bottom: 36px;
+    }
+    .kicker {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 10px;
+    }
+    .lead { color: var(--muted); max-width: 36rem; margin-top: 10px; }
+    .links a {
+      color: var(--text); text-decoration: none; font-size: 13px; font-weight: 700;
+      border: 1px solid var(--line); padding: 10px 14px; border-radius: 8px;
+    }
+    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
+    .panel {
+      background: rgba(20, 28, 46, 0.88);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+    }
+    .panel h2 { font-size: 1.15rem; margin-bottom: 12px; }
+    .panel ol, .panel ul { margin-left: 1.1rem; color: var(--muted); }
+    .panel li { margin-bottom: 8px; }
+    .script-box {
+      margin-top: 14px; max-height: 280px; overflow: auto;
+      padding: 14px; border-radius: 12px; background: #0a0f1a;
+      border: 1px solid var(--line); color: #d7dde8; font-size: 13.5px; white-space: pre-wrap;
+    }
+    .player {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      background: #0a0f1acc; backdrop-filter: blur(14px);
+      border-top: 1px solid var(--line);
+      padding: 14px 4vw;
+      display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+    }
+    .player button, .player select {
+      appearance: none; border: 0; font: inherit; cursor: pointer;
+      border-radius: 999px; padding: 12px 18px; font-weight: 700;
+    }
+    #playBtn { background: var(--accent); color: #0c1222; min-width: 160px; }
+    #stopBtn { background: #243044; color: var(--text); }
+    select { background: #1a2438; color: var(--text); border: 1px solid var(--line) !important; }
+    .status { font-size: 12px; color: var(--muted); min-width: 140px; }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <p class="kicker">Presentación con audio · Multi-club</p>
+        <h1>CourtManager Pro</h1>
+        <p class="lead">
+          Narración ejecutiva (~4 min). Genérica para varios clubes de élite.
+          Compatible con el tono de calidad que espera Real Madrid Next.
+        </p>
+      </div>
+      <div class="links">
+        <a href="DOSSIER.html">Abrir dossier</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Guion (español)</h2>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:8px">También disponible en inglés en el selector del reproductor.</p>
+        <div class="script-box" id="scriptView"></div>
+      </section>
+      <section class="panel">
+        <h2>Cómo usarlo en reunión</h2>
+        <ol>
+          <li>Pulse <strong>Reproducir</strong> (voz MP3 profesional: es.mp3 / en.mp3).</li>
+          <li>Proyecte el dossier en paralelo (PDF o HTML).</li>
+          <li>Al terminar, ofrezca demo de 25–30 min.</li>
+        </ol>
+        <h2 style="margin-top:22px">Mensaje a recordar</h2>
+        <ul>
+          <li>Producto operativo, no solo idea.</li>
+          <li>Fútbol + baloncesto de élite.</li>
+          <li>Performance · Cyber · apoyo E-Health.</li>
+          <li>Misma propuesta para varios clubes.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <div class="player">
+    <select id="langSelect" aria-label="Idioma">
+      <option value="es">Español (es.mp3)</option>
+      <option value="en">English (en.mp3)</option>
+    </select>
+    <button type="button" id="playBtn">Reproducir</button>
+    <button type="button" id="stopBtn">Detener</button>
+    <span class="status" id="status">Listo · voz MP3</span>
+  </div>
+
+  <script>
+    const AUDIO_SRC = { es: 'audio/es.mp3', en: 'audio/en.mp3' };
+    const SCRIPTS = {
+      es: `CourtManager Pro. Presentación ejecutiva para clubes profesionales.
+
+Buenos días. Soy Ramón del Pozo Rott, fundador de CourtManager Pro. Esta presentación resume, en cuatro minutos, una plataforma pensada para la utilería de clubes de fútbol y baloncesto de élite.
+
+El problema es conocido en cualquier vestuario profesional. El material se gestiona con Excel, mensajes de WhatsApp y la memoria del utillero. Eso genera pérdidas en viajes, errores de tallaje antes del partido, stock duplicado y horas administrativas que no aportan rendimiento.
+
+CourtManager Pro centraliza toda la operativa en una sola aplicación web, usable desde el móvil en el almacén, el vestuario o el desplazamiento. La plantilla, las tallas, el inventario con trazabilidad, las solicitudes de material, los viajes con packing list, la lavandería, el material médico con alertas de caducidad, el checklist pre-partido y los informes para dirección: todo en el mismo sistema, con roles y control de acceso.
+
+No es una app de aficionado ni un ERP genérico. Está diseñada para la realidad de un primer equipo: múltiples competiciones, plantillas amplias, staff técnico y exigencias de excelencia operativa.
+
+Para áreas de innovación como Real Madrid Next, el proyecto se alinea de forma natural con Performance —porque la equipación y la logística son parte del rendimiento—, con Cyber Tech —porque los datos del club deben protegerse—, y con el apoyo a E-Health en el control del material médico de vestuario y viaje.
+
+El retorno es directo. Un club que pierde entre quince y treinta mil euros al año en material extraviado o mal gestionado recupera la inversión del plan profesional en semanas, no en años. Menos errores. Menos horas perdidas. Más control antes de cada partido.
+
+Proponemos un piloto medible: reducir pérdidas, acortar tiempos de preparación y eliminar ambigüedad de tallas y stock. Sin imponer un cambio cultural brusco: la herramienta se adapta al flujo real del utillero y de dirección.
+
+CourtManager Pro está listo para presentarse a varios clubes de élite. La misma solución, el mismo estándar, personalizable a los colores y la operativa de cada entidad.
+
+Contacto: info arroba ramondelpozorott punto es. Gracias por su atención.`,
+      en: `CourtManager Pro. Executive briefing for professional clubs.
+
+Good morning. I am Ramón del Pozo Rott, founder of CourtManager Pro. In four minutes, this presentation outlines a platform built for elite football and basketball kit operations.
+
+The problem is familiar in every professional dressing room. Equipment is managed with spreadsheets, chat threads and memory. That leads to losses on travel days, sizing mistakes before tip-off or kick-off, duplicated stock and administrative hours that do not improve performance.
+
+CourtManager Pro unifies the full workflow in one web application, usable on mobile in the warehouse, the dressing room or on the road. Roster and sizing, inventory with traceability, material requests, travel packing lists, laundry, medical kit with expiry alerts, pre-match checklist and management reports — one system, with roles and access control.
+
+This is not a consumer app and not a generic ERP. It is designed for first-team reality: multiple competitions, large squads, technical staff and operational excellence.
+
+For innovation programmes such as Real Madrid Next, the project aligns with Performance — because kit and logistics are part of performance — with Cyber Tech — because club data must be protected — and supports E-Health through medical kit control in the dressing room and on trips.
+
+The return is concrete. A club losing fifteen to thirty thousand euros a year in mismanaged equipment recovers a professional plan investment in weeks, not years. Fewer errors. Fewer wasted hours. More control before every match.
+
+We propose a measurable pilot: reduce losses, shorten preparation time and remove ambiguity in sizing and stock — without forcing a cultural shock. The tool follows the real workflow of kit managers and sporting directors.
+
+CourtManager Pro is ready to be presented to multiple elite clubs. Same solution, same standard, adaptable to each club's colours and operations.
+
+Contact: info at ramondelpozorott dot es. Thank you for your attention.`
+    };
+
+    const scriptView = document.getElementById('scriptView');
+    const langSelect = document.getElementById('langSelect');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const status = document.getElementById('status');
+    let audio = null;
+
+    function lang() {
+      return langSelect.value === 'en' ? 'en' : 'es';
+    }
+
+    function refreshView() {
+      scriptView.textContent = SCRIPTS[lang()];
+      document.documentElement.lang = lang();
+    }
+
+    function stop() {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio = null;
+      }
+      status.textContent = 'Detenido';
+      playBtn.textContent = 'Reproducir';
+      playBtn.disabled = false;
+    }
+
+    function play() {
+      stop();
+      audio = new Audio(AUDIO_SRC[lang()]);
+      audio.addEventListener('play', () => {
+        status.textContent = lang() === 'en' ? 'Playing en.mp3…' : 'Reproduciendo es.mp3…';
+        playBtn.textContent = 'En curso';
+        playBtn.disabled = true;
+      });
+      audio.addEventListener('ended', () => {
+        status.textContent = 'Finalizado';
+        playBtn.textContent = 'Reproducir';
+        playBtn.disabled = false;
+        audio = null;
+      });
+      audio.addEventListener('error', () => {
+        status.textContent = 'No se pudo cargar el MP3';
+        playBtn.textContent = 'Reproducir';
+        playBtn.disabled = false;
+      });
+      audio.play().catch(() => {
+        status.textContent = 'Pulsa de nuevo para permitir audio';
+        playBtn.disabled = false;
+        playBtn.textContent = 'Reproducir';
+      });
+    }
+
+    langSelect.addEventListener('change', () => {
+      stop();
+      refreshView();
+    });
+    playBtn.addEventListener('click', play);
+    stopBtn.addEventListener('click', stop);
+    refreshView();
+  </script>
+</body>
+</html>

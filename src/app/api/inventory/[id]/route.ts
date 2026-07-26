@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { inventoryRepository, updateStockUseCase } from "@/lib/di";
-import { isServerProduction } from "@/lib/supabase-route-auth";
+import { isServerProduction, requireProductionApiUser } from "@/lib/supabase-route-auth";
 import { isDemoMode } from "@/lib/app-mode";
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { supabaseServiceRoleKey } from "@/infrastructure/supabase/env";
@@ -32,9 +32,12 @@ async function logStockMovement(item: {
 }
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireProductionApiUser();
+  if (auth.response) return auth.response;
+
   try {
     const { id } = await params;
     const item = await inventoryRepository.getById(id);
@@ -51,11 +54,13 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireProductionApiUser();
+  if (auth.response) return auth.response;
+
   try {
     const { id } = await params;
     const body = await request.json();
 
-    // Check if it's a specific stock adjustment request
     if (body.action && typeof body.qtyChange === "number") {
       const before = await inventoryRepository.getById(id);
       const updated = await updateStockUseCase.execute(id, body.qtyChange, body.action);
@@ -73,7 +78,6 @@ export async function PUT(
       return NextResponse.json(updated);
     }
 
-    // Otherwise, generic update
     const updated = await inventoryRepository.update(id, body);
     return NextResponse.json(updated);
   } catch (err: any) {
@@ -82,9 +86,12 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireProductionApiUser();
+  if (auth.response) return auth.response;
+
   try {
     const { id } = await params;
     const success = await inventoryRepository.delete(id);

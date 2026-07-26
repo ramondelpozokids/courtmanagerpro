@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { OFFICIAL_STORE } from '@/config/store';
 import type { OfficialStoreCheckResult } from '@/modules/official-store/OfficialStoreService';
+import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 
 export const runtime = 'nodejs';
 
@@ -9,6 +10,11 @@ export const runtime = 'nodejs';
  * Does NOT scrape or download product catalogs — only verifies HTTP reachability.
  */
 export async function GET() {
+  if (isServerProduction()) {
+    const { user, response } = await requireApiUser();
+    if (!user) return response!;
+  }
+
   const checkedAt = new Date().toISOString();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);

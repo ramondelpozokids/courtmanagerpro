@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient, createSupabaseServerClient } from '@/infrastructure/supabase/server';
-import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
+import { isServerProduction, requireApiUser, isCronAuthorized } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { runRosterSync } from '@/application/roster-sync/runSync';
 import type { SyncTrigger } from '@/types';
 
 export const runtime = 'nodejs';
-
-function isCronAuthorized(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = req.headers.get('authorization');
-  return auth === `Bearer ${secret}`;
-}
 
 async function resolveTrigger(req: NextRequest, body: Record<string, unknown>): Promise<SyncTrigger> {
   const q = req.nextUrl.searchParams.get('trigger');
@@ -79,10 +72,8 @@ export async function GET(req: NextRequest) {
   const force = req.nextUrl.searchParams.get('force') === '1';
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
 
-  if (trigger === 'cron' && !isCronAuthorized(req) && isServerProduction()) {
-    // Allow Vercel cron header
-    const isVercelCron = Boolean(req.headers.get('x-vercel-cron'));
-    if (!isVercelCron && !isCronAuthorized(req)) {
+  if (trigger === 'cron' && isServerProduction()) {
+    if (!isCronAuthorized(req)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   } else if (trigger !== 'cron' && isServerProduction()) {

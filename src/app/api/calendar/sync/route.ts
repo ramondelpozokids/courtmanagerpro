@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient, createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { supabaseServiceRoleKey } from '@/infrastructure/supabase/env';
-import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
+import { isServerProduction, requireApiUser, isCronAuthorized } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { runCalendarSync } from '@/application/calendar-sync/runSync';
@@ -21,13 +21,6 @@ async function getCalendarWriteClient() {
   if (!isServerProduction()) return null;
   if (hasRealServiceRole()) return createSupabaseAdminClient();
   return createSupabaseServerClient();
-}
-
-function isCronAuthorized(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return Boolean(req.headers.get('x-vercel-cron'));
-  const auth = req.headers.get('authorization');
-  return auth === `Bearer ${secret}` || Boolean(req.headers.get('x-vercel-cron'));
 }
 
 async function resolveTrigger(req: NextRequest, body: Record<string, unknown>): Promise<SyncTrigger> {

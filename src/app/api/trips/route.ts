@@ -50,42 +50,52 @@ async function loadTripWithItems(pg: any, tripId: string) {
 export async function GET(req: NextRequest) {
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
 
-  if (!isServerProduction() || !isRealMadridTeamId(teamId)) {
-    return NextResponse.json(db.trips);
-  }
+  if (isServerProduction()) {
+    const { supabase, user, response } = await requireApiUser();
+    if (response || !user) return response!;
 
-  const { supabase, user, response } = await requireApiUser();
-  if (response || !user) return response!;
-  const pg = supabase as any;
-
-  const { data: trips, error } = await pg
-    .from('trips')
-    .select('*')
-    .eq('team_id', teamId)
-    .order('departure_date', { ascending: true });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  const ids = (trips || []).map((t: any) => t.id);
-  let itemsByTrip: Record<string, any[]> = {};
-  if (ids.length) {
-    const { data: items } = await pg.from('trip_items').select('*').in('trip_id', ids);
-    for (const it of items || []) {
-      if (!itemsByTrip[it.trip_id]) itemsByTrip[it.trip_id] = [];
-      itemsByTrip[it.trip_id].push(it);
+    if (!isRealMadridTeamId(teamId)) {
+      return NextResponse.json(db.trips);
     }
+
+    const pg = supabase as any;
+
+    const { data: trips, error } = await pg
+      .from('trips')
+      .select('*')
+      .eq('team_id', teamId)
+      .order('departure_date', { ascending: true });
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    const ids = (trips || []).map((t: any) => t.id);
+    let itemsByTrip: Record<string, any[]> = {};
+    if (ids.length) {
+      const { data: items } = await pg.from('trip_items').select('*').in('trip_id', ids);
+      for (const it of items || []) {
+        if (!itemsByTrip[it.trip_id]) itemsByTrip[it.trip_id] = [];
+        itemsByTrip[it.trip_id].push(it);
+      }
+    }
+
+    return NextResponse.json((trips || []).map((t: any) => rowToUiTrip(t, itemsByTrip[t.id] || [])));
   }
 
-  return NextResponse.json((trips || []).map((t: any) => rowToUiTrip(t, itemsByTrip[t.id] || [])));
+  return NextResponse.json(db.trips);
 }
 
 export async function POST(request: NextRequest) {
   try {
+    if (isServerProduction()) {
+      const { user, response } = await requireApiUser();
+      if (response || !user) return response!;
+    }
+
     const body = await request.json();
     const teamId = resolveTeamId(body.team_id || request.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
 
     if (!isServerProduction() || !isRealMadridTeamId(teamId)) {
-      // ——— Demo InMemory (FCB/VBC / mock) ———
+      // ——— Preview InMemory (FCB/VBC) — solo con sesión en producción ———
       if (body.tripId && body.action === 'addItem') {
         const trip = db.trips.find((t) => t.id === body.tripId) as any;
         if (!trip) return NextResponse.json({ error: 'Trip not found' }, { status: 404 });

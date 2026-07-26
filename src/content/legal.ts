@@ -170,18 +170,22 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
   },
   'seguridad': {
     title: 'Seguridad y Protección de la Plataforma',
-    updated: '19 de junio de 2026',
+    updated: '26 de julio de 2026',
     sections: [
       {
         body: 'CourtManager Pro implementa medidas de seguridad para proteger la plataforma, los datos del club y la privacidad de los usuarios autorizados. Este documento describe nuestras políticas generales sin revelar detalles técnicos internos que pudieran comprometer la seguridad.',
       },
       {
+        heading: 'Tres capas de protección',
+        body: 'La plataforma se protege en capas: (1) acceso — solo usuarios autenticados entran al área de trabajo; (2) servicios — las operaciones sensibles exigen sesión válida en el servidor; (3) datos — la base de datos aísla la información por equipo y rol, de modo que un usuario no autorizado no obtiene filas ajenas. Además se aplican cabeceras HTTP de endurecimiento y límites ante intentos repetidos de acceso.',
+      },
+      {
         heading: 'Acceso y autenticación',
-        body: 'Todo acceso a la plataforma requiere autenticación mediante credenciales personales. Los roles (administrador, superadministrador, utilería, staff médico, etc.) determinan los permisos de cada usuario. Queda prohibido compartir credenciales, acceder con cuentas ajenas o intentar eludir los controles de acceso.',
+        body: 'Todo acceso a la plataforma requiere autenticación mediante credenciales personales (y, en cuentas clave, passkeys). Los roles (administrador, superadministrador, utilería, staff médico, etc.) determinan los permisos de cada usuario. Queda prohibido compartir credenciales, acceder con cuentas ajenas o intentar eludir los controles de acceso. Las demos a terceros (p. ej. programas de innovación) se realizan bajo control del titular, en reunión o pantalla compartida, sin cuentas públicas genéricas.',
       },
       {
         heading: 'Protección contra accesos no autorizados',
-        body: 'La plataforma monitoriza intentos de acceso indebido, copia no autorizada de contenidos, extracción masiva de datos y actividades sospechosas. Cualquier intento de hackeo, robo de información, ingeniería inversa del código o uso fraudulento será registrado y puede dar lugar a acciones legales.',
+        body: 'La plataforma monitoriza intentos de acceso indebido, copia no autorizada de contenidos, extracción masiva de datos y actividades sospechosas. Cualquier intento de hackeo, robo de información, ingeniería inversa del código o uso fraudulento será registrado y puede dar lugar a acciones legales. Ninguna aplicación web puede impedir al 100 % la inspección del navegador por un técnico; la protección efectiva reside en el control de acceso, las APIs y el aislamiento de datos.',
       },
       {
         heading: 'Privacidad de datos',

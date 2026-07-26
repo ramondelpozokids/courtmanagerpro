@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CourtManager Pro — Presentación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0c1222;
+      --muted: #5a6578;
+      --line: #d8dee8;
+      --paper: #f7f5f1;
+      --card: #ffffff;
+      --accent: #0e4d6e;
+      --accent-soft: #e8f1f5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background: #e6e2da;
+      line-height: 1.62;
+      font-size: 16px;
+    }
+    h1, h2, h3, .display { font-family: "Fraunces", Georgia, serif; font-weight: 600; letter-spacing: -0.02em; }
+    .sheet {
+      width: min(920px, 100%);
+      margin: 24px auto;
+      background: var(--card);
+      box-shadow: 0 18px 50px rgba(12, 18, 34, 0.12);
+    }
+    .page { padding: 52px 60px; border-bottom: 1px solid var(--line); }
+    .page:last-child { border-bottom: 0; }
+    .kicker {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px;
+    }
+    .muted { color: var(--muted); }
+    .lead { font-size: 1.12rem; color: var(--muted); max-width: 40rem; margin-top: 12px; }
+    .cover {
+      position: relative;
+      min-height: 92vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      color: #f7f5f1;
+      padding: 0;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .cover-media { position: absolute; inset: 0; z-index: -2; }
+    .cover-media img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+    .cover-scrim {
+      position: absolute; inset: 0; z-index: -1;
+      background:
+        linear-gradient(180deg, rgba(6,10,20,0.15) 0%, rgba(6,10,20,0.25) 45%, rgba(6,10,20,0.92) 100%);
+    }
+    .cover-foot {
+      padding: 28px 48px 40px;
+      background: linear-gradient(180deg, transparent, rgba(6,10,20,0.55));
+    }
+    .cover .kicker { color: #c9b27a; }
+    .cover h1 {
+      font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.1; max-width: 18ch;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.45);
+    }
+    .cover .lead { color: rgba(247,245,241,0.9); max-width: 34rem; }
+    .meta { display: grid; gap: 4px; font-size: 13px; color: rgba(247,245,241,0.82); margin-top: 16px; }
+    .meta strong { color: #fff; font-weight: 600; }
+    h2 { font-size: 1.55rem; margin-bottom: 12px; }
+    h3 { font-size: 1.05rem; margin: 20px 0 8px; }
+    p { margin: 0 0 12px; }
+    ul, ol { margin: 0 0 14px 1.2rem; }
+    li { margin-bottom: 8px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 16px; }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 18px 18px 14px;
+    }
+    .card h3 { margin-top: 0; }
+    .stat {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.45rem; font-weight: 650; color: var(--accent); line-height: 1.15;
+    }
+    .stat span {
+      display: block; font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--muted); margin-top: 6px;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 6px; font-size: 15px; }
+    th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+    .pill {
+      display: inline-block; padding: 4px 10px; border-radius: 999px; margin: 0 4px 6px 0;
+      background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700;
+    }
+    .actions {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+      padding: 12px 16px; background: #0c1222ee; backdrop-filter: blur(8px);
+    }
+    .actions a, .actions button {
+      appearance: none; border: 0; cursor: pointer;
+      font: inherit; font-size: 13px; font-weight: 700;
+      padding: 10px 14px; border-radius: 8px;
+      background: #f7f5f1; color: #0c1222; text-decoration: none;
+    }
+    .actions a.secondary { background: transparent; color: #f7f5f1; border: 1px solid #ffffff44; }
+    .footnote { font-size: 13px; color: var(--muted); margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: #fff; }
+      .actions { display: none !important; }
+      .sheet { margin: 0; box-shadow: none; width: 100%; }
+      .page, .cover { break-after: page; page-break-after: always; }
+      .page { padding: 18mm 16mm; }
+      /* Hero imprimible: imagen en flujo, sin absolute/z-index (Chrome/Edge los omiten) */
+      .cover {
+        min-height: auto;
+        display: block;
+        color: #0c1222;
+        break-inside: avoid;
+      }
+      .cover-media {
+        position: static; z-index: auto;
+        height: 105mm; overflow: hidden;
+      }
+      .cover-media img {
+        width: 100%; height: 105mm;
+        object-fit: cover; object-position: center 35%;
+        display: block;
+      }
+      .cover-scrim { display: none; }
+      .cover-foot {
+        padding: 14mm 16mm 12mm;
+        background: #0c1222 !important;
+        color: #f7f5f1;
+      }
+      .cover .kicker { color: #c9b27a; }
+      .cover .lead { color: rgba(247,245,241,0.9); }
+      .cover .meta { color: rgba(247,245,241,0.82); }
+      .cover .meta strong { color: #fff; }
+      .cover h1 { color: #fff; text-shadow: none; font-size: 28pt; }
+    }
+    @media (max-width: 720px) {
+      .page { padding: 32px 22px; }
+      .cover-foot { padding: 24px 22px 32px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="actions">
+    <a class="secondary" href="PRESENTACION-AUDIO.html">Escuchar presentación</a>
+    <button type="button" onclick="window.print()">Guardar como PDF</button>
+  </div>
+
+  <div class="sheet">
+    <section class="cover">
+      <div class="cover-media" aria-hidden="true">
+        <img src="assets/dossier-hero.png" alt="Equipación Real Madrid Fútbol — CourtManager Pro" />
+      </div>
+      <div class="cover-scrim" aria-hidden="true"></div>
+      <div class="cover-foot">
+        <p class="kicker">Presentación · Confidencial</p>
+        <h1 class="display">CourtManager Pro</h1>
+        <p class="lead">
+          El programa online que organiza la ropa, el material y el almacén del club —
+          para que el utillero y la dirección sepan en todo momento qué hay, dónde está y cuánto vale.
+        </p>
+        <div class="meta">
+          <div><strong>Julio 2026</strong></div>
+          <div>Creado por <strong>Ramón del Pozo Rott</strong></div>
+          <div>Contacto: <strong>info@ramondelpozorott.es</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page">
+      <p class="kicker">01 · En pocas palabras</p>
+      <h2>¿Qué es CourtManager Pro?</h2>
+      <p>
+        Es una <strong>aplicación web</strong> (se abre en el móvil o en el ordenador, sin instalar nada complicado)
+        pensada para la gente que trabaja con la <strong>equipación y el material</strong> de un club profesional:
+        utilleros, encargados de material, dirección deportiva y staff.
+      </p>
+      <p>
+        Hoy, en muchos clubes, todo se lleva con Excel, WhatsApp y la memoria de una persona.
+        Eso provoca pérdidas, compras de más, tallas equivocadas el día del partido y mucho tiempo perdido.
+      </p>
+      <p>
+        CourtManager Pro concentra en un solo sitio:
+        plantilla y tallas, inventario, <strong>almacén general con precios y stock</strong>,
+        peticiones de material, viajes, lavandería, botiquín y la lista de cosas a revisar antes del partido.
+      </p>
+      <div class="grid-3">
+        <div class="card"><p class="stat">Menos pérdidas<span>Material que se extravía o se compra dos veces</span></p></div>
+        <div class="card"><p class="stat">Menos estrés<span>Todo preparado antes del partido</span></p></div>
+        <div class="card"><p class="stat">Más control<span>Sabes el stock y el valor en euros</span></p></div>
+      </div>
+    </section>
+
+    <section class="page">
+      <p class="kicker">02 · El problema de siempre</p>
+      <h2>Lo que pasa en el día a día (y todo el mundo entiende)</h2>
+      <ul>
+        <li>Se pierde material en los viajes y hay que comprar otra vez, con prisa y más caro.</li>
+        <li>Nadie sabe con certeza cuántas camisetas, botas o chaquetas quedan en el almacén.</li>
+        <li>No se conoce <strong>cuánto dinero</strong> hay “parado” en material sin usar.</li>
+        <li>El día del partido falta una talla o un dorsal y se improvisa a última hora.</li>
+        <li>El botiquín caduca y nadie lo ha visto a tiempo.</li>
+        <li>El utillero pierde horas cada semana buscando cosas y contestando mensajes.</li>
+      </ul>
+      <p class="muted">
+        Las apps de estadísticas de jugadores o de aficionados
+        <strong>no solucionan</strong> esto. CourtManager Pro sí: está hecho para el vestuario, el almacén y el viaje.
+      </p>
+    </section>
+
+    <section class="page">
+      <p class="kicker">03 · Qué incluye</p>
+      <h2>Todo lo que necesita el material del club</h2>
+      <table>
+        <thead>
+          <tr><th>Parte</th><th>Para qué sirve (en cristiano)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Jugadores y tallas</td><td>Ficha de cada persona y qué talla lleva en cada prenda</td></tr>
+          <tr><td>Inventario</td><td>Qué hay, cuánto hay y quién lo ha sacado o entrado</td></tr>
+          <tr><td><strong>Almacén general</strong></td><td>Mapa del material, ubicaciones, stock y valor en €</td></tr>
+          <tr><td>Peticiones</td><td>El jugador o el staff pide → se aprueba → se entrega → se resta del stock</td></tr>
+          <tr><td>Viajes</td><td>Lista de lo que va en cada maleta / desplazamiento</td></tr>
+          <tr><td>Lavandería</td><td>Control de lotes de ropa limpia y sucia</td></tr>
+          <tr><td>Material médico</td><td>Botiquín con avisos cuando algo caduca</td></tr>
+          <tr><td>Antes del partido</td><td>Lista de comprobación para no olvidar nada</td></tr>
+          <tr><td>Avisos e informes</td><td>Stock bajo, peticiones pendientes, resumen para dirección</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:16px">
+        <span class="pill">Fútbol</span>
+        <span class="pill">Baloncesto</span>
+        <span class="pill">Primer equipo</span>
+        <span class="pill">Fácil de usar</span>
+      </p>
+    </section>
+
+    <section class="page">
+      <p class="kicker">04 · Almacén general</p>
+      <h2>Ver el stock y el dinero del material de un vistazo</h2>
+      <p>
+        El <strong>almacén general</strong> es como el “mapa” del material del club:
+        no solo dice cuántas unidades hay, sino <strong>dónde están</strong> y <strong>cuánto valen en euros</strong>.
+      </p>
+      <h3>Qué puedes controlar</h3>
+      <ul>
+        <li><strong>Stock</strong> — cuántas unidades quedan de cada cosa.</li>
+        <li><strong>Ubicación</strong> — almacén central, vestuario, caja de viaje, etc.</li>
+        <li><strong>Precio</strong> — valor de cada artículo y total del almacén (precio × unidades).</li>
+        <li><strong>Alertas</strong> — cuando algo está bajo de mínimo y hay que reponer.</li>
+        <li><strong>Historial</strong> — quién sacó o entró material y cuándo.</li>
+        <li><strong>Exportar</strong> — pasar la lista a Excel / CSV para dirección o compras.</li>
+      </ul>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Para quien compra</h3>
+          <p>
+            Evitas comprar dos veces lo mismo. Ves el valor del almacén y decides con datos,
+            no “a ojo”.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Para quien trabaja en vestuario</h3>
+          <p>
+            Encuentras antes la prenda, sabes si falta algo para el próximo partido
+            y dejas constancia de cada salida.
+          </p>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Dato</th><th>Qué te dice</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Unidades totales</td><td>Cuánto material físico hay bajo control</td></tr>
+          <tr><td>Valor total (€)</td><td>Cuánto dinero hay invertido en equipación y material</td></tr>
+          <tr><td>Artículos bajos</td><td>Qué hay que reponer antes de que falle un partido</td></tr>
+          <tr><td>Ubicaciones</td><td>Dónde buscar (sin perder media hora)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="page">
+      <p class="kicker">05 · Innovación en el club</p>
+      <h2>Cómo encaja con programas como Real Madrid Next</h2>
+      <p>
+        CourtManager Pro no es una idea en papel: <strong>ya funciona</strong> en el día a día de utilería.
+        Encaja con las áreas de innovación del club porque mejora cosas reales:
+      </p>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Rendimiento (Performance)</h3>
+          <p>
+            Sin la equipación correcta, a tiempo y en la talla adecuada, el equipo no rinde igual.
+            Organizar material y viajes es parte del rendimiento.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Datos seguros (Cyber Tech)</h3>
+          <p>
+            Cada persona ve solo lo que le corresponde. Queda registro de movimientos.
+            Los datos del club se tratan con cuidado (privacidad).
+          </p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Salud / botiquín (apoyo a E-Health)</h3>
+        <p>
+          Control del material médico del vestuario y del viaje, con avisos cuando algo caduca.
+        </p>
+      </div>
+      <p style="margin-top:14px">
+        <strong>Propuesta:</strong> una prueba práctica de unas semanas, midiendo menos pérdidas,
+        menos tiempo perdido y mejor control del almacén.
+      </p>
+    </section>
+
+    <section class="page">
+      <p class="kicker">06 · Precios (claros)</p>
+      <h2>Cuánto cuesta y qué ganas</h2>
+      <table>
+        <thead>
+          <tr><th>Plan</th><th>Para quién</th><th>Desde</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Starter</td><td>Canteras y academias</td><td>49 € al mes</td></tr>
+          <tr><td>Pro</td><td>Clubes profesionales (el más habitual)</td><td>349 € al mes</td></tr>
+          <tr><td>Elite</td><td>Varias secciones / club grande</td><td>1.990 € al mes</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Incluye los módulos de material y el <strong>almacén general</strong> (stock, ubicaciones y valor en €).</li>
+        <li>Puedes pagar mes a mes o al año (con descuento si pagas el año).</li>
+        <li><strong>Sin quedarte atado:</strong> si no te conviene, puedes dejarlo. No hay contratos eternos.</li>
+        <li><strong>Puesta en marcha sencilla:</strong> te ayudamos a arrancar y, si quieres, adaptamos colores y logo del club
+          con un presupuesto aparte y transparente.</li>
+        <li>Prueba de 2 a 4 semanas para comprobarlo con vuestro propio trabajo.</li>
+      </ul>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Ejemplo plan Pro</h3>
+          <p class="stat">unos 4.188 € al año<span>349 € × 12 meses</span></p>
+        </div>
+        <div class="card">
+          <h3>Lo que suele recuperarse</h3>
+          <p class="stat">15.000–30.000 € al año<span>en material que ya no se pierde ni se compra dos veces</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page">
+      <p class="kicker">07 · Quién está detrás y cómo seguir</p>
+      <h2>Personas, no solo software</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Ramón del Pozo Rott</h3>
+          <p>Creador del proyecto. Contacto: <strong>info@ramondelpozorott.es</strong></p>
+        </div>
+        <div class="card">
+          <h3>Validado en la práctica</h3>
+          <p>Pensado y contrastado con el trabajo real de utilería en club profesional.</p>
+        </div>
+      </div>
+      <h3>Pasos siguientes</h3>
+      <ol>
+        <li>Leer esta presentación (y, si quieres, escuchar el audio).</li>
+        <li>Una demo de media hora con vuestro caso real.</li>
+        <li>Una prueba corta midiendo resultados.</li>
+        <li>Si encaja, arrancar con vuestros datos y vuestro equipo.</li>
+      </ol>
+      <p class="footnote">
+        CourtManager Pro · Julio 2026 · Confidencial<br />
+        Ramón del Pozo Rott · info@ramondelpozorott.es
+      </p>
+    </section>
+  </div>
+</body>
+</html>

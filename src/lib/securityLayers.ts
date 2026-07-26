@@ -1,5 +1,7 @@
 /**
- * CourtManager Pro — capas de seguridad cliente
+ * CourtManager Pro — disuasión cosmética en el navegador (NO es una capa de seguridad real).
+ * Bloquear clic derecho / F12 no impide DevTools ni copiar el bundle.
+ * Las capas reales son: middleware auth + requireApiUser/APIs + RLS Supabase.
  * Uso: <script dangerouslySetInnerHTML={{ __html: SECURITY_SCRIPT }} />
  */
 export const SECURITY_SCRIPT = `

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CourtManager Pro — Vídeo demo promocional</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #f3efe8;
+      --muted: #b8c0ce;
+      --gold: #c9b27a;
+      --panel: rgba(8, 12, 22, 0.72);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: #060a14;
+      color: var(--ink);
+    }
+    h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 650; letter-spacing: -0.02em; }
+    .stage {
+      position: relative;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute; inset: 0;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.55s ease;
+      display: flex; align-items: flex-end;
+    }
+    .slide.active { opacity: 1; pointer-events: auto; z-index: 1; }
+    .slide-bg {
+      position: absolute; inset: 0; z-index: -2;
+      background: #0c1222 center/cover no-repeat;
+    }
+    .slide-bg::after {
+      content: "";
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        linear-gradient(180deg, rgba(6,10,20,0.25) 0%, rgba(6,10,20,0.45) 40%, rgba(6,10,20,0.92) 100%);
+    }
+    .slide-inner {
+      position: relative; z-index: 1;
+      width: min(920px, 92vw);
+      margin: 0 auto 11vh;
+      padding: 28px 28px 24px;
+      background: var(--panel);
+      border: 1px solid rgba(201,178,122,0.28);
+      border-radius: 18px;
+      backdrop-filter: blur(10px);
+    }
+    .kicker {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 10px;
+    }
+    .slide h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.1; margin-bottom: 10px; }
+    .slide h2 { font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.15; margin-bottom: 10px; }
+    .slide p, .slide li { color: var(--muted); font-size: clamp(0.95rem, 1.6vw, 1.1rem); line-height: 1.55; }
+    .slide ul { margin: 10px 0 0 1.15rem; }
+    .slide li { margin-bottom: 6px; }
+    .pills { margin-top: 14px; }
+    .pill {
+      display: inline-block; margin: 0 6px 6px 0; padding: 5px 11px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; color: #0c1222; background: var(--gold);
+    }
+    .controls {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+      padding: 14px 16px 18px;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85));
+    }
+    .controls button, .controls select {
+      appearance: none; border: 0; font: inherit; cursor: pointer;
+      border-radius: 999px; padding: 11px 16px; font-weight: 700; font-size: 13px;
+    }
+    #playBtn { background: var(--gold); color: #0c1222; min-width: 150px; }
+    #pauseBtn, #stopBtn, #prevBtn, #nextBtn { background: #1c2740; color: #fff; }
+    select { background: #1c2740; color: #fff; border: 1px solid #334155 !important; }
+    .progress {
+      width: min(420px, 70vw); height: 4px; background: #1e293b; border-radius: 999px; overflow: hidden;
+    }
+    #bar { height: 100%; width: 0%; background: var(--gold); transition: width 0.2s linear; }
+    .status { font-size: 12px; color: var(--muted); min-width: 90px; }
+    .hint {
+      position: fixed; top: 14px; right: 14px; z-index: 20;
+      font-size: 12px; color: var(--muted);
+      background: rgba(8,12,22,0.75); border: 1px solid #334155;
+      padding: 8px 12px; border-radius: 999px;
+    }
+    .hint a { color: var(--gold); text-decoration: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="hint"><a href="DOSSIER.html">Dossier</a> · F11 pantalla completa · voz MP3 (es.mp3 / en.mp3)</div>
+
+  <div class="stage" id="stage">
+    <section class="slide active" data-i="0">
+      <div class="slide-bg" style="background-image:url('assets/dossier-hero.png')"></div>
+      <div class="slide-inner">
+        <p class="kicker">Demo promocional · ~90 s</p>
+        <h1>CourtManager Pro</h1>
+        <p class="copy">Organiza la ropa y el material del club — vestuario, almacén y viajes.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-i="1">
+      <div class="slide-bg" style="background-image:url('assets/dossier-hero.png'); background-position: 18% center;"></div>
+      <div class="slide-inner">
+        <p class="kicker">El problema</p>
+        <h2>Excel + WhatsApp = pérdidas</h2>
+        <ul>
+          <li>Material que se pierde en los viajes</li>
+          <li>Compras de más “por si acaso”</li>
+          <li>Tallas que faltan el día del partido</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" data-i="2">
+      <div class="slide-bg" style="background:linear-gradient(145deg,#0c1222,#14324a 55%,#0e4d6e)"></div>
+      <div class="slide-inner">
+        <p class="kicker">La solución</p>
+        <h2>Todo en un solo sitio</h2>
+        <div class="pills">
+          <span class="pill">Tallas</span>
+          <span class="pill">Inventario</span>
+          <span class="pill">Almacén €</span>
+          <span class="pill">Viajes</span>
+          <span class="pill">Botiquín</span>
+          <span class="pill">Pre-partido</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-i="3">
+      <div class="slide-bg" style="background:linear-gradient(160deg,#0a1628,#1a2a1f 60%,#0c1222)"></div>
+      <div class="slide-inner">
+        <p class="kicker">Almacén general</p>
+        <h2>Stock · Ubicación · Valor en euros</h2>
+        <p class="copy">Ves cuánto hay, dónde está y cuánto vale. Compras con datos, no a ojo.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-i="4">
+      <div class="slide-bg" style="background:linear-gradient(150deg,#12100c,#2a2418 50%,#0c1222)"></div>
+      <div class="slide-inner">
+        <p class="kicker">Precio claro</p>
+        <h2>Desde 349 € al mes</h2>
+        <p class="copy">Plan profesional. Prueba de pocas semanas. Si no encaja, lo dejas — sin quedarte atado.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-i="5">
+      <div class="slide-bg" style="background-image:url('assets/dossier-hero.png'); background-position: 70% center;"></div>
+      <div class="slide-inner">
+        <p class="kicker">Contacto</p>
+        <h2>Ramón del Pozo Rott</h2>
+        <p class="copy">info@ramondelpozorott.es</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="controls">
+    <select id="langSelect" aria-label="Idioma">
+      <option value="es">Español (audio/es.mp3)</option>
+      <option value="en">English (audio/en.mp3)</option>
+    </select>
+    <button type="button" id="prevBtn">Anterior</button>
+    <button type="button" id="playBtn">▶ Reproducir</button>
+    <button type="button" id="pauseBtn" disabled>⏸ Pausar</button>
+    <button type="button" id="stopBtn" disabled>⏹ Detener</button>
+    <button type="button" id="nextBtn">Siguiente</button>
+    <div class="progress"><div id="bar"></div></div>
+    <span class="status" id="status">Listo</span>
+  </div>
+
+  <script>
+    /* Voz = MP3 de presentacion-promocional (es.mp3 / en.mp3), igual que es.html */
+    const AUDIO_SRC = {
+      es: 'audio/es.mp3',
+      en: 'audio/en.mp3',
+    };
+    /* Fracciones del audio para cambiar de slide */
+    const SLIDE_AT = [0, 0.12, 0.28, 0.52, 0.72, 0.88];
+
+    const COPY = {
+      es: [
+        'Organiza la ropa y el material del club — vestuario, almacén y viajes.',
+        null,
+        null,
+        'Ves cuánto hay, dónde está y cuánto vale. Compras con datos, no a ojo.',
+        'Plan profesional. Prueba de pocas semanas. Si no encaja, lo dejas — sin quedarte atado.',
+        'info@ramondelpozorott.es',
+      ],
+      en: [
+        'Organizes club kits and equipment — dressing room, warehouse and travel.',
+        null,
+        null,
+        'See how much you have, where it is, and what it costs. Buy with facts.',
+        'Professional plan. Try it a few weeks. If it does not fit, you leave.',
+        'info@ramondelpozorott.es',
+      ],
+    };
+
+    const slides = [...document.querySelectorAll('.slide')];
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const langSelect = document.getElementById('langSelect');
+    const status = document.getElementById('status');
+    const bar = document.getElementById('bar');
+
+    let index = 0;
+    let paused = false;
+    let playing = false;
+    let audio = null;
+
+    function lang() {
+      return langSelect.value === 'en' ? 'en' : 'es';
+    }
+
+    function showSlide(i) {
+      index = Math.max(0, Math.min(slides.length - 1, i));
+      slides.forEach((s, n) => s.classList.toggle('active', n === index));
+      const c = COPY[lang()][index];
+      if (c) {
+        const el = slides[index].querySelector('.copy');
+        if (el) el.textContent = c;
+      }
+    }
+
+    function resetUI() {
+      playing = false;
+      paused = false;
+      playBtn.disabled = false;
+      playBtn.textContent = '▶ Reproducir';
+      pauseBtn.disabled = true;
+      stopBtn.disabled = true;
+      status.textContent = 'Listo';
+    }
+
+    function stopAll() {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio = null;
+      }
+      resetUI();
+      bar.style.width = '0%';
+    }
+
+    function slideForTime(t, dur) {
+      if (!dur || !isFinite(dur)) return 0;
+      const p = t / dur;
+      let i = 0;
+      for (let n = 0; n < SLIDE_AT.length; n++) {
+        if (p >= SLIDE_AT[n]) i = n;
+      }
+      return i;
+    }
+
+    function startAudio() {
+      stopAll();
+      showSlide(0);
+      audio = new Audio(AUDIO_SRC[lang()]);
+      audio.addEventListener('timeupdate', () => {
+        if (!audio || !audio.duration) return;
+        const p = (audio.currentTime / audio.duration) * 100;
+        bar.style.width = `${p}%`;
+        const next = slideForTime(audio.currentTime, audio.duration);
+        if (next !== index) showSlide(next);
+      });
+      audio.addEventListener('ended', () => {
+        status.textContent = 'Finalizado';
+        resetUI();
+        bar.style.width = '100%';
+      });
+      audio.addEventListener('error', () => {
+        status.textContent = 'No se pudo cargar el MP3';
+        resetUI();
+      });
+      playing = true;
+      playBtn.disabled = true;
+      pauseBtn.disabled = false;
+      stopBtn.disabled = false;
+      status.textContent = lang() === 'en' ? 'Playing en.mp3…' : 'Reproduciendo es.mp3…';
+      audio.play().catch(() => {
+        status.textContent = 'Pulsa de nuevo para permitir audio';
+        resetUI();
+      });
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (paused && audio) {
+        audio.play();
+        paused = false;
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+        status.textContent = 'Continúa…';
+        return;
+      }
+      startAudio();
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (!audio || audio.paused) return;
+      audio.pause();
+      paused = true;
+      playBtn.disabled = false;
+      playBtn.textContent = '▶ Continuar';
+      pauseBtn.disabled = true;
+      status.textContent = 'Pausado';
+    });
+
+    stopBtn.addEventListener('click', () => {
+      stopAll();
+      showSlide(0);
+    });
+
+    prevBtn.addEventListener('click', () => {
+      showSlide(index - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      showSlide(index + 1);
+    });
+
+    langSelect.addEventListener('change', () => {
+      document.documentElement.lang = lang();
+      stopAll();
+      showSlide(0);
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>

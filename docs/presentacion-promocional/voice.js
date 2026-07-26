@@ -1,95 +1,35 @@
-/* Narración guiada CourtManager Pro — TTS (ES/CA/EN) + MP3 opcional */
+/* Narración guiada CourtManager Pro — MP3 (ES/EN) + TTS de respaldo */
 (function () {
-  const lang = (document.documentElement.lang || 'es').toLowerCase();
-  const variant = (document.documentElement.dataset.variant || '').toLowerCase();
-  const scriptKey = variant === 'fcb' && lang === 'ca' ? 'fcb' : lang;
+  const lang = (document.documentElement.lang || 'es').toLowerCase() === 'en' ? 'en' : 'es';
 
-  const AUDIO_SRC = { es: 'audio/es.mp3', ca: 'audio/ca.mp3' };
+  const AUDIO_SRC = { es: 'audio/es.mp3', en: 'audio/en.mp3' };
   const preferMp3 = document.documentElement.dataset.audio === 'mp3';
   const useAudio = preferMp3 && Object.prototype.hasOwnProperty.call(AUDIO_SRC, lang);
 
   const SCRIPTS = {
-    es: `Bienvenido a CourtManager Pro. Te guío por esta presentación.
+    es: `CourtManager Pro organiza la ropa y el material del club.
 
-CourtManager Pro es una plataforma SaaS para la gestión profesional de utilería en baloncesto: ACB, Euroliga y academias de élite. Sustituye Excel y WhatsApp por una sola aplicación web accesible desde móvil.
+Hoy, en muchos vestuarios, todo se lleva con Excel y WhatsApp. Se pierde material en los viajes, se compra de más, y el día del partido faltan tallas.
 
-En la cabecera encontrarás la demo en vivo, módulos, precios e inversores. Puedes cambiar entre español, catalán e inglés en cualquier momento.
+CourtManager Pro lo concentra en un solo sitio, en el móvil o en el ordenador: plantilla y tallas, inventario, almacén general con precios y stock, peticiones de material, viajes, lavandería, botiquín con avisos de caducidad, y la lista de comprobación antes del partido.
 
-El dashboard es tu centro de mando: jugadores registrados, stock, solicitudes pendientes y viajes en preparación. La demo incluye diecisiete jugadores y cuatro competiciones: Liga Endesa, Euroliga, Copa del Rey y Supercopa.
+En el almacén general ves cuánto hay, dónde está y cuánto vale en euros. Así compras con datos, no a ojo. Queda registro de quién sacó o entró cada cosa.
 
-En la demo en vivo puedes explorar la app desplegada en Vercel sin instalar nada. El flujo cubre plantilla y tallas, solicitudes, viajes y alertas, e informes ejecutivos.
+Sirve para fútbol y baloncesto de élite. El plan profesional cuesta desde trescientos cuarenta y nueve euros al mes. Puedes probarlo unas semanas. Si no encaja, lo dejas: sin quedarte atado. Si quieres, adaptamos colores y logo del club con un presupuesto claro.
 
-Los nueve módulos principales son: plantilla profesional, matriz de tallas con más de veintiséis productos, inventario con código QR, solicitudes de material, viajes y packing lists, lavandería, material médico con alertas de caducidad, dashboard de KPIs y alertas inteligentes.
+Soy Ramón del Pozo Rott, creador del proyecto. Contacto: info arroba ramondelpozorott punto es. Gracias por escuchar.`,
 
-Los precios son transparentes: plan Starter desde cuarenta y nueve euros al mes para canteras. Plan Pro a trescientos cuarenta y nueve euros para clubes ACB. Plan Elite a mil novecientos noventa euros para Euroliga. Facturación mensual o anual con diecisiete por ciento de ahorro.
+    en: `CourtManager Pro organizes club kits and equipment.
 
-Para inversores: coste de reemplazo del MVP unos cuarenta y cinco mil euros, margen bruto del ochenta y cinco al noventa por ciento. Objetivo realista de ingresos recurrentes en el primer año: más de ciento veinte mil euros. Mercado: más de treinta y seis clubes ACB y Euroliga en España.
+Today, many dressing rooms still run on spreadsheets and WhatsApp. Gear gets lost on trips, clubs overbuy, and on match day the right sizes are missing.
 
-El equipo lo lideran Ramón del Pozo Rott, fundador y superadmin, y Carlos Rodriguez Kobe, jefe de utilería que valida la operativa real del club.
+CourtManager Pro brings everything into one place, on phone or computer: roster and sizing, inventory, a general warehouse with prices and stock, material requests, travel packing lists, laundry, medical kit with expiry alerts, and a pre-match checklist.
 
-Un club que pierde veinte mil euros al año en material invierte menos de cuatro mil doscientos en la plataforma. CourtManager Pro se amortiza desde el primer mes.
+In the general warehouse you see how much you have, where it is, and what it is worth in euros. You buy with facts, not guesswork. Every move is logged.
 
-Prueba la demo en courtmanagerpro punto vercel punto app, o escribe a info arroba ramondelpozorott punto es. Gracias por escuchar.`,
+It works for elite football and basketball. The professional plan starts at three hundred forty-nine euros a month. You can try it for a few weeks. If it does not fit, you leave — no long lock-in. Club colours and logo can be adapted with a clear setup budget.
 
-    ca: `Benvingut a CourtManager Pro. Et guio per aquesta presentació.
-
-CourtManager Pro és una plataforma SaaS per a la gestió professional de material esportiu en bàsquet: ACB, Eurolliga i acadèmies d'elit. Substitueix l'Excel i el WhatsApp per una sola aplicació web accessible des del mòbil.
-
-A la capçalera trobaràs la demo en directe, mòduls, preus i inversors. Pots canviar entre català, castellà i anglès en qualsevol moment.
-
-El dashboard és el teu centre de comandament: jugadors registrats, estoc, sol·licituds pendents i viatges en preparació. La demo inclou disset jugadors i quatre competicions: Liga Endesa, Eurolliga, Copa del Rei i Supercopa.
-
-A la demo en directe pots explorar l'app desplegada a Vercel sense instal·lar res. El flux cobreix plantilla i talles, sol·licituds, viatges i alertes, i informes executius.
-
-Els nou mòduls principals són: plantilla professional, matriu de talles amb més de vint-i-sis productes, inventari amb codi QR, sol·licituds de material, viatges i packing lists, bugaderia, material mèdic amb alertes de caducitat, dashboard de KPIs i alertes intel·ligents.
-
-Els preus són transparents: pla Starter des de quaranta-nou euros al mes per a canteres. Pla Pro a tres-cents quaranta-nou euros per a clubs ACB. Pla Elite a mil nou-cents noranta euros per a Eurolliga. Facturació mensual o anual amb disset per cent d'estalvi.
-
-Per a inversors: cost de reemplaçament del MVP uns quaranta-cinc mil euros, marge brut del vuitanta-cinc al noranta per cent. Objectiu realista d'ingressos recurrents el primer any: més de cent vint mil euros. Mercat: més de trenta-sis clubs ACB i Eurolliga a Espanya.
-
-L'equip el lideren Ramón del Pozo Rott, fundador i superadmin, i Carlos Rodriguez Kobe, cap d'utileria que valida l'operativa real del club.
-
-Un club que perd vint mil euros l'any en material inverteix menys de quatre mil dos-cents en la plataforma. CourtManager Pro s'amortitza des del primer mes.
-
-Prova la demo a courtmanagerpro punt vercel punt app, o escriu a info arroba ramondelpozorott punt es. Gràcies per escoltar.`,
-
-    fcb: `Benvingut al FC Barcelona. Aquesta és la proposta de CourtManager Pro per al departament esportiu i utileria del Barça.
-
-CourtManager Pro centralitza plantilla, talles, inventari amb codi QR, sol·licituds, viatges de Liga Endesa i Eurolliga, bugaderia i material mèdic en una sola aplicació web, accessible des del mòbil al pavelló Olímpic o a qualsevol desplaçament.
-
-La plataforma està pensada per a clubs d'elit com el Barça: múltiples competicions, plantilla amplia, staff tècnic i alertes en temps real abans de cada partit.
-
-El dashboard mostra jugadors, estoc, sol·licituds pendents i viatges. La demo inclou disset jugadors i quatre competicions, amb flux validat per un cap d'utileria de club ACB.
-
-Els mòduls clau per al Barça: matriu de talles amb més de vint-i-sis productes per jugador, inventari QR al vestidor i magatzem, packing lists per desplaçaments europeus, alertes de caducitat mèdica i informes CSV per a direcció esportiva.
-
-El pla recomanat per a un club de primer nivell com el FC Barcelona és Elite, amb onboarding personalitzat, colors del club i suport prioritari.
-
-Un club que perd vint mil euros l'any en material recupera la inversió des del primer mes. CourtManager Pro redueix errors de talla, pèrdues en aeroports i hores de gestió manual.
-
-Sol·liciteu una demo de trenta minuts sense compromís. Contacte: info arroba ramondelpozorott punt es. Demo en directe: courtmanagerpro punt vercel punt app. Gràcies i visca el Barça.`,
-
-    en: `Welcome to CourtManager Pro. I'll guide you through this presentation.
-
-CourtManager Pro is a SaaS platform for professional basketball equipment management: ACB, EuroLeague and elite academies. It replaces Excel spreadsheets and WhatsApp threads with one unified web application.
-
-In the header you'll find the live demo, features, pricing and investors section. You can switch between Spanish, Catalan and English at any time.
-
-The dashboard is your command center. It shows real-time club status: registered players, stock levels, pending requests and trips in preparation. The demo includes seventeen players across four competitions: Liga Endesa, EuroLeague, Copa del Rey and SuperCup.
-
-In the live demo section you can explore the app deployed on Vercel with no installation. The workflow covers roster and sizing, requests, travel and alerts, and executive reports.
-
-The nine core modules are: pro roster, sizing matrix with twenty-six plus products, QR inventory, material requests, travel and packing lists, laundry, medical supplies with expiry alerts, KPI dashboard and smart alerts.
-
-Pricing is transparent. Starter plan from forty-nine euros per month for academies. Pro plan at three hundred forty-nine euros for ACB clubs. Elite plan at one thousand nine hundred ninety euros for EuroLeague. Choose monthly or annual billing with seventeen percent savings.
-
-For investors: MVP replacement cost is around forty-five thousand euros, with eighty-five to ninety percent gross margin. Realistic year-one ARR target is over one hundred twenty thousand euros. The addressable market includes thirty-six plus ACB and EuroLeague clubs in Spain.
-
-The team is led by Ramón del Pozo Rott, founder and superadmin, and Carlos Rodriguez Kobe, equipment manager validating real club operations.
-
-CourtManager Pro pays for itself in month one: a club losing twenty thousand euros in gear per year invests less than four thousand two hundred in the platform.
-
-To try the demo visit courtmanagerpro dot vercel dot app, or email info at ramondelpozorott dot es. Thank you for listening.`,
+I am Ramón del Pozo Rott, founder of the project. Contact: info at ramondelpozorott dot es. Thank you for listening.`,
   };
 
   const labels = {
@@ -101,33 +41,17 @@ To try the demo visit courtmanagerpro dot vercel dot app, or email info at ramon
       title: 'Narración CourtManager Pro',
       hint: 'Voz MP3 · CourtManager Pro',
     },
-    ca: {
-      play: '▶ Escoltar presentació',
-      pause: '⏸ Pausar',
-      resume: '▶ Continuar',
-      stop: '⏹ Aturar',
-      title: 'Narració CourtManager Pro',
-      hint: 'Àudio MP3 · CourtManager Pro',
-    },
-    fcb: {
-      play: '▶ Escoltar proposta Barça',
-      pause: '⏸ Pausar',
-      resume: '▶ Continuar',
-      stop: '⏹ Aturar',
-      title: 'Narració FC Barcelona',
-      hint: 'Català · CourtManager Pro',
-    },
     en: {
       play: '▶ Listen to pitch',
       pause: '⏸ Pause',
       resume: '▶ Resume',
       stop: '⏹ Stop',
       title: 'CourtManager Pro narration',
-      hint: 'Synthetic voice · ~4 min',
+      hint: 'MP3 voice · CourtManager Pro',
     },
   };
-  const L = labels[scriptKey] || labels[lang] || labels.es;
-  const scriptText = SCRIPTS[scriptKey] || SCRIPTS[lang] || SCRIPTS.es;
+  const L = labels[lang] || labels.es;
+  const scriptText = SCRIPTS[lang] || SCRIPTS.es;
 
   let audio = null;
   let utterance = null;
@@ -146,7 +70,7 @@ To try the demo visit courtmanagerpro dot vercel dot app, or email info at ramon
           <span class="voice-icon">🎙️</span>
           <div>
             <strong>${L.title}</strong>
-            <small>${useAudio ? L.hint.replace('sintética', 'MP3').replace('sintètica', 'MP3') : L.hint}</small>
+            <small>${L.hint}</small>
           </div>
         </div>
         <div class="voice-controls">
@@ -250,12 +174,13 @@ To try the demo visit courtmanagerpro dot vercel dot app, or email info at ramon
 
   function pickVoice() {
     const voices = speechSynthesis.getVoices();
-    const prefix = scriptKey === 'fcb' || lang === 'ca' ? 'ca' : lang === 'en' ? 'en' : 'es';
-    const preferred =
-      voices.find((v) => v.lang.startsWith(prefix) && /female|helena|joana|elvira|montserrat|google/i.test(v.name))
-      || voices.find((v) => v.lang.startsWith(prefix))
-      || voices[0];
-    return preferred;
+    const prefix = lang === 'en' ? 'en' : 'es';
+    return (
+      voices.find((v) => v.lang && v.lang.startsWith(prefix) && /female|helena|elvira|jenny|aria|google/i.test(v.name))
+      || voices.find((v) => v.lang && v.lang.startsWith(prefix))
+      || voices[0]
+      || null
+    );
   }
 
   function startSpeech() {
@@ -269,6 +194,8 @@ To try the demo visit courtmanagerpro dot vercel dot app, or email info at ramon
     if (voice) {
       utterance.voice = voice;
       utterance.lang = voice.lang;
+    } else {
+      utterance.lang = lang === 'en' ? 'en-US' : 'es-ES';
     }
 
     let prog = 0;

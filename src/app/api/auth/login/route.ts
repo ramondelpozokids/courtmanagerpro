@@ -3,12 +3,33 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseUrl, supabaseAnonKey } from '@/infrastructure/supabase/env';
 import { isProductionApp } from '@/lib/app-mode';
 import { SUPERADMIN_EMAIL } from '@/lib/permissions';
+import {
+  checkLoginRateLimit,
+  getClientIp,
+  pruneLoginRateLimitBuckets,
+} from '@/lib/login-rate-limit';
 
 export async function POST(request: NextRequest) {
   if (!isProductionApp()) {
     return NextResponse.json(
       { error: 'Login API solo en producción. Usa auth mock en demo.' },
       { status: 400 }
+    );
+  }
+
+  pruneLoginRateLimitBuckets();
+  const ip = getClientIp(request);
+  const limit = checkLoginRateLimit(ip);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'Demasiados intentos de acceso. Espera unos minutos e inténtalo de nuevo.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(limit.retryAfterSec),
+          'X-RateLimit-Remaining': '0',
+        },
+      }
     );
   }
 

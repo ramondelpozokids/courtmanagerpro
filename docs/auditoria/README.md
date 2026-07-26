@@ -1,14 +1,25 @@
 # Auditoría Completa — CourtManager Pro
 
-**Proyecto:** CourtManager Pro — Real Madrid Baloncesto (Liga Endesa 2025/2026)  
-**Repositorio:** https://github.com/ramondelpozokids/courtmanagerpro  
-**Producción:** https://courtmanagerpro.vercel.app  
-**Fecha de auditoría:** 18 de junio de 2026  
+**Proyecto:** CourtManager Pro — utilería profesional (fútbol y baloncesto de élite)  
+**Fecha de auditoría base:** 18 de junio de 2026 (actualizado enlace dossier julio 2026)  
 **Elaborado para:** Ramón del Pozo Rott · Carlos Rodriguez Kobe
 
 ---
 
-## Índice de documentos
+## Presentación comercial (acorde al dossier)
+
+Antes de la due diligence técnica, usa el kit comercial:
+
+| Documento | Ruta |
+|-----------|------|
+| Dossier ejecutivo (lenguaje claro + almacén €) | [../dossier-elite-clubs/DOSSIER.html](../dossier-elite-clubs/DOSSIER.html) |
+| Vídeo demo ~90 s | [../dossier-elite-clubs/VIDEO-PROMO.html](../dossier-elite-clubs/VIDEO-PROMO.html) |
+| Hub presentación + voces ES/EN | [../presentacion-promocional/index.html](../presentacion-promocional/index.html) |
+| Ficha Real Madrid Next | [../dossier-elite-clubs/FICHA-REAL-MADRID-NEXT.md](../dossier-elite-clubs/FICHA-REAL-MADRID-NEXT.md) |
+
+---
+
+## Índice de documentos técnicos
 
 | # | Documento | Contenido |
 |---|-----------|-----------|
@@ -31,10 +42,13 @@
 
 ## Cómo usar esta carpeta
 
-1. Empieza por **01-resumen-ejecutivo.md** para una visión de 5 minutos.
-2. Para due diligence técnica, lee **02**, **03** y **06** en orden.
-3. Para inversores o licencias, usa **04**.
-4. Para poner en producción, usa **05** junto con `docs/DEPLOYMENT.md`.
+1. Empieza por el **dossier** comercial si el destinatario es dirección / innovación.
+2. Luego **01-resumen-ejecutivo.md** para una visión técnica de 5 minutos.
+3. Para due diligence: **02**, **03** y **06** en orden.
+4. Para inversores o licencias: **04**.
+5. Para poner en producción: **05** junto con `docs/DEPLOYMENT.md`.
+
+**Nota (julio 2026):** el producto ha evolucionado con Real Madrid Fútbol (RMF), almacén general, movimientos de stock y checklist pre-partido. El dossier refleja el mensaje comercial actual. La sección de seguridad (**03**) está actualizada al 26/07/2026 con el veredicto de **3 capas** (middleware + APIs + RLS), estrategia Next (demo en vivo, sin invitados) y endurecimiento HTTP / rate limit de login.
 
 ---
 
