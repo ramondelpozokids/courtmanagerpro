@@ -12,6 +12,8 @@ import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { persistDemoDb } from "@/lib/demo-persistence";
 import { apiPlayerToFormValues } from "@/lib/player-form-mapper";
 import { canWriteClubData } from "@/lib/permissions";
+import { usesProductionClubData } from "@/lib/club-preview";
+import { getClubPack } from "@/data/clubs";
 import type { Player } from "@/types";
 import type { Player as FormPlayer } from "@/domain/entities/Player";
 import {
@@ -61,16 +63,43 @@ export default function PlayersPage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   const canWrite = hasOperationalAccess || canWriteClubData(user?.profile?.role, userEmail);
+  const productionClub = usesProductionClubData();
+  const applyOfficialRoster = branding.slug === "rmb";
 
-  const loadStaff = useCallback(() => {
-    setStaff(
-      db.coachingStaff.map((s) => normalizeStaffProfile(s) as StaffMember).filter(Boolean) as StaffMember[]
-    );
-  }, []);
+  const mapStaffRows = useCallback(
+    (rows: Record<string, unknown>[]) =>
+      rows
+        .map((s) => normalizeStaffProfile(s, { applyOfficialRoster }) as StaffMember | null)
+        .filter(Boolean) as StaffMember[],
+    [applyOfficialRoster]
+  );
+
+  const loadStaff = useCallback(async () => {
+    if (productionClub) {
+      try {
+        const res = await fetch(`/api/coaching-staff?team_id=${encodeURIComponent(teamId)}`, {
+          credentials: "include",
+        });
+        const json = await res.json().catch(() => ({}));
+        let rows: Record<string, unknown>[] = Array.isArray(json.data) ? json.data : [];
+        if (rows.length === 0) {
+          const pack = getClubPack(branding.slug);
+          rows = (pack.coachingStaff || []) as Record<string, unknown>[];
+        }
+        setStaff(mapStaffRows(rows));
+      } catch (err) {
+        console.error("Error cargando cuerpo técnico:", err);
+        const pack = getClubPack(branding.slug);
+        setStaff(mapStaffRows((pack.coachingStaff || []) as Record<string, unknown>[]));
+      }
+      return;
+    }
+    setStaff(mapStaffRows(db.coachingStaff as Record<string, unknown>[]));
+  }, [productionClub, teamId, branding.slug, mapStaffRows]);
 
   useEffect(() => {
-    loadStaff();
-    const onChange = () => loadStaff();
+    void loadStaff();
+    const onChange = () => void loadStaff();
     window.addEventListener("club-demo-changed", onChange);
     window.addEventListener("demo-db-changed", onChange);
     return () => {
@@ -98,7 +127,40 @@ export default function PlayersPage() {
     setShowPlayerForm(true);
   };
 
-  const handleSaveStaff = (data: StaffFormData) => {
+  const handleSaveStaff = async (data: StaffFormData) => {
+    if (productionClub) {
+      try {
+        if (editingStaff?.id) {
+          const res = await fetch(`/api/coaching-staff/${editingStaff.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Error al guardar");
+        } else {
+          const res = await fetch("/api/coaching-staff", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              ...data,
+              team_id: teamId,
+              email: `${data.full_name.toLowerCase().replace(/\s/g, "")}@club.local`,
+            }),
+          });
+          if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Error al crear");
+        }
+        await loadStaff();
+        setShowStaffForm(false);
+        setEditingStaff(null);
+      } catch (err) {
+        console.error(err);
+        alert(err instanceof Error ? err.message : "Error al guardar staff");
+      }
+      return;
+    }
+
     if (editingStaff?.id) {
       const idx = db.coachingStaff.findIndex((s) => s.id === editingStaff.id);
       if (idx !== -1) {
@@ -112,16 +174,30 @@ export default function PlayersPage() {
       });
     }
     persistDemoDb();
-    loadStaff();
+    void loadStaff();
     setShowStaffForm(false);
     setEditingStaff(null);
   };
 
-  const handleDeleteStaff = (id: string) => {
+  const handleDeleteStaff = async (id: string) => {
     if (!confirm("¿Eliminar a este miembro del cuerpo técnico?")) return;
+    if (productionClub) {
+      try {
+        const res = await fetch(`/api/coaching-staff/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Error al eliminar");
+        await loadStaff();
+      } catch (err) {
+        console.error(err);
+        alert(err instanceof Error ? err.message : "Error al eliminar staff");
+      }
+      return;
+    }
     db.coachingStaff = db.coachingStaff.filter((s) => s.id !== id);
     persistDemoDb();
-    loadStaff();
+    void loadStaff();
   };
 
   const filteredPlayers = players.filter((p) => {
@@ -173,7 +249,7 @@ export default function PlayersPage() {
           {branding.slug === 'rmb' && (
             <UpdateOfficialRosterButton
               onDone={() => {
-                loadStaff();
+                void loadStaff();
                 window.location.reload();
               }}
             />

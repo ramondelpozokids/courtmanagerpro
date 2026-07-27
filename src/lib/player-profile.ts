@@ -58,11 +58,16 @@ export type NormalizedStaffProfile = {
 };
 
 export function normalizeStaffProfile(
-  staff: Record<string, unknown> | null
+  staff: Record<string, unknown> | null,
+  options?: { applyOfficialRoster?: boolean }
 ): NormalizedStaffProfile | null {
   if (!staff) return null;
+  // Solo RMB: c1..cn del pack ATM/RMF/VBC no deben mapearse a Pedro Martínez et al.
+  const applyOfficial = options?.applyOfficialRoster === true;
   const legacyId =
-    typeof staff.id === 'string' && /^c\d+$/i.test(staff.id) ? staff.id : null;
+    applyOfficial && typeof staff.id === 'string' && /^c\d+$/i.test(staff.id)
+      ? staff.id
+      : null;
   const official = legacyId ? getOfficialStaffByLegacyId(legacyId) : null;
   const birthPlace =
     (official?.birth_place ?? (typeof staff.birth_place === 'string' ? staff.birth_place : null)) ||

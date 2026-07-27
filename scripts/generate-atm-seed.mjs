@@ -26,7 +26,8 @@ function playerUuid(demoId) {
 
 function staffUuid(demoId) {
   const n = Number(String(demoId).replace(/\D/g, '')) || 1;
-  return `00000000-0000-4000-8005-${String(n).padStart(12, '0')}`;
+  // 8008: cuerpo técnico ATM (8005 reservado a material médico RMB)
+  return `00000000-0000-4000-8008-${String(n).padStart(12, '0')}`;
 }
 
 function invUuid(demoId) {
@@ -143,9 +144,17 @@ for (const s of atmCoachingStaff) {
   ${sqlStr(JSON.stringify({ official_slug: slug, demo_id: s.id }))}
 )
 ON CONFLICT (id) DO UPDATE SET
+  team_id = EXCLUDED.team_id,
   full_name = EXCLUDED.full_name,
   role = EXCLUDED.role,
+  email = EXCLUDED.email,
+  nationality = EXCLUDED.nationality,
   photo_url = EXCLUDED.photo_url,
+  shirt_size = EXCLUDED.shirt_size,
+  shorts_size = EXCLUDED.shorts_size,
+  shoe_size = EXCLUDED.shoe_size,
+  is_active = true,
+  notes = EXCLUDED.notes,
   updated_at = NOW();\n\n`;
 }
 

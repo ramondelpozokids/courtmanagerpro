@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -20,6 +20,9 @@ import {
   getOfficialStaffByLegacyId,
   RMB_OFFICIAL_SOURCE,
 } from "@/data/rmb-official-roster";
+import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
+import { usesProductionClubData } from "@/lib/club-preview";
+import { getClubPack } from "@/data/clubs";
 
 interface StaffProfileProps {
   params: Promise<{ id: string }>;
@@ -27,32 +30,92 @@ interface StaffProfileProps {
 
 export default function StaffProfilePage({ params }: StaffProfileProps) {
   const { id } = use(params);
+  const branding = useClubBranding();
+  const teamId = useActiveTeamId();
+  const productionClub = usesProductionClubData();
+  const applyOfficialRoster = branding.slug === "rmb";
+  const [remoteStaff, setRemoteStaff] = useState<Record<string, unknown> | null>(null);
+  const [loadingRemote, setLoadingRemote] = useState(productionClub);
+
+  useEffect(() => {
+    if (!productionClub) {
+      setLoadingRemote(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/coaching-staff?team_id=${encodeURIComponent(teamId)}`, {
+          credentials: "include",
+        });
+        const json = await res.json().catch(() => ({}));
+        let rows: Record<string, unknown>[] = Array.isArray(json.data) ? json.data : [];
+        if (rows.length === 0) {
+          rows = (getClubPack(branding.slug).coachingStaff || []) as Record<string, unknown>[];
+        }
+        if (!cancelled) {
+          setRemoteStaff(rows.find((s) => String(s.id) === id) || null);
+        }
+      } catch {
+        if (!cancelled) {
+          const packRow = (getClubPack(branding.slug).coachingStaff || []).find(
+            (s: { id?: string }) => String(s.id) === id
+          );
+          setRemoteStaff((packRow as Record<string, unknown>) || null);
+        }
+      } finally {
+        if (!cancelled) setLoadingRemote(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [productionClub, teamId, branding.slug, id]);
 
   const staff = useMemo(() => {
+    if (productionClub) {
+      return normalizeStaffProfile(remoteStaff, { applyOfficialRoster });
+    }
+
     const local = db.coachingStaff.find((s) => s.id === id) || null;
-    const normalized = normalizeStaffProfile(local);
+    const normalized = normalizeStaffProfile(local as Record<string, unknown> | null, {
+      applyOfficialRoster,
+    });
     if (normalized) return normalized;
+
+    if (!applyOfficialRoster) return null;
 
     const official = getOfficialStaffByLegacyId(id);
     if (!official) return null;
-    return normalizeStaffProfile({
-      id: official.legacyId,
-      full_name: official.full_name,
-      role: official.role,
-      nationality: official.nationality,
-      birth_date: official.birth_date,
-      birth_place: official.birth_place,
-      photo_url: official.photo_url,
-      profile_url: official.profile_url,
-      trajectory: official.trajectory,
-      trajectory_items: official.trajectory_items,
-      palmares: official.palmares,
-      shirt_size: "L",
-      shorts_size: "L",
-      shoe_size: 43,
-      email: `${official.slug}@realmadrid.com`,
-    });
-  }, [id]);
+    return normalizeStaffProfile(
+      {
+        id: official.legacyId,
+        full_name: official.full_name,
+        role: official.role,
+        nationality: official.nationality,
+        birth_date: official.birth_date,
+        birth_place: official.birth_place,
+        photo_url: official.photo_url,
+        profile_url: official.profile_url,
+        trajectory: official.trajectory,
+        trajectory_items: official.trajectory_items,
+        palmares: official.palmares,
+        shirt_size: "L",
+        shorts_size: "L",
+        shoe_size: 43,
+        email: `${official.slug}@realmadrid.com`,
+      },
+      { applyOfficialRoster: true }
+    );
+  }, [id, productionClub, remoteStaff, applyOfficialRoster]);
+
+  if (loadingRemote) {
+    return (
+      <div className="text-center py-20 text-slate-400">
+        <p className="text-sm font-bold">Cargando ficha...</p>
+      </div>
+    );
+  }
 
   if (!staff) {
     return (
