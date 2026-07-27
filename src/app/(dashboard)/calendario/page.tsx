@@ -11,15 +11,13 @@ import {
   RefreshCw,
   Trophy,
 } from 'lucide-react';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
-import { useAuth } from '@/contexts/AuthContext';
 import { categorizeCompetition } from '@/application/calendar-sync/parser';
 import {
   calendarSportForTeamId,
   getOfficialCalendarMeta,
   type CalendarSport,
 } from '@/application/calendar-sync/types';
-import { useClubBranding } from '@/contexts/ClubDemoContext';
+import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import type { OfficialMatch } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -84,9 +82,8 @@ function startOfWeek(d: Date) {
 }
 
 export default function CalendarioPage() {
-  const { currentTeam } = useAuth();
   const branding = useClubBranding();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const sport = branding.sport === 'football' ? 'football' : calendarSportForTeamId(teamId);
   const calendarMeta = getOfficialCalendarMeta(sport);
   const competitionFilters = sport === 'football' ? FOOTBALL_FILTERS : BASKETBALL_FILTERS;

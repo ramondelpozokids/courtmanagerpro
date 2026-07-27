@@ -27,20 +27,24 @@ export function OfficialStoreCard({
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const next = await checkOfficialStore();
+      const next = await checkOfficialStore(branding.slug);
       setResult(next);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [branding.slug]);
 
   useEffect(() => {
     const stored = readStoredStoreStatus();
-    if (stored) setResult(stored);
+    if (stored && stored.url.includes(branding.slug === 'atm' ? 'atletico' : 'realmadrid')) {
+      setResult(stored);
+    } else {
+      setResult(null);
+    }
 
     if (!checkOnMount) return;
 
-    const key = 'cm-official-store-boot-check';
+    const key = `cm-official-store-boot-check:${branding.slug}`;
     try {
       const last = sessionStorage.getItem(key);
       if (last && Date.now() - Number(last) < 60_000) {
@@ -52,7 +56,7 @@ export function OfficialStoreCard({
     }
 
     void refresh();
-  }, [checkOnMount, refresh]);
+  }, [checkOnMount, refresh, branding.slug]);
 
   return (
     <div
@@ -81,7 +85,7 @@ export function OfficialStoreCard({
 
       <div className="mt-4 space-y-3">
         <OfficialStoreButtons
-          onOpen={openOfficialStore}
+          onOpen={() => openOfficialStore(branding.slug)}
           onRefresh={() => void refresh()}
           refreshing={loading}
         />

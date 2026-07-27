@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import { canWriteClubData } from "@/lib/permissions";
 import { persistDemoDb } from "@/lib/demo-persistence";
 import { usesDemoClubData, usesProductionClubData } from "@/lib/club-preview";
@@ -12,7 +13,6 @@ import {
   saveProductionPlayerSizes,
   saveProductionStaffSizes,
 } from "@/lib/sizing-production";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import {
   DEFAULT_SIZING_PRODUCTS,
   SIZING_CATEGORY_LABELS,
@@ -95,9 +95,10 @@ function propagateNewProduct(product: SizingProduct, catalog: SizingProduct[]) {
 }
 
 export default function SizingTablePage() {
-  const { user, userEmail, isSuperadmin, currentTeam } = useAuth();
+  const { user, userEmail, isSuperadmin } = useAuth();
+  const branding = useClubBranding();
   const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
 
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [customProducts, setCustomProducts] = useState<SizingProduct[]>([]);
@@ -145,13 +146,21 @@ export default function SizingTablePage() {
     [catalog, categoryFilter]
   );
 
-  const positionLabels: Record<string, string> = {
-    base: "Base (PG)",
-    escolta: "Escolta (SG)",
-    alero: "Alero (SF)",
-    ala_pivot: "Ala-Pívot (PF)",
-    pivot: "Pívot (C)",
-  };
+  const positionLabels: Record<string, string> =
+    branding.sport === "football"
+      ? {
+          portero: "Portero",
+          defensa: "Defensa",
+          centrocampista: "Centrocampista",
+          delantero: "Delantero",
+        }
+      : {
+          base: "Base (PG)",
+          escolta: "Escolta (SG)",
+          alero: "Alero (SF)",
+          ala_pivot: "Ala-Pívot (PF)",
+          pivot: "Pívot (C)",
+        };
 
   const filteredPlayers = players.filter((p) => {
     const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();

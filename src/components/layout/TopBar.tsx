@@ -1,9 +1,8 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { useClubBranding } from "@/contexts/ClubDemoContext";
+import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import { useAlerts } from "@/hooks/useAlerts";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import { Bell, Shield, ChevronDown, Home, Settings, MessageCircle, X, CheckCircle, LogIn, LogOut, Landmark, KeyRound } from "lucide-react";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -28,9 +27,10 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function TopBar() {
-  const { user, logout, isSuperadmin, currentTeam } = useAuth();
+  const { user, logout, isSuperadmin } = useAuth();
   const branding = useClubBranding();
-  const { alerts } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
+  const teamId = useActiveTeamId();
+  const { alerts } = useAlerts(teamId);
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showBlogDropdown, setShowBlogDropdown] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);

@@ -18,6 +18,7 @@ import { loginWithPasskey } from '@/lib/passkey-client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { isDemoMode } from '@/lib/app-mode';
 import { buildFallbackProductionUser, buildGuaranteedSuperadminUser, enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
+import { resolveTeamFromStorage } from '@/lib/active-team';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -165,12 +166,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(activeSession);
       const authEmail = activeSession.user.email;
 
-      // SuperAdmin: usuario garantizado al instante (evita bloqueos de BD/RLS)
+      // SuperAdmin: usuario garantizado al instante (evita bloqueos de BD/RLS).
+      // Respeta currentTeamId (RMB/RMF/ATM) para no pisar el switcher del club.
       if (isSuperadminUser(null, authEmail)) {
         const guaranteed = buildGuaranteedSuperadminUser(activeSession.user.id, authEmail);
         if (guaranteed) {
-          setUser(guaranteed);
-          setCurrentTeamState(guaranteed.currentTeam ?? defaultMockTeam);
+          const storedTeam = resolveTeamFromStorage();
+          const team = storedTeam ?? guaranteed.currentTeam ?? defaultMockTeam;
+          setUser({ ...guaranteed, currentTeam: team });
+          setCurrentTeamState(team);
           return;
         }
       }
@@ -181,8 +185,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userData = await buildFallbackProductionUser(supabase, activeSession.user.id, authEmail);
       }
       if (userData) {
-        setUser(userData);
-        setCurrentTeamState(userData.currentTeam ?? defaultMockTeam);
+        const storedTeam = resolveTeamFromStorage();
+        const team = storedTeam ?? userData.currentTeam ?? defaultMockTeam;
+        setUser({ ...userData, currentTeam: team });
+        setCurrentTeamState(team);
       }
     },
     [loadUserData, supabase]

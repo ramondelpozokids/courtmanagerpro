@@ -189,6 +189,18 @@ export function useClubNews() {
   return useClubDemo().club.news;
 }
 
+/** UUID del club del switcher (ATM/RMB/RMF…) — no depende de currentTeam desfasado. */
+export function useActiveTeamId(): string {
+  const { clubSlug, club } = useClubDemo();
+  const { currentTeam } = useAuth();
+  return (
+    CLUB_TEAM_IDS[clubSlug] ||
+    club.branding.teamId ||
+    currentTeam?.id ||
+    CLUB_TEAM_IDS.rmb
+  );
+}
+
 /** Hook: vista activa usa datos demo (FCB/VBC o DEMO_MODE). */
 export function useUsesDemoClubData(): boolean {
   const { clubSlug } = useClubDemo();

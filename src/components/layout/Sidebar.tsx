@@ -7,13 +7,12 @@ import {
   Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
   ChevronRight, LogOut, Calendar, Table, KeyRound, HardHat, Warehouse, ClipboardCheck, History
 } from 'lucide-react';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { cn } from '@/lib/utils';
 import { canAccessMedical, canAccessReports, isCarlosUser } from '@/lib/permissions';
 import { canAccessEquipmentTeam } from '@/modules/equipment-team';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
-import { useClubBranding } from '@/contexts/ClubDemoContext';
+import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { useAlerts } from '@/hooks/useAlerts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,10 +41,11 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, currentTeam, logout, hasPermission, userEmail, hasOperationalAccess, effectiveRole, isSuperadmin } = useAuth();
+  const { user, logout, hasPermission, userEmail, hasOperationalAccess, effectiveRole, isSuperadmin } = useAuth();
   const branding = useClubBranding();
+  const teamId = useActiveTeamId();
   const { sidebarOpen, toggleSidebar } = useApp();
-  const { unreadCount } = useAlerts(currentTeam?.id || DEFAULT_TEAM_ID);
+  const { unreadCount } = useAlerts(teamId);
 
   const userRole = effectiveRole;
   // Ramón y Carlos: exactamente el mismo menú en el mismo orden
@@ -77,7 +77,7 @@ export function Sidebar() {
     /ram[oó]n/i.test(full_name) ||
     /ramondelpozo/i.test(String(userEmail || user?.email || ''));
 
-  const seasonLabel = '2026-2027';
+  const seasonLabel = branding.slug === 'atm' ? '2025-2026' : '2026-2027';
 
   const AvatarPhoto = ({ size = 32 }: { size?: number }) =>
     isRamonAccount ? (
@@ -135,17 +135,17 @@ export function Sidebar() {
       </div>
 
       {/* Team selector */}
-      {sidebarOpen && currentTeam && (
+      {sidebarOpen && (
         <div className="px-4 py-2 border-b border-slate-800 text-left shrink-0">
           <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5 font-bold">Equipo</p>
           <div className="flex items-center gap-2 min-w-0">
             <div
               className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{ backgroundColor: currentTeam.primary_color }}
+              style={{ backgroundColor: branding.primaryColor }}
             />
-            <p className="text-sm font-bold truncate">{currentTeam.name}</p>
+            <p className="text-sm font-bold truncate">{branding.name}</p>
           </div>
-          <p className="text-[10px] text-orange-400 font-bold mt-0.5 truncate">{seasonLabel} · {currentTeam.league}</p>
+          <p className="text-[10px] text-orange-400 font-bold mt-0.5 truncate">{seasonLabel} · {branding.league}</p>
         </div>
       )}
 

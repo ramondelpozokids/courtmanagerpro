@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { useActiveTeamId } from '@/contexts/ClubDemoContext';
 import {
   ClipboardCheck,
   RefreshCw,
@@ -23,8 +22,7 @@ type CheckItem = { id: string; label: string; href: string; done: boolean };
 const STORAGE_PREFIX = 'cm-prematch-checklist:';
 
 export default function PrematchChecklistPage() {
-  const { currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const [nextMatch, setNextMatch] = useState<OfficialMatch | null>(null);
   const [loading, setLoading] = useState(true);
   const [checks, setChecks] = useState<CheckItem[]>([]);

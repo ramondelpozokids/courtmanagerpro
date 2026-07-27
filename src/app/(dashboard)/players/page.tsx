@@ -2,7 +2,7 @@
 
 import { usePlayers } from "@/hooks/usePlayers";
 import { useAuth } from "@/contexts/AuthContext";
-import { useClubBranding } from "@/contexts/ClubDemoContext";
+import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import PlayerCard from "@/components/players/PlayerCard";
 import PlayerForm from "@/components/players/PlayerForm";
 import StaffForm, { type StaffFormData } from "@/components/players/StaffForm";
@@ -37,15 +37,16 @@ type StaffMember = StaffFormData & {
 const OFFICIAL_PLANTILLA_URL = RMB_OFFICIAL_SOURCE;
 
 export default function PlayersPage() {
-  const { user, currentTeam, userEmail, hasOperationalAccess } = useAuth();
+  const { user, userEmail, hasOperationalAccess } = useAuth();
   const branding = useClubBranding();
+  const teamId = useActiveTeamId();
   const {
     players,
     loading,
     createPlayerFromForm,
     updatePlayerFromForm,
     deletePlayer,
-  } = usePlayers(currentTeam?.id);
+  } = usePlayers(teamId);
 
   const [showPlayerForm, setShowPlayerForm] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<FormPlayer | null>(null);

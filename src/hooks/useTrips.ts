@@ -3,8 +3,7 @@ import { Trip } from "../domain/entities/Trip";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { usesDemoClubData } from "@/lib/club-preview";
 import { isMockMode } from "@/lib/demo-data";
-import { useAuth } from "@/contexts/AuthContext";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
+import { useActiveTeamId } from "@/contexts/ClubDemoContext";
 
 function mapDbTrips(): Trip[] {
   return (db.trips || []).map((t: any) => ({
@@ -14,8 +13,7 @@ function mapDbTrips(): Trip[] {
 }
 
 export function useTrips() {
-  const { currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

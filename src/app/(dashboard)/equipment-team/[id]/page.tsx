@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { useActiveTeamId } from '@/contexts/ClubDemoContext';
 import {
   canAccessEquipmentTeam,
   MemberProfile,
@@ -15,8 +15,8 @@ import {
 export default function EquipmentMemberPage() {
   const params = useParams();
   const id = String(params?.id || '');
-  const { user, userEmail, hasOperationalAccess, currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const { user, userEmail, hasOperationalAccess } = useAuth();
+  const teamId = useActiveTeamId();
   const role = user?.profile?.role;
   const hasAccess = hasOperationalAccess || canAccessEquipmentTeam(role, userEmail);
 

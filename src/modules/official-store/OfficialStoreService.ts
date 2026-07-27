@@ -1,4 +1,5 @@
-import { OFFICIAL_STORE } from '@/config/store';
+import { getOfficialStoreForSlug, OFFICIAL_STORE } from '@/config/store';
+import type { ClubSlug } from '@/data/clubs/types';
 
 export type OfficialStoreAvailability = 'available' | 'unavailable' | 'unknown';
 
@@ -13,9 +14,10 @@ export interface OfficialStoreCheckResult {
 
 const STORAGE_KEY = 'cm-official-store-status';
 
-export function openOfficialStore(): void {
+export function openOfficialStore(slug?: ClubSlug | string | null): void {
   if (typeof window === 'undefined') return;
-  window.open(OFFICIAL_STORE.url, '_blank', 'noopener,noreferrer');
+  const store = getOfficialStoreForSlug(slug);
+  window.open(store.url, '_blank', 'noopener,noreferrer');
 }
 
 export function readStoredStoreStatus(): OfficialStoreCheckResult | null {
@@ -41,9 +43,13 @@ export function persistStoreStatus(result: OfficialStoreCheckResult): void {
 }
 
 /** Client helper: asks our API to HEAD/GET the official shop (no product download). */
-export async function checkOfficialStore(): Promise<OfficialStoreCheckResult> {
+export async function checkOfficialStore(
+  slug?: ClubSlug | string | null
+): Promise<OfficialStoreCheckResult> {
+  const store = getOfficialStoreForSlug(slug);
   try {
-    const res = await fetch('/api/store/status', { method: 'GET', cache: 'no-store' });
+    const qs = slug ? `?club=${encodeURIComponent(String(slug))}` : '';
+    const res = await fetch(`/api/store/status${qs}`, { method: 'GET', cache: 'no-store' });
     const json = (await res.json()) as { data?: OfficialStoreCheckResult; error?: string };
     const data = json.data;
     if (!data) {
@@ -53,7 +59,7 @@ export async function checkOfficialStore(): Promise<OfficialStoreCheckResult> {
         checkedAt: new Date().toISOString(),
         statusCode: res.status,
         error: json.error || 'Sin respuesta',
-        url: OFFICIAL_STORE.url,
+        url: store.url,
       };
       persistStoreStatus(fallback);
       return fallback;
@@ -67,9 +73,11 @@ export async function checkOfficialStore(): Promise<OfficialStoreCheckResult> {
       checkedAt: new Date().toISOString(),
       statusCode: null,
       error: err instanceof Error ? err.message : String(err),
-      url: OFFICIAL_STORE.url,
+      url: store.url,
     };
     persistStoreStatus(fallback);
     return fallback;
   }
 }
+
+export { OFFICIAL_STORE };

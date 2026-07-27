@@ -1,14 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { LaundryBatch } from "../domain/entities/LaundryBatch";
-import { useAuth } from "@/contexts/AuthContext";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
+import { useActiveTeamId } from "@/contexts/ClubDemoContext";
 import { usesDemoClubData } from "@/lib/club-preview";
 import { isMockMode } from "@/lib/demo-data";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 
 export function useLaundry() {
-  const { currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const [batches, setBatches] = useState<LaundryBatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

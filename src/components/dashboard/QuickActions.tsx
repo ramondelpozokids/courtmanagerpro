@@ -2,13 +2,16 @@
 
 import { isReadonlyUser } from "@/lib/permissions";
 import { useAuth } from "@/contexts/AuthContext";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { PlusCircle, QrCode, Plane, Droplet, Zap } from "lucide-react";
 import Link from "next/link";
 
 export default function QuickActions({ embedded }: { embedded?: boolean }) {
   const { user, userEmail, isSuperadmin } = useAuth();
+  const branding = useClubBranding();
   const userRole = user?.profile?.role || "equipment_manager";
   const isReadonly = !isSuperadmin && isReadonlyUser(user?.profile?.role, userEmail);
+  const isFootball = branding.sport === "football";
 
   const actions = [
     {
@@ -27,7 +30,7 @@ export default function QuickActions({ embedded }: { embedded?: boolean }) {
       href: "/trips",
       icon: Plane,
       title: "Organizar Viaje",
-      subtitle: "Equipajes ACB",
+      subtitle: isFootball ? "Equipajes LaLiga" : "Equipajes ACB",
     },
     {
       href: "/laundry",

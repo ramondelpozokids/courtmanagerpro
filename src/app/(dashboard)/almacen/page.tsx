@@ -15,9 +15,7 @@ import {
   Euro,
 } from 'lucide-react';
 import { downloadCsv } from '@/lib/csv-export';
-import { useAuth } from '@/contexts/AuthContext';
-import { useClubBranding } from '@/contexts/ClubDemoContext';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 
 type WarehouseItem = {
@@ -58,9 +56,8 @@ function eur(n: number) {
 }
 
 export default function AlmacenGeneralPage() {
-  const { currentTeam } = useAuth();
   const branding = useClubBranding();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const [items, setItems] = useState<WarehouseItem[]>([]);
   const [stats, setStats] = useState<{
     total_refs: number;

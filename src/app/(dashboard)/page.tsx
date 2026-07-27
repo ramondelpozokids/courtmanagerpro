@@ -6,7 +6,7 @@ import { useInventory } from "@/hooks/useInventory";
 import { useRequests } from "@/hooks/useRequests";
 import { useTrips } from "@/hooks/useTrips";
 import { useAuth } from "@/contexts/AuthContext";
-import { useClubBranding, useClubBlog } from "@/contexts/ClubDemoContext";
+import { useClubBranding, useClubBlog, useActiveTeamId } from "@/contexts/ClubDemoContext";
 import { KPICard } from "@/components/dashboard/KPICard";
 import AlertsWidget from "@/components/dashboard/AlertsWidget";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
@@ -18,10 +18,10 @@ import { ClubDashboardHero } from "@/components/dashboard/ClubDashboardHero";
 import { Users, Package, FileText, Plane, Trophy, Landmark } from "lucide-react";
 
 export default function DashboardPage() {
-  const { user, currentTeam } = useAuth();
+  const { user } = useAuth();
   const branding = useClubBranding();
   const blog = useClubBlog();
-  const teamId = currentTeam?.id;
+  const teamId = useActiveTeamId();
   const { players } = usePlayers(teamId);
   const { items } = useInventory(teamId);
   const { requests } = useRequests(teamId);

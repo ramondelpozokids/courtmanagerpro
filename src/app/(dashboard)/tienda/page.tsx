@@ -1,8 +1,14 @@
 'use client';
 
 import { OfficialStoreCard } from '@/modules/official-store';
+import { useClubBranding } from '@/contexts/ClubDemoContext';
+import { getOfficialStoreForSlug } from '@/config/store';
 
 export default function TiendaPage() {
+  const branding = useClubBranding();
+  const store = getOfficialStoreForSlug(branding.slug);
+  const host = store.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
   return (
     <div className="max-w-xl mx-auto space-y-6 text-left py-2">
       <div>
@@ -10,7 +16,7 @@ export default function TiendaPage() {
           Tienda Oficial
         </h2>
         <p className="text-xs text-slate-400 mt-1">
-          Acceso directo a shop.realmadrid.com — sin catálogo local ni scraping.
+          Acceso directo a {host} — sin catálogo local ni scraping.
         </p>
       </div>
       <OfficialStoreCard />

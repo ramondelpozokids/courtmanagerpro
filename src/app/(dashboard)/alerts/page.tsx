@@ -1,18 +1,17 @@
 "use client";
 
 import { scanBirthdayAlerts, getUpcomingBirthdays } from "@/lib/birthday-alerts";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/contexts/AuthContext";
+import { useActiveTeamId } from "@/contexts/ClubDemoContext";
 import { canManageAlerts, canViewAlerts } from "@/lib/permissions";
 import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export default function AlertsPage() {
-  const { user, userEmail, hasOperationalAccess, currentTeam } = useAuth();
-  const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts(
-    currentTeam?.id || DEFAULT_TEAM_ID
-  );
+  const { user, userEmail, hasOperationalAccess } = useAuth();
+  const teamId = useActiveTeamId();
+  const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts(teamId);
 
   const userRole = user?.profile?.role;
   const hasAccess = hasOperationalAccess || canViewAlerts(userRole, userEmail);
@@ -58,7 +57,7 @@ export default function AlertsPage() {
           <>
           <button
             onClick={() => {
-              const created = scanBirthdayAlerts(DEFAULT_TEAM_ID);
+              const created = scanBirthdayAlerts(teamId);
               const upcoming = getUpcomingBirthdays();
               if (refresh) refresh();
               if (created === 0 && upcoming.length === 0) {

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { MedicalItem } from '@/domain/entities/MedicalItem';
-import { useAuth } from '@/contexts/AuthContext';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { useActiveTeamId } from '@/contexts/ClubDemoContext';
 import { usesDemoClubData } from '@/lib/club-preview';
 import { isMockMode } from '@/lib/demo-data';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
@@ -14,8 +13,7 @@ type MedicalUi = MedicalItem & {
 };
 
 export function useMedical() {
-  const { currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const [items, setItems] = useState<MedicalUi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

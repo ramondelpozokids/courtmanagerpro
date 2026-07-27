@@ -3,19 +3,18 @@
 import { useInventory } from "@/hooks/useInventory";
 import { usePlayers } from "@/hooks/usePlayers";
 import { useAuth } from "@/contexts/AuthContext";
-import { useClubBranding } from "@/contexts/ClubDemoContext";
+import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import { canAccessReports, canWriteClubData } from "@/lib/permissions";
 import { exportInventoryCsv, exportSizingCsv } from "@/lib/csv-export";
 import { getClubPack } from "@/data/clubs";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import {
   TrendingUp, Download, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler,
 } from "lucide-react";
 
 export default function ReportsPage() {
-  const { user, userEmail, hasOperationalAccess, currentTeam } = useAuth();
+  const { user, userEmail, hasOperationalAccess } = useAuth();
   const branding = useClubBranding();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const { items } = useInventory(teamId);
   const { players } = usePlayers(teamId);
   const pack = getClubPack(branding.slug);

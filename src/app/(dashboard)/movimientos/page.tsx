@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { useActiveTeamId } from '@/contexts/ClubDemoContext';
 import { History, RefreshCw, ArrowLeft, ArrowDownRight, ArrowUpRight } from 'lucide-react';
 
 type Movement = {
@@ -27,8 +26,7 @@ const REASON_LABELS: Record<string, string> = {
 };
 
 export default function MovimientosPage() {
-  const { currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const [rows, setRows] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
   const [scope, setScope] = useState<'active' | 'all_rm'>('active');

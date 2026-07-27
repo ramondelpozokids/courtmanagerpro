@@ -2,8 +2,8 @@
 
 import { useRequests } from "@/hooks/useRequests";
 import { useAuth } from "@/contexts/AuthContext";
+import { useActiveTeamId } from "@/contexts/ClubDemoContext";
 import { canCreateRequest, canProcessRequests } from "@/lib/permissions";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import { isUuid } from "@/lib/club-team-ids";
 import RequestForm from "@/components/requests/RequestForm";
 import { useMemo, useState } from "react";
@@ -18,8 +18,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function RequestsPage() {
-  const { user, userEmail, isSuperadmin, currentTeam } = useAuth();
-  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const { user, userEmail, isSuperadmin } = useAuth();
+  const teamId = useActiveTeamId();
   const { requests, loading, error, realMode, createRequest, updateStatus, deleteRequest } = useRequests(teamId);
   const [showAddForm, setShowAddForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
