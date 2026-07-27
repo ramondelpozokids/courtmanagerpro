@@ -17,6 +17,14 @@ export const BASKETBALL_CALENDAR_PAGE_URL =
 export const FOOTBALL_CALENDAR_PAGE_URL =
   'https://www.realmadrid.com/es-ES/calendario?filter-football=realmadrid-com:sports%2Ffutbol%2Fprimer-equipo-masculino&filter-basketball=';
 
+/**
+ * Enlace web oficial RMF (fútbol). La web de RM a veces salta a baloncesto;
+ * este filtro fuerza primer equipo masculino de fútbol (mes en curso / siguiente vía sync).
+ */
+export function footballOfficialCalendarPageUrl(): string {
+  return FOOTBALL_CALENDAR_PAGE_URL;
+}
+
 /** @deprecated Use getOfficialCalendarMeta(sport).pageUrl */
 export const OFFICIAL_CALENDAR_PAGE_URL = BASKETBALL_CALENDAR_PAGE_URL;
 
@@ -56,9 +64,12 @@ export function getOfficialCalendarMetaForTeam(teamId: string) {
       sourceLabel: 'Atlético de Madrid — Primer Equipo',
     } as const;
   }
-  // RMF — fútbol Real Madrid
+  // RMF — fútbol Real Madrid (enlace con filtro fútbol; no baloncesto)
   if (teamId === CLUB_TEAM_IDS.rmf) {
-    return getOfficialCalendarMeta('football');
+    return {
+      ...getOfficialCalendarMeta('football'),
+      pageUrl: footballOfficialCalendarPageUrl(),
+    } as const;
   }
   // RMB — baloncesto Real Madrid
   if (teamId === CLUB_TEAM_IDS.rmb) {

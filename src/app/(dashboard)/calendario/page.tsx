@@ -23,6 +23,17 @@ import { cn } from '@/lib/utils';
 
 type ViewMode = 'month' | 'week' | 'timeline';
 
+/** RMF: julio vacío → abrir septiembre de la temporada (amistosos/liga). */
+function initialCalendarCursor(slug: string, sport: CalendarSport): Date {
+  const now = new Date();
+  if (slug === 'rmf' && sport === 'football') {
+    const seasonStartYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+    const september = new Date(seasonStartYear, 8, 1);
+    if (now < september) return september;
+  }
+  return new Date(now.getFullYear(), now.getMonth(), 1);
+}
+
 const BASKETBALL_FILTERS = [
   'Todas',
   'Liga Endesa',
@@ -99,7 +110,9 @@ export default function CalendarioPage() {
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
   const [view, setView] = useState<ViewMode>('month');
   const [filter, setFilter] = useState<string>('Todas');
-  const [cursor, setCursor] = useState(() => new Date());
+  const [cursor, setCursor] = useState(() =>
+    initialCalendarCursor(branding.slug, sport === 'football' ? 'football' : 'basketball')
+  );
   const [cursorSynced, setCursorSynced] = useState(false);
   const [, setTick] = useState(0);
 
@@ -170,7 +183,12 @@ export default function CalendarioPage() {
     };
   }, [load, teamId]);
 
-  // Abrir el mes del próximo partido (julio suele estar vacío; los amistosos empiezan en sep).
+  // Abrir el mes del próximo partido; al cambiar de club, volver a centrar.
+  useEffect(() => {
+    setCursorSynced(false);
+    setCursor(initialCalendarCursor(branding.slug, sport === 'football' ? 'football' : 'basketball'));
+  }, [teamId, branding.slug, sport]);
+
   useEffect(() => {
     if (cursorSynced || !nextMatch?.match_date) return;
     const [y, m] = nextMatch.match_date.split('-').map(Number);
@@ -179,7 +197,7 @@ export default function CalendarioPage() {
     setCursorSynced(true);
   }, [nextMatch, cursorSynced]);
 
-  async function syncNow() {
+  async function syncNow(opts?: { focusNextMonth?: boolean }) {
     setSyncing(true);
     setSyncMsg(null);
     try {
@@ -197,16 +215,34 @@ export default function CalendarioPage() {
         setSyncMsg(
           data?.changesCount
             ? `Actualizado: ${data.changesCount} cambio(s)`
-            : 'Calendario al día'
+            : branding.slug === 'rmf'
+              ? 'Calendario fútbol al día — usa Actualizar al pasar de mes'
+              : 'Calendario al día'
         );
         window.dispatchEvent(new CustomEvent('calendar-sync-complete', { detail: data }));
-        await load();
+        const loaded = await load();
+        if (opts?.focusNextMonth || branding.slug === 'rmf') {
+          const next = loaded?.next || nextMatch;
+          if (next?.match_date) {
+            const [y, m] = next.match_date.split('-').map(Number);
+            if (y && m) {
+              setCursor(new Date(y, m - 1, 1));
+              setCursorSynced(true);
+            }
+          }
+        }
       }
     } catch (err) {
       setSyncMsg(err instanceof Error ? err.message : 'Error de red');
     } finally {
       setSyncing(false);
     }
+  }
+
+  /** Cambiar de mes y forzar sync (RMF: la web oficial no avanza sola de forma fiable). */
+  function goToMonth(next: Date, sync = branding.slug === 'rmf') {
+    setCursor(next);
+    if (sync) void syncNow();
   }
 
   const filtered = useMemo(
@@ -275,11 +311,17 @@ export default function CalendarioPage() {
               ? ` · Última sync ${new Date(lastUpdated).toLocaleString('es-ES')}`
               : ''}
           </p>
+          {branding.slug === 'rmf' && (
+            <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-1.5 max-w-xl">
+              La web de realmadrid.com a veces salta a baloncesto: el enlace de abajo fuerza fútbol.
+              Al cambiar de mes, pulsa <strong>Actualizar calendario oficial</strong> (o usa las flechas: sincronizan solas).
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => void syncNow()}
+            onClick={() => void syncNow({ focusNextMonth: true })}
             disabled={syncing}
             className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-60 text-white px-4 py-2.5 text-sm font-semibold"
           >
@@ -454,7 +496,7 @@ export default function CalendarioPage() {
                   <button
                     key={`${year}-${monthIndex}`}
                     type="button"
-                    onClick={() => setCursor(new Date(year, monthIndex, 1))}
+                    onClick={() => goToMonth(new Date(year, monthIndex, 1))}
                     className={cn(
                       'px-3 py-1.5 rounded-full text-xs font-bold transition',
                       active
@@ -474,7 +516,7 @@ export default function CalendarioPage() {
                 type="button"
                 onClick={() => {
                   const [y, m] = nextMatch.match_date.split('-').map(Number);
-                  if (y && m) setCursor(new Date(y, m - 1, 1));
+                  if (y && m) goToMonth(new Date(y, m - 1, 1));
                 }}
                 className="ml-auto px-3 py-1.5 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
               >
@@ -487,7 +529,7 @@ export default function CalendarioPage() {
             type="button"
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             onClick={() =>
-              setCursor(
+              goToMonth(
                 new Date(
                   cursor.getFullYear(),
                   cursor.getMonth() - (view === 'month' ? 1 : 0),
@@ -509,7 +551,7 @@ export default function CalendarioPage() {
             type="button"
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             onClick={() =>
-              setCursor(
+              goToMonth(
                 new Date(
                   cursor.getFullYear(),
                   cursor.getMonth() + (view === 'month' ? 1 : 0),
