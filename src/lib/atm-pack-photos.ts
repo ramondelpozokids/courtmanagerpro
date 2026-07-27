@@ -71,21 +71,18 @@ export function resolveAtmPackStaffPhoto(opts: {
   fullName?: string | null;
   photo_url?: string | null;
 }): string | null {
-  if (!opts.fullName) {
-    return opts.photo_url && !isAtmPlaceholderPhoto(opts.photo_url)
-      ? opts.photo_url
-      : opts.photo_url || null;
-  }
-  const n = norm(opts.fullName);
-  const hit = atmCoachingStaff.find((s) => {
-    const sn = norm(s.full_name);
-    return sn === n || n.includes(sn) || sn.includes(n);
-  });
-  if (hit?.photo_url && !isAtmPlaceholderPhoto(hit.photo_url)) {
-    return hit.photo_url;
+  if (opts.fullName) {
+    const n = norm(opts.fullName);
+    const hit = atmCoachingStaff.find((s) => {
+      const sn = norm(s.full_name);
+      return sn === n || n.includes(sn) || sn.includes(n);
+    });
+    if (hit?.photo_url && !isAtmPlaceholderPhoto(hit.photo_url)) {
+      return hit.photo_url;
+    }
   }
   if (opts.photo_url && !isAtmPlaceholderPhoto(opts.photo_url)) {
     return opts.photo_url;
   }
-  return opts.photo_url || null;
+  return null;
 }

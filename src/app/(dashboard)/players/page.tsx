@@ -20,6 +20,7 @@ import {
   PlusCircle, Search, User, Filter, RefreshCw, Globe, Pencil, Trash2, ExternalLink,
 } from "lucide-react";
 import { normalizeStaffProfile } from "@/lib/player-profile";
+import { resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
 import { RMF_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/rmf-data";
 import { ATM_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/atm-data";
@@ -69,9 +70,34 @@ export default function PlayersPage() {
   const mapStaffRows = useCallback(
     (rows: Record<string, unknown>[]) =>
       rows
-        .map((s) => normalizeStaffProfile(s, { applyOfficialRoster }) as StaffMember | null)
+        .map((s) => {
+          const normalized = normalizeStaffProfile(s, { applyOfficialRoster }) as StaffMember | null;
+          if (!normalized) return null;
+          if (branding.slug === "atm") {
+            const photo = resolveAtmPackStaffPhoto({
+              fullName: normalized.full_name,
+              photo_url: normalized.photo_url,
+            });
+            const pack = getClubPack("atm");
+            const packHit = (pack.coachingStaff || []).find((p: { full_name?: string }) => {
+              const a = (normalized.full_name || "").toLowerCase();
+              const b = (p.full_name || "").toLowerCase();
+              return a === b || a.includes(b) || b.includes(a);
+            }) as Record<string, unknown> | undefined;
+            return {
+              ...normalized,
+              photo_url: photo || normalized.photo_url,
+              birth_date: (normalized.birth_date || packHit?.birth_date || undefined) as string | undefined,
+              birth_place: (normalized.birth_place || packHit?.birth_place || undefined) as string | undefined,
+              trajectory: (normalized.trajectory || packHit?.trajectory || undefined) as string | undefined,
+              profile_url: (normalized.profile_url || packHit?.profile_url || undefined) as string | undefined,
+              role: String(packHit?.role || normalized.role),
+            } as StaffMember;
+          }
+          return normalized;
+        })
         .filter(Boolean) as StaffMember[],
-    [applyOfficialRoster]
+    [applyOfficialRoster, branding.slug]
   );
 
   const loadStaff = useCallback(async () => {

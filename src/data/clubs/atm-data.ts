@@ -442,8 +442,9 @@ export const atmPlayers = [
 ];
 
 /** Cuerpo técnico primer equipo masculino — Cholo + asistentes + PF + arqueros
- * Fuente: club / Transfermarkt mitarbeiter/verein/13
+ * Fuentes: club / Wikipedia / Transfermarkt / ficha RFEF
  * Gabi Fernández sustituye a Nelson Vivas; Luis Piñedo sustituye a Óscar Ortega.
+ * Fotos locales en /clubs/atm/staff/ (sin capturas de UI).
  */
 const TM_STAFF =
   'https://img.a.transfermarkt.technology/portrait/header';
@@ -458,20 +459,28 @@ export const atmCoachingStaff = [
     shorts_size: 'L',
     shoe_size: 43,
     nationality: 'Argentina',
+    birth_date: '1970-04-28',
+    birth_place: 'Buenos Aires, Argentina',
     photo_url: `${TM_STAFF}/2868-1666861792.jpg?lm=1`,
     profile_url: 'https://www.transfermarkt.es/diego-simeone/profil/trainer/2066',
+    trajectory:
+      'Dirige al Atlético de Madrid desde el 23 de diciembre de 2011. Exfutbolista argentino nacionalizado español; consolidó al club en la élite europea.',
   },
   {
     id: 'c2',
     full_name: 'Hernán Bonvicini',
-    role: 'Entrenador asistente',
+    role: 'Entrenador auxiliar',
     email: 'hbonvicini@atleticodemadrid.com',
     shirt_size: 'L',
     shorts_size: 'L',
     shoe_size: 43,
     nationality: 'Argentina',
+    birth_date: '1979-05-17',
+    birth_place: 'La Plata, Argentina',
     photo_url: '/clubs/atm/logo.png',
     profile_url: 'https://www.transfermarkt.es/atletico-de-madrid/mitarbeiter/verein/13',
+    trajectory:
+      'Hernán Alejandro Bonvicini — cuerpo técnico Senior del Club Atlético de Madrid S.A.D., entrenador auxiliar del primer equipo.',
   },
   {
     id: 'c3',
@@ -482,8 +491,12 @@ export const atmCoachingStaff = [
     shorts_size: 'L',
     shoe_size: 43,
     nationality: 'España',
-    photo_url: `${TM_STAFF}/97091-1732139341.JPG?lm=1`,
-    profile_url: 'https://www.transfermarkt.es/atletico-de-madrid/mitarbeiter/verein/13',
+    birth_date: '1983-07-10',
+    birth_place: 'Madrid, España',
+    photo_url: '/clubs/atm/staff/gabi.png',
+    profile_url: 'https://www.transfermarkt.es/gabi/profil/spieler/97091',
+    trajectory:
+      'Gabriel Luis Fernández Arenas. Excentrocampista (Atlético / Al-Sadd). Asistente del Atlético desde 2026-27; antes entrenador del Real Zaragoza (2025). Estatura 1,80 m.',
   },
   {
     id: 'c4',
@@ -494,8 +507,9 @@ export const atmCoachingStaff = [
     shorts_size: 'L',
     shoe_size: 43,
     nationality: 'España',
-    photo_url: '/clubs/atm/logo.png',
-    profile_url: 'https://www.transfermarkt.es/atletico-de-madrid/mitarbeiter/verein/13',
+    photo_url: '/clubs/atm/staff/pinedo.png',
+    profile_url: 'https://www.transfermarkt.es/luis-pinedo/profil/trainer/156674',
+    trajectory: 'Preparador físico del primer equipo del Atlético de Madrid.',
   },
   {
     id: 'c5',
@@ -506,8 +520,12 @@ export const atmCoachingStaff = [
     shorts_size: 'L',
     shoe_size: 43,
     nationality: 'Argentina',
-    photo_url: '/clubs/atm/logo.png',
-    profile_url: 'https://www.transfermarkt.es/atletico-de-madrid/mitarbeiter/verein/13',
+    birth_date: '1968-04-24',
+    birth_place: 'Buenos Aires, Argentina',
+    photo_url: '/clubs/atm/staff/vercellone.png',
+    profile_url: 'https://www.transfermarkt.es/pablo-vercellone/profil/trainer/11448',
+    trajectory:
+      'Pablo Ignacio Vercellone — entrenador de arqueros del Atlético de Madrid. Contrato hasta 30/06/2027.',
   },
 ];
 
