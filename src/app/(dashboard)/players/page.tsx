@@ -80,9 +80,18 @@ export default function PlayersPage() {
             });
             const pack = getClubPack("atm");
             const packHit = (pack.coachingStaff || []).find((p: { full_name?: string }) => {
-              const a = (normalized.full_name || "").toLowerCase();
-              const b = (p.full_name || "").toLowerCase();
-              return a === b || a.includes(b) || b.includes(a);
+              const a = (normalized.full_name || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+              const b = (p.full_name || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+              // Exact match only — avoid "Diego Pablo Simeone" ↔ "Pablo Vercellone"
+              return a === b;
             }) as Record<string, unknown> | undefined;
             return {
               ...normalized,
@@ -112,7 +121,28 @@ export default function PlayersPage() {
           const pack = getClubPack(branding.slug);
           rows = (pack.coachingStaff || []) as Record<string, unknown>[];
         }
-        setStaff(mapStaffRows(rows));
+        // Preferir IDs canónicos ATM (8008) antes de deduplicar por nombre
+        rows = [...rows].sort((a, b) => {
+          const idA = String(a.id || "");
+          const idB = String(b.id || "");
+          const score = (id: string) => (id.includes("8008-") ? 0 : 1);
+          return score(idA) - score(idB);
+        });
+        const mapped = mapStaffRows(rows);
+        // Dedupe por nombre (p.ej. filas 8005 + 8008 o sync duplicado)
+        const seen = new Set<string>();
+        setStaff(
+          mapped.filter((m) => {
+            const key = (m.full_name || "")
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .trim();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          })
+        );
       } catch (err) {
         console.error("Error cargando cuerpo técnico:", err);
         const pack = getClubPack(branding.slug);

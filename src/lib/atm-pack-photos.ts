@@ -75,7 +75,7 @@ export function resolveAtmPackStaffPhoto(opts: {
     const n = norm(opts.fullName);
     const hit = atmCoachingStaff.find((s) => {
       const sn = norm(s.full_name);
-      return sn === n || n.includes(sn) || sn.includes(n);
+      return sn === n;
     });
     if (hit?.photo_url && !isAtmPlaceholderPhoto(hit.photo_url)) {
       return hit.photo_url;
