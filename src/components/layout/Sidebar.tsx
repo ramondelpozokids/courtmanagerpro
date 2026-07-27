@@ -65,12 +65,15 @@ export function Sidebar() {
         return item.roles.length === 0 || hasPermission(item.roles);
       });
 
-  const full_name = user?.profile?.full_name || (isSuperadmin ? 'Ramón del Pozo Rott' : 'Carlos Rodriguez Kobe');
-  const user_role = user?.profile?.role || (isSuperadmin ? 'superadmin' : 'equipment_manager');
+  const full_name =
+    user?.profile?.full_name ||
+    (isSuperadmin ? 'Ramón del Pozo Rott' : user ? 'Usuario' : '…');
+  const user_role = user?.profile?.role || (isSuperadmin ? 'superadmin' : user ? 'equipment_manager' : '');
   const isCarlos =
-    isCarlosUser(userEmail) ||
-    isCarlosUser(user?.email) ||
-    isCarlosUser(user?.profile?.email);
+    Boolean(user) &&
+    (isCarlosUser(userEmail) ||
+      isCarlosUser(user?.email) ||
+      isCarlosUser(user?.profile?.email));
   const isRamonAccount =
     isSuperadmin ||
     user_role === 'superadmin' ||
@@ -82,7 +85,7 @@ export function Sidebar() {
   const AvatarPhoto = ({ size = 32 }: { size?: number }) =>
     isRamonAccount ? (
       <CeoAvatar size={size} title={full_name} />
-    ) : (
+    ) : isCarlos ? (
       <span
         className="relative inline-flex shrink-0 overflow-hidden rounded-full border border-slate-700 bg-slate-800"
         style={{ width: size, height: size }}
@@ -97,6 +100,14 @@ export function Sidebar() {
           className="h-full w-full object-cover object-top"
           draggable={false}
         />
+      </span>
+    ) : (
+      <span
+        className="relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 text-[10px] font-bold text-slate-400"
+        style={{ width: size, height: size }}
+        title={full_name}
+      >
+        …
       </span>
     );
 

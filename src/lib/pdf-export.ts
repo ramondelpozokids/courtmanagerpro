@@ -273,8 +273,37 @@ function parseCsvLine(line: string): string[] {
   return cells;
 }
 
+/** Texto seguro para Helvetica (WinAnsi): evita glifos que jsPDF renderiza raro. */
+function pdfSafeText(value: string): string {
+  return String(value ?? '')
+    .replace(/\u2014/g, '-') // —
+    .replace(/\u2013/g, '-') // –
+    .replace(/\u2022/g, '-')
+    .replace(/\u00A0/g, ' ')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"');
+}
+
+/** El CSV incluye membrete; en PDF ya va en portada/cabecera — no volver a pintarlo. */
+function stripLetterheadForPdf(lines: string[]): string[] {
+  const idx = lines.findIndex((line) => {
+    const first = pdfSafeText(parseCsvLine(line)[0] ?? '').trim();
+    return (
+      (first.startsWith('- ') && first.endsWith(' -') && /RESUMEN|DETALLE|MATRIZ|ESTAD|INDICADORES/i.test(first)) ||
+      (first.startsWith('— ') && first.endsWith(' —')) ||
+      /^(RESUMEN|DETALLE|MATRIZ|ESTAD|INDICADORES)\b/i.test(first)
+    );
+  });
+  return idx >= 0 ? lines.slice(idx) : lines;
+}
+
+/** Misma tipografía en todas las tablas del informe (igual que inventario). */
+const TABLE_FONT_SIZE = 8;
+const SECTION_FONT_SIZE = 10;
+
 function renderCsvLinesToPdf(doc: PdfDoc, autoTable: AutoTableFn, lines: string[], startY: number): number {
   let y = startY;
+  const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   let tableHead: string[] | null = null;
   let tableBody: string[][] = [];
@@ -285,37 +314,93 @@ function renderCsvLinesToPdf(doc: PdfDoc, autoTable: AutoTableFn, lines: string[
       tableBody = [];
       return;
     }
+    // Filtrar filas vacías residuales del CSV
+    const body = tableBody.filter((row) => row.some((c) => String(c).trim()));
+    if (!body.length) {
+      tableHead = null;
+      tableBody = [];
+      return;
+    }
+
+    const colCount = tableHead.length;
+    const wide = colCount >= 7;
+    // Tablas de 2 columnas (resumen): ancho fijo para no verse “gigantes” frente al detalle.
+    const tableWidth = colCount <= 3 ? Math.min(120, pageWidth - 28) : 'auto';
+
+    // Tipografía del doc ANTES de autoTable (algunas celdas heredan getFontSize()).
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(TABLE_FONT_SIZE);
+
     autoTable(doc, {
       startY: y,
-      head: [tableHead],
-      body: tableBody,
-      styles: { fontSize: 7, cellPadding: 2.5, textColor: BRAND_NAVY },
+      head: [tableHead.map(pdfSafeText)],
+      body: body.map((row) => row.map(pdfSafeText)),
+      theme: 'grid',
+      tableWidth,
+      styles: {
+        font: 'helvetica',
+        fontStyle: 'normal',
+        fontSize: TABLE_FONT_SIZE,
+        cellPadding: wide ? 1.5 : 2.2,
+        textColor: BRAND_NAVY,
+        overflow: 'linebreak',
+        valign: 'middle',
+        minCellHeight: 7,
+        lineColor: [226, 232, 240],
+        lineWidth: 0.1,
+      },
       headStyles: {
         fillColor: TABLE_HEAD_BG,
         textColor: BRAND_NAVY,
         fontStyle: 'bold',
-        fontSize: 7,
+        fontSize: TABLE_FONT_SIZE,
+        font: 'helvetica',
+      },
+      bodyStyles: {
+        fontSize: TABLE_FONT_SIZE,
+        font: 'helvetica',
+        fontStyle: 'normal',
       },
       alternateRowStyles: { fillColor: [255, 255, 255] },
       margin: { left: 14, right: 14 },
+      didParseCell: (data: {
+        cell: { styles: { fontSize: number; font?: string; fontStyle?: string } };
+        section: string;
+      }) => {
+        data.cell.styles.fontSize = TABLE_FONT_SIZE;
+        data.cell.styles.font = 'helvetica';
+        if (data.section === 'head') data.cell.styles.fontStyle = 'bold';
+      },
+      willDrawCell: (data: {
+        cell: { styles: { fontSize: number; fontStyle?: string } };
+        section: string;
+        doc: { setFontSize: (n: number) => void; setFont: (f: string, s?: string) => void };
+      }) => {
+        data.cell.styles.fontSize = TABLE_FONT_SIZE;
+        const style = data.section === 'head' ? 'bold' : 'normal';
+        data.doc.setFont('helvetica', style);
+        data.doc.setFontSize(TABLE_FONT_SIZE);
+      },
     });
     y = (doc as PdfDoc & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
     y += 6;
     tableHead = null;
     tableBody = [];
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(TABLE_FONT_SIZE);
   };
 
-  for (const line of lines) {
+  for (const line of stripLetterheadForPdf(lines)) {
     if (!line.trim()) continue;
-    const cells = parseCsvLine(line);
+    const cells = parseCsvLine(line).map((c) => pdfSafeText(c));
     const first = cells[0]?.trim() ?? '';
 
-    // Separadores antiguos (solo guiones) o títulos — SECCIÓN —
-    const isDashOnly = cells.length === 1 && /^—+$/.test(first);
+    const isDashOnly = cells.length === 1 && /^[—\-]+$/.test(first);
     const isSectionTitle =
       cells.length === 1 &&
-      ((first.startsWith('— ') && first.endsWith(' —')) ||
-        /^(RESUMEN|DETALLE|MATRIZ|ESTAD|INDICADORES|INFORME)/i.test(first));
+      (((first.startsWith('— ') || first.startsWith('- ')) &&
+        (first.endsWith(' —') || first.endsWith(' -'))) ||
+        /^(RESUMEN|DETALLE|MATRIZ|ESTAD|INDICADORES)\b/i.test(first));
 
     if (isDashOnly) continue;
 
@@ -325,19 +410,21 @@ function renderCsvLinesToPdf(doc: PdfDoc, autoTable: AutoTableFn, lines: string[
         doc.addPage();
         y = 20;
       }
-      const label = first.replace(/^—\s*|\s*—$/g, '').trim() || first;
+      const label = first.replace(/^[—\-]\s*|\s*[—\-]$/g, '').trim() || first;
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
+      doc.setFontSize(SECTION_FONT_SIZE);
       doc.setTextColor(...BRAND_NAVY);
       doc.text(label, 14, y);
       y += 8;
       doc.setFont('helvetica', 'normal');
+      doc.setFontSize(TABLE_FONT_SIZE);
       continue;
     }
 
     if (cells.length < 2) continue;
+    // No usar filas vacías como cabecera (vienen del CSV entre secciones).
+    if (cells.every((c) => !String(c).trim())) continue;
 
-    // Nueva cabecera (otro nº de columnas) → cerrar tabla anterior
     if (tableHead && cells.length !== tableHead.length) {
       flushTable();
     }
@@ -358,10 +445,11 @@ async function buildPdfDocument(
   identity: ClubCsvIdentity,
   reportTitle: string,
   csvLines: string[],
-  options?: CsvExportOptions
+  options?: CsvExportOptions,
+  orientation: 'portrait' | 'landscape' = 'portrait'
 ): Promise<PdfDoc> {
   const { jsPDF, autoTable } = await loadPdfLibs();
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
 
   await addLogoToCover(doc, identity, reportTitle, options);
   doc.addPage();
@@ -428,21 +516,14 @@ export async function exportWarehousePdf(
 
   const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
   const lines = buildWarehouseCsvLines(identity, items, opts);
-  const { jsPDF, autoTable } = await loadPdfLibs();
-  // Landscape: muchas columnas (sección, SKU, stock, valor…)
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-
-  await addLogoToCover(doc, identity, 'INFORME DE ALMACÉN GENERAL — STOCK Y VALOR', opts);
-  doc.addPage();
-
-  const headerEnd = addCorporateHeader(
-    doc,
+  // Mismo pipeline que inventario (portrait): tipografía estable y sin membrete duplicado.
+  const doc = await buildPdfDocument(
     identity,
     'INFORME DE ALMACÉN GENERAL — STOCK Y VALOR',
-    opts
+    lines,
+    opts,
+    'portrait'
   );
-  renderCsvLinesToPdf(doc, autoTable, lines, headerEnd);
-  addPageFooter(doc, identity);
 
   const season = opts.season!.replace('/', '-');
   doc.save(`almacen_general_${slug}_${season}.pdf`);

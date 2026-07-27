@@ -98,7 +98,8 @@ export async function GET(req: NextRequest) {
   }
 
   if (!data?.length) {
-    return NextResponse.json({ data: DEMO_MOVEMENTS.filter((m) => scope === 'all_rm' || m.team_id === teamId), seeded: true });
+    // Vacío real: no inventar movimientos de demo (mezclaba RMB/RMF y confundía el historial).
+    return NextResponse.json({ data: [] });
   }
 
   return NextResponse.json({ data });
@@ -140,4 +141,31 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data }, { status: 201 });
+}
+
+/** Borra solo la fila del historial (no revierte stock). */
+export async function DELETE(req: NextRequest) {
+  if (isServerProduction()) {
+    const { user, response } = await requireApiUser();
+    if (response || !user) return response!;
+  }
+
+  const id = req.nextUrl.searchParams.get('id');
+  const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
+  if (!id) return NextResponse.json({ error: 'Falta id' }, { status: 400 });
+
+  if (isDemoMode() || !isServerProduction()) {
+    return NextResponse.json({ ok: true, demo: true, id });
+  }
+
+  // No borrar filas demo inventadas (sm1/sm2/sm3)
+  if (/^sm\d+$/i.test(id)) {
+    return NextResponse.json({ ok: true, skipped: 'demo' });
+  }
+
+  const client = await getClient();
+  const pg = client as any;
+  const { error } = await pg.from('stock_movements').delete().eq('id', id).eq('team_id', teamId);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ ok: true });
 }

@@ -1,5 +1,7 @@
 import type { MatchHomeAway, MatchResult, MatchStatus, SyncTrigger } from '@/types';
 import { getClubPack, getClubSlugByTeamId } from '@/data/clubs';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+import { ATLETICO_CALENDAR_PAGE_URL } from '@/application/roster-sync/sources/types';
 
 export type CalendarSport = 'basketball' | 'football';
 
@@ -13,7 +15,7 @@ export const BASKETBALL_CALENDAR_PAGE_URL =
   'https://www.realmadrid.com/es-ES/calendario?filter-football=&filter-basketball=realmadrid-com:sports/baloncesto/primer-equipo-masculino';
 
 export const FOOTBALL_CALENDAR_PAGE_URL =
-  'https://www.realmadrid.com/es-ES/calendario?filter-football=realmadrid-com:sports/futbol/primer-equipo-masculino&filter-basketball=';
+  'https://www.realmadrid.com/es-ES/calendario?filter-football=realmadrid-com:sports%2Ffutbol%2Fprimer-equipo-masculino&filter-basketball=';
 
 /** @deprecated Use getOfficialCalendarMeta(sport).pageUrl */
 export const OFFICIAL_CALENDAR_PAGE_URL = BASKETBALL_CALENDAR_PAGE_URL;
@@ -44,14 +46,23 @@ export function getOfficialCalendarMeta(sport: CalendarSport) {
 }
 
 export function getOfficialCalendarMetaForTeam(teamId: string) {
-  if (teamId === '00000000-0000-4000-8000-000acb423458') {
+  // ATM — fútbol (Atlético) — NUNCA realmadrid.com
+  if (teamId === CLUB_TEAM_IDS.atm) {
     return {
       sport: 'football' as const,
       tag: 'atletico-madrid:primer-equipo',
-      pageUrl: 'https://www.atleticodemadrid.com/calendario-completo-primer-equipo/',
+      pageUrl: ATLETICO_CALENDAR_PAGE_URL,
       sourceId: 'atletico_madrid_official_calendar',
       sourceLabel: 'Atlético de Madrid — Primer Equipo',
     } as const;
+  }
+  // RMF — fútbol Real Madrid
+  if (teamId === CLUB_TEAM_IDS.rmf) {
+    return getOfficialCalendarMeta('football');
+  }
+  // RMB — baloncesto Real Madrid
+  if (teamId === CLUB_TEAM_IDS.rmb) {
+    return getOfficialCalendarMeta('basketball');
   }
   return getOfficialCalendarMeta(calendarSportForTeamId(teamId));
 }

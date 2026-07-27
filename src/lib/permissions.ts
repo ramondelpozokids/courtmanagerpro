@@ -103,11 +103,19 @@ export function hasOperationalAccess(role?: string | null, email?: string | null
 }
 
 /**
- * Cambios de proyecto / plataforma (stats oficiales, configuración, roles).
- * Solo Ramón — ni Carlos ni ningún otro usuario.
+ * Cambios de proyecto / plataforma (stats oficiales, sync plantilla, roles, demos, configuración).
+ * Solo Ramón (superadmin). Carlos puede operativa del club (stock, viajes, solicitudes…)
+ * pero NO puede alterar el programa CourtManager Pro.
  */
 export function canModifyProject(role?: string | null, email?: string | null): boolean {
   return isSuperadminUser(role, email);
+}
+
+/** Carlos (u otro utillero): operativa diaria del club, sin tocar el producto. */
+export function canOperateClubAsAdmin(role?: string | null, email?: string | null): boolean {
+  if (isSuperadminUser(role, email)) return true;
+  if (isCarlosUser(email)) return true;
+  return role === 'admin' || role === 'equipment_manager';
 }
 
 export function getPermContext(user?: {
@@ -205,8 +213,8 @@ export const ROLE_ACCESS_SUMMARY = {
   player: 'Jugador — peticiones propias, lectura limitada',
   coach: 'Entrenador — lectura ampliada, sin edición de inventario',
   assistant: 'Utillero asistente — operativa diaria de stock y solicitudes',
-  equipment_manager: 'Carlos Kobe — acceso total operativo al club (sin cambios de proyecto)',
-  admin: 'Administrador club — operativa completa del día a día',
+  equipment_manager: 'Carlos Kobe — operativa diaria del club (añadir/editar stock, viajes, solicitudes). Sin cambios del programa CourtManager Pro.',
+  admin: 'Administrador club — operativa completa del día a día (sin alterar el producto)',
   medical: 'Staff médico — botiquines y alertas sanitarias',
-  superadmin: 'Ramón del Pozo Rott — acceso total sin límites (proyecto + todos los clubes demo)',
+  superadmin: 'Ramón del Pozo Rott — único dueño del programa: clubs, sync oficial, roles y configuración crítica',
 } as const;

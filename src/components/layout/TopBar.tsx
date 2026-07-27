@@ -36,17 +36,25 @@ export default function TopBar() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactFormSubmitted, setContactFormSubmitted] = useState(false);
 
-  const [contactName, setContactName] = useState(user?.profile?.full_name || "Carlos Rodriguez Kobe");
-  const [contactEmail, setContactEmail] = useState(user?.profile?.email || "charlie-r-k@hotmail.com");
+  const [contactName, setContactName] = useState(user?.profile?.full_name || "");
+  const [contactEmail, setContactEmail] = useState(user?.profile?.email || "");
   const [contactSubject, setContactSubject] = useState("Soporte Técnico");
   const [contactMessage, setContactMessage] = useState("");
 
   const unreadAlerts = alerts.filter((a) => !a.is_read);
 
-  const userRole = user?.profile?.role || "equipment_manager";
-  const userName = user?.profile?.full_name || "Usuario";
-  const showCeoAvatar = isSuperadmin || userRole === "superadmin" || /ram[oó]n/i.test(userName);
-  const roleLabel = ROLE_LABELS[userRole] || userRole.replace("_", " ");
+  const userRole = user?.profile?.role || "";
+  const userName = user?.profile?.full_name || (isSuperadmin ? "Ramón del Pozo Rott" : "…");
+  const showCeoAvatar =
+    isSuperadmin ||
+    userRole === "superadmin" ||
+    /ram[oó]n/i.test(userName) ||
+    /ramondelpozo/i.test(String(user?.email || ""));
+  const showCarlosAvatar =
+    Boolean(user) &&
+    !showCeoAvatar &&
+    (/carlos/i.test(userName) || /charlie-r-k/i.test(String(user?.email || "")));
+  const roleLabel = ROLE_LABELS[userRole] || (userRole ? userRole.replace("_", " ") : "…");
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,7 +202,7 @@ export default function TopBar() {
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
           {showCeoAvatar ? (
             <CeoAvatar size={36} title={userName} />
-          ) : (
+          ) : showCarlosAvatar ? (
             <img
               src="/images/carlos-avatar.png?v=20"
               alt=""
@@ -203,6 +211,8 @@ export default function TopBar() {
               className="h-9 w-9 rounded-full object-cover object-top bg-slate-800 border border-slate-700 shrink-0"
               draggable={false}
             />
+          ) : (
+            <div className="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shrink-0" />
           )}
           <div className="hidden lg:block leading-none text-left">
             <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">{userName}</h4>

@@ -38,30 +38,32 @@ export default function DemoClubBanner() {
   });
 
   const modeLabel = (() => {
+    // Solo el club activo (RMB / RMF / ATM) — nunca listar los tres a la vez.
+    const clubTag = branding.shortName;
     if (!isSuperadminPreview) {
       return (
         <>
-          <strong>Demo comercial</strong> — {branding.name} · datos ilustrativos
+          <strong>Demo comercial</strong> — {branding.name} · {clubTag}
         </>
       );
     }
     if (presentationMode) {
       return (
         <>
-          <strong>Presentación élite</strong> — {branding.name} · solo RMB / RMF / ATM
+          <strong>Presentación élite</strong> — {branding.name} · {clubTag}
         </>
       );
     }
     if (isRealMadridClubSlug(clubSlug)) {
       return (
         <>
-          <strong>Superadmin</strong> — {branding.name} · producción real · Supabase
+          <strong>Superadmin</strong> — {branding.name} · {clubTag}
         </>
       );
     }
     return (
       <>
-        <strong>Superadmin</strong> — {branding.name} · demo comercial
+        <strong>Superadmin</strong> — {branding.name} · {clubTag} · demo
       </>
     );
   })();
@@ -104,7 +106,7 @@ export default function DemoClubBanner() {
               key={slug}
               type="button"
               disabled={switching}
-              onClick={() => switchClub(slug, { redirect: '/' })}
+              onClick={() => switchClub(slug)}
               className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
                 active
                   ? isRm

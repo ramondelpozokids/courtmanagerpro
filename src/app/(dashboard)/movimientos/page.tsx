@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useActiveTeamId } from '@/contexts/ClubDemoContext';
-import { History, RefreshCw, ArrowLeft, ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { History, RefreshCw, ArrowLeft, ArrowDownRight, ArrowUpRight, Trash2 } from 'lucide-react';
 
 type Movement = {
   id: string;
@@ -50,6 +50,21 @@ export default function MovimientosPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const removeEntry = async (id: string) => {
+    if (!confirm('¿Eliminar esta entrada del historial? No revierte el stock.')) return;
+    try {
+      const res = await fetch(
+        `/api/stock-movements?id=${encodeURIComponent(id)}&team_id=${encodeURIComponent(teamId)}`,
+        { method: 'DELETE', credentials: 'include' }
+      );
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || 'No se pudo eliminar');
+      setRows((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error al eliminar');
+    }
+  };
 
   return (
     <div className="space-y-6 text-left max-w-4xl">
@@ -107,6 +122,12 @@ export default function MovimientosPage() {
         <div className="py-16 text-center text-slate-400">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto text-orange-500 mb-2" />
         </div>
+      ) : rows.length === 0 ? (
+        <div className="rounded-xl border py-16 text-center text-slate-400">
+          <History className="h-10 w-10 mx-auto mb-2 opacity-40" />
+          <p className="text-sm font-bold text-slate-600">Sin movimientos en este club</p>
+          <p className="text-xs mt-1">Los ajustes de stock y solicitudes aparecerán aquí.</p>
+        </div>
       ) : (
         <div className="bg-white dark:bg-slate-900 border rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           {rows.map((m) => (
@@ -132,14 +153,24 @@ export default function MovimientosPage() {
                   {new Date(m.created_at).toLocaleString('es-ES')}
                 </p>
               </div>
-              <div className="text-right shrink-0">
-                <p className={`text-sm font-black ${m.qty_delta < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                  {m.qty_delta > 0 ? '+' : ''}
-                  {m.qty_delta}
-                </p>
-                {m.stock_after != null && (
-                  <p className="text-[10px] text-slate-400">Stock {m.stock_after}</p>
-                )}
+              <div className="text-right shrink-0 flex items-start gap-2">
+                <div>
+                  <p className={`text-sm font-black ${m.qty_delta < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                    {m.qty_delta > 0 ? '+' : ''}
+                    {m.qty_delta}
+                  </p>
+                  {m.stock_after != null && (
+                    <p className="text-[10px] text-slate-400">Stock {m.stock_after}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  title="Eliminar del historial"
+                  onClick={() => void removeEntry(m.id)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               </div>
             </div>
           ))}

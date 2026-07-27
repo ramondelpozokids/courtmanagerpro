@@ -290,22 +290,6 @@ export default function AlmacenGeneralPage() {
         ))}
       </div>
 
-      {branding.slug === 'atm' && (
-        <div className="rounded-xl border border-orange-200 bg-orange-50/80 dark:bg-orange-950/20 dark:border-orange-900 px-4 py-3 text-xs text-slate-700 dark:text-slate-200">
-          <strong className="text-orange-700 dark:text-orange-400">Botiquín ATM:</strong>{' '}
-          está en{' '}
-          <Link href="/inventory" className="font-bold text-orange-600 hover:underline">
-            Inventario
-          </Link>{' '}
-          como <em>Botiquín viaje Champions / LaLiga</em> (SKU <code className="text-[10px]">ATM-MED-KIT</code>) · ubicación{' '}
-          <strong>Vestuario Metropolitano — Banquillo</strong>. El contenido sanitario detallado está en{' '}
-          <Link href="/medical" className="font-bold text-orange-600 hover:underline">
-            Material Médico
-          </Link>
-          .
-        </div>
-      )}
-
       {/* Mapa ubicaciones compacto */}
       {(stats?.by_location?.length || 0) > 0 && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4">

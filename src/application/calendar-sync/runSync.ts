@@ -7,7 +7,6 @@ import {
 } from './demoStore';
 import { fetchOfficialCalendarForTeam } from './source';
 import {
-  calendarSportForTeamId,
   getOfficialCalendarMeta,
   getOfficialCalendarMetaForTeam,
   type DbMatchRow,
@@ -76,7 +75,7 @@ export async function runCalendarSync(params: {
   const startedAt = new Date().toISOString();
   const { options } = params;
   const skipHours = options.skipIfRecentHours ?? DEFAULT_SKIP_HOURS;
-  const meta = getOfficialCalendarMeta(calendarSportForTeamId(options.teamId));
+  const meta = getOfficialCalendarMetaForTeam(options.teamId);
 
   if (!params.supabase || isDemoMode()) {
     return applyDemoCalendarSync(options);

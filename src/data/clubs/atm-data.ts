@@ -13,7 +13,7 @@ export const ATM_OFFICIAL_PLANTILLA_URL =
   'https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026';
 export const ATM_OFFICIAL_CALENDAR_URL =
   'https://www.atleticodemadrid.com/calendario-completo-primer-equipo/';
-export const ATM_OFFICIAL_STORE_URL = 'https://shop.atleticodemadrid.com/es';
+export const ATM_OFFICIAL_STORE_URL = 'https://www.atleticodemadrid.com/atm/atleti-store';
 export const ATM_STORE_HOME_URL =
   'https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11';
 export const ATM_STORE_HOME_LS_URL =

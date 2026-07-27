@@ -4,6 +4,8 @@ import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { usesDemoClubData } from "@/lib/club-preview";
 import { isMockMode } from "@/lib/demo-data";
 import { useActiveTeamId } from "@/contexts/ClubDemoContext";
+import { isUuid } from "@/lib/club-team-ids";
+import { mapPackTripsForTeam } from "@/lib/club-trips";
 
 function mapDbTrips(): Trip[] {
   return (db.trips || []).map((t: any) => ({
@@ -35,11 +37,21 @@ export function useTrips() {
       });
       if (!res.ok) throw new Error("Error fetching trips");
       const data = await res.json();
-      setTrips(Array.isArray(data) ? data : []);
+      const rows = Array.isArray(data) ? data : [];
+      if (rows.length === 0) {
+        const pack = mapPackTripsForTeam(teamId);
+        if (pack.length) {
+          setTrips(pack);
+          return;
+        }
+      }
+      setTrips(rows);
     } catch (err: any) {
       setError(err.message);
       if (isMockMode() || usesDemoClubData()) {
         setTrips(mapDbTrips());
+      } else {
+        setTrips(mapPackTripsForTeam(teamId));
       }
     } finally {
       setLoading(false);
@@ -55,6 +67,9 @@ export function useTrips() {
     return () => window.removeEventListener("club-demo-changed", onClubChange);
   }, [fetchTrips]);
 
+  /** Viajes del pack (ids no-UUID): mutar solo en cliente hasta seed en Supabase. */
+  const isPackFallbackTrip = (tripId: string) => !isUuid(tripId);
+
   const packItem = async (tripId: string, itemId: string, isPacked: boolean) => {
     try {
       if (isMockMode() || usesDemoClubData()) {
@@ -69,6 +84,33 @@ export function useTrips() {
         trip.status = allPacked ? "READY" : "PLANNING";
         const updated = { ...trip, packingList: [...(trip.packingList || [])] };
         setTrips((prev) => prev.map((t) => (t.id === tripId ? updated : t)));
+        return updated;
+      }
+
+      if (isPackFallbackTrip(tripId)) {
+        let updated: Trip | null = null;
+        setTrips((prev) =>
+          prev.map((t) => {
+            if (t.id !== tripId) return t;
+            const packingList = t.packingList.map((pi) =>
+              pi.id === itemId
+                ? {
+                    ...pi,
+                    isPacked,
+                    quantityPacked: isPacked ? pi.quantityRequired : 0,
+                  }
+                : pi
+            );
+            const allPacked = packingList.every((pi) => pi.isPacked);
+            updated = {
+              ...t,
+              packingList,
+              status: allPacked ? "READY" : "PLANNING",
+            };
+            return updated;
+          })
+        );
+        if (!updated) throw new Error("Trip not found");
         return updated;
       }
 
@@ -111,6 +153,31 @@ export function useTrips() {
         return updated;
       }
 
+      if (isPackFallbackTrip(tripId)) {
+        const newItem = {
+          id: "pi_" + Math.random().toString(36).slice(2, 9),
+          itemName: item.itemName,
+          category: item.category || "General",
+          quantityRequired: item.quantityRequired || 1,
+          quantityPacked: 0,
+          isPacked: false,
+        };
+        let updated: Trip | null = null;
+        setTrips((prev) =>
+          prev.map((t) => {
+            if (t.id !== tripId) return t;
+            updated = {
+              ...t,
+              packingList: [...t.packingList, newItem],
+              status: "PLANNING",
+            };
+            return updated;
+          })
+        );
+        if (!updated) throw new Error("Trip not found");
+        return updated;
+      }
+
       const res = await fetch("/api/trips", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -138,6 +205,26 @@ export function useTrips() {
         trip.status = allPacked ? "READY" : "PLANNING";
         const updated = { ...trip, packingList: [...trip.packingList] };
         setTrips((prev) => prev.map((t) => (t.id === tripId ? updated : t)));
+        return updated;
+      }
+
+      if (isPackFallbackTrip(tripId)) {
+        let updated: Trip | null = null;
+        setTrips((prev) =>
+          prev.map((t) => {
+            if (t.id !== tripId) return t;
+            const packingList = t.packingList.filter((pi) => pi.id !== itemId);
+            const allPacked =
+              packingList.length > 0 && packingList.every((pi) => pi.isPacked);
+            updated = {
+              ...t,
+              packingList,
+              status: allPacked ? "READY" : "PLANNING",
+            };
+            return updated;
+          })
+        );
+        if (!updated) throw new Error("Trip not found");
         return updated;
       }
 

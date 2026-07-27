@@ -15,12 +15,15 @@ export function UpdateOfficialRosterButton({
   className?: string;
   onDone?: () => void;
 }) {
-  const { currentTeam } = useAuth();
+  const { currentTeam, isSuperadmin } = useAuth();
   const { clubSlug, club } = useClubDemo();
   const teamId =
     CLUB_TEAM_IDS[clubSlug] || club.branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  // Solo superadmin (Ramón): sync oficial puede alterar plantilla del sistema.
+  if (!isSuperadmin) return null;
 
   async function handleClick() {
     setLoading(true);

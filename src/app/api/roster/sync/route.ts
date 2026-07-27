@@ -4,6 +4,7 @@ import { isServerProduction, requireApiUser, isCronAuthorized } from '@/lib/supa
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { runRosterSync } from '@/application/roster-sync/runSync';
 import type { SyncTrigger } from '@/types';
+import { canModifyProject } from '@/lib/permissions';
 
 export const runtime = 'nodejs';
 
@@ -37,6 +38,17 @@ export async function POST(req: NextRequest) {
   } else if (isServerProduction()) {
     const { user, response } = await requireApiUser();
     if (response || !user) return response!;
+    // Force/manual sync de plantilla oficial: solo superadmin (no Carlos).
+    if (force || trigger === 'manual') {
+      const email = user.email || null;
+      const role = (user.user_metadata?.role as string | undefined) || null;
+      if (!canModifyProject(role, email)) {
+        return NextResponse.json(
+          { error: 'Solo el superadmin puede sincronizar la plantilla oficial del programa.' },
+          { status: 403 }
+        );
+      }
+    }
   }
 
   const supabase = isServerProduction()

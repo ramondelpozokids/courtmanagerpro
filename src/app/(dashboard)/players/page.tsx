@@ -356,24 +356,6 @@ export default function PlayersPage() {
         .
       </div>
       )}
-      {branding.slug === 'atm' && (
-      <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
-        Tenant producción <strong>Atlético de Madrid · Primer Equipo</strong> — mismos módulos que RMF.
-        Fuentes oficiales:{' '}
-        <a href={ATM_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
-          plantilla
-        </a>
-        {' · '}
-        <a href="https://www.atleticodemadrid.com/calendario-completo-primer-equipo/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
-          calendario
-        </a>
-        {' · '}
-        <a href="https://www.atleticodemadrid.com/atm/atleti-store" target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
-          Atleti Store
-        </a>
-        .
-      </div>
-      )}
 
       <div className="flex border-b border-slate-200 dark:border-slate-800">
         <button

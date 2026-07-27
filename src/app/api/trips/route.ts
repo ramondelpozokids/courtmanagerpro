@@ -3,6 +3,7 @@ import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { isRealMadridTeamId } from '@/lib/club-team-ids';
+import { mapPackTripsForTeam } from '@/lib/club-trips';
 
 function uiStatusToDb(status: string): string {
   if (status === 'READY') return 'en_curso';
@@ -69,6 +70,11 @@ export async function GET(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     const ids = (trips || []).map((t: any) => t.id);
+    if (ids.length === 0) {
+      const pack = mapPackTripsForTeam(teamId);
+      if (pack.length) return NextResponse.json(pack);
+    }
+
     let itemsByTrip: Record<string, any[]> = {};
     if (ids.length) {
       const { data: items } = await pg.from('trip_items').select('*').in('trip_id', ids);

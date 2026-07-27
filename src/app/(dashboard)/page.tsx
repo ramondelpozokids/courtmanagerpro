@@ -52,7 +52,7 @@ export default function DashboardPage() {
               : ' 2026/2027'}
         </span>
         <h2 className="text-2xl md:text-3.5xl font-extrabold mt-3 tracking-tight">
-          ¡Hola de nuevo, <span className="text-orange-400">{user?.profile?.full_name || "Carlos"}</span>!
+          ¡Hola de nuevo, <span className="text-orange-400">{user?.profile?.full_name || "…"}</span>!
         </h2>
         <p className="text-sm text-slate-300 mt-2 max-w-xl">
           {branding.sport === 'football'

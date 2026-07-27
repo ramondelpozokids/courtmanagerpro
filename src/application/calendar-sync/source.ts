@@ -131,5 +131,12 @@ export async function fetchOfficialCalendarForTeam(
     const { fetchAtleticoOfficialCalendar } = await import('./atleticoSource');
     return fetchAtleticoOfficialCalendar();
   }
+  // RMF → fútbol; RMB → baloncesto (explícito, sin depender solo del pack)
+  if (teamId === CLUB_TEAM_IDS.rmf) {
+    return fetchOfficialCalendar('football');
+  }
+  if (teamId === CLUB_TEAM_IDS.rmb) {
+    return fetchOfficialCalendar('basketball');
+  }
   return fetchOfficialCalendar(calendarSportForTeamId(teamId));
 }

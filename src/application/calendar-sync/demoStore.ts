@@ -2,8 +2,7 @@ import type { OfficialMatch } from '@/types';
 import { computeMatchDiff } from './diffEngine';
 import { fetchOfficialCalendarForTeam } from './source';
 import {
-  calendarSportForTeamId,
-  getOfficialCalendarMeta,
+  getOfficialCalendarMetaForTeam,
   type MatchDiff,
   type OfficialCalendarSnapshot,
   type OfficialFixture,
@@ -11,6 +10,7 @@ import {
   type RunCalendarSyncResult,
 } from './types';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 
 interface DemoMatchSyncLog {
   id: string;
@@ -74,7 +74,7 @@ export function getDemoMatchHistory(teamId: string, limit = 50) {
 }
 
 export function getDemoMatchSyncStatus(teamId: string) {
-  const meta = getOfficialCalendarMeta(calendarSportForTeamId(teamId));
+  const meta = getOfficialCalendarMetaForTeam(teamId);
   const last = [...logs]
     .filter((l) => l.team_id === teamId)
     .sort((a, b) => (a.started_at < b.started_at ? 1 : -1))[0];
@@ -113,7 +113,7 @@ function fixtureToMatch(teamId: string, f: OfficialFixture, id?: string): Offici
     partial_score: f.partial_score,
     result: f.result,
     official_url: f.official_url,
-    source: 'realmadrid.com',
+    source: teamId === CLUB_TEAM_IDS.atm ? 'atleticodemadrid.com' : 'realmadrid.com',
     last_synced_at: now,
     is_active: true,
     created_at: now,
@@ -155,7 +155,7 @@ export async function applyDemoCalendarSync(
   const started = Date.now();
   const startedAt = new Date().toISOString();
   const skipHours = options.skipIfRecentHours ?? 11;
-  const meta = getOfficialCalendarMeta(calendarSportForTeamId(options.teamId));
+  const meta = getOfficialCalendarMetaForTeam(options.teamId);
 
   if (!options.force && options.trigger === 'startup') {
     const status = getDemoMatchSyncStatus(options.teamId);

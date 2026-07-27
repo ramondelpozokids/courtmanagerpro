@@ -6,8 +6,8 @@ export const REAL_MADRID_OFFICIAL_STORE = {
 } as const;
 
 export const ATM_OFFICIAL_STORE = {
-  url: 'https://shop.atleticodemadrid.com/es',
-  label: 'Tienda Oficial ATM',
+  url: 'https://www.atleticodemadrid.com/atm/atleti-store',
+  label: 'Atleti Store',
 } as const;
 
 /** @deprecated Prefer getOfficialStoreForSlug — RM por defecto. */

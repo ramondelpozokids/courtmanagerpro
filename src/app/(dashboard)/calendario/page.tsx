@@ -14,7 +14,7 @@ import {
 import { categorizeCompetition } from '@/application/calendar-sync/parser';
 import {
   calendarSportForTeamId,
-  getOfficialCalendarMeta,
+  getOfficialCalendarMetaForTeam,
   type CalendarSport,
 } from '@/application/calendar-sync/types';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
@@ -85,7 +85,7 @@ export default function CalendarioPage() {
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
   const sport = branding.sport === 'football' ? 'football' : calendarSportForTeamId(teamId);
-  const calendarMeta = getOfficialCalendarMeta(sport);
+  const calendarMeta = getOfficialCalendarMetaForTeam(teamId);
   const competitionFilters = sport === 'football' ? FOOTBALL_FILTERS : BASKETBALL_FILTERS;
 
   const [matches, setMatches] = useState<OfficialMatch[]>([]);
@@ -124,7 +124,7 @@ export default function CalendarioPage() {
     } finally {
       setLoading(false);
     }
-  }, [teamId]);
+  }, [teamId, calendarMeta.sourceLabel]);
 
   useEffect(() => {
     void (async () => {

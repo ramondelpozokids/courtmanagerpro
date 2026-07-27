@@ -5,6 +5,7 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { getCalendarSyncStatus } from '@/application/calendar-sync/runSync';
 import { getDemoOfficialMatches } from '@/application/calendar-sync/demoStore';
+import { getOfficialCalendarMetaForTeam } from '@/application/calendar-sync/types';
 import type { OfficialMatch } from '@/types';
 
 export const runtime = 'nodejs';
@@ -72,9 +73,11 @@ export async function GET(req: NextRequest) {
     });
   } catch (err) {
     console.error('[api/calendar/sync/status]', err);
+    const meta = getOfficialCalendarMetaForTeam(teamId);
     return NextResponse.json({
       data: {
-        sourceLabel: 'Real Madrid Oficial',
+        sourceLabel: meta.sourceLabel,
+        source: meta.sourceLabel,
         syncedOk: true,
         usedCache: true,
         matches: [],
