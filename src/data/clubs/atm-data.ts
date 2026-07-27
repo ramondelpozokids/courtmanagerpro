@@ -493,10 +493,10 @@ export const atmCoachingStaff = [
     nationality: 'España',
     birth_date: '1983-07-10',
     birth_place: 'Madrid, España',
-    photo_url: '/clubs/atm/staff/gabi.png',
+    photo_url: `${TM_STAFF}/97091-1732139341.JPG?lm=1`,
     profile_url: 'https://www.transfermarkt.es/gabi/profil/spieler/97091',
     trajectory:
-      'Gabriel Luis Fernández Arenas. Excentrocampista (Atlético / Al-Sadd). Asistente del Atlético desde 2026-27; antes entrenador del Real Zaragoza (2025). Estatura 1,80 m.',
+      'Gabriel Luis Fernández Arenas, conocido como Gabi. Excentrocampista (nº 14 Atlético de Madrid / Al-Sadd). Entrenador asistente del Atlético desde la temporada 2026-27; antes director técnico del Real Zaragoza (2025). Nacido en Madrid el 10/07/1983. Estatura 1,80 m.',
   },
   {
     id: 'c4',
