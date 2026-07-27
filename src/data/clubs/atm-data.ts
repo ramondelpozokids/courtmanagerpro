@@ -476,10 +476,10 @@ export const atmCoachingStaff = [
     nationality: 'Argentina',
     birth_date: '1979-05-17',
     birth_place: 'La Plata, Argentina',
-    photo_url: '/clubs/atm/logo.png',
+    photo_url: '/clubs/atm/staff/bonvicini.png',
     profile_url: 'https://www.transfermarkt.es/atletico-de-madrid/mitarbeiter/verein/13',
     trajectory:
-      'Hernán Alejandro Bonvicini — entrenador asistente del primer equipo del Club Atlético de Madrid S.A.D.',
+      'Hernán Alejandro Bonvicini — entrenador asistente del primer equipo del Club Atlético de Madrid S.A.D. Nacido en La Plata el 17/05/1979.',
   },
   {
     id: 'c3',
