@@ -149,11 +149,27 @@ ON CONFLICT (id) DO UPDATE SET
   updated_at = NOW();\n\n`;
 }
 
-sql += `-- Inventario (${atmInventory.length})\n`;
+sql += `-- Inventario (${atmInventory.length})
+-- Liberar QRs antiguos del team ATM para evitar choque unique (inventory_items_qr_code_key)
+UPDATE inventory_items
+SET
+  qr_code = CASE
+    WHEN qr_code IS NULL OR qr_code = '' THEN qr_code
+    ELSE left(qr_code || '-legacy-' || replace(id::text, '-', ''), 120)
+  END,
+  is_active = false,
+  updated_at = NOW()
+WHERE team_id = '${TEAM}'::uuid
+  AND is_active = true;
+
+`;
+
+sql += `-- Upsert inventario expandido (1 fila por talla)\n`;
 for (const i of atmInventory) {
   const id = invUuid(i.id);
   const cat = catMap[i.category] || 'accesorios';
-  const qr = `${i.sku || i.id}-ATM`;
+  // QR único por demo_id + sku (evita ATM-MED-KIT-ATM duplicado)
+  const qr = `ATM-${i.id}-${i.sku || i.id}`;
   sql += `INSERT INTO inventory_items (
   id, team_id, name, category, sku, qr_code,
   stock_total, stock_available, stock_min, size, unit_cost,
@@ -185,6 +201,7 @@ ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   sku = EXCLUDED.sku,
   category = EXCLUDED.category,
+  qr_code = EXCLUDED.qr_code,
   stock_total = EXCLUDED.stock_total,
   stock_available = EXCLUDED.stock_available,
   stock_min = EXCLUDED.stock_min,
