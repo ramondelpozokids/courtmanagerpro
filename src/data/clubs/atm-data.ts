@@ -509,10 +509,10 @@ export const atmCoachingStaff = [
     nationality: 'España',
     birth_date: '1971-01-16',
     birth_place: 'Valencia, España',
-    photo_url: `${TM_SSL}/16403.jpg`,
+    photo_url: '/clubs/atm/staff/pitillas.png',
     profile_url: 'https://www.transfermarkt.es/oscar-pitillas/profil/trainer/16403',
     trajectory:
-      'Óscar Miguel Pitillas Torra — preparador físico del Atlético de Madrid (desde 2016; antes 2003–2014 y NYCFC 2014–2016). Exatleta olímpico (400 m vallas).',
+      'Óscar Miguel Pitillas Torra — preparador físico del Atlético de Madrid (temporada 2025/26). Nacido en Valencia el 16/01/1971. En el club desde 2016 (antes 2003–2014 y NYCFC 2014–2016). Exatleta olímpico (400 m vallas).',
   },
   {
     id: 'c5',
