@@ -5,12 +5,14 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { getClubPack } from '@/data/clubs';
 import { isDemoMode } from '@/lib/app-mode';
+import type { ClubSlug } from '@/data/clubs/types';
 
 export const runtime = 'nodejs';
 
 const SECTIONS = [
   {
     id: 'rmb-primer',
+    club: 'rmb' as ClubSlug,
     teamId: CLUB_TEAM_IDS.rmb,
     sport: 'basketball' as const,
     category: 'primer_equipo' as const,
@@ -19,6 +21,7 @@ const SECTIONS = [
   },
   {
     id: 'rmf-primer',
+    club: 'rmf' as ClubSlug,
     teamId: CLUB_TEAM_IDS.rmf,
     sport: 'football' as const,
     category: 'primer_equipo' as const,
@@ -27,6 +30,7 @@ const SECTIONS = [
   },
   {
     id: 'atm-primer',
+    club: 'atm' as ClubSlug,
     teamId: CLUB_TEAM_IDS.atm,
     sport: 'football' as const,
     category: 'primer_equipo' as const,
@@ -35,6 +39,7 @@ const SECTIONS = [
   },
   {
     id: 'rmb-inferiores',
+    club: 'rmb' as ClubSlug,
     teamId: null as string | null,
     sport: 'basketball' as const,
     category: 'inferiores' as const,
@@ -43,6 +48,7 @@ const SECTIONS = [
   },
   {
     id: 'rmf-inferiores',
+    club: 'rmf' as ClubSlug,
     teamId: null as string | null,
     sport: 'football' as const,
     category: 'inferiores' as const,
@@ -80,6 +86,7 @@ function mapRow(row: Record<string, unknown>, section: (typeof SECTIONS)[number]
     sport: section.sport,
     team_category: section.category,
     team_short: section.shortLabel,
+    club: section.club,
   };
 }
 
@@ -97,12 +104,20 @@ function demoItemsForTeam(teamId: string, section: (typeof SECTIONS)[number]) {
         size: item.size,
         stock_available: item.stock ?? item.stock_available ?? 0,
         stock_min: item.stock_min ?? item.minStock ?? 5,
-        unit_cost: item.unit_cost ?? 0,
+        unit_cost: item.unit_cost ?? item.price ?? 0,
         location: item.location || 'Almacén utilería',
       },
       section
     )
   );
+}
+
+function parseClubFilter(raw: string | null): ClubSlug | 'all' {
+  if (!raw || raw === 'all') return 'all';
+  if (raw === 'rmb' || raw === 'rmf' || raw === 'atm' || raw === 'fcb' || raw === 'vbc') {
+    return raw;
+  }
+  return 'all';
 }
 
 export async function GET(req: NextRequest) {
@@ -113,10 +128,12 @@ export async function GET(req: NextRequest) {
 
   const sport = req.nextUrl.searchParams.get('sport'); // basketball | football | all
   const category = req.nextUrl.searchParams.get('category'); // primer_equipo | inferiores | all
+  const club = parseClubFilter(req.nextUrl.searchParams.get('club'));
   const q = (req.nextUrl.searchParams.get('q') || '').trim().toLowerCase();
   const onlyLow = req.nextUrl.searchParams.get('low_stock') === '1';
 
   const sections = SECTIONS.filter((s) => {
+    if (club !== 'all' && s.club !== club) return false;
     if (sport && sport !== 'all' && s.sport !== sport) return false;
     if (category && category !== 'all' && s.category !== category) return false;
     return true;
@@ -127,7 +144,7 @@ export async function GET(req: NextRequest) {
 
   if (useDemo) {
     for (const section of sections) {
-      if (!section.teamId) continue; // inferiores: vacío por ahora
+      if (!section.teamId) continue;
       items.push(...demoItemsForTeam(section.teamId, section));
     }
   } else {
@@ -165,17 +182,20 @@ export async function GET(req: NextRequest) {
   }
   if (onlyLow) filtered = filtered.filter((i) => i.low_stock);
 
+  const visibleSections = club === 'all' ? SECTIONS : SECTIONS.filter((s) => s.club === club);
+
   const stats = {
     total_refs: filtered.length,
     total_units: filtered.reduce((s, i) => s + i.stock, 0),
     total_value: filtered.reduce((s, i) => s + i.value, 0),
     low_stock: filtered.filter((i) => i.low_stock).length,
-    by_section: SECTIONS.map((s) => ({
+    by_section: visibleSections.map((s) => ({
       id: s.id,
       label: s.label,
       shortLabel: s.shortLabel,
       sport: s.sport,
       category: s.category,
+      club: s.club,
       ready: Boolean(s.teamId),
       count: filtered.filter((i) => i.section_id === s.id).length,
       units: filtered.filter((i) => i.section_id === s.id).reduce((a, i) => a + i.stock, 0),
@@ -199,14 +219,16 @@ export async function GET(req: NextRequest) {
     data: {
       items: filtered,
       stats,
-      sections: SECTIONS.map((s) => ({
+      sections: visibleSections.map((s) => ({
         id: s.id,
         label: s.label,
         shortLabel: s.shortLabel,
         sport: s.sport,
         category: s.category,
+        club: s.club,
         ready: Boolean(s.teamId),
       })),
+      club,
     },
   });
 }

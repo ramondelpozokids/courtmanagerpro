@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useClubDemo } from '@/contexts/ClubDemoContext';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { History, RefreshCw, ArrowLeft, ArrowDownRight, ArrowUpRight } from 'lucide-react';
 
@@ -28,11 +29,13 @@ const REASON_LABELS: Record<string, string> = {
 
 export default function MovimientosPage() {
   const { currentTeam } = useAuth();
+  const { clubSlug } = useClubDemo();
   const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
   const [rows, setRows] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [scope, setScope] = useState<'active' | 'all_rm'>('all_rm');
+  const [scope, setScope] = useState<'active' | 'all_rm'>('active');
   const [warning, setWarning] = useState<string | null>(null);
+  const showCrossClub = clubSlug === 'rmb' || clubSlug === 'rmf';
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,26 +81,28 @@ export default function MovimientosPage() {
         </button>
       </div>
 
-      <div className="flex gap-1.5">
-        <button
-          type="button"
-          onClick={() => setScope('all_rm')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-            scope === 'all_rm' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800'
-          }`}
-        >
-          RMB + RMF
-        </button>
-        <button
-          type="button"
-          onClick={() => setScope('active')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-            scope === 'active' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800'
-          }`}
-        >
-          Solo club activo
-        </button>
-      </div>
+      {showCrossClub && (
+        <div className="flex gap-1.5">
+          <button
+            type="button"
+            onClick={() => setScope('active')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+              scope === 'active' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800'
+            }`}
+          >
+            Solo club activo
+          </button>
+          <button
+            type="button"
+            onClick={() => setScope('all_rm')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+              scope === 'all_rm' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800'
+            }`}
+          >
+            RMB + RMF
+          </button>
+        </div>
+      )}
 
       {warning && (
         <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 font-semibold">

@@ -15,6 +15,7 @@ import {
   Euro,
 } from 'lucide-react';
 import { downloadCsv } from '@/lib/csv-export';
+import { useClubBranding, useClubDemo } from '@/contexts/ClubDemoContext';
 
 type WarehouseItem = {
   id: string;
@@ -54,6 +55,8 @@ function eur(n: number) {
 }
 
 export default function AlmacenGeneralPage() {
+  const branding = useClubBranding();
+  const { clubSlug } = useClubDemo();
   const [items, setItems] = useState<WarehouseItem[]>([]);
   const [stats, setStats] = useState<{
     total_refs: number;
@@ -65,7 +68,6 @@ export default function AlmacenGeneralPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sport, setSport] = useState<'all' | 'basketball' | 'football'>('all');
   const [category, setCategory] = useState<'all' | 'primer_equipo' | 'inferiores'>('all');
   const [onlyLow, setOnlyLow] = useState(false);
   const [q, setQ] = useState('');
@@ -76,7 +78,8 @@ export default function AlmacenGeneralPage() {
     setError(null);
     try {
       const params = new URLSearchParams();
-      if (sport !== 'all') params.set('sport', sport);
+      // Solo el club activo — nunca mezclar Real Madrid con ATM
+      params.set('club', clubSlug);
       if (category !== 'all') params.set('category', category);
       if (onlyLow) params.set('low_stock', '1');
       if (q.trim()) params.set('q', q.trim());
@@ -91,7 +94,7 @@ export default function AlmacenGeneralPage() {
     } finally {
       setLoading(false);
     }
-  }, [sport, category, onlyLow, q]);
+  }, [clubSlug, category, onlyLow, q]);
 
   useEffect(() => {
     const t = setTimeout(() => void load(), q ? 250 : 0);
@@ -129,7 +132,7 @@ export default function AlmacenGeneralPage() {
           .join(';')
       ),
     ];
-    downloadCsv(`almacen_general_rm_${new Date().toISOString().slice(0, 10)}.csv`, lines);
+    downloadCsv(`almacen_${clubSlug}_${new Date().toISOString().slice(0, 10)}.csv`, lines);
   };
 
   return (
@@ -137,14 +140,14 @@ export default function AlmacenGeneralPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-1">
-            Visión club · Producción
+            Visión club · {branding.shortName}
           </p>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
             <Warehouse className="h-7 w-7 text-orange-500" />
             Almacén general
           </h2>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Stock y valor unificado RMB + RMF + ATM. Mapa por ubicación y export para dirección.
+            Stock y valor de <strong>{branding.name}</strong> únicamente. Sin mezclar otros clubes.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -250,7 +253,6 @@ export default function AlmacenGeneralPage() {
             key={s.id}
             type="button"
             onClick={() => {
-              setSport(s.sport as 'basketball' | 'football');
               setCategory(s.category as 'primer_equipo' | 'inferiores');
             }}
             className={`text-left rounded-xl border p-3 transition-all ${
@@ -285,17 +287,17 @@ export default function AlmacenGeneralPage() {
         <div className="flex flex-wrap gap-1.5">
           {(
             [
-              ['all', 'Todos'],
-              ['basketball', 'Baloncesto'],
-              ['football', 'Fútbol'],
+              ['all', 'Todas'],
+              ['primer_equipo', 'Primer equipo'],
+              ['inferiores', 'Inferiores'],
             ] as const
           ).map(([id, label]) => (
             <button
               key={id}
               type="button"
-              onClick={() => setSport(id)}
+              onClick={() => setCategory(id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                sport === id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'
+                category === id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'
               }`}
             >
               {label}
