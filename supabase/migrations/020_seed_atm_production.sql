@@ -643,11 +643,11 @@ INSERT INTO players (
   '00000000-0000-4000-8004-000000000019'::uuid,
   '00000000-0000-4000-8000-000acb423458'::uuid,
   7,
-  'Kang In Lee',
-  'delantero'::player_position,
+  'Kang-in Lee',
+  'centrocampista'::player_position,
   'Corea del Sur',
   '2001-02-19',
-  '/clubs/atm/logo.png',
+  '/clubs/atm/players/kang-in-lee.png',
   true,
   'M',
   'M',
@@ -655,7 +655,7 @@ INSERT INTO players (
   'M',
   'M',
   'LEE',
-  '{"official_slug":"kang-in-lee-ficha-por-el-atletico-de-madrid","demo_id":"p19","profile_url":"https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid"}'::jsonb
+  '{"official_slug":"kang-in-lee-ficha-por-el-atletico-de-madrid","demo_id":"p19","profile_url":"https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid","birth_place":"Incheon, Corea del Sur","height_cm":173,"weight_kg":66}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,

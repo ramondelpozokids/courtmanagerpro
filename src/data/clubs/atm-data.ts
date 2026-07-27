@@ -135,6 +135,7 @@ const ATM_PLAYER_PHOTOS: Record<string, string> = {
   'julian-alvarez-2025-2026': laligaPhoto('p461358'),
   'ademola-olajade-alade-aylola-lookman-2025-2026': laligaPhoto('p219352'),
   'morten-hjulmand-2025-2026': '/clubs/atm/players/hjulmand.png',
+  'kang-in-lee-ficha-por-el-atletico-de-madrid': '/clubs/atm/players/kang-in-lee.png',
 };
 
 function resolvePlayerPhoto(profileUrl: string, fallback: string) {
@@ -380,13 +381,13 @@ export const atmPlayers = [
   // Delanteros
   mk({
     id: 'p19',
-    firstName: 'Kang In',
+    firstName: 'Kang-in',
     lastName: 'Lee',
     number: 7,
-    position: 'delantero',
+    position: 'centrocampista',
     nationality: 'Corea del Sur',
     birthDate: '2001-02-19',
-    imageUrl: '/clubs/atm/logo.png',
+    imageUrl: '/clubs/atm/players/kang-in-lee.png',
     profile_url: 'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid',
     sizes: defaultSizes.M,
   }),
@@ -1359,7 +1360,7 @@ export const atmRequests = [
   {
     id: 'r1',
     playerId: 'p19',
-    playerName: 'Kang In Lee',
+    playerName: 'Kang-in Lee',
     itemName: 'Camiseta Match Hombre 1ª Equipación 26/27',
     quantity: 2,
     status: 'pendiente',
@@ -1470,7 +1471,7 @@ export const atmAlerts = [
     type: 'solicitud_pendiente',
     severity: 'info',
     title: 'Solicitud pendiente',
-    message: 'Solicitud pendiente — Kang In Lee (camiseta match)',
+    message: 'Solicitud pendiente — Kang-in Lee (camiseta match)',
     entity_type: 'request',
     entity_id: 'r1',
     is_read: false,
