@@ -1,11 +1,27 @@
-CourtManager Pro organiza la ropa y el material del club.
+CourtManager Pro.
+La plataforma inteligente para la gestión integral de la utilería deportiva.
 
-Hoy, en muchos vestuarios, todo se lleva con Excel y WhatsApp. Se pierde material en los viajes, se compra de más, y el día del partido faltan tallas.
+En el día a día de un club profesional, el inventario desactualizado, el material extraviado, las tallas incorrectas y las compras innecesarias siguen siendo procesos manuales difíciles de controlar.
 
-CourtManager Pro lo concentra en un solo sitio: plantilla y tallas, inventario, almacén general con precios y stock, peticiones, viajes, lavandería, botiquín y la lista de comprobación antes del partido.
+Aquí está el producto.
+Dashboard, inventario, jugadores, equipaciones y material: todo visible, en una sola plataforma.
+Sin diapositivas: el software en funcionamiento.
 
-En el almacén general ves cuánto hay, dónde está y cuánto vale en euros. Así compras con datos, no a ojo.
+El flujo de trabajo es sencillo: recepción, registro, asignación, preparación e historial.
 
-El plan profesional cuesta desde trescientos cuarenta y nueve euros al mes. Puedes probarlo unas semanas. Si no encaja, lo dejas: sin quedarte atado.
+Más vistas del software.
+Jugadores, asignaciones, stock y acceso seguro a la plataforma.
 
-Soy Ramón del Pozo Rott. Contacto: info arroba ramondelpozorott punto es. Gracias.
+El resultado en el trabajo diario: mayor control del inventario, menos errores, mayor trazabilidad, procesos centralizados y una preparación más eficiente.
+
+CourtManager Pro es un MVP funcional, preparado para evolucionar junto a las necesidades de un club profesional.
+
+¿Os gustaría ver una demostración?
+Estaré encantado de realizar una demostración personalizada y conocer vuestras necesidades para valorar posibles adaptaciones.
+Soy Ramón del Pozo Rott.
+Contacto: info arroba ramondelpozorott punto es.
+Web: courtmanagerpro punto vercel punto app.
+
+CourtManager Pro.
+Diseñado para que la utilería trabaje con la misma precisión que el equipo sobre el terreno de juego.
+Solicita una demostración personalizada.

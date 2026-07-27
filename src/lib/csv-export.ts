@@ -38,6 +38,16 @@ export const CLUB_CSV_IDENTITY: Record<ClubSlug, ClubCsvIdentity> = {
     department: 'Real Madrid Fútbol',
     sportSection: 'Fútbol — Primer Equipo',
   },
+  atm: {
+    brandLine: 'Atlético de Madrid',
+    legalName: 'CLUB ATLÉTICO DE MADRID S.A.D.',
+    venue: 'Riyadh Air Metropolitano',
+    addressLine: 'Avenida de Luis Aragonés, 4',
+    cityLine: '28022 Madrid',
+    logoPath: '/clubs/atm/logo.png',
+    department: 'Atlético de Madrid Fútbol',
+    sportSection: 'Fútbol — Primer Equipo',
+  },
   fcb: {
     brandLine: 'FC Barcelona',
     legalName: 'FC BARCELONA',

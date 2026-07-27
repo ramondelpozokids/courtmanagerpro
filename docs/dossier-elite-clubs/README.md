@@ -10,7 +10,7 @@
 | Archivo | Para qué |
 |---------|----------|
 | [DOSSIER.html](./DOSSIER.html) | Dossier ejecutivo (imprimir / PDF) |
-| [VIDEO-PROMO.html](./VIDEO-PROMO.html) | Vídeo demo ~90 s (voces como es.html / en.html) |
+| [VIDEO-PROMO.html](./VIDEO-PROMO.html) | Presentación ejecutiva ~110 s (objetivo: reunión / demo) |
 | [PRESENTACION-AUDIO.html](./PRESENTACION-AUDIO.html) | Audio largo ~4 min |
 | [FICHA-REAL-MADRID-NEXT.md](./FICHA-REAL-MADRID-NEXT.md) | Formulario Únete a Next |
 | [EMAIL-MULTI-CLUB.md](./EMAIL-MULTI-CLUB.md) | Plantilla de correo |
@@ -29,7 +29,9 @@
 
 ---
 
-## Vídeo demo (~90 s)
+## Presentación ejecutiva (~110 s)
+
+**Objetivo:** provocar «queremos una demostración». No vende suscripción ni precio.
 
 1. Abre `VIDEO-PROMO.html` → F11 → **Reproducir** (ES o EN).
 2. Graba pantalla con CapCut u OBS.
@@ -39,10 +41,10 @@
 powershell -ExecutionPolicy Bypass -File docs\dossier-elite-clubs\scripts\export-video-promo.ps1
 ```
 
-Voces edge-tts: `es-ES-ElviraNeural` (como el MP3 de es.html) y `en-US-JennyNeural`.
+Voces edge-tts: `es-ES-ElviraNeural` / `en-US-JennyNeural` (ritmo ligeramente más pausado).
 
 ---
 
 ## Mensaje clave
 
-> CourtManager Pro organiza la ropa y el material del club: tallas, almacén con precios y stock, viajes, botiquín y lista antes del partido.
+> CourtManager Pro. Diseñado para que la utilería trabaje con la misma precisión que el equipo sobre el terreno de juego.

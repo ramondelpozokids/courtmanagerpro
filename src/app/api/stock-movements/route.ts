@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
     .limit(limit);
 
   if (scope === 'all_rm') {
-    query = query.in('team_id', [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf]);
+    query = query.in('team_id', [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf, CLUB_TEAM_IDS.atm]);
   } else {
     query = query.eq('team_id', teamId);
   }

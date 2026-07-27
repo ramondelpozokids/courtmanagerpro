@@ -1,11 +1,11 @@
-# Exporta el vídeo demo promocional (~90 s) a MP4
-# Voces: mismas que presentacion-promocional (es-ES-ElviraNeural / en-US-JennyNeural)
+# Exporta la presentación ejecutiva (~110 s) a MP4
+# Voces: es-ES-ElviraNeural / en-US-JennyNeural (ritmo -4%)
 #
 # Requisitos:
 #   pip install --user edge-tts
 #   ffmpeg en Desktop\ffmpeg\...\bin\ffmpeg.exe
 #
-# Uso (desde la raíz del repo o desde esta carpeta scripts):
+# Uso:
 #   powershell -ExecutionPolicy Bypass -File .\export-video-promo.ps1
 
 $ErrorActionPreference = "Stop"
@@ -39,17 +39,20 @@ if (-not (Test-Path $hero)) {
   throw "Falta assets/dossier-hero.png en el kit dossier"
 }
 
-# Copiar hero como fotogramas de fondo (duraciones storyboard)
-$durations = @(8, 14, 23, 20, 15, 10) # total 90
-$labels = @("01-hero", "02-problem", "03-modules", "04-warehouse", "05-pricing", "06-close")
+# Duraciones alineadas con el storyboard ejecutivo (sin precio)
+$durations = @(8, 12, 22, 12, 16, 10, 14, 8, 12, 8) # total ~122
+$labels = @(
+  "01-intro", "02-problem", "03-product", "04-flow", "05-product-more",
+  "06-login", "07-benefits", "08-mvp", "09-cta", "10-close"
+)
 for ($i = 0; $i -lt $labels.Length; $i++) {
   Copy-Item $hero (Join-Path $slides ("{0}.png" -f $labels[$i])) -Force
 }
 
-function New-Audio($lang, $voice, $scriptFile, $outMp3) {
+function New-Audio($voice, $scriptFile, $outMp3) {
   if (-not (Test-Path $scriptFile)) { throw "Falta $scriptFile" }
   Write-Host "Generando $outMp3 ($voice)..."
-  python -m edge_tts --voice $voice --rate "+0%" --file $scriptFile --write-media $outMp3
+  python -m edge_tts --voice $voice --rate=-4% --file $scriptFile --write-media $outMp3
   if (-not (Test-Path $outMp3)) { throw "No se generó $outMp3 (¿edge-tts instalado?)" }
 }
 
@@ -57,16 +60,19 @@ $esScript = Join-Path $here "narracion-video-90s-es.txt"
 $enScript = Join-Path $here "narracion-video-90s-en.txt"
 $esMp3 = Join-Path $export "video-es.mp3"
 $enMp3 = Join-Path $export "video-en.mp3"
+$kitEs = Join-Path $kit "audio\es.mp3"
+$kitEn = Join-Path $kit "audio\en.mp3"
 
 try {
-  New-Audio "es" "es-ES-ElviraNeural" $esScript $esMp3
-  New-Audio "en" "en-US-JennyNeural" $enScript $enMp3
+  New-Audio "es-ES-ElviraNeural" $esScript $esMp3
+  New-Audio "en-US-JennyNeural" $enScript $enMp3
+  Copy-Item $esMp3 $kitEs -Force
+  Copy-Item $enMp3 $kitEn -Force
 } catch {
   Write-Warning $_.Exception.Message
   Write-Warning "Sin edge-tts: genera MP3 manual o graba VIDEO-PROMO.html con CapCut/OBS."
 }
 
-# Concat demuxer: cada imagen con duración
 $concat = Join-Path $export "slides.txt"
 $lines = @()
 for ($i = 0; $i -lt $labels.Length; $i++) {
@@ -96,4 +102,4 @@ Export-Mp4 $enMp3 "CourtManager-Pro-Demo-EN.mp4"
 
 Write-Host ""
 Write-Host "Listo. Carpeta: $export"
-Write-Host "Alternativa: abre VIDEO-PROMO.html a pantalla completa (voces ES/EN como es.html/en.html) y graba con CapCut/OBS."
+Write-Host "Preferible: abre VIDEO-PROMO.html a pantalla completa y graba con CapCut/OBS (pantallas del producto)."

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>CourtManager Pro — UI shots Atleti Lab</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; background: #0f172a; color: #0f172a; }
+    .screen {
+      width: 1280px;
+      height: 800px;
+      margin: 24px;
+      background: #f1f5f9;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .side {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 8px 18px;
+      border-bottom: 1px solid #1e293b;
+      margin-bottom: 12px;
+    }
+    .brand-mark {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(145deg, #c8102e, #1e3a8a);
+      display: grid; place-items: center;
+      color: #fff; font-size: 11px; font-weight: 800;
+    }
+    .brand strong { font-size: 13px; color: #fff; display: block; line-height: 1.2; }
+    .brand span { font-size: 10px; color: #94a3b8; }
+    .nav {
+      padding: 9px 10px; border-radius: 8px;
+      font-size: 12.5px; font-weight: 500; color: #94a3b8;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav.on { background: rgba(200,16,46,0.22); color: #fff; }
+    .nav i {
+      width: 16px; height: 16px; border-radius: 4px; background: #334155; flex-shrink: 0;
+    }
+    .nav.on i { background: #c8102e; }
+    .main { padding: 22px 24px; overflow: hidden; }
+    .top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 18px;
+    }
+    .top h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+    .top p { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      background: #fee2e2; color: #c8102e; border: 1px solid #fecaca;
+      padding: 5px 10px; border-radius: 999px;
+    }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+    .kpi {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;
+    }
+    .kpi small { display: block; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .kpi b { font-size: 26px; letter-spacing: -0.04em; }
+    .kpi em { display: block; margin-top: 4px; font-style: normal; font-size: 11px; color: #94a3b8; }
+    .panel {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px;
+    }
+    .panel-h {
+      font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #c8102e; margin-bottom: 10px;
+    }
+    .row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 12.5px;
+    }
+    .row:last-child { border-bottom: 0; }
+    .tag {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
+      background: #ecfdf5; color: #047857;
+    }
+    .tag.warn { background: #fff7ed; color: #c2410c; }
+    .tag.blue { background: #eff6ff; color: #1d4ed8; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th {
+      text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #64748b; padding: 8px 6px; border-bottom: 1px solid #e2e8f0;
+    }
+    td { padding: 11px 6px; border-bottom: 1px solid #f1f5f9; }
+    .players { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .player {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+      padding: 16px 12px; text-align: center;
+    }
+    .av {
+      width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 10px;
+      background: linear-gradient(145deg, #1e3a8a, #c8102e);
+    }
+    .player b { display: block; font-size: 13px; }
+    .player span { font-size: 11px; color: #64748b; }
+    .grid2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="dash">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark">CM</div>
+        <div><strong>CourtManager Pro</strong><span>Utilería · Club</span></div>
+      </div>
+      <div class="nav on"><i></i>Dashboard</div>
+      <div class="nav"><i></i>Jugadores</div>
+      <div class="nav"><i></i>Tabla de Tallas</div>
+      <div class="nav"><i></i>Inventario</div>
+      <div class="nav"><i></i>Equipo de Utillería</div>
+      <div class="nav"><i></i>Solicitudes</div>
+      <div class="nav"><i></i>Viajes</div>
+      <div class="nav"><i></i>Lavandería</div>
+      <div class="nav"><i></i>Material Médico</div>
+      <div class="nav"><i></i>Informes</div>
+      <div class="nav"><i></i>Alertas</div>
+      <div class="nav"><i></i>Almacén general</div>
+      <div class="nav"><i></i>Movimientos</div>
+      <div class="nav"><i></i>Checklist pre-partido</div>
+    </aside>
+    <div class="main">
+      <div class="top">
+        <div>
+          <h1>Centro de mando de utilería</h1>
+          <p>Inventario, solicitudes, viajes y preparación de partido — en un solo lugar.</p>
+        </div>
+        <span class="badge">Temporada 2026/27</span>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><small>Fichas de jugadores</small><b>28</b><em>Plantilla registrada</em></div>
+        <div class="kpi"><small>Stock utilería</small><b>1.240</b><em>Unidades disponibles</em></div>
+        <div class="kpi"><small>Peticiones activas</small><b>6</b><em>Pendientes de entrega</em></div>
+        <div class="kpi"><small>Viajes en curso</small><b>2</b><em>Logística de maletas</em></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-h">Centro operativo</div>
+          <div class="row"><span>Stock bajo — camisetas entrenamiento M</span><span class="tag warn">Alerta</span></div>
+          <div class="row"><span>Asignación a jugador · botas partido</span><span class="tag">Movimiento</span></div>
+          <div class="row"><span>Checklist pre-partido · próximo encuentro</span><span class="tag blue">Prep.</span></div>
+          <div class="row"><span>Entrada almacén · material temporada</span><span class="tag">Stock</span></div>
+          <div class="row"><span>Lote lavandería · listo para vestuario</span><span class="tag">Lavado</span></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h">Accesos rápidos</div>
+          <div class="row"><span>Inventario / Equipaciones</span><span class="tag blue">Abrir</span></div>
+          <div class="row"><span>Tabla de tallas</span><span class="tag blue">Abrir</span></div>
+          <div class="row"><span>Almacén general</span><span class="tag blue">Abrir</span></div>
+          <div class="row"><span>Checklist pre-partido</span><span class="tag blue">Abrir</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTARIO -->
+  <div class="screen" id="inv">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark">CM</div>
+        <div><strong>CourtManager Pro</strong><span>Utilería · Club</span></div>
+      </div>
+      <div class="nav"><i></i>Dashboard</div>
+      <div class="nav"><i></i>Jugadores</div>
+      <div class="nav"><i></i>Tabla de Tallas</div>
+      <div class="nav on"><i></i>Inventario</div>
+      <div class="nav"><i></i>Solicitudes</div>
+      <div class="nav"><i></i>Almacén general</div>
+      <div class="nav"><i></i>Movimientos</div>
+      <div class="nav"><i></i>Checklist pre-partido</div>
+    </aside>
+    <div class="main">
+      <div class="top">
+        <div>
+          <h1>Inventario</h1>
+          <p>Equipaciones, calzado, balones y material — stock y ubicación.</p>
+        </div>
+        <span class="badge">Escáner QR disponible</span>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><small>Artículos</small><b>186</b><em>Referencias activas</em></div>
+        <div class="kpi"><small>Disponible</small><b>1.240</b><em>Unidades en stock</em></div>
+        <div class="kpi"><small>Asignado</small><b>312</b><em>Jugadores / staff</em></div>
+        <div class="kpi"><small>Alertas</small><b>4</b><em>Stock bajo</em></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Equipaciones y material</div>
+        <table>
+          <thead>
+            <tr><th>Artículo</th><th>Categoría</th><th>Talla</th><th>Stock</th><th>Ubicación</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Camiseta entrenamiento</td><td>Equipación</td><td>M</td><td>42</td><td>Almacén A</td><td><span class="tag">OK</span></td></tr>
+            <tr><td>Pantalón partido</td><td>Equipación</td><td>L</td><td>28</td><td>Almacén A</td><td><span class="tag">OK</span></td></tr>
+            <tr><td>Chándal viaje</td><td>Equipación</td><td>XL</td><td>8</td><td>Almacén B</td><td><span class="tag warn">Bajo</span></td></tr>
+            <tr><td>Balón oficial partido</td><td>Material</td><td>—</td><td>16</td><td>Material</td><td><span class="tag">OK</span></td></tr>
+            <tr><td>Botas partido</td><td>Calzado</td><td>42</td><td>9</td><td>Asignado</td><td><span class="tag blue">En uso</span></td></tr>
+            <tr><td>Guantes portero</td><td>Material</td><td>9</td><td>6</td><td>Vestuario</td><td><span class="tag">OK</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JUGADORES -->
+  <div class="screen" id="players">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark">CM</div>
+        <div><strong>CourtManager Pro</strong><span>Utilería · Club</span></div>
+      </div>
+      <div class="nav"><i></i>Dashboard</div>
+      <div class="nav on"><i></i>Jugadores</div>
+      <div class="nav"><i></i>Tabla de Tallas</div>
+      <div class="nav"><i></i>Inventario</div>
+      <div class="nav"><i></i>Solicitudes</div>
+      <div class="nav"><i></i>Movimientos</div>
+    </aside>
+    <div class="main">
+      <div class="top">
+        <div>
+          <h1>Jugadores</h1>
+          <p>Fichas de plantilla vinculadas a tallas, asignaciones y solicitudes.</p>
+        </div>
+        <span class="badge">28 fichas</span>
+      </div>
+      <div class="players">
+        <div class="player"><div class="av"></div><b>Portero</b><span>Tallas · asignaciones</span></div>
+        <div class="player"><div class="av" style="background:linear-gradient(145deg,#111827,#1e3a8a)"></div><b>Defensa</b><span>Equipación activa</span></div>
+        <div class="player"><div class="av" style="background:linear-gradient(145deg,#1e293b,#c8102e)"></div><b>Centrocampista</b><span>Historial material</span></div>
+        <div class="player"><div class="av" style="background:linear-gradient(145deg,#0f172a,#64748b)"></div><b>Delantero</b><span>Solicitudes</span></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="panel-h">Detalle de ficha</div>
+        <div class="row"><span>Camiseta entrenamiento</span><span>Talla M · asignada</span></div>
+        <div class="row"><span>Pantalón partido</span><span>Talla L · asignada</span></div>
+        <div class="row"><span>Botas partido</span><span>42 · en uso</span></div>
+        <div class="row"><span>Última solicitud</span><span class="tag warn">Pendiente</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVIMIENTOS -->
+  <div class="screen" id="moves">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark">CM</div>
+        <div><strong>CourtManager Pro</strong><span>Utilería · Club</span></div>
+      </div>
+      <div class="nav"><i></i>Dashboard</div>
+      <div class="nav"><i></i>Inventario</div>
+      <div class="nav"><i></i>Almacén general</div>
+      <div class="nav on"><i></i>Movimientos</div>
+      <div class="nav"><i></i>Alertas</div>
+      <div class="nav"><i></i>Informes</div>
+    </aside>
+    <div class="main">
+      <div class="top">
+        <div>
+          <h1>Historial de movimientos</h1>
+          <p>Entradas, salidas, asignaciones y devoluciones con registro.</p>
+        </div>
+        <span class="badge">Trazabilidad</span>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Últimos movimientos</div>
+        <table>
+          <thead>
+            <tr><th>Fecha</th><th>Tipo</th><th>Artículo</th><th>Detalle</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>27/07/2026</td><td>Asignación</td><td>Botas partido 42</td><td>Jugador · primer equipo</td><td><span class="tag">OK</span></td></tr>
+            <tr><td>26/07/2026</td><td>Entrada almacén</td><td>Camiseta entrenamiento</td><td>+40 uds · Almacén A</td><td><span class="tag">OK</span></td></tr>
+            <tr><td>26/07/2026</td><td>Devolución</td><td>Chándal viaje XL</td><td>Tras desplazamiento</td><td><span class="tag">OK</span></td></tr>
+            <tr><td>25/07/2026</td><td>Salida viaje</td><td>Packing list</td><td>Maleta utilería</td><td><span class="tag blue">Viaje</span></td></tr>
+            <tr><td>25/07/2026</td><td>Lavandería</td><td>Lote entrenamiento</td><td>Estado: listo</td><td><span class="tag">OK</span></td></tr>
+            <tr><td>24/07/2026</td><td>Alerta stock</td><td>Camisetas M</td><td>Por debajo del mínimo</td><td><span class="tag warn">Alerta</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

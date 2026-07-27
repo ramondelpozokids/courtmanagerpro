@@ -39,7 +39,7 @@ export function UpdateOfficialRosterButton({
         setMessage('Ya estaba actualizada');
       } else {
         const n = data?.changesCount ?? 0;
-        const src = clubSlug === 'rmf' ? 'fútbol' : 'baloncesto';
+        const src = clubSlug === 'rmf' || clubSlug === 'atm' ? 'fútbol' : 'baloncesto';
         setMessage(
           n === 0
             ? `Plantilla ${src} al día — sin cambios`

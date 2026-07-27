@@ -43,6 +43,19 @@ export function getOfficialCalendarMeta(sport: CalendarSport) {
   } as const;
 }
 
+export function getOfficialCalendarMetaForTeam(teamId: string) {
+  if (teamId === '00000000-0000-4000-8000-000acb423458') {
+    return {
+      sport: 'football' as const,
+      tag: 'atletico-madrid:primer-equipo',
+      pageUrl: 'https://www.atleticodemadrid.com/calendario-completo-primer-equipo/',
+      sourceId: 'atletico_madrid_official_calendar',
+      sourceLabel: 'Atlético de Madrid — Primer Equipo',
+    } as const;
+  }
+  return getOfficialCalendarMeta(calendarSportForTeamId(teamId));
+}
+
 export function calendarSportForTeamId(teamId: string): CalendarSport {
   const slug = getClubSlugByTeamId(teamId);
   if (!slug) return 'basketball';

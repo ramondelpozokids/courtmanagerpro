@@ -12,6 +12,18 @@ export const REAL_MADRID_FOOTBALL_PLANTILLA_URL =
 export const REAL_MADRID_SOURCE_ID = 'real_madrid_official';
 export const REAL_MADRID_SOURCE_LABEL = 'Real Madrid Oficial';
 
+/** Plantilla oficial — Atlético de Madrid Fútbol */
+export const ATLETICO_FOOTBALL_PLANTILLA_URL =
+  'https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026';
+
+export const ATLETICO_SOURCE_ID = 'atletico_madrid_official';
+export const ATLETICO_SOURCE_LABEL = 'Atlético de Madrid Oficial';
+
+export const ATLETICO_CALENDAR_PAGE_URL =
+  'https://www.atleticodemadrid.com/calendario-completo-primer-equipo/';
+
+export const ATLETICO_STORE_URL = 'https://www.atleticodemadrid.com/atm/atleti-store';
+
 export interface OfficialPlayer {
   slug: string;
   full_name: string;

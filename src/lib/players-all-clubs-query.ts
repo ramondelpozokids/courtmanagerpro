@@ -40,7 +40,7 @@ function normalizePosition(position: string): Player['position'] {
 }
 
 export function parseAllClubsPlayerRouteId(routeId: string): { slug: ClubSlug; demoId: string } | null {
-  const match = routeId.match(/^(rmb|rmf|fcb|vbc)__(.+)$/);
+  const match = routeId.match(/^(rmb|rmf|atm|fcb|vbc)__(.+)$/);
   if (!match) return null;
   return { slug: match[1] as ClubSlug, demoId: match[2] };
 }

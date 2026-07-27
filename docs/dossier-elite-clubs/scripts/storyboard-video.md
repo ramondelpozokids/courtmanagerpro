@@ -1,17 +1,25 @@
-# Storyboard — Vídeo promo CourtManager Pro (~90 s)
+# Storyboard — Vídeo ejecutivo CourtManager Pro (~100 s)
 
-Alineado con el dossier humanizado. Idioma claro. Hero: equipación Real Madrid Fútbol.
+**Objetivo:** conseguir una reunión / demostración (Atleti Lab u otro equipo de innovación).  
+**No incluye:** precio, prueba gratuita, mensajes de suscripción.
 
-| Tiempo | Slide | Texto en pantalla | Narración |
-|--------|-------|-------------------|-----------|
-| 0–8 s | hero | CourtManager Pro · Utilería profesional | CourtManager Pro organiza la ropa y el material del club. |
-| 8–22 s | problem | Excel + WhatsApp = pérdidas | Hoy, en muchos vestuarios, todo se lleva con Excel y WhatsApp. Se pierde material en los viajes, se compra de más, y el día del partido faltan tallas. |
-| 22–45 s | modules | Todo en un solo sitio | CourtManager Pro lo concentra en un solo sitio: plantilla y tallas, inventario, almacén general con precios y stock, peticiones, viajes, lavandería, botiquín y la lista antes del partido. |
-| 45–65 s | warehouse | Stock · Ubicación · Valor € | En el almacén general ves cuánto hay, dónde está y cuánto vale en euros. Así compras con datos, no a ojo. |
-| 65–80 s | pricing | Desde 349 €/mes · Sin quedarte atado | El plan profesional cuesta desde 349 € al mes. Puedes probarlo unas semanas. Si no encaja, lo dejas. |
-| 80–90 s | close | Ramón del Pozo Rott · info@ramondelpozorott.es | Soy Ramón del Pozo Rott. Contacto: info@ramondelpozorott.es. Gracias. |
+| Tiempo (aprox.) | Escena | Pantalla | Narración (resumen) |
+|-----------------|--------|----------|---------------------|
+| 0–6 s | 1 · Intro | Logo + claimline | CourtManager Pro. Plataforma inteligente de utilería. |
+| 6–14 s | 2 · Problema | Iconos (sin párrafos) | Inventario, extravíos, tallas, compras, procesos manuales. |
+| 14–40 s | 3 · Producto | Dashboard + Inventario (grandes) | Producto en pantalla: dashboard, inventario, equipaciones, material. |
+| 40–48 s | 4 · Flujo | Recepción → … → Historial | Flujo operativo sencillo. |
+| 48–70 s | 5 · Producto | Jugadores + móvil + login | Más vistas del software. |
+| 70–78 s | 6 · Beneficios | Trabajo diario | Control, errores, trazabilidad, centralización, preparación. |
+| 78–84 s | 7 · Estado | MVP funcional | Preparado para evolucionar con el club. |
+| 84–91 s | 8 · CTA | ¿Demostración? | Demo personalizada + contacto. |
+| 91–100 s | 9 · Cierre | Frase memorable | Precisión de utilería = precisión en el campo. |
 
-## Cómo producir el MP4
+**Producto en pantalla:** ~55–70 % del tiempo (escenas 3 y 5).
 
-1. Abrir `VIDEO-PROMO.html` a pantalla completa → Play (voz del navegador) → grabar con CapCut/OBS.
-2. O ejecutar `scripts/export-video-promo.ps1` (edge-tts + ffmpeg) → `export/CourtManager-Pro-Demo.mp4`.
+## Cómo producir
+
+1. Abrir `VIDEO-PROMO.html` → F11 → **Reproducir** → grabar con CapCut / OBS.
+2. Audio: `audio/es.mp3` (~98 s) / `audio/en.mp3` (~92 s).
+3. Opcional: sustituir frames HTML por capturas reales en `assets/video/` tras login.
+4. Opcional: `scripts/export-video-promo.ps1` (edge-tts + ffmpeg).

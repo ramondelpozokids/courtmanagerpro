@@ -11,7 +11,7 @@ import {
 export type { SuperadminAccessSources };
 export { SUPERADMIN_EMAIL, CARLOS_EMAIL, normalizeEmail };
 
-export const ALL_CLUB_SLUGS = ['rmb', 'rmf', 'fcb', 'vbc'] as const;
+export const ALL_CLUB_SLUGS = ['rmb', 'rmf', 'atm', 'fcb', 'vbc'] as const;
 
 export function isSuperadminUser(
   role?: string | null,

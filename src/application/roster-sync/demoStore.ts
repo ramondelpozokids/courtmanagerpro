@@ -11,6 +11,9 @@ import { computeRosterDiff } from './diffEngine';
 import { mapPosition } from './parser';
 import { createRosterSourceForTeam, plantillaUrlForTeam } from './sources/realMadridOfficial';
 import {
+  ATLETICO_FOOTBALL_PLANTILLA_URL,
+  ATLETICO_SOURCE_ID,
+  ATLETICO_SOURCE_LABEL,
   REAL_MADRID_FOOTBALL_PLANTILLA_URL,
   REAL_MADRID_PLANTILLA_URL,
   REAL_MADRID_SOURCE_ID,
@@ -169,6 +172,47 @@ function officialFromRmfPack(): OfficialRosterSnapshot {
 }
 
 function officialFallbackForTeam(teamId: string): OfficialRosterSnapshot {
+  if (teamId === CLUB_TEAM_IDS.atm) {
+    const pack = getClubPack('atm');
+    const players: OfficialPlayer[] = (pack.players || []).map((p: any) => {
+      const slug =
+        String(p.profile_url || '')
+          .split('/')
+          .filter(Boolean)
+          .pop() || p.id;
+      return {
+        slug,
+        full_name: p.full_name || `${p.firstName || ''} ${p.lastName || ''}`.trim(),
+        first_name: p.firstName || '',
+        last_name: p.lastName || '',
+        dorsal: Number(p.number ?? p.dorsal ?? 0),
+        position: p.position || null,
+        position_demo: mapPosition(p.position),
+        photo_url: p.imageUrl || p.photo_url || null,
+        nationality: p.nationality || null,
+        birth_date: p.birthDate || p.birth_date || null,
+        profile_url: p.profile_url || `${ATLETICO_FOOTBALL_PLANTILLA_URL}/${slug}`,
+      };
+    });
+    const staff: OfficialStaff[] = (pack.coachingStaff || []).map((s: any) => ({
+      slug: s.id || String(s.full_name || 'staff'),
+      full_name: String(s.full_name || s.name || ''),
+      first_name: String(s.full_name || s.name || '').split(' ')[0] || '',
+      last_name: String(s.full_name || s.name || '').split(' ').slice(1).join(' '),
+      role: String(s.role || 'Cuerpo técnico'),
+      photo_url: s.photo_url || null,
+      nationality: s.nationality || null,
+      profile_url: s.profile_url || ATLETICO_FOOTBALL_PLANTILLA_URL,
+    }));
+    return {
+      source_id: ATLETICO_SOURCE_ID,
+      source_url: ATLETICO_FOOTBALL_PLANTILLA_URL,
+      source_label: ATLETICO_SOURCE_LABEL,
+      fetched_at: new Date().toISOString(),
+      players,
+      staff,
+    };
+  }
   if (teamId === CLUB_TEAM_IDS.rmf) return officialFromRmfPack();
   return officialFromBundledBasketball();
 }

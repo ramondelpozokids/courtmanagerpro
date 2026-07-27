@@ -20,6 +20,7 @@ import {
 import { normalizeStaffProfile } from "@/lib/player-profile";
 import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
 import { RMF_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/rmf-data";
+import { ATM_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/atm-data";
 import { UpdateOfficialRosterButton } from "@/components/roster/UpdateOfficialRosterButton";
 
 type StaffMember = StaffFormData & {
@@ -178,7 +179,9 @@ export default function PlayersPage() {
           )}
           <a
             href={
-              branding.sport === 'football'
+              branding.slug === 'atm'
+                ? ATM_OFFICIAL_PLANTILLA_URL
+                : branding.sport === 'football'
                 ? RMF_OFFICIAL_PLANTILLA_URL
                 : OFFICIAL_PLANTILLA_URL
             }
@@ -216,6 +219,24 @@ export default function PlayersPage() {
         Plantilla de referencia:{' '}
         <a href={RMF_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-blue-700 dark:text-blue-400 underline-offset-2 hover:underline">
           realmadrid.com/futbol
+        </a>
+        .
+      </div>
+      )}
+      {branding.slug === 'atm' && (
+      <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
+        Tenant producción <strong>Atlético de Madrid · Primer Equipo</strong> — mismos módulos que RMF.
+        Fuentes oficiales:{' '}
+        <a href={ATM_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
+          plantilla
+        </a>
+        {' · '}
+        <a href="https://www.atleticodemadrid.com/calendario-completo-primer-equipo/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
+          calendario
+        </a>
+        {' · '}
+        <a href="https://www.atleticodemadrid.com/atm/atleti-store" target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
+          Atleti Store
         </a>
         .
       </div>

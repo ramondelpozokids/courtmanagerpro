@@ -19,6 +19,20 @@ import {
   rmfLaundry,
   rmfCoachingStaff,
 } from '@/data/clubs/rmf-data';
+import {
+  atmPlayers,
+  atmInventory,
+  atmRequests,
+  atmTrips,
+  atmAlerts,
+  atmLaundry,
+  atmCoachingStaff,
+  ATM_OFFICIAL_STORE_URL,
+  ATM_STORE_HOME_URL,
+  ATM_SPONSORS_URL,
+  ATM_STADIUM_NEWS_URL,
+  ATM_SPONSORS_MAIN,
+} from '@/data/clubs/atm-data';
 import { vbcPlayers, vbcInventory, vbcRequests, vbcTrips, vbcAlerts, vbcLaundry, vbcCoachingStaff } from '@/data/clubs/vbc-data';
 
 const rmbPack: ClubDemoPack = {
@@ -383,14 +397,130 @@ const vbcPack: ClubDemoPack = {
   alerts: vbcAlerts,
 };
 
+const atmPack: ClubDemoPack = {
+  branding: {
+    slug: 'atm',
+    teamId: CLUB_TEAM_IDS.atm,
+    name: 'Atlético de Madrid',
+    shortName: 'ATM',
+    tagline: 'Primer Equipo · Atleti Lab',
+    venue: 'Riyadh Air Metropolitano · Madrid',
+    sport: 'football',
+    league: 'LaLiga',
+    primaryColor: '#FFFFFF',
+    secondaryColor: '#E8151E',
+    accentColor: '#272E6A',
+    logoUrl: '/clubs/atm/logo.png',
+    heroUrl: '/clubs/atm/vestuario.png',
+    blogHeroUrl: '/clubs/atm/museo-trofeos.png',
+  },
+  blog: {
+    portalTitle: 'ATM Portal: Noticias, Historia e Indumentaria',
+    portalSubtitle: 'Primer equipo de fútbol — utilería, plantilla y actualidad oficial.',
+    historyTitle: 'Historia del Atlético de Madrid',
+    historySubtitle: 'Club Atlético de Madrid — Riyadh Air Metropolitano · Territorio Atleti.',
+    historyIntro: [
+      'El Atlético de Madrid es uno de los clubes de referencia del fútbol español y europeo, con identidad rojiblanca y sede en el **Riyadh Air Metropolitano**.',
+      'En la temporada **2025-26**, el primer equipo compite en **LaLiga** y competiciones europeas bajo la dirección de **Diego Pablo Simeone**.',
+    ],
+    milestones: [
+      { year: '2014', title: 'La Décima… a un paso', description: 'Final de Champions en Lisboa.' },
+      { year: '2018', title: 'Europa League', description: 'Título europeo en Lyon.' },
+      { year: '2021', title: 'Liga', description: 'Campeones de LaLiga.' },
+      { year: '2026', title: 'Proyecto 25/26', description: 'Plantilla renovada y Metropolitano como sede.' },
+    ],
+    timeline: [
+      { title: '2017 — Metropolitano', description: 'Inauguración del estadio propiedad del club.' },
+      { title: '2024 — Riyadh Air', description: 'Nuevo naming del estadio.' },
+      { title: '2025/26 — Temporada en curso', description: 'LaLiga y competición europea.' },
+    ],
+    palmares: [
+      { label: 'Ligas', count: 11, detail: 'Palmarés histórico' },
+      { label: 'Copas del Rey', count: 10, detail: 'Palmarés histórico' },
+      { label: 'Europa League', count: 3, detail: 'Palmarés histórico' },
+      { label: 'Supercopas de Europa', count: 3, detail: 'Palmarés histórico' },
+    ],
+    equipacionTitle: 'Equipaciones Oficiales Hombre 26/27',
+    equipacionDescription: `Solo masculino — 1ª, 2ª (IR1435-011 / II2031-010), 3ª y entrenamiento desde ${ATM_OFFICIAL_STORE_URL}`,
+    equipacionItems: [
+      {
+        name: 'Camiseta Match Hombre 1ª Equipación 26/27',
+        price: '€159.95',
+        image: '/clubs/atm/vestuario.png',
+      },
+      {
+        name: 'Camiseta Match Hombre 2ª Equipación 26/27',
+        price: '€159.95',
+        image: '/clubs/atm/logo.png',
+      },
+      {
+        name: 'Pantalón Corto 2ª Equipación 26/27',
+        price: '€54.95',
+        image: '/clubs/atm/logo.png',
+      },
+      {
+        name: 'Camiseta Entrenamiento Nike Hombre 26/27',
+        price: '€54.95',
+        image: '/clubs/atm/vestuario.png',
+      },
+    ],
+  },
+  news: [
+    {
+      id: 'n1',
+      title: '¡Bienvenido, Kang In Lee!',
+      tag: 'Fichajes',
+      image: '/clubs/atm/vestuario.png',
+      description: 'Nuevo refuerzo para el primer equipo — dorsal 7 en tienda oficial.',
+      date: '2026-07-25',
+      url: 'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid',
+    },
+    {
+      id: 'n2',
+      title: 'Noticias del nuevo estadio',
+      tag: 'Estadio',
+      image: '/clubs/atm/museo-trofeos.png',
+      description: 'Actualidad del proyecto del Riyadh Air Metropolitano.',
+      date: '2026-07-27',
+      url: ATM_STADIUM_NEWS_URL,
+    },
+    {
+      id: 'n3',
+      title: 'Patrocinadores oficiales',
+      tag: 'Club',
+      image: '/clubs/atm/logo.png',
+      description: `Principales: ${ATM_SPONSORS_MAIN.join(', ')}. Ver listado completo en el club.`,
+      date: '2026-07-27',
+      url: ATM_SPONSORS_URL,
+    },
+    {
+      id: 'n4',
+      title: 'Equipaciones hombre 26/27 en Atleti Store',
+      tag: 'Indumentaria',
+      image: '/clubs/atm/vestuario.png',
+      description: '1ª, 2ª match, 3ª hombre y entrenamiento — solo masculino.',
+      date: '2026-07-27',
+      url: ATM_STORE_HOME_URL,
+    },
+  ],
+  players: atmPlayers,
+  coachingStaff: atmCoachingStaff,
+  inventory: atmInventory,
+  requests: atmRequests,
+  trips: atmTrips,
+  laundry: atmLaundry,
+  alerts: atmAlerts,
+};
+
 export const CLUB_PACKS: Record<ClubSlug, ClubDemoPack> = {
   rmb: rmbPack,
   rmf: rmfPack,
+  atm: atmPack,
   fcb: fcbPack,
   vbc: vbcPack,
 };
 
-export const CLUB_LIST: ClubDemoPack[] = [rmbPack, rmfPack, fcbPack, vbcPack];
+export const CLUB_LIST: ClubDemoPack[] = [rmbPack, rmfPack, atmPack, fcbPack, vbcPack];
 
 export function getClubPack(slug: ClubSlug): ClubDemoPack {
   return CLUB_PACKS[slug];

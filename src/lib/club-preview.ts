@@ -1,11 +1,11 @@
 import type { ClubSlug } from '@/data/clubs/types';
 import { isDemoMode, isProductionApp } from '@/lib/app-mode';
 
-/** Clubs seleccionables por superadmin (RM reales + demos comerciales). */
-export const SUPERADMIN_PREVIEW_CLUBS = ['rmb', 'rmf', 'fcb', 'vbc'] as const;
+/** Clubs seleccionables por superadmin (live + demos comerciales). */
+export const SUPERADMIN_PREVIEW_CLUBS = ['rmb', 'rmf', 'atm', 'fcb', 'vbc'] as const;
 export type SuperadminPreviewClub = (typeof SUPERADMIN_PREVIEW_CLUBS)[number];
 
-/** Solo demos comerciales (no Real Madrid). */
+/** Solo demos comerciales (no tenants live). */
 export const COMMERCIAL_DEMO_CLUBS = ['fcb', 'vbc'] as const;
 
 const STORAGE_KEY = 'superadminPreviewClub';
@@ -13,11 +13,11 @@ const PRESENTATION_MODE_KEY = 'cmPresentationMode';
 
 let activePreviewSlug: ClubSlug = 'rmb';
 
-/** Modo presentación RM: oculta FCB/VBC en el selector. */
+/** Modo presentación: oculta FCB/VBC en el selector. */
 export function readPresentationMode(): boolean {
   if (typeof window === 'undefined') return true;
   const v = localStorage.getItem(PRESENTATION_MODE_KEY);
-  if (v === null) return true; // por defecto ON para demo ante el club
+  if (v === null) return true;
   return v === '1';
 }
 
@@ -26,13 +26,18 @@ export function setPresentationMode(on: boolean): void {
   localStorage.setItem(PRESENTATION_MODE_KEY, on ? '1' : '0');
 }
 
-/** FCB/VBC → InMemoryDB. RMB/RMF → Supabase en producción. */
+/** FCB/VBC → InMemoryDB. RMB/RMF/ATM → Supabase en producción. */
 export function isPreviewDemoClub(slug: ClubSlug): boolean {
   return slug === 'fcb' || slug === 'vbc';
 }
 
+/** Clubs live en producción (RM + Atlético). */
 export function isRealMadridClubSlug(slug: ClubSlug): boolean {
-  return slug === 'rmb' || slug === 'rmf';
+  return slug === 'rmb' || slug === 'rmf' || slug === 'atm';
+}
+
+export function isLiveProductionClubSlug(slug: ClubSlug): boolean {
+  return isRealMadridClubSlug(slug);
 }
 
 export function isSuperadminPreviewClub(slug: ClubSlug): slug is SuperadminPreviewClub {
@@ -49,7 +54,15 @@ export function setActiveClubPreviewSlug(slug: ClubSlug): void {
 export function readActiveClubPreviewSlug(): ClubSlug {
   if (typeof window === 'undefined') return 'rmb';
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'rmf' || stored === 'fcb' || stored === 'vbc' || stored === 'rmb') return stored;
+  if (
+    stored === 'rmf' ||
+    stored === 'fcb' ||
+    stored === 'vbc' ||
+    stored === 'rmb' ||
+    stored === 'atm'
+  ) {
+    return stored;
+  }
   return 'rmb';
 }
 
@@ -63,7 +76,7 @@ export function usesDemoClubData(): boolean {
   return isPreviewDemoClub(activePreviewSlug);
 }
 
-/** Datos reales Supabase (RMB / RMF en producción). */
+/** Datos reales Supabase (RMB / RMF / ATM en producción). */
 export function usesProductionClubData(): boolean {
   return isProductionApp() && !isPreviewDemoClub(activePreviewSlug);
 }

@@ -9,6 +9,7 @@ import {
   isBasketballFirstTeamFixture,
   isFootballFirstTeamFixture,
 } from './parser';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 
 const HEADERS = {
   'User-Agent':
@@ -126,5 +127,9 @@ export async function fetchOfficialFootballCalendar(): Promise<OfficialCalendarS
 export async function fetchOfficialCalendarForTeam(
   teamId: string
 ): Promise<OfficialCalendarSnapshot> {
+  if (teamId === CLUB_TEAM_IDS.atm) {
+    const { fetchAtleticoOfficialCalendar } = await import('./atleticoSource');
+    return fetchAtleticoOfficialCalendar();
+  }
   return fetchOfficialCalendar(calendarSportForTeamId(teamId));
 }

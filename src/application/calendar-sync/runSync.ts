@@ -9,6 +9,7 @@ import { fetchOfficialCalendarForTeam } from './source';
 import {
   calendarSportForTeamId,
   getOfficialCalendarMeta,
+  getOfficialCalendarMetaForTeam,
   type DbMatchRow,
   type OfficialCalendarSnapshot,
   type RunCalendarSyncOptions,
@@ -39,7 +40,7 @@ function emptyResult(
 }
 
 export async function getCalendarSyncStatus(supabase: SupabaseClient | null, teamId: string) {
-  const meta = getOfficialCalendarMeta(calendarSportForTeamId(teamId));
+  const meta = getOfficialCalendarMetaForTeam(teamId);
   if (!supabase || isDemoMode()) {
     const demo = getDemoMatchSyncStatus(teamId);
     return {

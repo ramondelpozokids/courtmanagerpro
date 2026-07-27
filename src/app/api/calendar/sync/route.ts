@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
       explicitTeam
         ? [resolveTeamId(explicitTeam)]
         : syncTrigger === 'cron'
-          ? [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf]
+          ? [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf, CLUB_TEAM_IDS.atm]
           : [DEFAULT_TEAM_ID];
 
     const results = [];

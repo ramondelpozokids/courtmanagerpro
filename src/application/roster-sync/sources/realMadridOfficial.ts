@@ -1,4 +1,5 @@
 import {
+  ATLETICO_FOOTBALL_PLANTILLA_URL,
   REAL_MADRID_FOOTBALL_PLANTILLA_URL,
   REAL_MADRID_PLANTILLA_URL,
   REAL_MADRID_SOURCE_ID,
@@ -18,6 +19,7 @@ import {
   parseSquadFromHtmlFallback,
 } from '../parser';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+import { createAtleticoRosterSource } from './atleticoOfficial';
 
 const HEADERS = {
   'User-Agent':
@@ -142,13 +144,15 @@ export class RealMadridOfficialSource implements RosterSource {
   }
 }
 
-/** RMB → baloncesto; RMF → fútbol primer equipo masculino. */
+/** RMB → baloncesto; RMF → fútbol RM; ATM → fútbol Atlético. */
 export function plantillaUrlForTeam(teamId: string): string {
+  if (teamId === CLUB_TEAM_IDS.atm) return ATLETICO_FOOTBALL_PLANTILLA_URL;
   if (teamId === CLUB_TEAM_IDS.rmf) return REAL_MADRID_FOOTBALL_PLANTILLA_URL;
   return REAL_MADRID_PLANTILLA_URL;
 }
 
 export function createRosterSourceForTeam(teamId: string): RosterSource {
+  if (teamId === CLUB_TEAM_IDS.atm) return createAtleticoRosterSource();
   return new RealMadridOfficialSource(plantillaUrlForTeam(teamId));
 }
 

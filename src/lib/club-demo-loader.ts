@@ -81,7 +81,7 @@ export function persistDemoClubSlug(slug: ClubSlug): void {
 export function readStoredDemoClubSlug(): ClubSlug {
   if (typeof window === 'undefined') return 'rmb';
   const stored = localStorage.getItem(DEMO_CLUB_STORAGE_KEY);
-  if (stored === 'rmf' || stored === 'fcb' || stored === 'vbc' || stored === 'rmb') return stored;
+  if (stored === 'rmf' || stored === 'fcb' || stored === 'vbc' || stored === 'rmb' || stored === 'atm') return stored;
   return 'rmb';
 }
 

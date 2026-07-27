@@ -1,11 +1,27 @@
-CourtManager Pro organizes club kits and equipment.
+CourtManager Pro.
+The intelligent platform for end-to-end sports kit and equipment operations.
 
-Today, many dressing rooms still run on spreadsheets and WhatsApp. Gear gets lost on trips, teams overbuy, and on match day the right sizes are missing.
+In the daily work of a professional club, outdated inventory, missing gear, wrong sizes and unnecessary purchases still rely on manual processes that are hard to control.
 
-CourtManager Pro brings it into one place: roster and sizing, inventory, general warehouse with prices and stock, requests, travel bags, laundry, medical kit, and a pre-match checklist.
+Here is the product.
+Dashboard, inventory, players, kits and materials — visible in one platform.
+Not slides: the software in use.
 
-In the general warehouse you see how much you have, where it is, and what it is worth in euros. You buy with facts, not guesswork.
+The workflow is simple: intake, registration, assignment, preparation and history.
 
-The professional plan starts at three hundred forty-nine euros a month. You can try it for a few weeks. If it does not fit, you leave — no long lock-in.
+More views of the software.
+Players, assignments, stock and secure access to the platform.
 
-I am Ramón del Pozo Rott. Contact: info at ramondelpozorott dot es. Thank you.
+What changes in daily work: stronger inventory control, fewer errors, clearer traceability, centralized processes and more efficient preparation.
+
+CourtManager Pro is a functional MVP, ready to evolve with the needs of a professional club.
+
+Would you like to see a demonstration?
+I would be glad to give a tailored demo and understand your needs to assess possible adaptations.
+I am Ramón del Pozo Rott.
+Contact: info at ramondelpozorott dot es.
+Web: courtmanagerpro dot vercel dot app.
+
+CourtManager Pro.
+Designed so kit operations work with the same precision as the team on the pitch.
+Request a personalised demonstration.

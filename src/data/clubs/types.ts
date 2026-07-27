@@ -1,4 +1,4 @@
-export type ClubSlug = 'rmb' | 'rmf' | 'fcb' | 'vbc';
+export type ClubSlug = 'rmb' | 'rmf' | 'fcb' | 'vbc' | 'atm';
 
 export type ClubSport = 'basketball' | 'football';
 

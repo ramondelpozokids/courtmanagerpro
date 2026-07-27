@@ -19,7 +19,7 @@ function storageKey(slug: ClubSlug): string {
 export function readActiveDemoSlug(): ClubSlug | null {
   if (typeof window === 'undefined') return null;
   const stored = localStorage.getItem(DEMO_CLUB_STORAGE_KEY);
-  if (stored === 'rmb' || stored === 'rmf' || stored === 'fcb' || stored === 'vbc') return stored;
+  if (stored === 'rmb' || stored === 'rmf' || stored === 'atm' || stored === 'fcb' || stored === 'vbc') return stored;
   return null;
 }
 

@@ -22,8 +22,16 @@ const SECTIONS = [
     teamId: CLUB_TEAM_IDS.rmf,
     sport: 'football' as const,
     category: 'primer_equipo' as const,
-    label: 'Fútbol — Primer Equipo',
+    label: 'Fútbol — Primer Equipo (RMF)',
     shortLabel: 'RMF',
+  },
+  {
+    id: 'atm-primer',
+    teamId: CLUB_TEAM_IDS.atm,
+    sport: 'football' as const,
+    category: 'primer_equipo' as const,
+    label: 'Fútbol — Primer Equipo (ATM)',
+    shortLabel: 'ATM',
   },
   {
     id: 'rmb-inferiores',
@@ -76,7 +84,8 @@ function mapRow(row: Record<string, unknown>, section: (typeof SECTIONS)[number]
 }
 
 function demoItemsForTeam(teamId: string, section: (typeof SECTIONS)[number]) {
-  const slug = teamId === CLUB_TEAM_IDS.rmf ? 'rmf' : 'rmb';
+  const slug =
+    teamId === CLUB_TEAM_IDS.atm ? 'atm' : teamId === CLUB_TEAM_IDS.rmf ? 'rmf' : 'rmb';
   const pack = getClubPack(slug);
   return (pack.inventory || []).map((item: any, i: number) =>
     mapRow(

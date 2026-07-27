@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CourtManager Pro — Propuesta de colaboración para Atleti Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #111111;
+      --muted: #6b6b6b;
+      --line: #e8e8e8;
+      --paper: #ffffff;
+      --soft: #fafafa;
+      --accent: #c8102e;
+      --accent-soft: #f9ecee;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { size: A4; margin: 0; }
+    html, body {
+      background: #e8e8e8;
+      color: var(--ink);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.55;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    h1, h2, h3 { font-family: "IBM Plex Serif", Georgia, serif; font-weight: 600; letter-spacing: -0.02em; }
+    .sheet {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 16px auto;
+      background: var(--paper);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.07);
+      page-break-after: always;
+      break-after: page;
+      position: relative;
+      overflow: hidden;
+    }
+    .sheet:last-child { page-break-after: auto; }
+    .pad { padding: 20mm 20mm 24mm; }
+    .pad-tight { padding: 18mm 20mm 24mm; }
+    .kicker {
+      font-size: 8pt; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    .muted { color: var(--muted); }
+    .page-foot {
+      position: absolute; left: 20mm; right: 20mm; bottom: 10mm;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      font-size: 7.5pt; color: #a3a3a3; border-top: 1px solid var(--line); padding-top: 6px;
+    }
+    .page-foot strong { color: var(--muted); font-weight: 600; }
+    .page-num { font-weight: 600; }
+    p { margin: 0 0 10px; }
+    ul { margin: 0 0 10px 1.1rem; }
+    li { margin-bottom: 6px; }
+    .rule { height: 1px; background: var(--line); margin: 14px 0; border: 0; }
+
+    /* Cover */
+    .cover {
+      min-height: 297mm;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+    .cover-main {
+      flex: 1;
+      padding: 24mm 20mm 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .cover-logos {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .cover-logo {
+      height: 48px; width: auto; max-width: 120px; object-fit: contain;
+    }
+    .cover-logo.cmp { height: 44px; }
+    .cover-logo.atleti { height: 56px; max-width: 140px; }
+    .cover-logo-sep {
+      width: 1px; height: 36px; background: var(--line); flex-shrink: 0;
+    }
+    .cover h1 {
+      font-size: 32pt; line-height: 1.05; margin-bottom: 12px; max-width: 12ch;
+    }
+    .cover-sub {
+      font-size: 13pt; color: var(--muted); max-width: 28rem; line-height: 1.45; margin-bottom: 22px;
+    }
+    .cover-for {
+      font-size: 10pt; color: var(--muted); margin-bottom: 6px;
+    }
+    .cover-for strong { color: var(--ink); font-weight: 600; display: block; font-size: 11pt; margin-top: 2px; }
+    .cover-meta {
+      margin-top: auto;
+      padding-bottom: 16px;
+      font-size: 10pt;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .cover-meta strong { color: var(--ink); }
+    .cover-photo {
+      height: 105mm;
+      margin: 0 16mm 0;
+      overflow: hidden;
+      background: #0a1628;
+      border-radius: 2px;
+    }
+    .cover-photo img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center 40%;
+    }
+    .cover-foot {
+      padding: 10mm 20mm 12mm;
+      font-size: 8pt;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      line-height: 1.6;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 12px 12px 10px;
+      border-radius: 2px;
+    }
+    .card h3 {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 10pt; font-weight: 650; margin-bottom: 4px;
+    }
+    .card p { font-size: 9pt; color: var(--muted); margin: 0; line-height: 1.4; }
+
+    .flow { margin: 16px 0 4px; max-width: 260px; }
+    .flow-step {
+      border: 1px solid var(--line); background: var(--soft);
+      padding: 9px 12px; font-weight: 600; font-size: 10pt;
+    }
+    .flow-arrow { text-align: center; color: var(--muted); font-size: 11pt; padding: 1px 0; }
+
+    .shot {
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: #f5f5f5;
+      margin-bottom: 10px;
+    }
+    .shot img { width: 100%; display: block; }
+    .shot-label {
+      font-size: 7.5pt; color: var(--muted); padding: 5px 8px;
+      border-top: 1px solid var(--line); background: #fff;
+    }
+
+    .benefit {
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .benefit:last-child { border-bottom: 0; }
+    .benefit h3 {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 10.5pt; font-weight: 650; margin-bottom: 2px;
+    }
+    .benefit p { margin: 0; color: var(--muted); font-size: 9.5pt; }
+
+    .note {
+      margin-top: 14px; padding: 11px 13px;
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      font-size: 9pt; color: #444; line-height: 1.5;
+    }
+    .future-list li { color: var(--muted); font-size: 10pt; }
+    .future-list strong { color: var(--ink); }
+
+    .qa h3 {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 10pt; font-weight: 650; margin: 12px 0 4px;
+    }
+    .qa h3:first-of-type { margin-top: 0; }
+    .qa p { font-size: 10pt; color: var(--ink); max-width: 38rem; }
+
+    .atleti-box {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .atleti-box h2 { font-size: 14pt; margin-bottom: 8px; }
+    .atleti-box p { font-size: 9.5pt; color: var(--muted); max-width: 40rem; margin: 0; }
+
+    .close h1 { font-size: 24pt; margin-bottom: 12px; max-width: 14ch; line-height: 1.1; }
+    .close .lead { font-size: 11.5pt; color: var(--muted); max-width: 34rem; line-height: 1.5; }
+    .contact { margin-top: 28px; font-size: 10.5pt; line-height: 1.75; }
+    .contact strong { display: block; font-size: 11.5pt; margin-bottom: 4px; }
+    .legal {
+      margin-top: 28px; padding: 12px 14px;
+      background: var(--soft); border: 1px solid var(--line);
+      font-size: 8pt; color: var(--muted); line-height: 1.55;
+    }
+    .legal strong { color: var(--ink); display: block; margin-bottom: 4px; font-size: 8.5pt; }
+
+    @media print {
+      html, body { background: #fff; }
+      .sheet { margin: 0; box-shadow: none; }
+      .no-print { display: none !important; }
+    }
+    .actions {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;
+      padding: 10px 14px; background: #111; color: #fff;
+    }
+    .actions button, .actions a {
+      appearance: none; border: 0; cursor: pointer; text-decoration: none;
+      font: inherit; font-size: 12px; font-weight: 650;
+      padding: 8px 12px; border-radius: 6px; background: #fff; color: #111;
+    }
+  </style>
+</head>
+<body>
+  <div class="actions no-print">
+    <button type="button" onclick="window.print()">Guardar / imprimir PDF</button>
+    <a href="mailto:info@ramondelpozorott.es?subject=CourtManager%20Pro%20-%20Atleti%20Lab">Contacto</a>
+  </div>
+
+  <!-- 1 PORTADA -->
+  <section class="sheet cover">
+    <div class="cover-main">
+      <div class="cover-logos">
+        <img class="cover-logo cmp" src="assets/logo.png" alt="CourtManager Pro" />
+        <span class="cover-logo-sep" aria-hidden="true"></span>
+        <img class="cover-logo atleti" src="assets/atleti-crest-official.png" alt="Atlético de Madrid" />
+      </div>
+      <h1>CourtManager Pro</h1>
+      <p class="cover-sub">Plataforma inteligente para la gestión integral de la utilería deportiva.</p>
+      <p class="cover-for">
+        Propuesta de colaboración para
+        <strong>Atleti Lab — Atlético de Madrid</strong>
+      </p>
+      <div class="cover-meta">
+        Preparado por<br />
+        <strong>Ramón del Pozo Rott</strong><br />
+        Versión 1.0<br />
+        27 de julio de 2026
+      </div>
+    </div>
+    <div class="cover-photo" aria-hidden="true">
+      <img src="assets/shot-hero-atleti.png" alt="CourtManager Pro · Atlético de Madrid" />
+    </div>
+    <div class="cover-foot">
+      info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0
+    </div>
+    <div class="page-foot">
+      <span>Confidencial · Atleti Lab</span>
+      <span class="page-num">01</span>
+    </div>
+  </section>
+
+  <!-- 2 RESUMEN + ATLETI LAB -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">02 · Resumen ejecutivo</p>
+      <div class="qa">
+        <h3>¿Qué es CourtManager Pro?</h3>
+        <p>
+          Una aplicación web para centralizar la gestión de utilería en un club profesional:
+          plantilla, tallas, inventario, almacén, solicitudes, viajes, lavandería, material médico
+          y preparación pre-partido.
+        </p>
+        <h3>¿Qué problema resuelve?</h3>
+        <p>
+          Sustituye hojas de cálculo, mensajes sueltos y memoria informal por un sistema único
+          donde se sabe qué material hay, dónde está, a quién se asigna y qué falta preparar.
+        </p>
+        <h3>¿Por qué puede ser interesante para un club profesional?</h3>
+        <p>
+          Porque la utilería mueve cientos o miles de elementos con exigencia de trazabilidad
+          y rapidez. CourtManager Pro ofrece un MVP funcional que ya demuestra el concepto
+          y puede evolucionar con los procesos reales del club.
+        </p>
+      </div>
+      <div class="atleti-box">
+        <h2>¿Por qué Atleti Lab?</h2>
+        <p>
+          CourtManager Pro nace con la idea de aplicar la tecnología para optimizar la gestión
+          de la utilería deportiva. Considero que Atleti Lab representa un entorno idóneo para
+          contrastar este tipo de soluciones, recibir feedback de profesionales y explorar posibles
+          líneas de evolución en un contexto de innovación deportiva.
+        </p>
+      </div>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">02</span>
+    </div>
+  </section>
+
+  <!-- 3 EL RETO -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">03 · El reto</p>
+      <h2 style="font-size:19pt;margin-bottom:12px">La realidad diaria de una utilería</h2>
+      <p class="muted" style="margin-bottom:14px;max-width:40rem">
+        La gestión del material deportivo implica coordinar cientos o miles de elementos,
+        múltiples equipos y procesos diarios donde la trazabilidad y la rapidez son fundamentales.
+      </p>
+      <ul>
+        <li>Control del inventario y del stock disponible.</li>
+        <li>Gestión de equipaciones y material diverso.</li>
+        <li>Asignación de material a jugadores y staff.</li>
+        <li>Preparación de entrenamientos y partidos.</li>
+        <li>Seguimiento del material en vestuario, almacén y viajes.</li>
+        <li>Historial de movimientos y devoluciones.</li>
+      </ul>
+      <p class="muted" style="font-size:9.5pt;margin-top:12px;max-width:38rem">
+        Cuando estos procesos no están digitalizados de extremo a extremo, aumentan los errores,
+        el tiempo administrativo y la dificultad para responder con datos.
+      </p>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">03</span>
+    </div>
+  </section>
+
+  <!-- 4 LA SOLUCIÓN -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">04 · La solución</p>
+      <h2 style="font-size:19pt;margin-bottom:10px">CourtManager Pro</h2>
+      <p class="muted" style="margin-bottom:6px;max-width:36rem">
+        Un mismo sistema cubre el recorrido del material, desde que entra hasta que se analiza.
+      </p>
+      <div class="flow">
+        <div class="flow-step">Recepción del material</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Registro</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Inventario</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Asignación</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Seguimiento</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Histórico</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Análisis</div>
+      </div>
+      <p style="margin-top:18px;max-width:38rem;font-size:10pt">
+        En la plataforma esto se traduce en módulos operativos ya disponibles: inventario,
+        almacén, solicitudes, movimientos, viajes, lavandería, alertas e informes.
+      </p>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">04</span>
+    </div>
+  </section>
+
+  <!-- 5 FUNCIONALIDADES -->
+  <section class="sheet">
+    <div class="pad-tight">
+      <p class="kicker">05 · Funcionalidades</p>
+      <h2 style="font-size:19pt;margin-bottom:8px">Capacidades actuales</h2>
+      <p class="muted" style="font-size:9pt;margin-bottom:12px">Solo módulos existentes en la aplicación.</p>
+      <div class="grid-3">
+        <div class="card"><h3>Inventario</h3><p>Stock por categoría, tallas y ubicación.</p></div>
+        <div class="card"><h3>Equipaciones</h3><p>Gestión de prendas y conjuntos de juego y entrenamiento.</p></div>
+        <div class="card"><h3>Jugadores</h3><p>Fichas de plantilla y staff vinculadas al material.</p></div>
+        <div class="card"><h3>Material</h3><p>Balones, calzado, accesorios y material diverso.</p></div>
+        <div class="card"><h3>Histórico</h3><p>Movimientos registrados con motivo y fecha.</p></div>
+        <div class="card"><h3>Alertas</h3><p>Avisos de stock, caducidad, solicitudes y viajes.</p></div>
+        <div class="card"><h3>Informes</h3><p>Resúmenes operativos y exportación de datos.</p></div>
+        <div class="card"><h3>Escáner QR</h3><p>Identificación de artículos desde el móvil.</p></div>
+        <div class="card"><h3>Asistencia documental</h3><p>Actualización de inventario a partir de documentos (extracción asistida).</p></div>
+      </div>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">05</span>
+    </div>
+  </section>
+
+  <!-- 6 FLUJO -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">06 · Flujo de trabajo</p>
+      <h2 style="font-size:19pt;margin-bottom:10px">Un caso real</h2>
+      <p class="muted" style="margin-bottom:12px">Ejemplo de ciclo de una equipación en un club profesional.</p>
+      <div class="flow" style="max-width:300px">
+        <div class="flow-step">Llega una nueva equipación</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Se registra</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Se asigna a un jugador</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Se utiliza en entrenamiento</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Se prepara para partido</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Se devuelve</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Queda todo registrado</div>
+      </div>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">06</span>
+    </div>
+  </section>
+
+  <!-- 7 CAPTURAS — cada imagen una sola vez -->
+  <section class="sheet">
+    <div class="pad-tight">
+      <p class="kicker">07 · Producto</p>
+      <h2 style="font-size:16pt;margin-bottom:8px">Vistas de la plataforma</h2>
+      <p class="muted" style="font-size:8.5pt;margin-bottom:10px">
+        Dashboard, inventario, jugadores e historial — módulos reales de CourtManager Pro.
+      </p>
+      <div class="grid-2" style="gap:8px">
+        <div class="shot" style="margin-bottom:0">
+          <img src="assets/shot-dashboard.png" alt="Dashboard CourtManager Pro" style="width:100%;height:78mm;object-fit:cover;object-position:top left" />
+          <div class="shot-label">Dashboard · sidebar y centro de mando</div>
+        </div>
+        <div class="shot" style="margin-bottom:0">
+          <img src="assets/shot-inventory.png" alt="Inventario CourtManager Pro" style="width:100%;height:78mm;object-fit:cover;object-position:top left" />
+          <div class="shot-label">Inventario · equipaciones y material</div>
+        </div>
+        <div class="shot" style="margin-bottom:0">
+          <img src="assets/shot-players.png" alt="Jugadores CourtManager Pro" style="width:100%;height:78mm;object-fit:cover;object-position:top left" />
+          <div class="shot-label">Jugadores · fichas y asignaciones</div>
+        </div>
+        <div class="shot" style="margin-bottom:0">
+          <img src="assets/shot-movimientos.png" alt="Movimientos CourtManager Pro" style="width:100%;height:78mm;object-fit:cover;object-position:top left" />
+          <div class="shot-label">Movimientos · historial y trazabilidad</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">07</span>
+    </div>
+  </section>
+
+  <!-- 8 BENEFICIOS -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">08 · Beneficios</p>
+      <h2 style="font-size:19pt;margin-bottom:14px">Resultado en el trabajo diario</h2>
+      <div class="benefit">
+        <h3>Mayor trazabilidad del material</h3>
+        <p>Saber qué hay, dónde está y qué movimientos se han producido.</p>
+      </div>
+      <div class="benefit">
+        <h3>Información centralizada</h3>
+        <p>Un solo lugar para plantilla, inventario, viajes y preparación.</p>
+      </div>
+      <div class="benefit">
+        <h3>Menor carga administrativa</h3>
+        <p>Menos tiempo reconstruyendo listas y respondiendo mensajes sueltos.</p>
+      </div>
+      <div class="benefit">
+        <h3>Historial de asignaciones</h3>
+        <p>Registro de quién recibió o devolvió cada artículo.</p>
+      </div>
+      <div class="benefit">
+        <h3>Mejor control del inventario</h3>
+        <p>Stock, ubicaciones y alertas como base para decidir con datos.</p>
+      </div>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">08</span>
+    </div>
+  </section>
+
+  <!-- 9 ESTADO -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">09 · Estado del proyecto</p>
+      <h2 style="font-size:19pt;margin-bottom:14px">MVP funcional</h2>
+      <p>
+        CourtManager Pro dispone actualmente de un <strong>MVP funcional</strong> que demuestra
+        el concepto y las principales capacidades de la plataforma.
+      </p>
+      <p>
+        El proyecto está concebido para evolucionar y adaptarse a las necesidades específicas
+        de un club profesional: procesos, nomenclatura, roles e integraciones.
+      </p>
+      <div class="note">
+        Este documento describe solo lo que existe hoy. Las posibilidades de evolución
+        se indican en la página siguiente sin presentarlas como funcionalidades actuales.
+      </div>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">09</span>
+    </div>
+  </section>
+
+  <!-- 10 EVOLUCIÓN -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">10 · Posibilidades de evolución</p>
+      <h2 style="font-size:19pt;margin-bottom:10px">Líneas futuras</h2>
+      <p class="muted" style="margin-bottom:14px;font-size:9.5pt">
+        No forman parte del alcance actual. Son direcciones que el proyecto <em>podría incorporar</em>
+        según las necesidades del club.
+      </p>
+      <ul class="future-list">
+        <li><strong>Podría incorporar</strong> integración con RFID para identificación automática de material.</li>
+        <li><strong>Podría incorporar</strong> lectores QR dedicados (hoy existe escáner móvil).</li>
+        <li><strong>Podría incorporar</strong> aplicación móvil nativa en tiendas (hoy: web instalable como PWA).</li>
+        <li><strong>Podría incorporar</strong> informes avanzados y cuadros de mando a medida.</li>
+        <li><strong>Podría incorporar</strong> automatización mediante IA en tareas operativas concretas.</li>
+        <li><strong>Podría incorporar</strong> integración con otros sistemas internos del club.</li>
+      </ul>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">10</span>
+    </div>
+  </section>
+
+  <!-- 11 SOBRE -->
+  <section class="sheet">
+    <div class="pad">
+      <p class="kicker">11 · Sobre el proyecto</p>
+      <h2 style="font-size:19pt;margin-bottom:14px">Ramón del Pozo Rott</h2>
+      <p>
+        Soy el fundador y creador de CourtManager Pro. Desarrollé esta plataforma a partir
+        de la observación directa de cómo se gestiona la utilería en el entorno de un club
+        de élite: mucho material, poca visibilidad y procesos que dependen de la experiencia
+        individual del utillero.
+      </p>
+      <p>
+        Mi objetivo no es vender un software genérico, sino construir una herramienta operativa
+        que acompañe al día a día de la utilería y que pueda mejorarse con el feedback
+        de profesionales del sector.
+      </p>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">11</span>
+    </div>
+  </section>
+
+  <!-- 12 CIERRE -->
+  <section class="sheet">
+    <div class="pad close">
+      <p class="kicker" style="color:var(--accent)">12 · Cierre</p>
+      <h1>Gracias por vuestro tiempo.</h1>
+      <p class="lead">
+        Estaré encantado de realizar una demostración personalizada de CourtManager Pro
+        y conocer vuestras necesidades para valorar posibles adaptaciones.
+      </p>
+      <div class="contact">
+        <strong>Ramón del Pozo Rott</strong>
+        info@ramondelpozorott.es<br />
+        courtmanagerpro.vercel.app
+      </div>
+      <div class="legal">
+        <strong>Confidencial</strong>
+        Este documento ha sido preparado exclusivamente para Atleti Lab con el objetivo de
+        presentar CourtManager Pro y facilitar su evaluación inicial. La información contenida
+        en él no constituye una oferta comercial vinculante y está destinada únicamente a
+        fines de revisión interna.
+      </div>
+    </div>
+    <div class="page-foot">
+      <span>info@ramondelpozorott.es · courtmanagerpro.vercel.app · v1.0</span>
+      <span class="page-num">12</span>
+    </div>
+  </section>
+</body>
+</html>

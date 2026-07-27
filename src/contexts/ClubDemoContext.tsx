@@ -42,7 +42,7 @@ const ClubDemoContext = createContext<ClubDemoContextValue | null>(null);
 
 const PRODUCTION_CLUB_SLUG: ClubSlug = 'rmb';
 const ALL_CLUB_SLUGS = Object.keys(CLUB_PACKS) as ClubSlug[];
-const RM_CLUBS: ClubSlug[] = ['rmb', 'rmf'];
+const RM_CLUBS: ClubSlug[] = ['rmb', 'rmf', 'atm'];
 
 export function ClubDemoProvider({ children }: { children: ReactNode }) {
   const { setCurrentTeam, loading: authLoading, isSuperadmin } = useAuth();

@@ -3,164 +3,768 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CourtManager Pro — Vídeo demo promocional</title>
+  <title>CourtManager Pro — Presentación ejecutiva</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #f3efe8;
-      --muted: #b8c0ce;
-      --gold: #c9b27a;
-      --panel: rgba(8, 12, 22, 0.72);
+      --bg: #f6f5f2;
+      --ink: #0f1419;
+      --muted: #5c6570;
+      --line: #e4e2dc;
+      --accent: #c45c26;
+      --panel: #ffffff;
+      --soft: #eceae4;
+      --ok: #1a7f4b;
+      --bad: #b42318;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; }
     body {
-      font-family: "DM Sans", system-ui, sans-serif;
-      background: #060a14;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      background: #0b0d10;
       color: var(--ink);
     }
-    h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 650; letter-spacing: -0.02em; }
     .stage {
       position: relative;
-      width: 100vw; height: 100vh;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
+      background: var(--bg);
     }
     .slide {
-      position: absolute; inset: 0;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.55s ease;
-      display: flex; align-items: flex-end;
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.015);
+      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+      display: grid;
+      place-items: center;
+      padding: 4vh 5vw 10vh;
     }
-    .slide.active { opacity: 1; pointer-events: auto; z-index: 1; }
-    .slide-bg {
-      position: absolute; inset: 0; z-index: -2;
-      background: #0c1222 center/cover no-repeat;
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 1;
+      transform: scale(1);
     }
-    .slide-bg::after {
-      content: "";
-      position: absolute; inset: 0; z-index: 0;
-      background:
-        linear-gradient(180deg, rgba(6,10,20,0.25) 0%, rgba(6,10,20,0.45) 40%, rgba(6,10,20,0.92) 100%);
+
+    /* —— Escenas tipográficas —— */
+    .scene-center {
+      text-align: center;
+      max-width: 920px;
+      width: 100%;
     }
-    .slide-inner {
-      position: relative; z-index: 1;
-      width: min(920px, 92vw);
-      margin: 0 auto 11vh;
-      padding: 28px 28px 24px;
+    .brand-mark {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      margin: 0 auto 28px;
+      display: block;
+      opacity: 0.95;
+    }
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-family: "Newsreader", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(2.4rem, 5.2vw, 4rem);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 18px;
+    }
+    h2 {
+      font-family: "Newsreader", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .lead {
+      font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 34em;
+      margin: 0 auto;
+    }
+    .fine {
+      margin-top: 28px;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .fine strong { color: var(--ink); font-weight: 600; }
+
+    /* —— Problema —— */
+    .problems {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 18px;
+      width: min(1100px, 94vw);
+      margin-top: 36px;
+    }
+    .problem {
       background: var(--panel);
-      border: 1px solid rgba(201,178,122,0.28);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px 16px 24px;
+      text-align: center;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .problem .x {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f8e8e6;
+      color: var(--bad);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .problem span {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--ink);
+    }
+
+    /* —— Producto: browser chrome —— */
+    .product-wrap {
+      width: min(1180px, 96vw);
+      height: min(78vh, 720px);
+      display: grid;
+      place-items: center;
+    }
+    .browser {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow:
+        0 1px 2px rgba(15, 20, 25, 0.04),
+        0 24px 64px rgba(15, 20, 25, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform-origin: 50% 40%;
+      animation: ken 18s ease-in-out infinite alternate;
+    }
+    .browser.no-ken { animation: none; }
+    @keyframes ken {
+      from { transform: scale(1) translateY(0); }
+      to { transform: scale(1.045) translateY(-1.2%); }
+    }
+    .chrome {
+      height: 38px;
+      background: #f3f2ee;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      flex-shrink: 0;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #d5d2cb; }
+    .url {
+      margin-left: 10px;
+      flex: 1;
+      height: 22px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      letter-spacing: 0.01em;
+    }
+    .app {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      min-height: 0;
+      background: #f8f7f4;
+    }
+    .side {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 18px 12px;
+      font-size: 12px;
+    }
+    .side .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+      padding: 0 6px;
+    }
+    .side .logo-row img { width: 22px; height: 22px; object-fit: contain; }
+    .side .logo-row strong { font-size: 12px; font-weight: 600; color: #fff; }
+    .nav-item {
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 2px;
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    .nav-item.on { background: rgba(196, 92, 38, 0.22); color: #fff; }
+    .main { padding: 18px 20px; overflow: hidden; }
+    .main h3 {
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .kpi small { display: block; color: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .kpi b { font-size: 22px; letter-spacing: -0.03em; }
+    .kpi em { display: block; margin-top: 4px; font-style: normal; font-size: 11px; color: var(--muted); }
+    .panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 180px;
+    }
+    .panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--soft);
+      font-size: 12px;
+    }
+    .row:last-child { border-bottom: 0; }
+    .tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eef7f1;
+      color: var(--ok);
+    }
+    .tag.warn { background: #fff4e8; color: #9a5b12; }
+    .players {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .player {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      background: linear-gradient(145deg, #1f2937, #c45c26);
+    }
+    .player b { display: block; font-size: 12px; }
+    .player span { font-size: 11px; color: var(--muted); }
+    .table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .table th {
+      text-align: left;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--line);
+    }
+    .table td {
+      padding: 10px 6px;
+      border-bottom: 1px solid var(--soft);
+    }
+    .shot-full {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #f3f2ee;
+    }
+    .product-label {
+      position: absolute;
+      left: 5vw;
+      bottom: 11vh;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      z-index: 2;
+    }
+    .dual {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      width: min(1180px, 96vw);
+      height: min(72vh, 680px);
+      align-items: stretch;
+    }
+    .dual .browser { height: 100%; animation-duration: 22s; }
+    .phone-frame {
+      background: #0b0d10;
+      border-radius: 28px;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #222;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .phone-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       border-radius: 18px;
-      backdrop-filter: blur(10px);
     }
-    .kicker {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
-      color: var(--gold); margin-bottom: 10px;
+
+    /* —— Flujo —— */
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+      width: min(980px, 94vw);
     }
-    .slide h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.1; margin-bottom: 10px; }
-    .slide h2 { font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.15; margin-bottom: 10px; }
-    .slide p, .slide li { color: var(--muted); font-size: clamp(0.95rem, 1.6vw, 1.1rem); line-height: 1.55; }
-    .slide ul { margin: 10px 0 0 1.15rem; }
-    .slide li { margin-bottom: 6px; }
-    .pills { margin-top: 14px; }
-    .pill {
-      display: inline-block; margin: 0 6px 6px 0; padding: 5px 11px; border-radius: 999px;
-      font-size: 12px; font-weight: 700; color: #0c1222; background: var(--gold);
+    .flow-step {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-weight: 600;
+      font-size: 15px;
+      min-width: 128px;
+      text-align: center;
     }
+    .flow-arrow {
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    /* —— Beneficios —— */
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      width: min(1100px, 94vw);
+      margin-top: 34px;
+    }
+    .benefit {
+      background: transparent;
+      border-top: 1px solid var(--ink);
+      padding: 18px 8px 0;
+      text-align: left;
+    }
+    .benefit b {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+
+    .bg-soft {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(900px 420px at 15% 0%, rgba(196,92,38,0.08), transparent 60%),
+        radial-gradient(700px 360px at 90% 100%, rgba(15,20,25,0.06), transparent 55%),
+        var(--bg);
+    }
+    .bg-photo {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.12;
+      filter: grayscale(0.35);
+    }
+    .bg-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(246,245,242,0.55), rgba(246,245,242,0.92));
+    }
+
+    /* —— Controles —— */
+    .hint {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 30;
+      font-size: 12px;
+      color: #a1a1aa;
+      background: rgba(11,13,16,0.78);
+      border: 1px solid #27272a;
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .hint a { color: #f4f4f5; text-decoration: none; font-weight: 600; }
     .controls {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-      display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
-      padding: 14px 16px 18px;
-      background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85));
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 12px 14px 16px;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,0.82));
     }
     .controls button, .controls select {
-      appearance: none; border: 0; font: inherit; cursor: pointer;
-      border-radius: 999px; padding: 11px 16px; font-weight: 700; font-size: 13px;
+      appearance: none;
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 13px;
     }
-    #playBtn { background: var(--gold); color: #0c1222; min-width: 150px; }
-    #pauseBtn, #stopBtn, #prevBtn, #nextBtn { background: #1c2740; color: #fff; }
-    select { background: #1c2740; color: #fff; border: 1px solid #334155 !important; }
+    #playBtn { background: #fff; color: #0b0d10; min-width: 140px; }
+    #pauseBtn, #stopBtn, #prevBtn, #nextBtn { background: #27272a; color: #fff; }
+    select { background: #27272a; color: #fff; border: 1px solid #3f3f46 !important; }
     .progress {
-      width: min(420px, 70vw); height: 4px; background: #1e293b; border-radius: 999px; overflow: hidden;
+      width: min(360px, 55vw);
+      height: 3px;
+      background: #3f3f46;
+      border-radius: 999px;
+      overflow: hidden;
     }
-    #bar { height: 100%; width: 0%; background: var(--gold); transition: width 0.2s linear; }
-    .status { font-size: 12px; color: var(--muted); min-width: 90px; }
-    .hint {
-      position: fixed; top: 14px; right: 14px; z-index: 20;
-      font-size: 12px; color: var(--muted);
-      background: rgba(8,12,22,0.75); border: 1px solid #334155;
-      padding: 8px 12px; border-radius: 999px;
+    #bar { height: 100%; width: 0%; background: #fff; transition: width 0.15s linear; }
+    .status { font-size: 12px; color: #a1a1aa; min-width: 100px; }
+
+    @media (max-width: 980px) {
+      .problems, .benefits { grid-template-columns: repeat(2, 1fr); }
+      .dual { grid-template-columns: 1fr; height: auto; }
+      .app { grid-template-columns: 1fr; }
+      .side { display: none; }
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+      .players { grid-template-columns: repeat(2, 1fr); }
     }
-    .hint a { color: var(--gold); text-decoration: none; font-weight: 700; }
   </style>
 </head>
 <body>
-  <div class="hint"><a href="DOSSIER.html">Dossier</a> · F11 pantalla completa · voz MP3 (es.mp3 / en.mp3)</div>
+  <div class="hint"><a href="DOSSIER.html">Dossier</a> · F11 · ~110 s · sin mensaje comercial</div>
 
   <div class="stage" id="stage">
+
+    <!-- 1 INTRO -->
     <section class="slide active" data-i="0">
-      <div class="slide-bg" style="background-image:url('assets/dossier-hero.png')"></div>
-      <div class="slide-inner">
-        <p class="kicker">Demo promocional · ~90 s</p>
+      <div class="bg-soft"></div>
+      <div class="scene-center">
+        <img class="brand-mark" src="assets/video/logo.png" alt="CourtManager Pro" />
         <h1>CourtManager Pro</h1>
-        <p class="copy">Organiza la ropa y el material del club — vestuario, almacén y viajes.</p>
+        <p class="lead">La plataforma inteligente para la gestión integral de la utilería deportiva.</p>
       </div>
     </section>
 
+    <!-- 2 PROBLEMA -->
     <section class="slide" data-i="1">
-      <div class="slide-bg" style="background-image:url('assets/dossier-hero.png'); background-position: 18% center;"></div>
-      <div class="slide-inner">
-        <p class="kicker">El problema</p>
-        <h2>Excel + WhatsApp = pérdidas</h2>
-        <ul>
-          <li>Material que se pierde en los viajes</li>
-          <li>Compras de más “por si acaso”</li>
-          <li>Tallas que faltan el día del partido</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="slide" data-i="2">
-      <div class="slide-bg" style="background:linear-gradient(145deg,#0c1222,#14324a 55%,#0e4d6e)"></div>
-      <div class="slide-inner">
-        <p class="kicker">La solución</p>
-        <h2>Todo en un solo sitio</h2>
-        <div class="pills">
-          <span class="pill">Tallas</span>
-          <span class="pill">Inventario</span>
-          <span class="pill">Almacén €</span>
-          <span class="pill">Viajes</span>
-          <span class="pill">Botiquín</span>
-          <span class="pill">Pre-partido</span>
+      <div class="bg-soft"></div>
+      <div class="bg-photo" style="background-image:url('assets/video/ops-arena.jpg')"></div>
+      <div class="scene-center">
+        <p class="eyebrow">El día a día</p>
+        <h2>Retos operativos habituales</h2>
+        <div class="problems">
+          <div class="problem"><div class="x">✕</div><span>Inventario desactualizado</span></div>
+          <div class="problem"><div class="x">✕</div><span>Material extraviado</span></div>
+          <div class="problem"><div class="x">✕</div><span>Tallas incorrectas</span></div>
+          <div class="problem"><div class="x">✕</div><span>Compras innecesarias</span></div>
+          <div class="problem"><div class="x">✕</div><span>Procesos manuales</span></div>
         </div>
       </div>
     </section>
 
+    <!-- 3 PRODUCTO: Dashboard + Inventario -->
+    <section class="slide" data-i="2">
+      <div class="bg-soft"></div>
+      <p class="product-label">Dashboard · Inventario</p>
+      <div class="product-wrap">
+        <div class="browser" id="screen-dash">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <div class="url">courtmanagerpro.vercel.app</div>
+          </div>
+          <div class="app">
+            <aside class="side">
+              <div class="logo-row">
+                <img src="assets/video/logo.png" alt="" />
+                <strong>CourtManager Pro</strong>
+              </div>
+              <div class="nav-item on">Dashboard</div>
+              <div class="nav-item">Jugadores</div>
+              <div class="nav-item">Tabla de Tallas</div>
+              <div class="nav-item">Inventario</div>
+              <div class="nav-item">Solicitudes</div>
+              <div class="nav-item">Viajes</div>
+              <div class="nav-item">Lavandería</div>
+              <div class="nav-item">Almacén general</div>
+              <div class="nav-item">Movimientos</div>
+              <div class="nav-item">Checklist pre-partido</div>
+            </aside>
+            <div class="main">
+              <h3>Centro de mando de utilería</h3>
+              <div class="kpis">
+                <div class="kpi"><small>Fichas de jugadores</small><b>28</b><em>Plantilla registrada</em></div>
+                <div class="kpi"><small>Stock utilería</small><b>1.240</b><em>Unidades disponibles</em></div>
+                <div class="kpi"><small>Peticiones activas</small><b>6</b><em>Pendientes de entrega</em></div>
+                <div class="kpi"><small>Viajes en curso</small><b>2</b><em>Logística de maletas</em></div>
+              </div>
+              <div class="panel">
+                <div class="panel-title">Centro operativo</div>
+                <div class="row"><span>Stock bajo — camisetas entrenamiento M</span><span class="tag warn">Alerta</span></div>
+                <div class="row"><span>Asignación a jugador · botas partido</span><span class="tag">Movimiento</span></div>
+                <div class="row"><span>Checklist pre-partido · próximo encuentro</span><span class="tag">Prep.</span></div>
+                <div class="row"><span>Entrada almacén · material temporada</span><span class="tag">Stock</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3b PRODUCTO: Inventario -->
     <section class="slide" data-i="3">
-      <div class="slide-bg" style="background:linear-gradient(160deg,#0a1628,#1a2a1f 60%,#0c1222)"></div>
-      <div class="slide-inner">
-        <p class="kicker">Almacén general</p>
-        <h2>Stock · Ubicación · Valor en euros</h2>
-        <p class="copy">Ves cuánto hay, dónde está y cuánto vale. Compras con datos, no a ojo.</p>
+      <div class="bg-soft"></div>
+      <p class="product-label">Inventario · Equipaciones · Material</p>
+      <div class="product-wrap">
+        <div class="browser">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <div class="url">courtmanagerpro.vercel.app/inventory</div>
+          </div>
+          <div class="app">
+            <aside class="side">
+              <div class="logo-row">
+                <img src="assets/video/logo.png" alt="" />
+                <strong>CourtManager Pro</strong>
+              </div>
+              <div class="nav-item">Dashboard</div>
+              <div class="nav-item">Jugadores</div>
+              <div class="nav-item">Tabla de Tallas</div>
+              <div class="nav-item on">Inventario</div>
+              <div class="nav-item">Solicitudes</div>
+              <div class="nav-item">Almacén general</div>
+              <div class="nav-item">Movimientos</div>
+            </aside>
+            <div class="main">
+              <h3>Inventario</h3>
+              <div class="kpis">
+                <div class="kpi"><small>Artículos</small><b>186</b><em>Referencias activas</em></div>
+                <div class="kpi"><small>Disponible</small><b>1.240</b><em>Unidades en stock</em></div>
+                <div class="kpi"><small>Asignado</small><b>312</b><em>En jugadores / staff</em></div>
+                <div class="kpi"><small>Alertas</small><b>4</b><em>Stock bajo</em></div>
+              </div>
+              <div class="panel">
+                <div class="panel-title">Equipaciones y material</div>
+                <table class="table">
+                  <thead>
+                    <tr><th>Artículo</th><th>Categoría</th><th>Talla</th><th>Stock</th><th>Ubicación</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Camiseta entrenamiento</td><td>Equipación</td><td>M</td><td>42</td><td>Almacén A</td></tr>
+                    <tr><td>Pantalón partido</td><td>Equipación</td><td>L</td><td>28</td><td>Almacén A</td></tr>
+                    <tr><td>Chándal viaje</td><td>Equipación</td><td>XL</td><td>19</td><td>Almacén B</td></tr>
+                    <tr><td>Balón oficial</td><td>Material</td><td>—</td><td>16</td><td>Material</td></tr>
+                    <tr><td>Botas partido</td><td>Material</td><td>42</td><td>9</td><td>Asignado</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- 4 FLUJO -->
     <section class="slide" data-i="4">
-      <div class="slide-bg" style="background:linear-gradient(150deg,#12100c,#2a2418 50%,#0c1222)"></div>
-      <div class="slide-inner">
-        <p class="kicker">Precio claro</p>
-        <h2>Desde 349 € al mes</h2>
-        <p class="copy">Plan profesional. Prueba de pocas semanas. Si no encaja, lo dejas — sin quedarte atado.</p>
+      <div class="bg-soft"></div>
+      <div class="scene-center">
+        <p class="eyebrow">Cómo funciona</p>
+        <h2>Un ciclo operativo claro</h2>
+        <div class="flow">
+          <div class="flow-step">Recepción</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Registro</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Asignación</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Preparación</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Historial</div>
+        </div>
       </div>
     </section>
 
+    <!-- 5 MÁS PANTALLAS -->
     <section class="slide" data-i="5">
-      <div class="slide-bg" style="background-image:url('assets/dossier-hero.png'); background-position: 70% center;"></div>
-      <div class="slide-inner">
-        <p class="kicker">Contacto</p>
-        <h2>Ramón del Pozo Rott</h2>
-        <p class="copy">info@ramondelpozorott.es</p>
+      <div class="bg-soft"></div>
+      <p class="product-label">Jugadores · Equipaciones · Material</p>
+      <div class="dual">
+        <div class="browser">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <div class="url">courtmanagerpro.vercel.app/players</div>
+          </div>
+          <div class="app">
+            <aside class="side">
+              <div class="logo-row">
+                <img src="assets/video/logo.png" alt="" />
+                <strong>CourtManager Pro</strong>
+              </div>
+              <div class="nav-item">Dashboard</div>
+              <div class="nav-item on">Jugadores</div>
+              <div class="nav-item">Tabla de Tallas</div>
+              <div class="nav-item">Inventario</div>
+              <div class="nav-item">Movimientos</div>
+            </aside>
+            <div class="main">
+              <h3>Jugadores</h3>
+              <div class="players">
+                <div class="player"><div class="avatar"></div><b>Portero</b><span>Tallas · asignaciones</span></div>
+                <div class="player"><div class="avatar" style="background:linear-gradient(145deg,#111827,#334155)"></div><b>Defensa</b><span>Equipación activa</span></div>
+                <div class="player"><div class="avatar" style="background:linear-gradient(145deg,#1e293b,#c45c26)"></div><b>Centrocampista</b><span>Historial material</span></div>
+                <div class="player"><div class="avatar" style="background:linear-gradient(145deg,#0f172a,#78716c)"></div><b>Delantero</b><span>Solicitudes</span></div>
+              </div>
+              <div class="panel" style="margin-top:12px;min-height:auto">
+                <div class="panel-title">Inventario · Equipaciones / Material</div>
+                <table class="table">
+                  <thead>
+                    <tr><th>Artículo</th><th>Talla</th><th>Stock</th><th>Ubicación</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Camiseta entrenamiento</td><td>M</td><td>42</td><td>Almacén A</td></tr>
+                    <tr><td>Pantalón partido</td><td>L</td><td>28</td><td>Almacén A</td></tr>
+                    <tr><td>Balón oficial</td><td>—</td><td>16</td><td>Material</td></tr>
+                    <tr><td>Botas partido</td><td>42</td><td>9</td><td>Asignado</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-frame">
+          <img src="assets/video/product-phone.png" alt="CourtManager Pro en móvil" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 5b LOGIN / acceso real -->
+    <section class="slide" data-i="6">
+      <div class="bg-soft"></div>
+      <p class="product-label">Acceso · producción</p>
+      <div class="product-wrap" style="max-width:760px;height:min(70vh,640px)">
+        <div class="browser no-ken">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <div class="url">courtmanagerpro.vercel.app/login</div>
+          </div>
+          <img class="shot-full" src="assets/video/shot-login.png" alt="Pantalla de acceso CourtManager Pro" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 BENEFICIOS -->
+    <section class="slide" data-i="7">
+      <div class="bg-soft"></div>
+      <div class="scene-center">
+        <p class="eyebrow">En el trabajo diario</p>
+        <h2>Qué cambia en la operativa</h2>
+        <div class="benefits">
+          <div class="benefit"><b>Mayor control del inventario</b></div>
+          <div class="benefit"><b>Menos errores</b></div>
+          <div class="benefit"><b>Mayor trazabilidad</b></div>
+          <div class="benefit"><b>Procesos centralizados</b></div>
+          <div class="benefit"><b>Preparación más eficiente</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 MVP -->
+    <section class="slide" data-i="8">
+      <div class="bg-soft"></div>
+      <div class="scene-center">
+        <p class="eyebrow">Estado del proyecto</p>
+        <h2>MVP funcional</h2>
+        <p class="lead">CourtManager Pro es un MVP funcional preparado para evolucionar junto a las necesidades de un club profesional.</p>
+      </div>
+    </section>
+
+    <!-- 8 CTA DEMO -->
+    <section class="slide" data-i="9">
+      <div class="bg-soft"></div>
+      <div class="scene-center">
+        <p class="eyebrow">Siguiente paso</p>
+        <h2>¿Os gustaría ver una demostración?</h2>
+        <p class="lead">Estaré encantado de realizar una demostración personalizada y conocer vuestras necesidades para valorar posibles adaptaciones.</p>
+        <p class="fine">
+          <strong>Ramón del Pozo Rott</strong><br />
+          info@ramondelpozorott.es<br />
+          courtmanagerpro.vercel.app
+        </p>
+      </div>
+    </section>
+
+    <!-- 9 CIERRE MEMORABLE -->
+    <section class="slide" data-i="10">
+      <div class="bg-soft"></div>
+      <div class="scene-center">
+        <p class="eyebrow">CourtManager Pro</p>
+        <h2 style="max-width:16em;margin-left:auto;margin-right:auto">
+          Diseñado para que la utilería trabaje con la misma precisión que el equipo sobre el terreno de juego.
+        </h2>
+        <p class="fine" style="margin-top:36px">
+          <strong>Solicita una demostración personalizada</strong><br />
+          Ramón del Pozo Rott
+        </p>
       </div>
     </section>
   </div>
@@ -180,32 +784,13 @@
   </div>
 
   <script>
-    /* Voz = MP3 de presentacion-promocional (es.mp3 / en.mp3), igual que es.html */
-    const AUDIO_SRC = {
-      es: 'audio/es.mp3',
-      en: 'audio/en.mp3',
-    };
-    /* Fracciones del audio para cambiar de slide */
-    const SLIDE_AT = [0, 0.12, 0.28, 0.52, 0.72, 0.88];
+    const AUDIO_SRC = { es: 'audio/es.mp3', en: 'audio/en.mp3' };
 
-    const COPY = {
-      es: [
-        'Organiza la ropa y el material del club — vestuario, almacén y viajes.',
-        null,
-        null,
-        'Ves cuánto hay, dónde está y cuánto vale. Compras con datos, no a ojo.',
-        'Plan profesional. Prueba de pocas semanas. Si no encaja, lo dejas — sin quedarte atado.',
-        'info@ramondelpozorott.es',
-      ],
-      en: [
-        'Organizes club kits and equipment — dressing room, warehouse and travel.',
-        null,
-        null,
-        'See how much you have, where it is, and what it costs. Buy with facts.',
-        'Professional plan. Try it a few weeks. If it does not fit, you leave.',
-        'info@ramondelpozorott.es',
-      ],
-    };
+    /* Fracciones del audio (~100 s). Producto ~60–70 % del tiempo. */
+    const SLIDE_AT = [0, 0.06, 0.14, 0.28, 0.40, 0.48, 0.58, 0.70, 0.78, 0.84, 0.91];
+
+    /* Fallback sin audio: tiempos absolutos en ms (total ~110 s) */
+    const FALLBACK_MS = [7000, 10000, 16000, 14000, 9000, 14000, 10000, 9000, 6000, 10000, 7000];
 
     const slides = [...document.querySelectorAll('.slide')];
     const playBtn = document.getElementById('playBtn');
@@ -221,6 +806,10 @@
     let paused = false;
     let playing = false;
     let audio = null;
+    let timer = null;
+    let startedAt = 0;
+    let elapsedBeforePause = 0;
+    let raf = null;
 
     function lang() {
       return langSelect.value === 'en' ? 'en' : 'es';
@@ -229,31 +818,19 @@
     function showSlide(i) {
       index = Math.max(0, Math.min(slides.length - 1, i));
       slides.forEach((s, n) => s.classList.toggle('active', n === index));
-      const c = COPY[lang()][index];
-      if (c) {
-        const el = slides[index].querySelector('.copy');
-        if (el) el.textContent = c;
-      }
     }
 
-    function resetUI() {
-      playing = false;
-      paused = false;
-      playBtn.disabled = false;
-      playBtn.textContent = '▶ Reproducir';
-      pauseBtn.disabled = true;
-      stopBtn.disabled = true;
-      status.textContent = 'Listo';
+    function totalFallback() {
+      return FALLBACK_MS.reduce((a, b) => a + b, 0);
     }
 
-    function stopAll() {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-        audio = null;
+    function slideForFallback(elapsed) {
+      let acc = 0;
+      for (let i = 0; i < FALLBACK_MS.length; i++) {
+        acc += FALLBACK_MS[i];
+        if (elapsed < acc) return i;
       }
-      resetUI();
-      bar.style.width = '0%';
+      return FALLBACK_MS.length - 1;
     }
 
     function slideForTime(t, dur) {
@@ -264,6 +841,59 @@
         if (p >= SLIDE_AT[n]) i = n;
       }
       return i;
+    }
+
+    function resetUI() {
+      playing = false;
+      paused = false;
+      playBtn.disabled = false;
+      playBtn.textContent = '▶ Reproducir';
+      pauseBtn.disabled = true;
+      stopBtn.disabled = true;
+      status.textContent = 'Listo';
+      if (raf) cancelAnimationFrame(raf);
+      raf = null;
+      if (timer) clearTimeout(timer);
+      timer = null;
+    }
+
+    function stopAll() {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio = null;
+      }
+      elapsedBeforePause = 0;
+      resetUI();
+      bar.style.width = '0%';
+    }
+
+    function tickFallback() {
+      if (!playing || paused) return;
+      const elapsed = elapsedBeforePause + (performance.now() - startedAt);
+      const total = totalFallback();
+      const p = Math.min(100, (elapsed / total) * 100);
+      bar.style.width = `${p}%`;
+      const next = slideForFallback(elapsed);
+      if (next !== index) showSlide(next);
+      if (elapsed >= total) {
+        status.textContent = 'Finalizado';
+        resetUI();
+        bar.style.width = '100%';
+        return;
+      }
+      raf = requestAnimationFrame(tickFallback);
+    }
+
+    function startFallback() {
+      playing = true;
+      paused = false;
+      playBtn.disabled = true;
+      pauseBtn.disabled = false;
+      stopBtn.disabled = false;
+      startedAt = performance.now();
+      status.textContent = 'Reproduciendo (sin audio)…';
+      tickFallback();
     }
 
     function startAudio() {
@@ -283,8 +913,8 @@
         bar.style.width = '100%';
       });
       audio.addEventListener('error', () => {
-        status.textContent = 'No se pudo cargar el MP3';
-        resetUI();
+        status.textContent = 'Sin MP3 — modo visual';
+        startFallback();
       });
       playing = true;
       playBtn.disabled = true;
@@ -292,8 +922,8 @@
       stopBtn.disabled = false;
       status.textContent = lang() === 'en' ? 'Playing en.mp3…' : 'Reproduciendo es.mp3…';
       audio.play().catch(() => {
-        status.textContent = 'Pulsa de nuevo para permitir audio';
-        resetUI();
+        status.textContent = 'Audio bloqueado — modo visual';
+        startFallback();
       });
     }
 
@@ -306,17 +936,38 @@
         status.textContent = 'Continúa…';
         return;
       }
+      if (paused && !audio) {
+        paused = false;
+        playing = true;
+        startedAt = performance.now();
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+        status.textContent = 'Continúa…';
+        tickFallback();
+        return;
+      }
       startAudio();
     });
 
     pauseBtn.addEventListener('click', () => {
-      if (!audio || audio.paused) return;
-      audio.pause();
-      paused = true;
-      playBtn.disabled = false;
-      playBtn.textContent = '▶ Continuar';
-      pauseBtn.disabled = true;
-      status.textContent = 'Pausado';
+      if (audio && !audio.paused) {
+        audio.pause();
+        paused = true;
+        playBtn.disabled = false;
+        playBtn.textContent = '▶ Continuar';
+        pauseBtn.disabled = true;
+        status.textContent = 'Pausado';
+        return;
+      }
+      if (playing && !audio) {
+        elapsedBeforePause += performance.now() - startedAt;
+        paused = true;
+        if (raf) cancelAnimationFrame(raf);
+        playBtn.disabled = false;
+        playBtn.textContent = '▶ Continuar';
+        pauseBtn.disabled = true;
+        status.textContent = 'Pausado';
+      }
     });
 
     stopBtn.addEventListener('click', () => {
@@ -324,13 +975,8 @@
       showSlide(0);
     });
 
-    prevBtn.addEventListener('click', () => {
-      showSlide(index - 1);
-    });
-
-    nextBtn.addEventListener('click', () => {
-      showSlide(index + 1);
-    });
+    prevBtn.addEventListener('click', () => showSlide(index - 1));
+    nextBtn.addEventListener('click', () => showSlide(index + 1));
 
     langSelect.addEventListener('change', () => {
       document.documentElement.lang = lang();
