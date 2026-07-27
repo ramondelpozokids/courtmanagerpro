@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, User, Sparkles } from 'lucide-react';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { useClubBranding } from '@/contexts/ClubDemoContext';
 
 interface Message {
   sender: 'user' | 'bot';
@@ -10,12 +11,26 @@ interface Message {
 }
 
 export function ChatAssistant() {
+  const branding = useClubBranding();
+  const clubLabel = branding.shortName || branding.name;
+  const logoSrc = branding.logoUrl || '/images/botiquin.svg';
+
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { sender: 'bot', text: '¡Hola! Soy el asistente inteligente de CourtManager Pro. ¿En qué te puedo ayudar hoy con la utilería del Real Madrid?' }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const greetedSlug = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (greetedSlug.current === branding.slug) return;
+    greetedSlug.current = branding.slug;
+    setMessages([
+      {
+        sender: 'bot',
+        text: `¡Hola! Soy el asistente de utilería de CourtManager Pro para **${branding.name}**. ¿En qué te puedo ayudar?`,
+      },
+    ]);
+  }, [branding.slug, branding.name]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -24,46 +39,34 @@ export function ChatAssistant() {
   const getAssistantReply = (query: string): string => {
     const q = query.toLowerCase();
 
-    // 1. Birthday question
     if (q.includes('cumple') || q.includes('cumpleaños')) {
-      // June birthdays: Sissoko (June 20), Almansa (June 7), Maledon (June 12), Alex Len (June 16)
-      return "Este mes de Junio celebran su cumpleaños:\n\n• Izan Almansa (7 de Junio)\n• Theo Maledon (12 de Junio)\n• Alex Len (16 de Junio)\n• Mady Sissoko (20 de Junio)\n\n¡No olvides preparar sus juegos de ropa oficial de regalo corporativo de parte del club!";
+      return `Consulta los cumpleaños del mes en el dashboard de **${clubLabel}** (tarjeta de próximos cumpleaños).`;
     }
 
-    // 2. Sizes question
     if (q.includes('talla') || q.includes('tallas')) {
-      if (q.includes('campazzo') || q.includes('facu')) {
-        return "Facundo Campazzo (Base #7) utiliza camiseta talla **M**, pantalones talla **M** y calzado número **42.5**.";
-      }
-      if (q.includes('tavares') || q.includes('edy') || q.includes('walter')) {
-        return "Walter Samuel Tavares (Pívot #22) utiliza camiseta talla **XXXL**, pantalones talla **XXXL** y calzado de número **52** (¡Es el tallaje y pie más grande de todo el vestuario del Real Madrid!).";
-      }
-      if (q.includes('llull') || q.includes('sergio')) {
-        return "Sergio Llull (Escolta #23) utiliza camiseta talla **L**, pantalones talla **L** y calzado número **44**.";
-      }
-      if (q.includes('garuba') || q.includes('usman')) {
-        return "Usman Garuba (Ala-Pívot #16) utiliza camiseta talla **XXL**, pantalones talla **XXL** y calzado número **49.5**.";
-      }
-      return "Puedo darte detalles de tallas individuales para cualquier jugador de la plantilla (ej: Facu Campazzo, Edy Tavares, Llull, Garuba). Los jugadores del primer equipo usan generalmente desde la talla L hasta la XXXL en indumentaria.";
+      return `Las tallas de la plantilla de **${clubLabel}** están en **Tabla de Tallas**. Puedes filtrar por dorsal o nombre.`;
     }
 
-    // 3. Trips question
-    if (q.includes('viaj') || q.includes('viaje') || q.includes('malaga') || q.includes('barcelona') || q.includes('atenas')) {
-      return "Tenemos dos viajes logísticos de utilería planificados este mes:\n\n1. **A Málaga (vs Unicaja)** el 2026-06-20. El equipaje se encuentra actualmente en preparación al 75%.\n2. **A Atenas (vs Panathinaikos)** el 2026-06-26. El plan logístico ya está diseñado en el módulo de Viajes.";
+    if (q.includes('viaj') || q.includes('viaje')) {
+      return `Los viajes de utilería de **${clubLabel}** están en el módulo **Viajes**. Ahí verás maletas, packing list y estado de preparación.`;
     }
 
-    // 4. Missing stock / Stock alert question
     if (q.includes('material') || q.includes('falta') || q.includes('stock') || q.includes('minimo')) {
-      const lowStockItems = db.inventory.filter(i => i.stock <= i.minStock);
+      const lowStockItems = db.inventory.filter((i) => i.stock <= i.minStock);
       if (lowStockItems.length > 0) {
-        const itemsStr = lowStockItems.map(i => `• **${i.name}**: SKU: ${i.sku} (Disponibles: ${i.stock} uds, mínimo: ${i.minStock})`).join('\n');
-        return `Actualmente registramos ${lowStockItems.length} artículos en stock crítico por debajo del mínimo establecido:\n\n${itemsStr}\n\nTe sugiero emitir una orden de reposición con el fabricante o una solicitud de compra.`;
+        const itemsStr = lowStockItems
+          .map((i) => `• **${i.name}**: SKU: ${i.sku} (Disponibles: ${i.stock} uds, mínimo: ${i.minStock})`)
+          .join('\n');
+        return `Stock crítico en el almacén activo:\n\n${itemsStr}\n\nRevisa Inventario o Almacén general.`;
       }
-      return "¡Buenas noticias! Todos los artículos de utilería oficial e indumentaria se encuentran por encima de los límites de stock mínimos establecidos en el almacén.";
+      return `No hay artículos por debajo del mínimo en el inventario cargado de **${clubLabel}**.`;
     }
 
-    // Default response
-    return "Disculpa, no he entendido del todo tu pregunta. Intenta consultarme con palabras clave como: 'cumpleaños', 'talla de Tavares', 'viajes programados' o 'material que falta'.";
+    if (q.includes('medico') || q.includes('médico') || q.includes('botiqu')) {
+      return `El material médico y botiquines de **${clubLabel}** están en **Material Médico**. El botiquín de viaje también aparece en Inventario.`;
+    }
+
+    return `Puedo ayudarte con utilería de **${clubLabel}**. Prueba: «tallas», «viajes», «stock» o «botiquín».`;
   };
 
   const handleSend = () => {
@@ -89,16 +92,15 @@ export function ChatAssistant() {
 
   return (
     <div className="fixed bottom-20 md:bottom-6 right-5 z-40">
-      {/* Floating toggle — project logo from /public (no orange circle) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative h-14 w-14 flex items-center justify-center transition-transform hover:scale-105"
-        title="Chat Asistente CourtManager Pro"
+        className="relative h-14 w-14 flex items-center justify-center transition-transform hover:scale-105 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg p-1.5"
+        title={`Chat utilería — ${clubLabel}`}
       >
         <img
-          src="/logo.png"
-          alt="CourtManager Pro"
-          className={`h-14 w-14 object-contain drop-shadow-lg ${isOpen ? 'opacity-50' : ''}`}
+          src={logoSrc}
+          alt={clubLabel}
+          className={`h-full w-full object-contain ${isOpen ? 'opacity-50' : ''}`}
         />
         {isOpen && (
           <span className="absolute inset-0 flex items-center justify-center rounded-full bg-white/80 dark:bg-slate-900/80">
@@ -107,22 +109,16 @@ export function ChatAssistant() {
         )}
       </button>
 
-      {/* Chat Window Panel */}
       {isOpen && (
         <div className="absolute bottom-16 right-0 w-80 md:w-96 h-[450px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden animate-fade-in text-left">
-          {/* Header */}
           <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 shrink-0 flex items-center justify-center">
-                <img
-                  src="/logo.png"
-                  alt="RMB Logo"
-                  className="w-full h-full object-contain"
-                />
+              <div className="h-7 w-7 shrink-0 flex items-center justify-center rounded-full bg-white/10 p-0.5">
+                <img src={logoSrc} alt={clubLabel} className="w-full h-full object-contain" />
               </div>
               <div>
-                <h4 className="text-xs font-bold tracking-wide">RMB Chat Assistant</h4>
-                <p className="text-[10px] text-slate-400 font-medium">Asistente de Utilería RMB</p>
+                <h4 className="text-xs font-bold tracking-wide">Asistente {clubLabel}</h4>
+                <p className="text-[10px] text-slate-400 font-medium">Utilería · {branding.name}</p>
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
@@ -130,7 +126,6 @@ export function ChatAssistant() {
             </button>
           </div>
 
-          {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((m, idx) => (
               <div key={idx} className={`flex gap-2.5 items-start ${m.sender === 'user' ? 'flex-row-reverse' : ''}`}>
@@ -140,18 +135,16 @@ export function ChatAssistant() {
                       <User className="h-4 w-4" />
                     </div>
                   ) : (
-                    <img
-                      src="/logo.png"
-                      alt="RMB Logo"
-                      className="w-full h-full object-contain"
-                    />
+                    <img src={logoSrc} alt={clubLabel} className="w-full h-full object-contain" />
                   )}
                 </div>
-                <div className={`p-3 rounded-2xl text-xs leading-relaxed max-w-[75%] whitespace-pre-line ${
-                  m.sender === 'user'
-                    ? 'bg-orange-500 text-white rounded-tr-none'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none'
-                }`}>
+                <div
+                  className={`p-3 rounded-2xl text-xs leading-relaxed max-w-[75%] whitespace-pre-line ${
+                    m.sender === 'user'
+                      ? 'bg-orange-500 text-white rounded-tr-none'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none'
+                  }`}
+                >
                   {m.text}
                 </div>
               </div>
@@ -159,19 +152,12 @@ export function ChatAssistant() {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Quick Preset Questions bar */}
           {messages.length < 3 && (
             <div className="px-4 pb-2 pt-1 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 shrink-0">
               <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-1.5 flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-orange-500" /> Consultas rápidas recomendadas:
+                <Sparkles className="h-3 w-3 text-orange-500" /> Consultas rápidas:
               </p>
               <div className="flex flex-col gap-1 text-[10px]">
-                <button
-                  onClick={() => selectQuickQuestion('¿Qué talla usa el jugador Facu Campazzo?')}
-                  className="text-left px-2 py-1 rounded bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-slate-600 dark:text-slate-300 font-semibold border border-slate-150 dark:border-slate-800 truncate"
-                >
-                  ¿Qué talla usa el jugador Facu Campazzo?
-                </button>
                 <button
                   onClick={() => selectQuickQuestion('¿Qué material falta en el almacén?')}
                   className="text-left px-2 py-1 rounded bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-slate-600 dark:text-slate-300 font-semibold border border-slate-150 dark:border-slate-800 truncate"
@@ -179,20 +165,25 @@ export function ChatAssistant() {
                   ¿Qué material falta en el almacén?
                 </button>
                 <button
-                  onClick={() => selectQuickQuestion('¿Quién cumple años este mes?')}
+                  onClick={() => selectQuickQuestion('¿Dónde está el botiquín de viaje?')}
                   className="text-left px-2 py-1 rounded bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-slate-600 dark:text-slate-300 font-semibold border border-slate-150 dark:border-slate-800 truncate"
                 >
-                  ¿Quién cumple años este mes?
+                  ¿Dónde está el botiquín de viaje?
+                </button>
+                <button
+                  onClick={() => selectQuickQuestion('¿Cómo veo las tallas de la plantilla?')}
+                  className="text-left px-2 py-1 rounded bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-slate-600 dark:text-slate-300 font-semibold border border-slate-150 dark:border-slate-800 truncate"
+                >
+                  ¿Cómo veo las tallas de la plantilla?
                 </button>
               </div>
             </div>
           )}
 
-          {/* Input Bar */}
           <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex gap-2 shrink-0">
             <input
               type="text"
-              placeholder="Pregunta algo (ej: talla de Tavares)..."
+              placeholder={`Pregunta sobre utilería ${clubLabel}...`}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}

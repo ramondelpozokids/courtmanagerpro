@@ -159,11 +159,21 @@ export default function InventoryPage() {
                     {/* Item Name / QR image */}
                     <td className="px-6 py-4 flex items-center gap-3">
                       <div className="h-10 w-10 shrink-0 rounded overflow-hidden bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 flex items-center justify-center font-bold text-slate-400">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
-                        ) : (
-                          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${item.sku || "CMP"}`} alt="QR Code" className="h-full w-full object-cover p-1" />
-                        )}
+                        {(() => {
+                          const raw = item.image_url || '';
+                          const isClubLogo = /\/logo\.png|\/clubs\/[^/]+\/logo|realmadrid/i.test(raw);
+                          const isMedical =
+                            item.category === 'medico' ||
+                            /botiqu/i.test(item.name || '') ||
+                            /MED-KIT/i.test(item.sku || '');
+                          const src =
+                            isMedical && (!raw || isClubLogo) ? '/images/botiquin.svg' : raw || null;
+                          return src ? (
+                            <img src={src} alt={item.name} className="h-full w-full object-contain p-0.5" />
+                          ) : (
+                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${item.sku || "CMP"}`} alt="QR Code" className="h-full w-full object-cover p-1" />
+                          );
+                        })()}
                       </div>
                       <div>
                         <span className="font-bold text-slate-800 dark:text-slate-100 block">{item.name}</span>

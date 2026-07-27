@@ -4319,7 +4319,7 @@ INSERT INTO inventory_items (
   '—',
   250,
   'Vestuario Metropolitano — Banquillo',
-  '/clubs/atm/logo.png',
+  '/images/botiquin.svg',
   true,
   '{"demo_id":"i92","gender":"masculino","source":"shop.atleticodemadrid.com","product_url":null,"brand":"ATM Medical"}'::jsonb
 )

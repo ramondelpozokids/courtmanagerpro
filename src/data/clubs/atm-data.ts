@@ -1350,7 +1350,7 @@ export const atmInventory = [
     stock_available: 3,
     stock_min: 2,
     size: '—',
-    image_url: '/clubs/atm/logo.png',
+    image_url: '/images/botiquin.svg',
     location: LOC_VEST,
     brand: 'ATM Medical',
   }),

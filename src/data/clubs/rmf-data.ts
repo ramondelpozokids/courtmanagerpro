@@ -843,7 +843,7 @@ export const rmfInventory = [
     stock_available: 5,
     stock_min: 3,
     size: 'Único',
-    image_url: '/clubs/rmf/logo.png',
+    image_url: '/images/botiquin.svg',
     location: 'Área Médica',
   }),
 ];

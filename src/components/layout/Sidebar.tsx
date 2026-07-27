@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
-  Plane, Shirt, Stethoscope, BarChart3, Bell, ChevronLeft,
+  Plane, Shirt, BriefcaseMedical, BarChart3, Bell, ChevronLeft,
   ChevronRight, LogOut, Calendar, Table, KeyRound, HardHat, Warehouse, ClipboardCheck, History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ const NAV_ITEMS = [
   { href: '/requests',   label: 'Solicitudes',   icon: ClipboardList,   roles: [] },
   { href: '/trips',      label: 'Viajes',        icon: Plane,           roles: [] },
   { href: '/laundry',    label: 'Lavandería',    icon: Shirt,           roles: [] },
-  { href: '/medical',    label: 'Material Médico', icon: Stethoscope,   roles: [] },
+  { href: '/medical',    label: 'Material Médico', icon: BriefcaseMedical, roles: [] },
   { href: '/reports',    label: 'Informes',      icon: BarChart3,       roles: [] },
   { href: '/alerts',     label: 'Alertas',       icon: Bell,            roles: [] },
   { href: '/almacen',    label: 'Almacén general', icon: Warehouse,     roles: [] },
