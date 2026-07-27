@@ -613,7 +613,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'Dinamarca',
   '1999-06-25',
-  '/clubs/atm/logo.png',
+  '/clubs/atm/players/hjulmand.png',
   true,
   'L',
   'L',
@@ -621,7 +621,7 @@ INSERT INTO players (
   'L',
   'M',
   'HJULMAND',
-  '{"official_slug":"atletico-de-madrid-2025-2026","demo_id":"p18","profile_url":"https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026"}'::jsonb
+  '{"official_slug":"morten-hjulmand-2025-2026","demo_id":"p18","profile_url":"https://www.atleticodemadrid.com/jugadores/morten-hjulmand-2025-2026"}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,

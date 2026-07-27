@@ -134,6 +134,7 @@ const ATM_PLAYER_PHOTOS: Record<string, string> = {
   'thiago-ezequiel-almada-2025-2026': laligaPhoto('p461360'),
   'julian-alvarez-2025-2026': laligaPhoto('p461358'),
   'ademola-olajade-alade-aylola-lookman-2025-2026': laligaPhoto('p219352'),
+  'morten-hjulmand-2025-2026': '/clubs/atm/players/hjulmand.png',
 };
 
 function resolvePlayerPhoto(profileUrl: string, fallback: string) {
@@ -372,8 +373,8 @@ export const atmPlayers = [
     position: 'centrocampista',
     nationality: 'Dinamarca',
     birthDate: '1999-06-25',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: PLANTILLA_URL,
+    imageUrl: '/clubs/atm/players/hjulmand.png',
+    profile_url: playerUrl('morten-hjulmand-2025-2026'),
     sizes: defaultSizes.L,
   }),
   // Delanteros
