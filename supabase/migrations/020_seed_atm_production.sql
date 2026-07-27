@@ -171,7 +171,7 @@ INSERT INTO players (
   'defensa'::player_position,
   'Francia',
   '1995-06-17',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18095/thumb_300x400/DORSALES_WEB_15_LENGLET.jpg?1750111830',
+  '/clubs/atm/players/lenglet.png',
   true,
   'XL',
   'L',

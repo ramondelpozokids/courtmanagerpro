@@ -113,8 +113,7 @@ const ATM_PLAYER_PHOTOS: Record<string, string> = {
   'jan-oblak-2025-2026': laligaPhoto('p81352'),
   'jose-maria-gimenez-de-vargas-2025-2026': laligaPhoto('p151883'),
   'matteo-ruggeri-2025-2026': laligaPhoto('p487992'),
-  'clement-nicolas-laurent-lenglet-2025-2026':
-    clubPhoto('18095/thumb_300x400/DORSALES_WEB_15_LENGLET.jpg?1750111830'),
+  'clement-nicolas-laurent-lenglet-2025-2026': '/clubs/atm/players/lenglet.png',
   'nahuel-molina-lucero-2025-2026': laligaPhoto('p221586'),
   'david-hancko-2025-2026': laligaPhoto('p235093'),
   'marc-pubill-pages-2025-2026': laligaPhoto('p562720'),
@@ -216,7 +215,7 @@ export const atmPlayers = [
     position: 'defensa',
     nationality: 'Francia',
     birthDate: '1995-06-17',
-    imageUrl: '/clubs/atm/logo.png',
+    imageUrl: '/clubs/atm/players/lenglet.png',
     profile_url: playerUrl('clement-nicolas-laurent-lenglet-2025-2026'),
     sizes: defaultSizes.XL,
   }),
