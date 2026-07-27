@@ -508,7 +508,13 @@ export default function PlayersPage() {
               <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-start gap-4 text-left">
                 <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-100 border border-orange-200 shrink-0 flex items-center justify-center font-bold text-orange-600 text-sm">
                   {member.photo_url ? (
-                    <img src={member.photo_url} alt={member.full_name} className="h-full w-full object-cover" />
+                    <img
+                      src={member.photo_url}
+                      alt={member.full_name}
+                      className={`h-full w-full object-cover${
+                        /bonvicini/i.test(member.photo_url || "") ? " object-[32%_40%]" : ""
+                      }`}
+                    />
                   ) : (
                     <span>{member.full_name[0]}</span>
                   )}
