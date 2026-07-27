@@ -5,6 +5,7 @@
  * - shop.atleticodemadrid.com (hombre: 1ª / 2ª IR1435-011 · II2031-010 / 3ª / entrenamiento)
  * - https://www.atleticodemadrid.com/patrocinadores
  * - https://www.atleticodemadrid.com/noticias-nuevo-estadio
+ * Fotos jugadores (ref.): https://www.laliga.com/clubes/atletico-de-madrid/plantilla
  * Actualizado: 2026-07-27
  */
 
@@ -96,54 +97,45 @@ function playerUrl(slug: string) {
   return `https://www.atleticodemadrid.com/jugadores/${slug}`;
 }
 
-/** Fotos oficiales plantilla atleticodemadrid.com (thumb 300x400) */
+/** Ref. fotos LALIGA EA SPORTS 26/27 (solo assets, no sync de plantilla)
+ * https://www.laliga.com/clubes/atletico-de-madrid/plantilla
+ * Patrón: assets.laliga.com/squad/2026/t175/{optaId}/512x556/{optaId}_t175_2026_0_001_000.png
+ */
+const laligaPhoto = (optaId: string) =>
+  `https://assets.laliga.com/squad/2026/t175/${optaId}/512x556/${optaId}_t175_2026_0_001_000.png`;
+
+/** Fallback club (jugadores no listados en plantilla LALIGA 26/27) */
+const clubPhoto = (path: string) =>
+  `https://img-estaticos.atleticodemadrid.com/system/foto_listados/${path}`;
+
 const ATM_PLAYER_PHOTOS: Record<string, string> = {
-  'juan-agustin-musso-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18096/thumb_300x400/1_J.-MUSSO.jpg?1755263473',
-  'jan-oblak-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18070/thumb_300x400/DORSALES_WEB_13_OBLAK.jpg?1750111725',
-  'jose-maria-gimenez-de-vargas-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18071/thumb_300x400/DORSALES_WEB_2_JMGIMENEZ.jpg?1750111730',
-  'matteo-ruggeri-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19360/thumb_300x400/3_RUGGERI.jpg?1755262860',
+  'juan-agustin-musso-2025-2026': laligaPhoto('p121537'),
+  'jan-oblak-2025-2026': laligaPhoto('p81352'),
+  'jose-maria-gimenez-de-vargas-2025-2026': laligaPhoto('p151883'),
+  'matteo-ruggeri-2025-2026': laligaPhoto('p487992'),
   'clement-nicolas-laurent-lenglet-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18095/thumb_300x400/DORSALES_WEB_15_LENGLET.jpg?1750111830',
-  'nahuel-molina-lucero-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18079/thumb_300x400/DORSALES_WEB_16_MOLINA.jpg?1750111764',
-  'david-hancko-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19362/thumb_300x400/17_HANCKO.jpg?1755264229',
-  'marc-pubill-pages-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19361/thumb_300x400/18_MARC-PUBILL.jpg?1755263273',
-  'robin-aime-robert-le-normand-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18090/thumb_300x400/DORSALES_WEB_24_LENORMAND.jpg?1750111810',
-  'rodrigo-mendoza-martinez-moya-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19453/thumb_300x400/4_MENDOZA.jpg?1770231751',
-  'jo-o-lucas-de-souza-cardoso-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19364/thumb_300x400/5_JOHNNY.jpg?1755269339',
+    clubPhoto('18095/thumb_300x400/DORSALES_WEB_15_LENGLET.jpg?1750111830'),
+  'nahuel-molina-lucero-2025-2026': laligaPhoto('p221586'),
+  'david-hancko-2025-2026': laligaPhoto('p235093'),
+  'marc-pubill-pages-2025-2026': laligaPhoto('p562720'),
+  'robin-aime-robert-le-normand-2025-2026': laligaPhoto('p224919'),
+  'rodrigo-mendoza-martinez-moya-2025-2026': laligaPhoto('p578538'),
+  'jo-o-lucas-de-souza-cardoso-2025-2026': laligaPhoto('p488662'),
   'jorge-resurreccion-merodio-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18069/thumb_300x400/DORSALES_WEB_6_KOKE.jpg?1750111721',
-  'pablo-barrios-rivas-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18081/thumb_300x400/8_BARRIOS.jpg?1755263307',
-  'alejandro-baena-rodriguez-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19359/thumb_300x400/10_A%CC%81LEX-B..jpg?1755261293',
-  'marcos-llorente-moreno-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18075/thumb_300x400/DORSALES_WEB_14_MLLORENTE.jpg?1750111747',
-  'giuliano-simeone-baldini-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18088/thumb_300x400/20_GIULIANO.jpg?1755261331',
-  'obed-gomez-vargas-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19454/thumb_300x400/21_OBED-VARGAS.jpg?1770231974',
+    clubPhoto('18069/thumb_300x400/DORSALES_WEB_6_KOKE.jpg?1750111721'),
+  'pablo-barrios-rivas-2025-2026': laligaPhoto('p503523'),
+  'alejandro-baena-rodriguez-2025-2026': laligaPhoto('p248501'),
+  'marcos-llorente-moreno-2025-2026': laligaPhoto('p192364'),
+  'giuliano-simeone-baldini-2025-2026': laligaPhoto('p482652'),
+  'obed-gomez-vargas-2025-2026': laligaPhoto('p502868'),
   'nicolas-ivan-gonzalez-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19397/thumb_300x400/23_NICO.jpg?1757006316',
+    clubPhoto('19397/thumb_300x400/23_NICO.jpg?1757006316'),
   'antoine-griezmann-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18077/thumb_300x400/DORSALES_WEB_7_GRIEZMANN.jpg?1750111755',
-  'alexander-s-rloth-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18091/thumb_300x400/DORSALES_WEB_9_SORLOTH.jpg?1750111814',
-  'thiago-ezequiel-almada-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19363/thumb_300x400/11_ALMADA.jpg?1755268842',
-  'julian-alvarez-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18092/thumb_300x400/DORSALES_WEB_19_JALVAREZ.jpg?1750111819',
-  'ademola-olajade-alade-aylola-lookman-2025-2026':
-    'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19452/thumb_300x400/22_LOOKMAN%20(1).jpg?1770231421',
+    clubPhoto('18077/thumb_300x400/DORSALES_WEB_7_GRIEZMANN.jpg?1750111755'),
+  'alexander-s-rloth-2025-2026': laligaPhoto('p143877'),
+  'thiago-ezequiel-almada-2025-2026': laligaPhoto('p461360'),
+  'julian-alvarez-2025-2026': laligaPhoto('p461358'),
+  'ademola-olajade-alade-aylola-lookman-2025-2026': laligaPhoto('p219352'),
 };
 
 function resolvePlayerPhoto(profileUrl: string, fallback: string) {
