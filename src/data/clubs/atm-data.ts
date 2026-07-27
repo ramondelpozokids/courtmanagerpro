@@ -441,13 +441,13 @@ export const atmPlayers = [
   }),
 ];
 
-/** Cuerpo técnico primer equipo masculino — Cholo + asistentes + PF + arqueros
- * Fuentes: club / Wikipedia / Transfermarkt / ficha RFEF
- * Gabi Fernández sustituye a Nelson Vivas; Luis Piñedo sustituye a Óscar Ortega.
- * Fotos locales en /clubs/atm/staff/ (sin capturas de UI).
+/** Cuerpo técnico primer equipo masculino — Cholo + asistentes + PF + porteros
+ * Fuentes: club / Wikipedia / Transfermarkt
+ * Asistentes: Bonvicini + Gabi. PF: Óscar Pitillas. Porteros: Vercellone.
  */
 const TM_STAFF =
   'https://img.a.transfermarkt.technology/portrait/header';
+const TM_SSL = 'https://tmssl.akamaized.net/images/portrait/header';
 
 export const atmCoachingStaff = [
   {
@@ -469,7 +469,7 @@ export const atmCoachingStaff = [
   {
     id: 'c2',
     full_name: 'Hernán Bonvicini',
-    role: 'Entrenador auxiliar',
+    role: 'Entrenador asistente',
     email: 'hbonvicini@atleticodemadrid.com',
     shirt_size: 'L',
     shorts_size: 'L',
@@ -480,7 +480,7 @@ export const atmCoachingStaff = [
     photo_url: '/clubs/atm/logo.png',
     profile_url: 'https://www.transfermarkt.es/atletico-de-madrid/mitarbeiter/verein/13',
     trajectory:
-      'Hernán Alejandro Bonvicini — cuerpo técnico Senior del Club Atlético de Madrid S.A.D., entrenador auxiliar del primer equipo.',
+      'Hernán Alejandro Bonvicini — entrenador asistente del primer equipo del Club Atlético de Madrid S.A.D.',
   },
   {
     id: 'c3',
@@ -500,21 +500,24 @@ export const atmCoachingStaff = [
   },
   {
     id: 'c4',
-    full_name: 'Luis Piñedo',
+    full_name: 'Óscar Pitillas',
     role: 'Preparador físico',
-    email: 'lpinedo@atleticodemadrid.com',
+    email: 'opitillas@atleticodemadrid.com',
     shirt_size: 'L',
     shorts_size: 'L',
     shoe_size: 43,
     nationality: 'España',
-    photo_url: '/clubs/atm/staff/pinedo.png',
-    profile_url: 'https://www.transfermarkt.es/luis-pinedo/profil/trainer/156674',
-    trajectory: 'Preparador físico del primer equipo del Atlético de Madrid.',
+    birth_date: '1971-01-16',
+    birth_place: 'Valencia, España',
+    photo_url: `${TM_SSL}/16403.jpg`,
+    profile_url: 'https://www.transfermarkt.es/oscar-pitillas/profil/trainer/16403',
+    trajectory:
+      'Óscar Miguel Pitillas Torra — preparador físico del Atlético de Madrid (desde 2016; antes 2003–2014 y NYCFC 2014–2016). Exatleta olímpico (400 m vallas).',
   },
   {
     id: 'c5',
     full_name: 'Pablo Vercellone',
-    role: 'Entrenador de arqueros',
+    role: 'Entrenador de porteros',
     email: 'pvercellone@atleticodemadrid.com',
     shirt_size: 'L',
     shorts_size: 'L',
@@ -525,7 +528,7 @@ export const atmCoachingStaff = [
     photo_url: '/clubs/atm/staff/vercellone.png',
     profile_url: 'https://www.transfermarkt.es/pablo-vercellone/profil/trainer/11448',
     trajectory:
-      'Pablo Ignacio Vercellone — entrenador de arqueros del Atlético de Madrid. Contrato hasta 30/06/2027.',
+      'Pablo Ignacio Vercellone — entrenador de porteros del Atlético de Madrid. Contrato hasta 30/06/2027.',
   },
 ];
 
