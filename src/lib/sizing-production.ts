@@ -47,7 +47,7 @@ function atmPackPlayersToSizing(catalog: SizingProduct[]) {
     firstName: p.firstName,
     lastName: p.lastName,
     number: p.number,
-    position: p.position,
+    position: p.position as Player['position'],
     status: 'ACTIVE' as const,
     nationality: p.nationality || 'España',
     birthDate: p.birthDate || '',
@@ -56,7 +56,7 @@ function atmPackPlayersToSizing(catalog: SizingProduct[]) {
         dorsal: p.number,
         fullName: `${p.firstName} ${p.lastName}`,
         photo_url: p.imageUrl,
-      }) || p.imageUrl,
+      }) || p.imageUrl || undefined,
     slug: undefined as string | undefined,
     sizes: normalizeSizes(p.sizes as Record<string, string | number | undefined>, catalog),
   }));
