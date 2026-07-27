@@ -7,6 +7,7 @@ import {
   resolveAtmPackStaffPhoto,
 } from '@/lib/atm-pack-photos';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+import { atmPlayers, atmCoachingStaff } from '@/data/clubs/atm-data';
 import {
   mergeSizingCatalog,
   normalizeSizes,
@@ -14,6 +15,77 @@ import {
   sizesToStaffFields,
   type SizingProduct,
 } from '@/content/sizing-products';
+
+function normName(s: string) {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function dedupeStaffByName<T extends { id?: unknown; full_name?: unknown }>(rows: T[]): T[] {
+  const sorted = [...rows].sort((a, b) => {
+    const idA = String(a.id || '');
+    const idB = String(b.id || '');
+    const score = (id: string) => (id.includes('8008-') ? 0 : 1);
+    return score(idA) - score(idB);
+  });
+  const seen = new Set<string>();
+  return sorted.filter((row) => {
+    const key = normName(String(row.full_name || ''));
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function atmPackPlayersToSizing(catalog: SizingProduct[]) {
+  return atmPlayers.map((p) => ({
+    id: p.id,
+    firstName: p.firstName,
+    lastName: p.lastName,
+    number: p.number,
+    position: p.position,
+    status: 'ACTIVE' as const,
+    nationality: p.nationality || 'España',
+    birthDate: p.birthDate || '',
+    imageUrl:
+      resolveAtmPackPlayerPhoto({
+        dorsal: p.number,
+        fullName: `${p.firstName} ${p.lastName}`,
+        photo_url: p.imageUrl,
+      }) || p.imageUrl,
+    slug: undefined as string | undefined,
+    sizes: normalizeSizes(p.sizes as Record<string, string | number | undefined>, catalog),
+  }));
+}
+
+function atmPackStaffToSizing(catalog: SizingProduct[]) {
+  return atmCoachingStaff.map((s) => {
+    const photo =
+      resolveAtmPackStaffPhoto({ fullName: s.full_name, photo_url: s.photo_url }) || s.photo_url;
+    return {
+      id: s.id,
+      full_name: s.full_name,
+      role: s.role,
+      email: s.email,
+      nationality: s.nationality,
+      photo_url: photo,
+      ...sizesToStaffFields(
+        staffToSizes(
+          {
+            shirt_size: s.shirt_size,
+            shorts_size: s.shorts_size,
+            shoe_size: s.shoe_size,
+          } as any,
+          catalog
+        )
+      ),
+    };
+  });
+}
 
 export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
   const meta = ((p.metadata as Record<string, unknown>)?.sizing as Record<string, string>) || {};
@@ -138,10 +210,16 @@ export async function loadProductionSizing(
   }));
 
   const fullCatalog = mergeSizingCatalog(customFromDb);
-  const players = (playerRows as Player[]).map((p) => supabasePlayerToSizingRow(p, fullCatalog));
-  const staff = staffRows.map((s: Record<string, unknown>) =>
+  let players = (playerRows as Player[]).map((p) => supabasePlayerToSizingRow(p, fullCatalog));
+  let staff = dedupeStaffByName(staffRows).map((s: Record<string, unknown>) =>
     supabaseStaffToSizingRow(s, fullCatalog)
   );
+
+  // ATM: alinear con plantilla oficial (23 jugadores + 5 cuerpo técnico)
+  if (teamId === CLUB_TEAM_IDS.atm) {
+    if (players.length === 0) players = atmPackPlayersToSizing(fullCatalog);
+    if (staff.length === 0) staff = atmPackStaffToSizing(fullCatalog);
+  }
 
   return { players, staff, catalog: fullCatalog, customProducts: customFromDb };
 }

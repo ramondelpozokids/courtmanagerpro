@@ -126,8 +126,13 @@ export default function SizingTablePage() {
   const [activeTab, setActiveTab] = useState<"players" | "staff">("players");
   const [categoryFilter, setCategoryFilter] = useState<SizingCategory | "ALL">("ALL");
   const [search, setSearch] = useState("");
-  const [players, setPlayers] = useState(() => initPlayers(catalog));
-  const [staff, setStaff] = useState(() => initStaff(catalog));
+  const [rosterReady, setRosterReady] = useState(() => !usesProductionClubData());
+  const [players, setPlayers] = useState(() =>
+    usesProductionClubData() ? [] : initPlayers(catalog)
+  );
+  const [staff, setStaff] = useState(() =>
+    usesProductionClubData() ? [] : initStaff(catalog)
+  );
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
@@ -195,6 +200,7 @@ export default function SizingTablePage() {
   const refreshFromDb = async () => {
     if (usesProductionClubData()) {
       try {
+        setRosterReady(false);
         const data = await loadProductionSizing(teamId);
         setPlayers(data.players);
         setStaff(data.staff);
@@ -202,6 +208,8 @@ export default function SizingTablePage() {
         setCatalogVersion((v) => v + 1);
       } catch (err) {
         console.error('Error cargando tallas:', err);
+      } finally {
+        setRosterReady(true);
       }
       return;
     }
@@ -209,6 +217,7 @@ export default function SizingTablePage() {
     setPlayers(initPlayers(cat));
     setStaff(initStaff(cat));
     setCatalogVersion((v) => v + 1);
+    setRosterReady(true);
   };
 
   const refreshAndSave = () => {
@@ -403,11 +412,14 @@ export default function SizingTablePage() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            disabled={pdfBusy || (players.length === 0 && staff.length === 0)}
+            disabled={pdfBusy || !rosterReady || (players.length === 0 && staff.length === 0)}
             onClick={() => {
               void (async () => {
                 try {
                   setPdfBusy(true);
+                  if (!rosterReady) {
+                    throw new Error('Espera a que cargue la plantilla ATM (23 jugadores + 5 cuerpo técnico).');
+                  }
                   await exportSizingPdf(
                     branding.slug,
                     players,
@@ -426,7 +438,7 @@ export default function SizingTablePage() {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 disabled:opacity-40"
           >
             <FileText className="h-4 w-4 text-orange-500" />
-            {pdfBusy ? "PDF…" : "PDF tallas"}
+            {pdfBusy ? "PDF…" : !rosterReady ? "Cargando…" : "PDF tallas"}
           </button>
           {canWrite && (
             <button
