@@ -6,9 +6,10 @@ import { canWriteClubData } from "@/lib/permissions";
 import StockBadge from "@/components/inventory/StockBadge";
 import ItemForm from "@/components/inventory/ItemForm";
 import { useState } from "react";
-import { Search, PlusCircle, Package, ArrowUpRight, ArrowDownRight, QrCode, ClipboardList, Trash2, Edit2 } from "lucide-react";
+import { Search, PlusCircle, Package, ArrowUpRight, ArrowDownRight, QrCode, ClipboardList, Trash2, Edit2, FileText } from "lucide-react";
 import Link from "next/link";
 import { useClubBranding, useActiveTeamId } from "@/contexts/ClubDemoContext";
+import { exportInventoryPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
 export default function InventoryPage() {
   const { user, userEmail, isSuperadmin } = useAuth();
@@ -18,6 +19,7 @@ export default function InventoryPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
 
@@ -58,6 +60,41 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={pdfBusy || items.length === 0}
+            onClick={() => {
+              void (async () => {
+                try {
+                  setPdfBusy(true);
+                  await exportInventoryPdf(
+                    branding.slug,
+                    items.map((item) => ({
+                      id: item.id,
+                      name: item.name,
+                      sku: item.sku,
+                      category: item.category,
+                      stock_available: item.stock_available,
+                      stock_min: item.stock_min,
+                      size: item.size,
+                      unit_cost: item.unit_cost,
+                      location: (item as { location?: string }).location,
+                    })),
+                    { season: seasonLabelForClub(branding.slug) }
+                  );
+                } catch (err) {
+                  console.error(err);
+                  alert(err instanceof Error ? err.message : "Error al generar PDF");
+                } finally {
+                  setPdfBusy(false);
+                }
+              })();
+            }}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all disabled:opacity-40"
+          >
+            <FileText className="h-4.5 w-4.5 text-orange-500" />
+            {pdfBusy ? "PDF…" : "PDF inventario"}
+          </button>
           <Link
             href="/inventory/update"
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"

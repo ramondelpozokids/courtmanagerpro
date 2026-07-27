@@ -1,14 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { useInventory } from "@/hooks/useInventory";
 import { usePlayers } from "@/hooks/usePlayers";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import { canAccessReports, canWriteClubData } from "@/lib/permissions";
-import { exportInventoryCsv, exportSizingCsv } from "@/lib/csv-export";
+import { exportInventoryCsv, exportSizingCsv, exportWarehouseCsv } from "@/lib/csv-export";
+import {
+  exportInventoryPdf,
+  exportSizingPdf,
+  exportWarehousePdf,
+  seasonLabelForClub,
+} from "@/lib/pdf-export";
 import { getClubPack } from "@/data/clubs";
 import {
-  TrendingUp, Download, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler,
+  TrendingUp, Download, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler, FileText, Warehouse,
 } from "lucide-react";
 
 export default function ReportsPage() {
@@ -21,6 +28,8 @@ export default function ReportsPage() {
   const coachingStaff = pack.coachingStaff || [];
   const role = user?.profile?.role;
   const canExport = hasOperationalAccess || canWriteClubData(role, userEmail);
+  const season = seasonLabelForClub(branding.slug);
+  const [pdfBusy, setPdfBusy] = useState<string | null>(null);
 
   const totalValue = items.reduce((acc, item) => acc + (item.unit_cost || 0) * item.stock_available, 0);
   const outOfStockCount = items.filter((item) => item.stock_available === 0).length;
@@ -34,28 +43,60 @@ export default function ReportsPage() {
     return acc;
   }, {});
 
+  const inventoryRows = items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    sku: item.sku,
+    category: item.category,
+    stock_available: item.stock_available,
+    stock_min: item.stock_min,
+    size: item.size,
+    unit_cost: item.unit_cost,
+    location: (item as { location?: string }).location,
+  }));
+
   const handleExportInventory = () => {
-    exportInventoryCsv(
-      branding.slug,
-      items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        sku: item.sku,
-        category: item.category,
-        stock_available: item.stock_available,
-        stock_min: item.stock_min,
-        size: item.size,
-        unit_cost: item.unit_cost,
-        location: (item as { location?: string }).location,
-      })),
-      { season: branding.slug === "atm" ? "2025-26" : "2026-27" }
-    );
+    exportInventoryCsv(branding.slug, inventoryRows, { season });
   };
 
   const handleExportSizing = () => {
-    exportSizingCsv(branding.slug, players, coachingStaff, [], {
-      season: branding.slug === "atm" ? "2025-26" : "2026-27",
+    exportSizingCsv(branding.slug, players, coachingStaff, [], { season });
+  };
+
+  const loadWarehouseRows = async () => {
+    const params = new URLSearchParams({
+      scope: "active",
+      team_id: teamId,
+      sport: branding.sport === "football" ? "football" : "basketball",
+      category: "primer_equipo",
     });
+    const res = await fetch(`/api/warehouse?${params}`, { credentials: "include" });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error al cargar almacén");
+    return (json.data?.items || []) as Array<{
+      name: string;
+      sku?: string | null;
+      section_label?: string;
+      size?: string | null;
+      stock: number;
+      stock_min?: number;
+      unit_cost?: number;
+      value?: number;
+      location?: string;
+      low_stock?: boolean;
+    }>;
+  };
+
+  const runPdf = async (key: string, fn: () => Promise<void>) => {
+    try {
+      setPdfBusy(key);
+      await fn();
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : "Error al generar PDF");
+    } finally {
+      setPdfBusy(null);
+    }
   };
 
   if (!hasOperationalAccess && !canAccessReports(role, userEmail)) {
@@ -78,16 +119,55 @@ export default function ReportsPage() {
             Informes de Equipación y Utilería
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            {branding.name} — exportación CSV con cabecera oficial, valor de almacén y tabla de tallas ({players.length} jugadores).
+            {branding.name} — CSV y PDF con logo, dirección y cabecera oficial del club activo ({players.length} jugadores).
           </p>
         </div>
         {canExport && (
           <div className="flex flex-wrap gap-2">
-            <button onClick={handleExportInventory} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-md">
-              <Download className="h-4 w-4" /> Inventario CSV
+            <button
+              onClick={handleExportInventory}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold"
+            >
+              <Download className="h-3.5 w-3.5" /> Inventario CSV
             </button>
-            <button onClick={handleExportSizing} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-bold">
-              <Ruler className="h-4 w-4 text-orange-500" /> Tallas CSV
+            <button
+              onClick={() =>
+                void runPdf("inv", () => exportInventoryPdf(branding.slug, inventoryRows, { season }))
+              }
+              disabled={!!pdfBusy}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-50"
+            >
+              <FileText className="h-3.5 w-3.5" /> {pdfBusy === "inv" ? "…" : "Inventario PDF"}
+            </button>
+            <button
+              onClick={handleExportSizing}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold"
+            >
+              <Ruler className="h-3.5 w-3.5 text-orange-500" /> Tallas CSV
+            </button>
+            <button
+              onClick={() =>
+                void runPdf("siz", () =>
+                  exportSizingPdf(branding.slug, players, coachingStaff, [], { season })
+                )
+              }
+              disabled={!!pdfBusy}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-50"
+            >
+              <FileText className="h-3.5 w-3.5" /> {pdfBusy === "siz" ? "…" : "Tallas PDF"}
+            </button>
+            <button
+              onClick={() =>
+                void runPdf("wh", async () => {
+                  const rows = await loadWarehouseRows();
+                  exportWarehouseCsv(branding.slug, rows, { season });
+                  await exportWarehousePdf(branding.slug, rows, { season });
+                })
+              }
+              disabled={!!pdfBusy}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold disabled:opacity-50"
+            >
+              <Warehouse className="h-3.5 w-3.5" /> {pdfBusy === "wh" ? "…" : "Almacén PDF"}
             </button>
           </div>
         )}

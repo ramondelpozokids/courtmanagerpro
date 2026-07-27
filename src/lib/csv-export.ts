@@ -98,6 +98,20 @@ export interface InventoryCsvRow {
   updated_at?: string | null;
 }
 
+export interface WarehouseCsvRow {
+  name: string;
+  sku?: string | null;
+  section_label?: string | null;
+  sport?: string | null;
+  size?: string | null;
+  stock: number;
+  stock_min?: number;
+  unit_cost?: number;
+  value?: number;
+  location?: string | null;
+  low_stock?: boolean;
+}
+
 const DEFAULT_SEASON = '2025/26';
 
 const SHIRT_SIZE_KEYS = ['jersey_home', 'jersey_away', 'jersey_third', 'jersey'];
@@ -603,6 +617,60 @@ export function buildSizingCsvLines(
   return lines;
 }
 
+export function buildWarehouseCsvLines(
+  identity: ClubCsvIdentity,
+  items: WarehouseCsvRow[],
+  options?: CsvExportOptions
+): string[] {
+  const sorted = [...items].sort((a, b) => {
+    const sec = String(a.section_label || '').localeCompare(String(b.section_label || ''), 'es');
+    if (sec !== 0) return sec;
+    return a.name.localeCompare(b.name, 'es');
+  });
+  const totalUnits = sorted.reduce((s, i) => s + (i.stock || 0), 0);
+  const totalValue = sorted.reduce((s, i) => s + (i.value ?? (i.unit_cost || 0) * (i.stock || 0)), 0);
+  const low = sorted.filter((i) => i.low_stock || (i.stock_min != null && i.stock <= i.stock_min)).length;
+
+  const lines = buildCorporateLetterhead(
+    identity,
+    'INFORME DE ALMACÉN GENERAL — STOCK Y VALOR',
+    options
+  );
+
+  lines.push(...sectionDivider('RESUMEN EJECUTIVO'));
+  lines.push(row(['Indicador', 'Valor']));
+  lines.push(row(['Referencias', sorted.length]));
+  lines.push(row(['Unidades', totalUnits]));
+  lines.push(row(['Valor stock (€)', Math.round(totalValue)]));
+  lines.push(row(['Bajo mínimo', low]));
+
+  lines.push(...sectionDivider('DETALLE DE ALMACÉN'));
+  lines.push(
+    row(['Sección', 'Producto', 'SKU', 'Talla', 'Stock', 'Mínimo', 'Coste unit.', 'Valor', 'Ubicación'])
+  );
+  for (const item of sorted) {
+    const value = item.value ?? (item.unit_cost || 0) * (item.stock || 0);
+    lines.push(
+      row([
+        item.section_label || identity.sportSection,
+        item.name,
+        item.sku || '—',
+        item.size || '—',
+        item.stock,
+        item.stock_min ?? '—',
+        item.unit_cost ?? 0,
+        Math.round(value * 100) / 100,
+        item.location || '—',
+      ])
+    );
+  }
+
+  lines.push(emptyRow());
+  lines.push(row(['Fin del informe', identity.legalName, identity.department]));
+  lines.push(row(['Documento', 'Auditoría de almacén general — CourtManager Pro']));
+  return lines;
+}
+
 export function exportInventoryCsv(
   slug: ClubSlug,
   items: InventoryCsvRow[],
@@ -628,5 +696,18 @@ export function exportSizingCsv(
   downloadCsv(
     `tallas_utileria_${slug}_${season}.csv`,
     buildSizingCsvLines(identity, players, staff, customProducts, options)
+  );
+}
+
+export function exportWarehouseCsv(
+  slug: ClubSlug,
+  items: WarehouseCsvRow[],
+  options?: CsvExportOptions
+): void {
+  const identity = CLUB_CSV_IDENTITY[slug];
+  const season = (options?.season ?? '2025-26').replace(/\//g, '-');
+  downloadCsv(
+    `almacen_general_${slug}_${season}.csv`,
+    buildWarehouseCsvLines(identity, items, options)
   );
 }

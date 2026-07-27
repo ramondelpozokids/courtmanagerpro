@@ -25,10 +25,11 @@ import {
 } from "@/content/sizing-products";
 import {
   ArrowLeft, Users, ShieldCheck, Search, Ruler,
-  Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown,
+  Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown, FileText,
 } from "lucide-react";
 import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
 import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
+import { exportSizingPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
 function saveSizingDemo() {
   persistDemoDb();
@@ -151,6 +152,7 @@ export default function SizingTablePage() {
   const [newProductCategory, setNewProductCategory] = useState<SizingCategory>("accesorios");
   const [newProductDefault, setNewProductDefault] = useState("XL");
   const [newProductInputType, setNewProductInputType] = useState<"text" | "number">("text");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const visibleProducts = useMemo(
     () =>
@@ -398,16 +400,45 @@ export default function SizingTablePage() {
           <ArrowLeft className="h-4 w-4" />
           Volver al Inicio
         </Link>
-        {canWrite && (
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setShowAddProductModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/20 dark:border-orange-900/40 text-xs font-bold text-orange-700 dark:text-orange-400 transition-all"
+            disabled={pdfBusy || (players.length === 0 && staff.length === 0)}
+            onClick={() => {
+              void (async () => {
+                try {
+                  setPdfBusy(true);
+                  await exportSizingPdf(
+                    branding.slug,
+                    players,
+                    staff,
+                    customProducts,
+                    { season: seasonLabelForClub(branding.slug) }
+                  );
+                } catch (err) {
+                  console.error(err);
+                  alert(err instanceof Error ? err.message : "Error al generar PDF");
+                } finally {
+                  setPdfBusy(false);
+                }
+              })();
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 disabled:opacity-40"
           >
-            <PackagePlus className="h-4 w-4" />
-            Añadir Producto o Accesorio
+            <FileText className="h-4 w-4 text-orange-500" />
+            {pdfBusy ? "PDF…" : "PDF tallas"}
           </button>
-        )}
+          {canWrite && (
+            <button
+              type="button"
+              onClick={() => setShowAddProductModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/20 dark:border-orange-900/40 text-xs font-bold text-orange-700 dark:text-orange-400 transition-all"
+            >
+              <PackagePlus className="h-4 w-4" />
+              Añadir Producto o Accesorio
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Header */}

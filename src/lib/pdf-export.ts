@@ -1,6 +1,6 @@
 /**
- * Informes PDF — Inventario y Tallas.
- * Solo descarga de informes; no modifica pantallas de la app.
+ * Informes PDF — Inventario, Tallas y Almacén general.
+ * Cabecera por club activo (RMB / RMF / ATM): logo, razón social, dirección.
  */
 import type { ClubSlug } from '@/data/clubs/types';
 import type { SizingProduct } from '@/content/sizing-products';
@@ -9,19 +9,23 @@ import {
   type ClubCsvIdentity,
   type CsvExportOptions,
   type InventoryCsvRow,
+  type WarehouseCsvRow,
   buildInventoryCsvLines,
   buildSizingCsvLines,
+  buildWarehouseCsvLines,
 } from '@/lib/csv-export';
 
 const DEFAULT_SEASON = '2025/26';
-const DOC_VERSION = 'v1.0';
-/** Logo claro para impresión (Realmadrid + dirección, fondo blanco). */
-const PDF_REPORT_LOGO = '/logo_pdf.webp';
+const DOC_VERSION = 'v1.1';
 const BRAND_GOLD: [number, number, number] = [180, 140, 60];
 const BRAND_NAVY: [number, number, number] = [15, 23, 42];
 const TEXT_MUTED: [number, number, number] = [100, 116, 139];
 const BG_LIGHT: [number, number, number] = [248, 250, 252];
 const TABLE_HEAD_BG: [number, number, number] = [241, 245, 249];
+
+export function seasonLabelForClub(slug: ClubSlug): string {
+  return slug === 'atm' ? '2025-26' : '2026-27';
+}
 
 type PdfDoc = {
   internal: { pageSize: { getWidth: () => number; getHeight: () => number } };
@@ -91,20 +95,7 @@ function formatExportDateTime(): string {
   }).format(new Date());
 }
 
-function pdfVenueLines(identity: ClubCsvIdentity): { venue: string; city: string } {
-  if (identity.department.toLowerCase().includes('atlético')) {
-    return {
-      venue: identity.addressLine,
-      city: `${identity.cityLine}${identity.website ? ` · ${identity.website}` : ''}`,
-    };
-  }
-  if (identity.department.toLowerCase().includes('real madrid')) {
-    return { venue: 'Ciudad Real Madrid', city: 'Madrid, España' };
-  }
-  return { venue: identity.venue, city: identity.cityLine };
-}
-
-/** jsPDF no admite WebP; rasterizamos vía canvas a PNG. */
+/** jsPDF: rasteriza logo del club a PNG vía canvas. */
 async function loadLogoForPdf(logoPath: string): Promise<string | null> {
   try {
     const res = await fetch(logoPath);
@@ -116,14 +107,18 @@ async function loadLogoForPdf(logoPath: string): Promise<string | null> {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
+          const max = 512;
+          const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight || 1));
+          canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
           const ctx = canvas.getContext('2d');
           if (!ctx) {
             reject(new Error('canvas'));
             return;
           }
-          ctx.drawImage(img, 0, 0);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           resolve(canvas.toDataURL('image/png'));
         };
         img.onerror = () => reject(new Error('img'));
@@ -148,28 +143,32 @@ function addCorporateHeader(
   let y = 14;
 
   doc.setFillColor(...BG_LIGHT);
-  doc.rect(0, 0, pageWidth, 48, 'F');
+  doc.rect(0, 0, pageWidth, 52, 'F');
   doc.setFillColor(...BRAND_GOLD);
-  doc.rect(0, 48, pageWidth, 0.8, 'F');
+  doc.rect(0, 52, pageWidth, 0.8, 'F');
 
   doc.setTextColor(...BRAND_NAVY);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text(identity.department.toUpperCase(), pageWidth / 2, y + 4, { align: 'center' });
-  y += 8;
+  doc.setFontSize(11);
+  doc.text(identity.legalName.toUpperCase(), pageWidth / 2, y + 3, { align: 'center' });
+  y += 7;
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('Departamento de Utilería y Operaciones', pageWidth / 2, y, { align: 'center' });
+  doc.setTextColor(...TEXT_MUTED);
+  doc.text(identity.department, pageWidth / 2, y, { align: 'center' });
   y += 4;
-  doc.text(`Temporada ${season}`, pageWidth / 2, y, { align: 'center' });
+  doc.text(`${identity.venue} · ${identity.addressLine}`, pageWidth / 2, y, { align: 'center' });
   y += 4;
-  const { venue, city } = pdfVenueLines(identity);
-  doc.text(`${venue} · ${city}`, pageWidth / 2, y, { align: 'center' });
+  const contact = [identity.cityLine, identity.website, identity.email].filter(Boolean).join(' · ');
+  doc.text(contact, pageWidth / 2, y, { align: 'center' });
+  y += 4;
+  doc.text(`Temporada ${season} · ${identity.sportSection}`, pageWidth / 2, y, { align: 'center' });
 
-  y = 58;
+  y = 60;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
+  doc.setTextColor(...BRAND_NAVY);
   doc.text('INFORME OFICIAL', 14, y);
   y += 7;
   doc.setFont('helvetica', 'normal');
@@ -197,12 +196,12 @@ async function addLogoToCover(
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
   doc.setFillColor(...BRAND_GOLD);
-  doc.rect(14, pageHeight * 0.62, pageWidth - 28, 0.6, 'F');
+  doc.rect(14, pageHeight * 0.58, pageWidth - 28, 0.6, 'F');
 
-  const logo = await loadLogoForPdf(PDF_REPORT_LOGO);
+  const logo = await loadLogoForPdf(identity.logoPath);
   if (logo) {
     try {
-      doc.addImage(logo, 'PNG', pageWidth / 2 - 35, 28, 70, 70);
+      doc.addImage(logo, 'PNG', pageWidth / 2 - 22, 32, 44, 44);
     } catch {
       /* logo opcional */
     }
@@ -210,16 +209,35 @@ async function addLogoToCover(
 
   doc.setTextColor(...BRAND_NAVY);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('INFORME OFICIAL', pageWidth / 2, pageHeight * 0.58, { align: 'center' });
+  doc.setFontSize(13);
+  doc.text(identity.legalName.toUpperCase(), pageWidth / 2, 88, { align: 'center' });
+
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  doc.text(reportTitle, pageWidth / 2, pageHeight * 0.58 + 10, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setTextColor(...TEXT_MUTED);
+  doc.text(identity.department, pageWidth / 2, 96, { align: 'center' });
+  doc.text(identity.venue, pageWidth / 2, 102, { align: 'center' });
+  doc.text(`${identity.addressLine} · ${identity.cityLine}`, pageWidth / 2, 108, { align: 'center' });
+  if (identity.website) {
+    doc.text(identity.website, pageWidth / 2, 114, { align: 'center' });
+  }
+
+  doc.setTextColor(...BRAND_NAVY);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('INFORME OFICIAL', pageWidth / 2, pageHeight * 0.58 + 12, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.text(reportTitle, pageWidth / 2, pageHeight * 0.58 + 22, { align: 'center' });
 
   doc.setFontSize(9);
   doc.setTextColor(...TEXT_MUTED);
-  doc.text(`Temporada ${season}`, pageWidth / 2, pageHeight * 0.58 + 22, { align: 'center' });
-  doc.text(`Fecha de generación: ${formatExportDateTime()}`, pageWidth / 2, pageHeight - 36, { align: 'center' });
+  doc.text(`Temporada ${season} · ${identity.sportSection}`, pageWidth / 2, pageHeight * 0.58 + 34, {
+    align: 'center',
+  });
+  doc.text(`Fecha de generación: ${formatExportDateTime()}`, pageWidth / 2, pageHeight - 36, {
+    align: 'center',
+  });
   doc.text(`Versión del documento: ${DOC_VERSION}`, pageWidth / 2, pageHeight - 28, { align: 'center' });
   doc.text('Documento interno — CourtManager Pro', pageWidth / 2, pageHeight - 18, { align: 'center' });
 }
@@ -352,22 +370,29 @@ async function buildPdfDocument(
   return doc;
 }
 
+function fileSlug(identity: ClubCsvIdentity): string {
+  return identity.brandLine
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_');
+}
+
 export async function exportInventoryPdf(
   slug: ClubSlug,
   items: InventoryCsvRow[],
   options?: CsvExportOptions
 ): Promise<void> {
   const identity = CLUB_CSV_IDENTITY[slug];
-  const lines = buildInventoryCsvLines(identity, items, options);
+  const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
+  const lines = buildInventoryCsvLines(identity, items, opts);
   const doc = await buildPdfDocument(
     identity,
     'INFORME DE INVENTARIO — UTILERÍA Y EQUIPACIÓN',
     lines,
-    options
+    opts
   );
-  const fileSlug = identity.brandLine.toLowerCase().replace(/\s+/g, '_');
-  const seasonSlug = (options?.season ?? DEFAULT_SEASON).replace('/', '-');
-  doc.save(`inventario_utileria_${fileSlug}_${seasonSlug}.pdf`);
+  doc.save(`inventario_utileria_${fileSlug(identity)}_${opts.season!.replace('/', '-')}.pdf`);
 }
 
 export async function exportSizingPdf(
@@ -378,14 +403,30 @@ export async function exportSizingPdf(
   options?: CsvExportOptions
 ): Promise<void> {
   const identity = CLUB_CSV_IDENTITY[slug];
-  const lines = buildSizingCsvLines(identity, players, staff, customProducts, options);
+  const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
+  const lines = buildSizingCsvLines(identity, players, staff, customProducts, opts);
   const doc = await buildPdfDocument(
     identity,
     'INFORME DE TALLAS — PLANTILLA Y CUERPO TÉCNICO',
     lines,
-    options
+    opts
   );
-  const fileSlug = identity.brandLine.toLowerCase().replace(/\s+/g, '_');
-  const seasonSlug = (options?.season ?? DEFAULT_SEASON).replace('/', '-');
-  doc.save(`tabla_tallas_${fileSlug}_${seasonSlug}.pdf`);
+  doc.save(`tabla_tallas_${fileSlug(identity)}_${opts.season!.replace('/', '-')}.pdf`);
+}
+
+export async function exportWarehousePdf(
+  slug: ClubSlug,
+  items: WarehouseCsvRow[],
+  options?: CsvExportOptions
+): Promise<void> {
+  const identity = CLUB_CSV_IDENTITY[slug];
+  const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
+  const lines = buildWarehouseCsvLines(identity, items, opts);
+  const doc = await buildPdfDocument(
+    identity,
+    'INFORME DE ALMACÉN GENERAL — STOCK Y VALOR',
+    lines,
+    opts
+  );
+  doc.save(`almacen_general_${fileSlug(identity)}_${opts.season!.replace('/', '-')}.pdf`);
 }

@@ -13,10 +13,12 @@ import {
   MapPin,
   Download,
   Euro,
+  FileText,
 } from 'lucide-react';
 import { downloadCsv } from '@/lib/csv-export';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+import { exportWarehousePdf, seasonLabelForClub } from '@/lib/pdf-export';
 
 type WarehouseItem = {
   id: string;
@@ -75,6 +77,7 @@ export default function AlmacenGeneralPage() {
   const [onlyLow, setOnlyLow] = useState(false);
   const [q, setQ] = useState('');
   const [view, setView] = useState<'secciones' | 'ubicaciones'>('secciones');
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -153,6 +156,34 @@ export default function AlmacenGeneralPage() {
     downloadCsv(`almacen_${clubSlug}_${new Date().toISOString().slice(0, 10)}.csv`, lines);
   };
 
+  const exportPdf = async () => {
+    try {
+      setPdfBusy(true);
+      await exportWarehousePdf(
+        branding.slug,
+        items.map((i) => ({
+          name: i.name,
+          sku: i.sku,
+          section_label: i.section_label,
+          sport: i.sport,
+          size: i.size,
+          stock: i.stock,
+          stock_min: i.stock_min,
+          unit_cost: i.unit_cost,
+          value: i.value,
+          location: i.location,
+          low_stock: i.low_stock,
+        })),
+        { season: seasonLabelForClub(branding.slug) }
+      );
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : 'Error al generar PDF');
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-6 text-left">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -204,6 +235,15 @@ export default function AlmacenGeneralPage() {
           >
             <Download className="h-3.5 w-3.5" />
             Export CSV
+          </button>
+          <button
+            type="button"
+            onClick={() => void exportPdf()}
+            disabled={!items.length || pdfBusy}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-40"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            {pdfBusy ? 'PDF…' : 'PDF almacén'}
           </button>
           <button
             type="button"
