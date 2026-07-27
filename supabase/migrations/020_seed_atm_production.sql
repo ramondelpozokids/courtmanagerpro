@@ -409,7 +409,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'España',
   '1992-01-08',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18069/thumb_300x400/DORSALES_WEB_6_KOKE.jpg?1750111721',
+  '/clubs/atm/players/koke.png',
   true,
   'L',
   'L',

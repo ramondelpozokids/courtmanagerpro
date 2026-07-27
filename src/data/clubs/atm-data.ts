@@ -121,8 +121,7 @@ const ATM_PLAYER_PHOTOS: Record<string, string> = {
   'robin-aime-robert-le-normand-2025-2026': laligaPhoto('p224919'),
   'rodrigo-mendoza-martinez-moya-2025-2026': laligaPhoto('p578538'),
   'jo-o-lucas-de-souza-cardoso-2025-2026': laligaPhoto('p488662'),
-  'jorge-resurreccion-merodio-2025-2026':
-    clubPhoto('18069/thumb_300x400/DORSALES_WEB_6_KOKE.jpg?1750111721'),
+  'jorge-resurreccion-merodio-2025-2026': '/clubs/atm/players/koke.png',
   'pablo-barrios-rivas-2025-2026': laligaPhoto('p503523'),
   'alejandro-baena-rodriguez-2025-2026': laligaPhoto('p248501'),
   'marcos-llorente-moreno-2025-2026': laligaPhoto('p192364'),
@@ -302,7 +301,7 @@ export const atmPlayers = [
     position: 'centrocampista',
     nationality: 'España',
     birthDate: '1992-01-08',
-    imageUrl: '/clubs/atm/logo.png',
+    imageUrl: '/clubs/atm/players/koke.png',
     profile_url: playerUrl('jorge-resurreccion-merodio-2025-2026'),
     sizes: defaultSizes.L,
   }),
