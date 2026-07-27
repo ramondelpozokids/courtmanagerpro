@@ -30,8 +30,9 @@ function staffUuid(demoId) {
 }
 
 function invUuid(demoId) {
-  const n = Number(String(demoId).replace(/\D/g, '')) || 1;
-  return `00000000-0000-4000-8006-${String(n).padStart(12, '0')}`;
+  const digits = String(demoId).replace(/\D/g, '') || '1';
+  // Evitar colisiones i1 vs i10: usar el número completo pad 12
+  return `00000000-0000-4000-8006-${digits.padStart(12, '0')}`;
 }
 
 const posMap = {
@@ -177,13 +178,22 @@ for (const i of atmInventory) {
     gender: i.gender || null,
     source: i.source || null,
     product_url: i.product_url || null,
+    brand: i.brand || null,
   }))}::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  category = EXCLUDED.category,
   stock_total = EXCLUDED.stock_total,
   stock_available = EXCLUDED.stock_available,
+  stock_min = EXCLUDED.stock_min,
+  size = EXCLUDED.size,
+  unit_cost = EXCLUDED.unit_cost,
+  location = EXCLUDED.location,
   image_url = EXCLUDED.image_url,
+  metadata = EXCLUDED.metadata,
+  is_active = true,
   updated_at = NOW();\n\n`;
 }
 

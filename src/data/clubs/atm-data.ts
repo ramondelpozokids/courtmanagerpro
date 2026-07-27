@@ -774,6 +774,10 @@ export const atmMedical = [
 ];
 
 const LOC_KIT = 'Ciudad Deportiva — Almacén Equipaciones Hombre';
+const LOC_EST1 = 'Ciudad Deportiva — Est. 1 Equipación';
+const LOC_EST2 = 'Ciudad Deportiva — Est. 2 Entrenamiento';
+const LOC_VEST = 'Vestuario Metropolitano — Banquillo';
+const LOC_GK = 'Ciudad Deportiva — Almacén Porteros';
 const nowIso = () => new Date().toISOString();
 const STORE = 'shop.atleticodemadrid.com';
 
@@ -789,10 +793,13 @@ function kitItem(p: {
   size: string;
   image_url: string;
   product_url?: string;
+  location?: string;
+  brand?: string;
 }) {
   return {
     ...p,
-    location: LOC_KIT,
+    brand: p.brand || 'Nike',
+    location: p.location || LOC_KIT,
     qr_code: p.sku,
     unit_cost: p.price,
     is_active: true,
@@ -802,267 +809,540 @@ function kitItem(p: {
   };
 }
 
+/** Expande un producto a tallas (estilo almacén RMB: 1 línea por talla/SKU). */
+function expandBySize(
+  base: {
+    idPrefix: string;
+    name: string;
+    skuBase: string;
+    category: string;
+    price: number;
+    image_url: string;
+    product_url?: string;
+    location?: string;
+    brand?: string;
+  },
+  rows: { size: string; available: number; total: number; min: number }[],
+  startId: number
+): ReturnType<typeof kitItem>[] {
+  return rows.map((r, idx) =>
+    kitItem({
+      id: `i${startId + idx}`,
+      name: base.name,
+      sku: `${base.skuBase}-${r.size}`,
+      category: base.category,
+      price: base.price,
+      stock_total: r.total,
+      stock_available: r.available,
+      stock_min: r.min,
+      size: r.size,
+      image_url: base.image_url,
+      product_url: base.product_url,
+      location: base.location,
+      brand: base.brand,
+    })
+  );
+}
+
+/** Distribución típica utilería (totales desde export almacén ATM 2026-07-27). */
+const SZ = {
+  kit54: [
+    { size: 'S', available: 6, total: 8, min: 2 },
+    { size: 'M', available: 12, total: 16, min: 4 },
+    { size: 'L', available: 20, total: 30, min: 8 },
+    { size: 'XL', available: 12, total: 18, min: 4 },
+    { size: 'XXL', available: 4, total: 8, min: 2 },
+  ],
+  kit72: [
+    { size: 'S', available: 8, total: 12, min: 3 },
+    { size: 'M', available: 16, total: 22, min: 5 },
+    { size: 'L', available: 26, total: 36, min: 10 },
+    { size: 'XL', available: 16, total: 22, min: 5 },
+    { size: 'XXL', available: 6, total: 8, min: 2 },
+  ],
+  kit40: [
+    { size: 'S', available: 4, total: 6, min: 1 },
+    { size: 'M', available: 8, total: 12, min: 3 },
+    { size: 'L', available: 16, total: 22, min: 5 },
+    { size: 'XL', available: 8, total: 12, min: 3 },
+    { size: 'XXL', available: 4, total: 8, min: 2 },
+  ],
+  kit60: [
+    { size: 'S', available: 6, total: 10, min: 2 },
+    { size: 'M', available: 14, total: 20, min: 4 },
+    { size: 'L', available: 22, total: 32, min: 8 },
+    { size: 'XL', available: 12, total: 18, min: 4 },
+    { size: 'XXL', available: 6, total: 10, min: 2 },
+  ],
+  socks90: [
+    { size: 'S', available: 18, total: 24, min: 6 },
+    { size: 'M', available: 40, total: 54, min: 12 },
+    { size: 'L', available: 32, total: 42, min: 12 },
+  ],
+  socks65: [
+    { size: 'S', available: 12, total: 16, min: 4 },
+    { size: 'M', available: 28, total: 38, min: 8 },
+    { size: 'L', available: 25, total: 36, min: 8 },
+  ],
+  train88: [
+    { size: 'S', available: 10, total: 14, min: 3 },
+    { size: 'M', available: 20, total: 28, min: 6 },
+    { size: 'L', available: 32, total: 44, min: 12 },
+    { size: 'XL', available: 18, total: 24, min: 6 },
+    { size: 'XXL', available: 8, total: 10, min: 3 },
+  ],
+};
+
 /**
- * Inventario utilería — SOLO hombre / masculino
- * Fuentes tienda: 1ª · 2ª hombre · 3ª hombre · portero hombre · entrenamiento
- * Precios EUR tienda ES (referencia web club / tienda oficial).
+ * Inventario utilería ATM — hombre / masculino
+ * Estructura tipo RM: 1 fila por talla (SKU-talla), fotos tienda oficial, sin botas genéricas.
+ * Stocks alineados con export almacén_atm_2026-07-27 (+ accesorios estilo RMF).
  */
+let _invId = 1;
+const nextId = () => {
+  const n = _invId;
+  _invId += 1;
+  return n;
+};
+
 export const atmInventory = [
-  // ——— 1ª equipación hombre ———
+  ...expandBySize(
+    {
+      idPrefix: 'home-match',
+      name: 'Camiseta Match Hombre 1ª Equipación 26/27',
+      skuBase: 'II2740-101',
+      category: 'camiseta_juego',
+      price: 159.95,
+      image_url: ATM_SHOP_IMAGES.homeMatch,
+      product_url: ATM_STORE_HOME_URL,
+      location: LOC_EST1,
+    },
+    SZ.kit54,
+    nextId()
+  ),
+  ...(() => {
+    _invId += 4;
+    return [];
+  })(),
+  ...expandBySize(
+    {
+      idPrefix: 'home-replica',
+      name: 'Camiseta Hombre 1ª Equipación 26/27',
+      skuBase: 'II1893-101',
+      category: 'camiseta_juego',
+      price: 109.95,
+      image_url: ATM_SHOP_IMAGES.homeReplica,
+      product_url: ATM_STORE_HOME_URL,
+      location: LOC_EST1,
+    },
+    SZ.kit72,
+    (_invId = 6) && 6
+  ),
+  ...(() => {
+    _invId = 11;
+    return expandBySize(
+      {
+        idPrefix: 'home-ls',
+        name: 'Camiseta Manga Larga Hombre 1ª Equipación 26/27',
+        skuBase: 'IQ6643-101',
+        category: 'camiseta_juego',
+        price: 119.95,
+        image_url: ATM_SHOP_IMAGES.homeLongSleeve,
+        product_url: ATM_STORE_HOME_LS_URL,
+        location: LOC_EST1,
+      },
+      SZ.kit40,
+      11
+    );
+  })(),
+  ...(() => {
+    _invId = 16;
+    return expandBySize(
+      {
+        idPrefix: 'home-short',
+        name: 'Pantalón Corto 1ª Equipación 26/27',
+        skuBase: 'II1977-455',
+        category: 'pantalon_juego',
+        price: 54.95,
+        image_url: ATM_SHOP_IMAGES.homeShort,
+        product_url: ATM_STORE_HOME_URL,
+        location: LOC_EST1,
+      },
+      SZ.kit60,
+      16
+    );
+  })(),
+  ...(() => {
+    _invId = 21;
+    return expandBySize(
+      {
+        idPrefix: 'home-sock',
+        name: 'Medias 1ª Equipación 26/27',
+        skuBase: 'IQ6645-455',
+        category: 'calcetines',
+        price: 24.95,
+        image_url: ATM_SHOP_IMAGES.homeSock,
+        product_url: ATM_STORE_HOME_URL,
+        location: LOC_KIT,
+      },
+      SZ.socks90,
+      21
+    );
+  })(),
+  ...(() => {
+    _invId = 24;
+    return expandBySize(
+      {
+        idPrefix: 'away-match',
+        name: 'Camiseta Match Hombre 2ª Equipación 26/27',
+        skuBase: 'IR1435-011',
+        category: 'camiseta_juego',
+        price: 159.95,
+        image_url: ATM_SHOP_IMAGES.awayMatch,
+        product_url: ATM_STORE_AWAY_MATCH_URL,
+        location: LOC_EST1,
+      },
+      SZ.kit40,
+      24
+    );
+  })(),
+  ...(() => {
+    _invId = 29;
+    return expandBySize(
+      {
+        idPrefix: 'away-replica',
+        name: 'Camiseta Hombre 2ª Equipación 26/27',
+        skuBase: 'II1932-011',
+        category: 'camiseta_juego',
+        price: 109.95,
+        image_url: ATM_SHOP_IMAGES.awayReplica,
+        product_url: ATM_STORE_AWAY_MEN_URL,
+        location: LOC_EST1,
+      },
+      SZ.kit40,
+      29
+    );
+  })(),
+  ...(() => {
+    _invId = 34;
+    return expandBySize(
+      {
+        idPrefix: 'away-short',
+        name: 'Pantalón Corto 2ª Equipación 26/27',
+        skuBase: 'II2031-010',
+        category: 'pantalon_juego',
+        price: 54.95,
+        image_url: ATM_SHOP_IMAGES.awayShort,
+        product_url: ATM_STORE_AWAY_SHORT_URL,
+        location: LOC_EST1,
+      },
+      [
+        { size: 'S', available: 5, total: 8, min: 2 },
+        { size: 'M', available: 10, total: 14, min: 3 },
+        { size: 'L', available: 18, total: 26, min: 6 },
+        { size: 'XL', available: 10, total: 14, min: 3 },
+        { size: 'XXL', available: 5, total: 8, min: 1 },
+      ],
+      34
+    );
+  })(),
+  ...(() => {
+    _invId = 39;
+    return expandBySize(
+      {
+        idPrefix: 'away-sock',
+        name: 'Medias 2ª Equipación 26/27',
+        skuBase: 'IQ6648-010',
+        category: 'calcetines',
+        price: 24.95,
+        image_url: ATM_SHOP_IMAGES.awaySock,
+        product_url: ATM_STORE_AWAY_MEN_URL,
+        location: LOC_KIT,
+      },
+      SZ.socks65,
+      39
+    );
+  })(),
+  ...(() => {
+    _invId = 42;
+    return expandBySize(
+      {
+        idPrefix: 'third-match',
+        name: 'Camiseta Match Hombre 3ª Equipación 25/26',
+        skuBase: 'HM3200-407',
+        category: 'camiseta_juego',
+        price: 149.95,
+        image_url: ATM_SHOP_IMAGES.thirdMatch,
+        product_url: ATM_STORE_THIRD_MEN_URL,
+        location: LOC_EST1,
+      },
+      [
+        { size: 'S', available: 3, total: 5, min: 1 },
+        { size: 'M', available: 6, total: 8, min: 2 },
+        { size: 'L', available: 10, total: 16, min: 4 },
+        { size: 'XL', available: 5, total: 8, min: 2 },
+        { size: 'XXL', available: 2, total: 3, min: 1 },
+      ],
+      42
+    );
+  })(),
+  ...(() => {
+    _invId = 47;
+    return expandBySize(
+      {
+        idPrefix: 'third-replica',
+        name: 'Camiseta Hombre 3ª Equipación 25/26',
+        skuBase: 'HM3192-407',
+        category: 'camiseta_juego',
+        price: 99.95,
+        image_url: ATM_SHOP_IMAGES.thirdReplica,
+        product_url: ATM_STORE_THIRD_MEN_URL,
+        location: LOC_EST1,
+      },
+      [
+        { size: 'S', available: 4, total: 6, min: 1 },
+        { size: 'M', available: 8, total: 12, min: 3 },
+        { size: 'L', available: 12, total: 18, min: 4 },
+        { size: 'XL', available: 7, total: 10, min: 2 },
+        { size: 'XXL', available: 3, total: 4, min: 1 },
+      ],
+      47
+    );
+  })(),
+  ...(() => {
+    _invId = 52;
+    return expandBySize(
+      {
+        idPrefix: 'third-short',
+        name: 'Pantalón Corto 3ª Equipación 25/26',
+        skuBase: 'IF1452-407',
+        category: 'pantalon_juego',
+        price: 49.95,
+        image_url: ATM_SHOP_IMAGES.thirdShort,
+        product_url: ATM_STORE_THIRD_MEN_URL,
+        location: LOC_EST1,
+      },
+      [
+        { size: 'S', available: 4, total: 6, min: 1 },
+        { size: 'M', available: 8, total: 12, min: 3 },
+        { size: 'L', available: 14, total: 20, min: 4 },
+        { size: 'XL', available: 8, total: 12, min: 3 },
+        { size: 'XXL', available: 4, total: 5, min: 1 },
+      ],
+      52
+    );
+  })(),
+  ...(() => {
+    _invId = 57;
+    return expandBySize(
+      {
+        idPrefix: 'third-sock',
+        name: 'Medias 3ª Equipación 25/26',
+        skuBase: 'HM3220-406',
+        category: 'calcetines',
+        price: 22.95,
+        image_url: ATM_SHOP_IMAGES.thirdSock,
+        product_url: ATM_STORE_THIRD_MEN_URL,
+        location: LOC_KIT,
+      },
+      [
+        { size: 'S', available: 10, total: 14, min: 4 },
+        { size: 'M', available: 25, total: 36, min: 8 },
+        { size: 'L', available: 20, total: 30, min: 8 },
+      ],
+      57
+    );
+  })(),
+  ...(() => {
+    _invId = 60;
+    return expandBySize(
+      {
+        idPrefix: 'gk',
+        name: 'Camiseta Portero Hombre 25/26',
+        skuBase: 'HQ9235-084',
+        category: 'camiseta_juego',
+        price: 109.95,
+        image_url: ATM_SHOP_IMAGES.gkJersey,
+        product_url: ATM_STORE_GK_MEN_URL,
+        location: LOC_GK,
+      },
+      [
+        { size: 'L', available: 4, total: 6, min: 2 },
+        { size: 'XL', available: 8, total: 12, min: 3 },
+        { size: 'XXL', available: 4, total: 7, min: 1 },
+      ],
+      60
+    );
+  })(),
+  ...(() => {
+    _invId = 63;
+    return expandBySize(
+      {
+        idPrefix: 'train-tee',
+        name: 'Camiseta Entrenamiento Nike Hombre 26/27',
+        skuBase: 'II2770-702',
+        category: 'entrenamiento',
+        price: 54.95,
+        image_url: ATM_SHOP_IMAGES.trainingTee,
+        product_url: ATM_STORE_TRAINING_URL,
+        location: LOC_EST2,
+      },
+      SZ.train88,
+      63
+    );
+  })(),
+  ...(() => {
+    _invId = 68;
+    return expandBySize(
+      {
+        idPrefix: 'prematch',
+        name: 'Camiseta Away Prematch Hombre Nike 26/27',
+        skuBase: 'ATM-PREMATCH-AWAY',
+        category: 'entrenamiento',
+        price: 69.95,
+        image_url: ATM_SHOP_IMAGES.awayReplica,
+        product_url: ATM_STORE_TRAINING_URL,
+        location: LOC_EST2,
+      },
+      [
+        { size: 'S', available: 4, total: 6, min: 1 },
+        { size: 'M', available: 10, total: 14, min: 3 },
+        { size: 'L', available: 16, total: 22, min: 6 },
+        { size: 'XL', available: 8, total: 12, min: 3 },
+        { size: 'XXL', available: 4, total: 6, min: 2 },
+      ],
+      68
+    );
+  })(),
+  ...(() => {
+    _invId = 73;
+    return expandBySize(
+      {
+        idPrefix: 'drill',
+        name: 'Sudadera Drill Top Nike Hombre 26/27',
+        skuBase: 'II2666-702',
+        category: 'entrenamiento',
+        price: 74.95,
+        image_url: ATM_SHOP_IMAGES.drillTop,
+        product_url: ATM_STORE_TRAINING_URL,
+        location: LOC_EST2,
+      },
+      [
+        { size: 'S', available: 4, total: 6, min: 1 },
+        { size: 'M', available: 8, total: 12, min: 3 },
+        { size: 'L', available: 12, total: 18, min: 4 },
+        { size: 'XL', available: 7, total: 10, min: 2 },
+        { size: 'XXL', available: 4, total: 4, min: 2 },
+      ],
+      73
+    );
+  })(),
+  ...(() => {
+    _invId = 78;
+    return expandBySize(
+      {
+        idPrefix: 'train-short',
+        name: 'Pantalón Corto Entrenamiento Nike Hombre 26/27',
+        skuBase: 'II2299-702',
+        category: 'entrenamiento',
+        price: 47.95,
+        image_url: ATM_SHOP_IMAGES.trainingShort,
+        product_url: ATM_STORE_TRAINING_URL,
+        location: LOC_EST2,
+      },
+      [
+        { size: 'S', available: 6, total: 8, min: 2 },
+        { size: 'M', available: 12, total: 18, min: 4 },
+        { size: 'L', available: 20, total: 28, min: 6 },
+        { size: 'XL', available: 12, total: 18, min: 4 },
+        { size: 'XXL', available: 5, total: 8, min: 2 },
+      ],
+      78
+    );
+  })(),
+  ...(() => {
+    _invId = 83;
+    return expandBySize(
+      {
+        idPrefix: 'train-pant',
+        name: 'Pantalón Entrenamiento Nike Hombre 26/27',
+        skuBase: 'ATM-TRAIN-PANT',
+        category: 'entrenamiento',
+        price: 74.95,
+        image_url: ATM_SHOP_IMAGES.trainingShort,
+        product_url: ATM_STORE_TRAINING_URL,
+        location: LOC_EST2,
+      },
+      [
+        { size: 'S', available: 3, total: 5, min: 1 },
+        { size: 'M', available: 7, total: 10, min: 2 },
+        { size: 'L', available: 12, total: 18, min: 4 },
+        { size: 'XL', available: 5, total: 8, min: 2 },
+        { size: 'XXL', available: 3, total: 4, min: 1 },
+      ],
+      83
+    );
+  })(),
+  // Accesorios estilo RMF (sin botas genéricas)
   kitItem({
-    id: 'i1',
-    name: 'Camiseta Match Hombre 1ª Equipación 26/27',
-    sku: 'II2740-101',
-    category: 'camiseta_juego',
-    price: 159.95,
-    stock_total: 80,
-    stock_available: 54,
-    stock_min: 20,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.homeMatch,
-    product_url: ATM_STORE_HOME_URL,
+    id: 'i88',
+    name: 'Espinilleras Oficiales Nike',
+    sku: 'ATM-SHIN-M',
+    category: 'accesorios',
+    price: 35,
+    stock_total: 50,
+    stock_available: 36,
+    stock_min: 12,
+    size: 'M',
+    image_url: '/clubs/atm/logo.png',
+    location: LOC_KIT,
+    brand: 'Nike',
   }),
   kitItem({
-    id: 'i2',
-    name: 'Camiseta Hombre 1ª Equipación 26/27',
-    sku: 'II1893-101',
-    category: 'camiseta_juego',
-    price: 109.95,
-    stock_total: 100,
-    stock_available: 72,
-    stock_min: 25,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.homeReplica,
-    product_url: ATM_STORE_HOME_URL,
-  }),
-  kitItem({
-    id: 'i3',
-    name: 'Camiseta Manga Larga Hombre 1ª Equipación 26/27',
-    sku: 'IQ6643-101',
-    category: 'camiseta_juego',
-    price: 119.95,
+    id: 'i89',
+    name: 'Espinilleras Oficiales Nike',
+    sku: 'ATM-SHIN-L',
+    category: 'accesorios',
+    price: 35,
     stock_total: 40,
     stock_available: 28,
     stock_min: 10,
     size: 'L',
-    image_url: ATM_SHOP_IMAGES.homeLongSleeve,
-    product_url: ATM_STORE_HOME_LS_URL,
+    image_url: '/clubs/atm/logo.png',
+    location: LOC_KIT,
+    brand: 'Nike',
   }),
   kitItem({
-    id: 'i4',
-    name: 'Pantalón Corto 1ª Equipación 26/27',
-    sku: 'II1977-455',
-    category: 'pantalon_juego',
-    price: 54.95,
-    stock_total: 90,
-    stock_available: 60,
-    stock_min: 20,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.homeShort,
-    product_url: ATM_STORE_HOME_URL,
-  }),
-  kitItem({
-    id: 'i5',
-    name: 'Medias 1ª Equipación 26/27',
-    sku: 'IQ6645-455',
-    category: 'calcetines',
-    price: 24.95,
-    stock_total: 120,
-    stock_available: 90,
-    stock_min: 30,
-    size: 'M',
-    image_url: ATM_SHOP_IMAGES.homeSock,
-    product_url: ATM_STORE_HOME_URL,
-  }),
-  // ——— 2ª equipación hombre ———
-  kitItem({
-    id: 'i6',
-    name: 'Camiseta Match Hombre 2ª Equipación 26/27',
-    sku: 'IR1435-011',
-    category: 'camiseta_juego',
-    price: 159.95,
-    stock_total: 60,
-    stock_available: 40,
-    stock_min: 15,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.awayMatch,
-    product_url: ATM_STORE_AWAY_MATCH_URL,
-  }),
-  kitItem({
-    id: 'i19',
-    name: 'Camiseta Hombre 2ª Equipación 26/27',
-    sku: 'II1932-011',
-    category: 'camiseta_juego',
-    price: 109.95,
-    stock_total: 55,
-    stock_available: 38,
-    stock_min: 12,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.awayReplica,
-    product_url: ATM_STORE_AWAY_MEN_URL,
-  }),
-  kitItem({
-    id: 'i7',
-    name: 'Pantalón Corto 2ª Equipación 26/27',
-    sku: 'II2031-010',
-    category: 'pantalon_juego',
-    price: 54.95,
-    stock_total: 70,
-    stock_available: 48,
-    stock_min: 15,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.awayShort,
-    product_url: ATM_STORE_AWAY_SHORT_URL,
-  }),
-  kitItem({
-    id: 'i20',
-    name: 'Medias 2ª Equipación 26/27',
-    sku: 'IQ6648-010',
-    category: 'calcetines',
-    price: 24.95,
-    stock_total: 90,
-    stock_available: 65,
-    stock_min: 20,
-    size: 'M',
-    image_url: ATM_SHOP_IMAGES.awaySock,
-    product_url: ATM_STORE_AWAY_MEN_URL,
-  }),
-  // ——— 3ª equipación hombre ———
-  kitItem({
-    id: 'i8',
-    name: 'Camiseta Match Hombre 3ª Equipación 25/26',
-    sku: 'HM3200-407',
-    category: 'camiseta_juego',
-    price: 149.95,
-    stock_total: 40,
-    stock_available: 26,
-    stock_min: 10,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.thirdMatch,
-    product_url: ATM_STORE_THIRD_MEN_URL,
-  }),
-  kitItem({
-    id: 'i9',
-    name: 'Camiseta Hombre 3ª Equipación 25/26',
-    sku: 'HM3192-407',
-    category: 'camiseta_juego',
-    price: 99.95,
-    stock_total: 50,
-    stock_available: 34,
-    stock_min: 12,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.thirdReplica,
-    product_url: ATM_STORE_THIRD_MEN_URL,
-  }),
-  kitItem({
-    id: 'i10',
-    name: 'Pantalón Corto 3ª Equipación 25/26',
-    sku: 'IF1452-407',
-    category: 'pantalon_juego',
-    price: 49.95,
-    stock_total: 55,
-    stock_available: 38,
-    stock_min: 12,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.thirdShort,
-    product_url: ATM_STORE_THIRD_MEN_URL,
-  }),
-  kitItem({
-    id: 'i11',
-    name: 'Medias 3ª Equipación 25/26',
-    sku: 'HM3220-406',
-    category: 'calcetines',
-    price: 22.95,
-    stock_total: 80,
-    stock_available: 55,
-    stock_min: 20,
-    size: 'M',
-    image_url: ATM_SHOP_IMAGES.thirdSock,
-    product_url: ATM_STORE_THIRD_MEN_URL,
-  }),
-  // ——— Portero hombre ———
-  kitItem({
-    id: 'i21',
-    name: 'Camiseta Portero Hombre 25/26',
-    sku: 'HQ9235-084',
-    category: 'camiseta_juego',
-    price: 109.95,
-    stock_total: 25,
-    stock_available: 16,
-    stock_min: 6,
-    size: 'XL',
+    id: 'i90',
+    name: 'Guantes Portero Nike Match',
+    sku: 'ATM-GK-GLOVE-9',
+    category: 'accesorios',
+    price: 89.95,
+    stock_total: 12,
+    stock_available: 8,
+    stock_min: 3,
+    size: '9',
     image_url: ATM_SHOP_IMAGES.gkJersey,
-    product_url: ATM_STORE_GK_MEN_URL,
-  }),
-  // ——— Entrenamiento hombre ———
-  kitItem({
-    id: 'i12',
-    name: 'Camiseta Entrenamiento Nike Hombre 26/27',
-    sku: 'II2770-702',
-    category: 'entrenamiento',
-    price: 54.95,
-    stock_total: 120,
-    stock_available: 88,
-    stock_min: 30,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.trainingTee,
-    product_url: ATM_STORE_TRAINING_URL,
+    location: LOC_GK,
+    brand: 'Nike',
   }),
   kitItem({
-    id: 'i13',
-    name: 'Camiseta Away Prematch Hombre Nike 26/27',
-    sku: 'ATM-PREMATCH-AWAY-2627',
-    category: 'entrenamiento',
-    price: 69.95,
-    stock_total: 60,
-    stock_available: 42,
-    stock_min: 15,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.awayReplica,
-    product_url: ATM_STORE_TRAINING_URL,
+    id: 'i91',
+    name: 'Guantes Portero Nike Match',
+    sku: 'ATM-GK-GLOVE-10',
+    category: 'accesorios',
+    price: 89.95,
+    stock_total: 12,
+    stock_available: 7,
+    stock_min: 3,
+    size: '10',
+    image_url: ATM_SHOP_IMAGES.gkJersey,
+    location: LOC_GK,
+    brand: 'Nike',
   }),
   kitItem({
-    id: 'i14',
-    name: 'Sudadera Drill Top Nike Hombre 26/27',
-    sku: 'II2666-702',
-    category: 'entrenamiento',
-    price: 74.95,
-    stock_total: 50,
-    stock_available: 35,
-    stock_min: 12,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.drillTop,
-    product_url: ATM_STORE_TRAINING_URL,
-  }),
-  kitItem({
-    id: 'i15',
-    name: 'Pantalón Corto Entrenamiento Nike Hombre 26/27',
-    sku: 'II2299-702',
-    category: 'entrenamiento',
-    price: 47.95,
-    stock_total: 80,
-    stock_available: 55,
-    stock_min: 20,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.trainingShort,
-    product_url: ATM_STORE_TRAINING_URL,
-  }),
-  kitItem({
-    id: 'i16',
-    name: 'Pantalón Entrenamiento Nike Hombre 26/27',
-    sku: 'ATM-TRAIN-PANT-2627',
-    category: 'entrenamiento',
-    price: 74.95,
-    stock_total: 45,
-    stock_available: 30,
-    stock_min: 10,
-    size: 'L',
-    image_url: ATM_SHOP_IMAGES.trainingShort,
-    product_url: ATM_STORE_TRAINING_URL,
-  }),
-  kitItem({
-    id: 'i18',
-    name: 'Botiquín viaje primer equipo',
+    id: 'i92',
+    name: 'Botiquín viaje Champions / LaLiga',
     sku: 'ATM-MED-KIT',
     category: 'medico',
     price: 250,
@@ -1071,6 +1351,8 @@ export const atmInventory = [
     stock_min: 2,
     size: '—',
     image_url: '/clubs/atm/logo.png',
+    location: LOC_VEST,
+    brand: 'ATM Medical',
   }),
 ];
 
@@ -1176,7 +1458,7 @@ export const atmAlerts = [
     title: 'Stock bajo',
     message: 'Botiquín viaje primer equipo cerca del mínimo (3 unidades)',
     entity_type: 'inventory_item',
-    entity_id: 'i18',
+    entity_id: 'i92',
     is_read: false,
     is_dismissed: false,
     auto_generated: true,

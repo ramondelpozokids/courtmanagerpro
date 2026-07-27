@@ -3,11 +3,25 @@
 -- Ejecutar en SQL Editor de Supabase (producción).
 -- ============================================================
 
--- Baja botas genéricas del inventario ATM
+-- Baja botas genéricas y SKUs antiguos de una sola talla (pre-expansión)
 UPDATE inventory_items
 SET is_active = false, updated_at = NOW()
 WHERE team_id = '00000000-0000-4000-8000-000acb423458'::uuid
-  AND (sku = 'ATM-BOOTS-COMP' OR name ILIKE '%Botas competición%');
+  AND (
+    sku = 'ATM-BOOTS-COMP'
+    OR name ILIKE '%Botas competición%'
+    OR sku IN (
+      'II2740-101','II1893-101','IQ6643-101','II1977-455','IQ6645-455',
+      'IR1435-011','II1932-011','II2031-010','IQ6648-010',
+      'HM3200-407','HM3192-407','IF1452-407','HM3220-406','HQ9235-084',
+      'II2770-702','ATM-PREMATCH-AWAY-2627','II2666-702','II2299-702',
+      'ATM-TRAIN-PANT-2627','ATM-HOME-MATCH-2627','ATM-HOME-REPLICA-2627',
+      'ATM-HOME-LS-2627','ATM-HOME-SHORT-2627','ATM-HOME-SOCK-2627',
+      'ATM-THIRD-MATCH-2526','ATM-THIRD-REPLICA-2526','ATM-THIRD-SHORT-2526',
+      'ATM-THIRD-SOCK-2526','ATM-TRAIN-TEE-2627','ATM-TRAIN-SHORT-2627',
+      'ATM-DRILL-TOP-2627'
+    )
+  );
 
 -- Material médico ATM (espejo operativo RMF / LaLiga)
 INSERT INTO medical_items (
