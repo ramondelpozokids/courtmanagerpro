@@ -527,7 +527,7 @@ export const atmCoachingStaff = [
     photo_url: '/clubs/atm/staff/vercellone.png',
     profile_url: 'https://www.transfermarkt.es/pablo-vercellone/profil/trainer/11448',
     trajectory:
-      'Pablo Ignacio Vercellone — entrenador de porteros del Atlético de Madrid. Contrato hasta 30/06/2027.',
+      'Pablo Ignacio Vercellone — entrenador de porteros del Atlético de Madrid. Nacido en Buenos Aires el 24/04/1968. Contrato hasta 30/06/2027.',
   },
 ];
 
