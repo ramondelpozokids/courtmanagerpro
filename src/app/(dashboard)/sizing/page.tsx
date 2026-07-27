@@ -42,15 +42,17 @@ function playerPhoto(p: {
   number?: number;
 }) {
   const fullName = `${p.firstName || ""} ${p.lastName || ""}`.trim();
-  const resolved = resolvePlayerPhotoUrl({
+  // Pack ATM primero (Koke / Lenglet locales); evita resolver plantilla RMB
+  const atm = resolveAtmPackPlayerPhoto({
+    dorsal: p.number,
+    fullName,
+    photo_url: p.imageUrl,
+  });
+  if (atm && !/\/clubs\/atm\/logo\.png|realmadrid/i.test(atm)) return atm;
+  return resolvePlayerPhotoUrl({
     slug: p.slug,
     imageUrl: p.imageUrl,
     fullName,
-  });
-  return resolveAtmPackPlayerPhoto({
-    dorsal: p.number,
-    fullName,
-    photo_url: resolved,
   });
 }
 

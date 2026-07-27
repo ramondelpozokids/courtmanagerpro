@@ -26,18 +26,19 @@ export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
     ...meta,
   };
   const parts = p.full_name.split(' ');
-  let imageUrl = resolvePlayerPhotoUrl({
-    official_slug: p.official_slug,
-    photo_url: p.photo_url,
-    fullName: p.full_name,
-  });
-  if (p.team_id === CLUB_TEAM_IDS.atm) {
-    imageUrl = resolveAtmPackPlayerPhoto({
-      dorsal: p.dorsal,
-      fullName: p.full_name,
-      photo_url: imageUrl,
-    });
-  }
+  // ATM: no usar resolvePlayerPhotoUrl (plantilla RMB) — provoca URLs ajenas / rotas
+  let imageUrl: string | null =
+    p.team_id === CLUB_TEAM_IDS.atm
+      ? resolveAtmPackPlayerPhoto({
+          dorsal: p.dorsal,
+          fullName: p.full_name,
+          photo_url: p.photo_url,
+        })
+      : resolvePlayerPhotoUrl({
+          official_slug: p.official_slug,
+          photo_url: p.photo_url,
+          fullName: p.full_name,
+        });
   return {
     id: p.id,
     firstName: parts[0] || '',

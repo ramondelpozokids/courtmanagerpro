@@ -1,6 +1,7 @@
 import { atmPlayers, atmCoachingStaff } from '@/data/clubs/atm-data';
 
-const PLACEHOLDER_RE = /\/clubs\/atm\/logo\.png|default-player|default\.jpg|placeholder/i;
+const PLACEHOLDER_RE =
+  /\/clubs\/atm\/logo\.png|\/clubs\/rm[bf]\/logo|\/logo\.png|default-player|default\.jpg|placeholder|realmadrid\.com/i;
 
 function norm(s: string) {
   return s
@@ -17,16 +18,10 @@ export function isAtmPlaceholderPhoto(url: string | null | undefined): boolean {
   return PLACEHOLDER_RE.test(url);
 }
 
-/** Foto LALIGA/club del pack ATM por dorsal o nombre. */
-export function resolveAtmPackPlayerPhoto(opts: {
+function packPlayerPhoto(opts: {
   dorsal?: number | null;
   fullName?: string | null;
-  photo_url?: string | null;
 }): string | null {
-  if (opts.photo_url && !isAtmPlaceholderPhoto(opts.photo_url)) {
-    return opts.photo_url;
-  }
-
   if (opts.dorsal != null) {
     const byDorsal = atmPlayers.find((p) => p.number === opts.dorsal);
     if (byDorsal?.imageUrl && !isAtmPlaceholderPhoto(byDorsal.imageUrl)) {
@@ -38,24 +33,49 @@ export function resolveAtmPackPlayerPhoto(opts: {
     const n = norm(opts.fullName);
     const byName = atmPlayers.find((p) => {
       const full = norm(`${p.firstName} ${p.lastName}`);
-      return full === n || n.includes(full) || full.includes(n);
+      return (
+        full === n ||
+        n.includes(full) ||
+        full.includes(n) ||
+        (n.includes(norm(p.lastName)) && n.includes(norm(p.firstName)))
+      );
     });
     if (byName?.imageUrl && !isAtmPlaceholderPhoto(byName.imageUrl)) {
       return byName.imageUrl;
     }
   }
 
-  return opts.photo_url || null;
+  return null;
+}
+
+/**
+ * Foto ATM: prioriza pack local (Koke, Lenglet, etc.) sobre URLs de Supabase
+ * rotas / escudo / hotlinks RMB.
+ */
+export function resolveAtmPackPlayerPhoto(opts: {
+  dorsal?: number | null;
+  fullName?: string | null;
+  photo_url?: string | null;
+}): string | null {
+  const fromPack = packPlayerPhoto(opts);
+  if (fromPack) return fromPack;
+
+  if (opts.photo_url && !isAtmPlaceholderPhoto(opts.photo_url)) {
+    return opts.photo_url;
+  }
+
+  return null;
 }
 
 export function resolveAtmPackStaffPhoto(opts: {
   fullName?: string | null;
   photo_url?: string | null;
 }): string | null {
-  if (opts.photo_url && !isAtmPlaceholderPhoto(opts.photo_url)) {
-    return opts.photo_url;
+  if (!opts.fullName) {
+    return opts.photo_url && !isAtmPlaceholderPhoto(opts.photo_url)
+      ? opts.photo_url
+      : opts.photo_url || null;
   }
-  if (!opts.fullName) return opts.photo_url || null;
   const n = norm(opts.fullName);
   const hit = atmCoachingStaff.find((s) => {
     const sn = norm(s.full_name);
@@ -63,6 +83,9 @@ export function resolveAtmPackStaffPhoto(opts: {
   });
   if (hit?.photo_url && !isAtmPlaceholderPhoto(hit.photo_url)) {
     return hit.photo_url;
+  }
+  if (opts.photo_url && !isAtmPlaceholderPhoto(opts.photo_url)) {
+    return opts.photo_url;
   }
   return opts.photo_url || null;
 }
