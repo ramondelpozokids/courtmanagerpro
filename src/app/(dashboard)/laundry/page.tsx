@@ -85,7 +85,7 @@ export default function LaundryPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                placeholder="Ropa Entrenamiento vs Unicaja"
+                placeholder="Ropa entrenamiento — sesión Ciudad Deportiva"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

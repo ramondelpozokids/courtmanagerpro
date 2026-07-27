@@ -422,6 +422,7 @@ export interface ClubDemoDataSlice {
   alerts: any[];
   coachingStaff?: any[];
   garmentUnits?: any[];
+  medical?: any[];
 }
 
 export function loadClubDemoData(data: ClubDemoDataSlice): void {
@@ -433,4 +434,7 @@ export function loadClubDemoData(data: ClubDemoDataSlice): void {
   db.alerts = [...data.alerts];
   db.coachingStaff = [...(data.coachingStaff ?? initialCoachingStaff)];
   db.garmentUnits = [...(data.garmentUnits ?? [])];
+  if (data.medical) {
+    db.medical = [...data.medical];
+  }
 }

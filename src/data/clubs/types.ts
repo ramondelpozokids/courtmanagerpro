@@ -67,4 +67,6 @@ export interface ClubDemoPack {
   trips: any[];
   laundry: any[];
   alerts: any[];
+  /** Material médico (opcional; RMB usa seed global si falta) */
+  medical?: any[];
 }

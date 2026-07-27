@@ -27,6 +27,7 @@ import {
   atmAlerts,
   atmLaundry,
   atmCoachingStaff,
+  atmMedical,
   ATM_OFFICIAL_STORE_URL,
   ATM_STORE_HOME_URL,
   ATM_SPONSORS_URL,
@@ -532,6 +533,7 @@ const atmPack: ClubDemoPack = {
   trips: atmTrips,
   laundry: atmLaundry,
   alerts: atmAlerts,
+  medical: atmMedical,
 };
 
 export const CLUB_PACKS: Record<ClubSlug, ClubDemoPack> = {

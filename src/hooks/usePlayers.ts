@@ -18,7 +18,21 @@ import {
   mapAllClubPlayersFromPacks,
   sortAllClubPlayers,
 } from '@/lib/players-all-clubs-query';
+import { resolveAtmPackPlayerPhoto } from '@/lib/atm-pack-photos';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
+
+function enrichPlayerPhotos(list: Player[], teamId: string): Player[] {
+  if (teamId !== CLUB_TEAM_IDS.atm) return list;
+  return list.map((p) => ({
+    ...p,
+    photo_url: resolveAtmPackPlayerPhoto({
+      dorsal: p.dorsal,
+      fullName: p.full_name,
+      photo_url: p.photo_url,
+    }),
+  }));
+}
 
 export interface UsePlayersOptions {
   allClubs?: boolean;
@@ -62,7 +76,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
 
       if (mockMode || usesDemoClubData()) {
         setUsingDemoData(true);
-        setPlayers(mapDemoPlayers(teamId));
+        setPlayers(enrichPlayerPhotos(mapDemoPlayers(teamId), teamId));
         return;
       }
 
@@ -80,14 +94,14 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
           setPlayers([]);
         } else {
           setUsingDemoData(true);
-          setPlayers(mapDemoPlayers(teamId));
+          setPlayers(enrichPlayerPhotos(mapDemoPlayers(teamId), teamId));
         }
       } else if (shouldUseDemoFallback(data)) {
         setUsingDemoData(true);
-        setPlayers(mapDemoPlayers(teamId));
+        setPlayers(enrichPlayerPhotos(mapDemoPlayers(teamId), teamId));
       } else {
         setUsingDemoData(false);
-        setPlayers(data as Player[]);
+        setPlayers(enrichPlayerPhotos(data as Player[], teamId));
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar jugadores');

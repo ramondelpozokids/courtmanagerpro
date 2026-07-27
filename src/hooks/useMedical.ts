@@ -4,13 +4,37 @@ import { useActiveTeamId } from '@/contexts/ClubDemoContext';
 import { usesDemoClubData } from '@/lib/club-preview';
 import { isMockMode } from '@/lib/demo-data';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { atmMedical, ATM_TEAM_ID } from '@/data/clubs/atm-data';
 
 type MedicalUi = MedicalItem & {
   kit?: string;
   brand?: string;
   category?: string;
   prescription_required?: boolean;
+  team_id?: string;
 };
+
+function packMedicalFallback(teamId: string): MedicalUi[] {
+  if (teamId !== ATM_TEAM_ID) return [];
+  return atmMedical.map((m) => ({
+    id: m.id,
+    name: m.name,
+    quantity: m.quantity,
+    minQuantity: m.minQuantity,
+    expiryDate: m.expiryDate,
+    batchNumber: m.batchNumber,
+    status: m.status as MedicalItem['status'],
+    location: m.location,
+    kit: m.kit,
+    team_id: m.team_id,
+    category: m.category,
+    brand: m.brand,
+    reference: m.reference,
+    unit_cost: m.unit_cost,
+    is_active: m.is_active,
+    prescription_required: (m as { prescription_required?: boolean }).prescription_required,
+  }));
+}
 
 export function useMedical() {
   const teamId = useActiveTeamId();
@@ -24,7 +48,9 @@ export function useMedical() {
       setError(null);
 
       if (isMockMode() || usesDemoClubData()) {
-        setItems([...(db.medical || [])] as MedicalUi[]);
+        const demo = (db.medical || []) as MedicalUi[];
+        const filtered = demo.filter((i) => !i.team_id || i.team_id === teamId);
+        setItems(filtered.length > 0 ? filtered : packMedicalFallback(teamId));
         return;
       }
 
@@ -33,9 +59,11 @@ export function useMedical() {
       });
       if (!res.ok) throw new Error('Error fetching medical stock');
       const data = await res.json();
-      setItems(Array.isArray(data) ? data : []);
+      const rows = Array.isArray(data) ? data : [];
+      setItems(rows.length > 0 ? rows : packMedicalFallback(teamId));
     } catch (err: any) {
       setError(err.message);
+      setItems(packMedicalFallback(teamId));
     } finally {
       setLoading(false);
     }

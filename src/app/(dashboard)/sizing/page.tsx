@@ -28,6 +28,7 @@ import {
   Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown,
 } from "lucide-react";
 import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
+import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 
 function saveSizingDemo() {
   persistDemoDb();
@@ -38,20 +39,31 @@ function playerPhoto(p: {
   slug?: string | null;
   firstName?: string;
   lastName?: string;
+  number?: number;
 }) {
-  return resolvePlayerPhotoUrl({
+  const fullName = `${p.firstName || ""} ${p.lastName || ""}`.trim();
+  const resolved = resolvePlayerPhotoUrl({
     slug: p.slug,
     imageUrl: p.imageUrl,
-    fullName: `${p.firstName || ""} ${p.lastName || ""}`.trim(),
+    fullName,
+  });
+  return resolveAtmPackPlayerPhoto({
+    dorsal: p.number,
+    fullName,
+    photo_url: resolved,
   });
 }
 
 function staffPhoto(s: { photo_url?: string | null; slug?: string | null; full_name?: string }) {
-  return resolvePlayerPhotoUrl({
+  const resolved = resolvePlayerPhotoUrl({
     slug: s.slug,
     photo_url: s.photo_url,
     fullName: s.full_name,
     isStaff: true,
+  });
+  return resolveAtmPackStaffPhoto({
+    fullName: s.full_name,
+    photo_url: resolved,
   });
 }
 
@@ -518,6 +530,7 @@ export default function SizingTablePage() {
                               src={photo}
                               alt={fullName}
                               className="h-full w-full object-cover object-top"
+                              referrerPolicy="no-referrer"
                               onError={(e) => {
                                 (e.currentTarget as HTMLImageElement).style.display = "none";
                                 const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;
@@ -582,6 +595,7 @@ export default function SizingTablePage() {
                               src={photo}
                               alt={s.full_name}
                               className="h-full w-full object-cover object-top"
+                              referrerPolicy="no-referrer"
                               onError={(e) => {
                                 (e.currentTarget as HTMLImageElement).style.display = "none";
                                 const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;

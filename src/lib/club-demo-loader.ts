@@ -58,6 +58,7 @@ export function loadClubPack(pack: ClubDemoPack): Team {
     alerts: pack.alerts,
     coachingStaff,
     garmentUnits,
+    medical: pack.medical,
   });
   return packToTeam(pack);
 }

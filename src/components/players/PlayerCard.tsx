@@ -32,10 +32,24 @@ export default function PlayerCard({ player, onDelete, onEdit, canWrite }: Playe
           {/* Avatar / Photo */}
           <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-100 border border-orange-200 shrink-0 flex items-center justify-center">
             {player.photo_url ? (
-              <img src={player.photo_url} alt={player.full_name} className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-sm font-bold text-orange-600">{player.full_name[0]}</span>
-            )}
+              <img
+                src={player.photo_url}
+                alt={player.full_name}
+                className="h-full w-full object-cover object-top"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;
+                  if (sibling) sibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <span
+              className="text-sm font-bold text-orange-600 items-center justify-center h-full w-full"
+              style={{ display: player.photo_url ? 'none' : 'flex' }}
+            >
+              {player.full_name[0]}
+            </span>
           </div>
           <div>
             <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm leading-none flex items-center gap-1.5">

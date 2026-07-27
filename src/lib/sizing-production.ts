@@ -3,6 +3,11 @@ import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 import {
+  resolveAtmPackPlayerPhoto,
+  resolveAtmPackStaffPhoto,
+} from '@/lib/atm-pack-photos';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+import {
   mergeSizingCatalog,
   normalizeSizes,
   staffToSizes,
@@ -21,11 +26,18 @@ export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
     ...meta,
   };
   const parts = p.full_name.split(' ');
-  const imageUrl = resolvePlayerPhotoUrl({
+  let imageUrl = resolvePlayerPhotoUrl({
     official_slug: p.official_slug,
     photo_url: p.photo_url,
     fullName: p.full_name,
   });
+  if (p.team_id === CLUB_TEAM_IDS.atm) {
+    imageUrl = resolveAtmPackPlayerPhoto({
+      dorsal: p.dorsal,
+      fullName: p.full_name,
+      photo_url: imageUrl,
+    });
+  }
   return {
     id: p.id,
     firstName: parts[0] || '',
@@ -44,13 +56,16 @@ export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
 export function supabaseStaffToSizingRow(s: Record<string, unknown>, catalog: SizingProduct[]) {
   const meta = (s.sizing_metadata as Record<string, string>) || {};
   const fullName = String(s.full_name || '');
-  const photo_url = resolvePlayerPhotoUrl({
+  let photo_url = resolvePlayerPhotoUrl({
     official_slug: typeof s.official_slug === 'string' ? s.official_slug : null,
     slug: typeof s.slug === 'string' ? s.slug : null,
     photo_url: typeof s.photo_url === 'string' ? s.photo_url : null,
     fullName,
     isStaff: true,
   });
+  if (String(s.team_id || '') === CLUB_TEAM_IDS.atm) {
+    photo_url = resolveAtmPackStaffPhoto({ fullName, photo_url });
+  }
   return {
     id: s.id,
     full_name: s.full_name,

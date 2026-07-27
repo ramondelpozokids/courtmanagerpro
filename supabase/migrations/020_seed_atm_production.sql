@@ -35,7 +35,7 @@ INSERT INTO players (
   'portero'::player_position,
   'Argentina',
   '1994-05-06',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18096/thumb_300x400/1_J.-MUSSO.jpg?1755263473',
+  'https://assets.laliga.com/squad/2026/t175/p121537/512x556/p121537_t175_2026_0_001_000.png',
   true,
   'XL',
   'L',
@@ -69,7 +69,7 @@ INSERT INTO players (
   'portero'::player_position,
   'Eslovenia',
   '1993-01-07',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18070/thumb_300x400/DORSALES_WEB_13_OBLAK.jpg?1750111725',
+  'https://assets.laliga.com/squad/2026/t175/p81352/512x556/p81352_t175_2026_0_001_000.png',
   true,
   'XL',
   'L',
@@ -103,7 +103,7 @@ INSERT INTO players (
   'defensa'::player_position,
   'Uruguay',
   '1995-01-20',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18071/thumb_300x400/DORSALES_WEB_2_JMGIMENEZ.jpg?1750111730',
+  'https://assets.laliga.com/squad/2026/t175/p151883/512x556/p151883_t175_2026_0_001_000.png',
   true,
   'L',
   'L',
@@ -137,7 +137,7 @@ INSERT INTO players (
   'defensa'::player_position,
   'Italia',
   '2002-07-11',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19360/thumb_300x400/3_RUGGERI.jpg?1755262860',
+  'https://assets.laliga.com/squad/2026/t175/p487992/512x556/p487992_t175_2026_0_001_000.png',
   true,
   'L',
   'L',
@@ -205,7 +205,7 @@ INSERT INTO players (
   'defensa'::player_position,
   'Argentina',
   '1998-04-06',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18079/thumb_300x400/DORSALES_WEB_16_MOLINA.jpg?1750111764',
+  'https://assets.laliga.com/squad/2026/t175/p221586/512x556/p221586_t175_2026_0_001_000.png',
   true,
   'L',
   'L',
@@ -239,7 +239,7 @@ INSERT INTO players (
   'defensa'::player_position,
   'Eslovaquia',
   '1997-12-13',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19362/thumb_300x400/17_HANCKO.jpg?1755264229',
+  'https://assets.laliga.com/squad/2026/t175/p235093/512x556/p235093_t175_2026_0_001_000.png',
   true,
   'XL',
   'L',
@@ -273,7 +273,7 @@ INSERT INTO players (
   'defensa'::player_position,
   'España',
   '2003-06-21',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19361/thumb_300x400/18_MARC-PUBILL.jpg?1755263273',
+  'https://assets.laliga.com/squad/2026/t175/p562720/512x556/p562720_t175_2026_0_001_000.png',
   true,
   'L',
   'L',
@@ -307,7 +307,7 @@ INSERT INTO players (
   'defensa'::player_position,
   'España',
   '1996-11-11',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18090/thumb_300x400/DORSALES_WEB_24_LENORMAND.jpg?1750111810',
+  'https://assets.laliga.com/squad/2026/t175/p224919/512x556/p224919_t175_2026_0_001_000.png',
   true,
   'XL',
   'L',
@@ -341,7 +341,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'España',
   '2005-01-01',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19453/thumb_300x400/4_MENDOZA.jpg?1770231751',
+  'https://assets.laliga.com/squad/2026/t175/p578538/512x556/p578538_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -375,7 +375,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'Brasil',
   '2001-09-20',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19364/thumb_300x400/5_JOHNNY.jpg?1755269339',
+  'https://assets.laliga.com/squad/2026/t175/p488662/512x556/p488662_t175_2026_0_001_000.png',
   true,
   'L',
   'L',
@@ -443,7 +443,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'España',
   '2003-06-15',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18081/thumb_300x400/8_BARRIOS.jpg?1755263307',
+  'https://assets.laliga.com/squad/2026/t175/p503523/512x556/p503523_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -477,7 +477,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'España',
   '2001-07-20',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19359/thumb_300x400/10_A%CC%81LEX-B..jpg?1755261293',
+  'https://assets.laliga.com/squad/2026/t175/p248501/512x556/p248501_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -511,7 +511,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'España',
   '1995-01-30',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18075/thumb_300x400/DORSALES_WEB_14_MLLORENTE.jpg?1750111747',
+  'https://assets.laliga.com/squad/2026/t175/p192364/512x556/p192364_t175_2026_0_001_000.png',
   true,
   'L',
   'L',
@@ -545,7 +545,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'Argentina',
   '2002-12-18',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18088/thumb_300x400/20_GIULIANO.jpg?1755261331',
+  'https://assets.laliga.com/squad/2026/t175/p482652/512x556/p482652_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -579,7 +579,7 @@ INSERT INTO players (
   'centrocampista'::player_position,
   'México',
   '2005-08-01',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19454/thumb_300x400/21_OBED-VARGAS.jpg?1770231974',
+  'https://assets.laliga.com/squad/2026/t175/p502868/512x556/p502868_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -681,7 +681,7 @@ INSERT INTO players (
   'delantero'::player_position,
   'Noruega',
   '1995-12-05',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18091/thumb_300x400/DORSALES_WEB_9_SORLOTH.jpg?1750111814',
+  'https://assets.laliga.com/squad/2026/t175/p143877/512x556/p143877_t175_2026_0_001_000.png',
   true,
   'XXL',
   'XL',
@@ -715,7 +715,7 @@ INSERT INTO players (
   'delantero'::player_position,
   'Argentina',
   '2001-04-26',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19363/thumb_300x400/11_ALMADA.jpg?1755268842',
+  'https://assets.laliga.com/squad/2026/t175/p461360/512x556/p461360_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -749,7 +749,7 @@ INSERT INTO players (
   'delantero'::player_position,
   'Argentina',
   '2000-01-31',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/18092/thumb_300x400/DORSALES_WEB_19_JALVAREZ.jpg?1750111819',
+  'https://assets.laliga.com/squad/2026/t175/p461358/512x556/p461358_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -783,7 +783,7 @@ INSERT INTO players (
   'delantero'::player_position,
   'Nigeria',
   '1997-10-20',
-  'https://img-estaticos.atleticodemadrid.com/system/foto_listados/19452/thumb_300x400/22_LOOKMAN%20(1).jpg?1770231421',
+  'https://assets.laliga.com/squad/2026/t175/p219352/512x556/p219352_t175_2026_0_001_000.png',
   true,
   'M',
   'M',
@@ -805,7 +805,7 @@ ON CONFLICT (id) DO UPDATE SET
   metadata = EXCLUDED.metadata,
   updated_at = NOW();
 
--- Cuerpo técnico (6)
+-- Cuerpo técnico (5)
 INSERT INTO coaching_staff (
   id, team_id, full_name, role, email, nationality, photo_url,
   shirt_size, shorts_size, shoe_size, is_active, notes
@@ -813,15 +813,15 @@ INSERT INTO coaching_staff (
   '00000000-0000-4000-8005-000000000001'::uuid,
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Diego Pablo Simeone',
-  'Entrenador',
+  'Entrenador principal',
   'dsimeone@atleticodemadrid.com',
   'Argentina',
-  '/clubs/atm/logo.png',
+  'https://img.a.transfermarkt.technology/portrait/header/2868-1666861792.jpg?lm=1',
   'L',
   'L',
   43,
   true,
-  '{"official_slug":"atletico-de-madrid-2025-2026","demo_id":"c1"}'
+  '{"official_slug":"2066","demo_id":"c1"}'
 )
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,
@@ -835,16 +835,16 @@ INSERT INTO coaching_staff (
 ) VALUES (
   '00000000-0000-4000-8005-000000000002'::uuid,
   '00000000-0000-4000-8000-000acb423458'::uuid,
-  'Gustavo López',
-  'Asistente de entrenador',
-  'glopez@atleticodemadrid.com',
+  'Hernán Bonvicini',
+  'Entrenador asistente',
+  'hbonvicini@atleticodemadrid.com',
   'Argentina',
   '/clubs/atm/logo.png',
   'L',
   'L',
   43,
   true,
-  '{"official_slug":"atletico-de-madrid-2025-2026","demo_id":"c2"}'
+  '{"official_slug":"13","demo_id":"c2"}'
 )
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,
@@ -858,16 +858,16 @@ INSERT INTO coaching_staff (
 ) VALUES (
   '00000000-0000-4000-8005-000000000003'::uuid,
   '00000000-0000-4000-8000-000acb423458'::uuid,
-  'Hernán Bonvicini',
-  'Asistente de entrenador',
-  'hbonvicini@atleticodemadrid.com',
-  'Argentina',
-  '/clubs/atm/logo.png',
+  'Gabi Fernández',
+  'Entrenador asistente',
+  'gabi@atleticodemadrid.com',
+  'España',
+  'https://img.a.transfermarkt.technology/portrait/header/97091-1732139341.JPG?lm=1',
   'L',
   'L',
   43,
   true,
-  '{"official_slug":"atletico-de-madrid-2025-2026","demo_id":"c3"}'
+  '{"official_slug":"13","demo_id":"c3"}'
 )
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,
@@ -881,16 +881,16 @@ INSERT INTO coaching_staff (
 ) VALUES (
   '00000000-0000-4000-8005-000000000004'::uuid,
   '00000000-0000-4000-8000-000acb423458'::uuid,
-  'Nelson Vivas',
-  'Segundo entrenador',
-  'nvivas@atleticodemadrid.com',
-  'Argentina',
+  'Luis Piñedo',
+  'Preparador físico',
+  'lpinedo@atleticodemadrid.com',
+  'España',
   '/clubs/atm/logo.png',
   'L',
   'L',
   43,
   true,
-  '{"official_slug":"atletico-de-madrid-2025-2026","demo_id":"c4"}'
+  '{"official_slug":"13","demo_id":"c4"}'
 )
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,
@@ -904,31 +904,8 @@ INSERT INTO coaching_staff (
 ) VALUES (
   '00000000-0000-4000-8005-000000000005'::uuid,
   '00000000-0000-4000-8000-000acb423458'::uuid,
-  'Luis Piñedo Betrián',
-  'Preparador físico',
-  'lpinedo@atleticodemadrid.com',
-  'España',
-  '/clubs/atm/logo.png',
-  'L',
-  'L',
-  43,
-  true,
-  '{"official_slug":"atletico-de-madrid-2025-2026","demo_id":"c5"}'
-)
-ON CONFLICT (id) DO UPDATE SET
-  full_name = EXCLUDED.full_name,
-  role = EXCLUDED.role,
-  photo_url = EXCLUDED.photo_url,
-  updated_at = NOW();
-
-INSERT INTO coaching_staff (
-  id, team_id, full_name, role, email, nationality, photo_url,
-  shirt_size, shorts_size, shoe_size, is_active, notes
-) VALUES (
-  '00000000-0000-4000-8005-000000000006'::uuid,
-  '00000000-0000-4000-8000-000acb423458'::uuid,
   'Pablo Vercellone',
-  'Preparador de porteros',
+  'Entrenador de arqueros',
   'pvercellone@atleticodemadrid.com',
   'Argentina',
   '/clubs/atm/logo.png',
@@ -936,7 +913,7 @@ INSERT INTO coaching_staff (
   'L',
   43,
   true,
-  '{"official_slug":"atletico-de-madrid-2025-2026","demo_id":"c6"}'
+  '{"official_slug":"13","demo_id":"c5"}'
 )
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,
@@ -944,7 +921,7 @@ ON CONFLICT (id) DO UPDATE SET
   photo_url = EXCLUDED.photo_url,
   updated_at = NOW();
 
--- Inventario (21)
+-- Inventario (20)
 INSERT INTO inventory_items (
   id, team_id, name, category, sku, qr_code,
   stock_total, stock_available, stock_min, size, unit_cost,
@@ -1469,34 +1446,6 @@ INSERT INTO inventory_items (
   'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw6e1f0b8e/II2299-702.jpg',
   true,
   '{"demo_id":"i16","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/entrenamiento","product_url":"https://shop.atleticodemadrid.com/es/entrenamiento"}'::jsonb
-)
-ON CONFLICT (id) DO UPDATE SET
-  name = EXCLUDED.name,
-  stock_total = EXCLUDED.stock_total,
-  stock_available = EXCLUDED.stock_available,
-  image_url = EXCLUDED.image_url,
-  updated_at = NOW();
-
-INSERT INTO inventory_items (
-  id, team_id, name, category, sku, qr_code,
-  stock_total, stock_available, stock_min, size, unit_cost,
-  location, image_url, is_active, metadata
-) VALUES (
-  '00000000-0000-4000-8006-000000000017'::uuid,
-  '00000000-0000-4000-8000-000acb423458'::uuid,
-  'Botas competición (stock genérico hombre)',
-  'zapatillas'::item_category,
-  'ATM-BOOTS-COMP',
-  'ATM-BOOTS-COMP-ATM',
-  30,
-  12,
-  10,
-  '42',
-  180,
-  'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
-  true,
-  '{"demo_id":"i17","gender":"masculino","source":"shop.atleticodemadrid.com","product_url":null}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
