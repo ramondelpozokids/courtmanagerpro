@@ -2,10 +2,7 @@
 
 import { useRequests } from "@/hooks/useRequests";
 import { useLaundry } from "@/hooks/useLaundry";
-import { useAuth } from "@/contexts/AuthContext";
-import { useClubDemo } from "@/contexts/ClubDemoContext";
-import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
-import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
+import { useActiveTeamId } from "@/contexts/ClubDemoContext";
 import {
   ShoppingBag,
   RefreshCw,
@@ -17,15 +14,15 @@ import {
 import Link from "next/link";
 
 export default function ActivityFeed({ compact }: { compact?: boolean }) {
-  const { currentTeam } = useAuth();
-  const { clubSlug, club } = useClubDemo();
-  const teamId =
-    CLUB_TEAM_IDS[clubSlug] || club.branding.teamId || currentTeam?.id || DEFAULT_TEAM_ID;
+  const teamId = useActiveTeamId();
   const { requests } = useRequests(teamId);
   const { batches } = useLaundry();
 
   const activities = [
-    ...requests.slice(0, 4).map((r) => ({
+    ...requests
+      .filter((r) => r.status !== "rechazada" && r.status !== "cancelada")
+      .slice(0, 4)
+      .map((r) => ({
       id: `act-req-${r.id}`,
       title: `${r.player ? r.player.full_name : "Un jugador"} solicitó material`,
       description: `${r.quantity || 1}x ${r.title} (${r.size || "XL"})`,

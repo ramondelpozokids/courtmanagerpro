@@ -57,7 +57,7 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
         .select(`
           *,
           requester:profiles!requester_id(id, full_name, avatar_url),
-          player:players(id, full_name, dorsal, photo_url),
+          player:players(id, full_name, dorsal, photo_url, team_id),
           items:request_items(*),
           comments:request_comments(count)
         `)
@@ -74,7 +74,13 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
         setError(qErr.message);
         setRequests([]);
       } else {
-        setRequests((data || []) as unknown as Request[]);
+        // Evitar contaminación cruzada (p. ej. jugador RMB en team_id ATM)
+        const rows = ((data || []) as any[]).filter((r) => {
+          if (!r.player_id) return true;
+          if (!r.player) return false;
+          return r.player.team_id === teamId;
+        });
+        setRequests(rows as unknown as Request[]);
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar solicitudes');
@@ -86,6 +92,9 @@ export function useRequests(teamId: string = DEFAULT_TEAM_ID, filters: RequestFi
 
   useEffect(() => {
     void fetchRequests();
+    const onClubChange = () => void fetchRequests();
+    window.addEventListener('club-demo-changed', onClubChange);
+    return () => window.removeEventListener('club-demo-changed', onClubChange);
   }, [fetchRequests]);
 
   const createRequest = useCallback(
