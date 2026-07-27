@@ -137,14 +137,14 @@ export default function AlmacenGeneralPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-1">
-            Visión club · Real Madrid
+            Visión club · Producción
           </p>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
             <Warehouse className="h-7 w-7 text-orange-500" />
             Almacén general
           </h2>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Stock y valor unificado RMB + RMF. Mapa por ubicación y export para dirección.
+            Stock y valor unificado RMB + RMF + ATM. Mapa por ubicación y export para dirección.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

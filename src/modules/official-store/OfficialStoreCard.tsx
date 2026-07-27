@@ -70,9 +70,11 @@ export function OfficialStoreCard({
             Tienda Oficial {branding.shortName}
           </h3>
           <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">
-            {branding.sport === 'football'
-              ? 'Camisetas oficiales adidas del primer equipo de fútbol, ropa técnica y colecciones 26/27.'
-              : 'Equipaciones, ropa técnica, accesorios y colecciones oficiales del Real Madrid.'}
+            {branding.slug === 'atm'
+              ? 'Camisetas oficiales Nike del primer equipo de fútbol, ropa técnica y colecciones 26/27.'
+              : branding.sport === 'football'
+                ? 'Camisetas oficiales adidas del primer equipo de fútbol, ropa técnica y colecciones 26/27.'
+                : `Equipaciones, ropa técnica, accesorios y colecciones oficiales de ${branding.name}.`}
           </p>
         </div>
       </div>

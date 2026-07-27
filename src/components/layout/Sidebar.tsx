@@ -207,9 +207,9 @@ export function Sidebar() {
               </span>
             </div>
             <p className="text-[11px] text-slate-400 font-medium leading-snug">
-              {branding.sport === 'football'
-                ? 'Solo primer equipo de fútbol del Real Madrid (oficial).'
-                : 'Solo primer equipo de baloncesto del Real Madrid (oficial).'}
+              Solo primer equipo de{' '}
+              {branding.sport === 'football' ? 'fútbol' : 'baloncesto'} de{' '}
+              {branding.name} (oficial).
             </p>
             <Link
               href="/calendario"

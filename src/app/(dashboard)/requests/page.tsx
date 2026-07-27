@@ -139,8 +139,8 @@ export default function RequestsPage() {
         }`}
       >
         {realMode
-          ? "Modo real (Real Madrid) — las solicitudes se guardan en Supabase y generan alerta para utillería."
-          : "Modo demo (FCB/VBC u offline) — los cambios no son permanentes. Usa RMB o RMF para modo real."}
+          ? "Modo real (RMB / RMF / ATM) — las solicitudes se guardan en Supabase y generan alerta para utillería."
+          : "Modo demo (FCB/VBC u offline) — los cambios no son permanentes. Usa RMB, RMF o ATM para modo real."}
       </div>
 
       {(formOk || formError || error) && (

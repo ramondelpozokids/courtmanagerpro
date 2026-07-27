@@ -114,7 +114,7 @@ export function ClubDashboardHero({
               Utillero profesional
             </p>
             <p className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-white">
-              {isFootball ? 'Real Madrid Fútbol' : branding.name}
+              {branding.name}
             </p>
             <p className="text-xs font-semibold uppercase tracking-wider text-sky-300/90">
               {leagueLine}
@@ -157,7 +157,7 @@ export function ClubDashboardHero({
               Organización · Control · Gestión · Seguridad · Profesionalidad
             </p>
             <p className="text-xs text-slate-200 mt-1">
-              CourtManager Pro — {isFootball ? 'Real Madrid Fútbol' : branding.name}
+              CourtManager Pro — {branding.name}
             </p>
             <p className="text-[10px] text-slate-500 mt-0.5">
               Tu aliado dentro y fuera del {fieldWord}
@@ -165,11 +165,7 @@ export function ClubDashboardHero({
           </div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase tracking-wider px-2.5 py-1">
-              {isFootball
-                ? 'Primer equipo · Ciudad Real Madrid'
-                : branding.slug === 'rmb'
-                  ? 'Primer equipo · Sede social Real Madrid'
-                  : branding.tagline}
+              {branding.tagline}
             </span>
             <img src={branding.logoUrl} alt="" className="h-7 w-7 object-contain opacity-90" />
           </div>

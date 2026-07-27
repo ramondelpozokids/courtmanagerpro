@@ -48,7 +48,7 @@ export default function DemoClubBanner() {
     if (presentationMode) {
       return (
         <>
-          <strong>Presentación Real Madrid</strong> — {branding.name} · solo RMB / RMF
+          <strong>Presentación élite</strong> — {branding.name} · solo RMB / RMF / ATM
         </>
       );
     }
@@ -91,7 +91,7 @@ export default function DemoClubBanner() {
               onChange={(e) => setPresentationModeOn(e.target.checked)}
               className="rounded border-amber-300"
             />
-            Solo RM
+            Solo live
           </label>
         )}
         {orderedClubs.map((pack) => {

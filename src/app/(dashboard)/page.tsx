@@ -44,14 +44,21 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-slate-900 to-orange-900/60 text-white rounded-2xl p-6 md:p-8 border border-slate-800 shadow-lg text-left">
         <span className="bg-orange-500/20 text-orange-400 font-semibold px-2.5 py-1 rounded-full text-xs tracking-wider uppercase border border-orange-500/30">
-          {branding.sport === 'football' ? 'LaLiga 2026/2027' : 'Liga Endesa 2026/2027'}
+          {branding.league}
+          {branding.slug === 'atm'
+            ? ' 2025/2026'
+            : branding.sport === 'football'
+              ? ' 2026/2027'
+              : ' 2026/2027'}
         </span>
         <h2 className="text-2xl md:text-3.5xl font-extrabold mt-3 tracking-tight">
           ¡Hola de nuevo, <span className="text-orange-400">{user?.profile?.full_name || "Carlos"}</span>!
         </h2>
         <p className="text-sm text-slate-300 mt-2 max-w-xl">
           {branding.sport === 'football'
-            ? 'Centro de mando de utilería del primer equipo de fútbol: inventario, maletas de viaje, camisetas oficiales adidas y solicitudes de plantilla.'
+            ? branding.slug === 'atm'
+              ? 'Centro de mando de utilería del primer equipo de fútbol: inventario, maletas de viaje, camisetas oficiales Nike y solicitudes de plantilla.'
+              : 'Centro de mando de utilería del primer equipo de fútbol: inventario, maletas de viaje, camisetas oficiales adidas y solicitudes de plantilla.'
             : 'Bienvenido al centro de mando de utilería de CourtManager Pro. Controla el inventario, prepara las maletas para los viajes profesionales y gestiona las solicitudes de los jugadores.'}
         </p>
       </div>

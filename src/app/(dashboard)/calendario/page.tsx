@@ -270,9 +270,9 @@ export default function CalendarioPage() {
             Calendario · Primer Equipo {sport === 'football' ? 'Fútbol' : 'Baloncesto'}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            {sport === 'football'
-              ? 'Solo partidos oficiales del Real Madrid de fútbol (primer equipo masculino).'
-              : 'Solo partidos oficiales del Real Madrid de baloncesto (no fútbol ni otros equipos).'}{' '}
+            Solo partidos oficiales de {branding.name} (
+            {sport === 'football' ? 'fútbol · primer equipo masculino' : 'baloncesto · primer equipo'}
+            ).{' '}
             Fuente: {source}
             {lastUpdated
               ? ` · Última sync ${new Date(lastUpdated).toLocaleString('es-ES')}`
@@ -309,7 +309,7 @@ export default function CalendarioPage() {
           {nextMatch ? (
             <>
               <h3 className="mt-2 text-2xl font-black">
-                Real Madrid vs {nextMatch.rival}
+                {branding.shortName} vs {nextMatch.rival}
               </h3>
               <p className="mt-1 text-sm text-slate-300">
                 {formatDateEs(nextMatch.match_date)}

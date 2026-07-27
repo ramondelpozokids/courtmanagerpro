@@ -65,7 +65,7 @@ export default function MovimientosPage() {
             Historial de movimientos
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Quién sacó o entró material — trazabilidad para utilería del Real Madrid.
+            Quién sacó o entró material — trazabilidad para utilería del club activo.
           </p>
         </div>
         <button

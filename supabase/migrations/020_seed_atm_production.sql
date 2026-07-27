@@ -944,7 +944,7 @@ ON CONFLICT (id) DO UPDATE SET
   photo_url = EXCLUDED.photo_url,
   updated_at = NOW();
 
--- Inventario (18)
+-- Inventario (21)
 INSERT INTO inventory_items (
   id, team_id, name, category, sku, qr_code,
   stock_total, stock_available, stock_min, size, unit_cost,
@@ -954,15 +954,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Camiseta Match Hombre 1ª Equipación 26/27',
   'camiseta_juego'::item_category,
-  'ATM-HOME-MATCH-2627',
-  'ATM-HOME-MATCH-2627-ATM',
+  'II2740-101',
+  'II2740-101-ATM',
   80,
   54,
   20,
   'L',
   159.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/vestuario.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw59595213/II2740-101.jpg',
   true,
   '{"demo_id":"i1","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11"}'::jsonb
 )
@@ -982,15 +982,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Camiseta Hombre 1ª Equipación 26/27',
   'camiseta_juego'::item_category,
-  'ATM-HOME-REPLICA-2627',
-  'ATM-HOME-REPLICA-2627-ATM',
+  'II1893-101',
+  'II1893-101-ATM',
   100,
   72,
   25,
   'L',
   109.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/vestuario.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw6a9d0b45/II1893-101_jugador.jpg',
   true,
   '{"demo_id":"i2","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11"}'::jsonb
 )
@@ -1010,17 +1010,17 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Camiseta Manga Larga Hombre 1ª Equipación 26/27',
   'camiseta_juego'::item_category,
-  'ATM-HOME-LS-2627',
-  'ATM-HOME-LS-2627-ATM',
+  'IQ6643-101',
+  'IQ6643-101-ATM',
   40,
   28,
   10,
   'L',
   119.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/vestuario.png',
+  'https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dwb4038a4f/New%20Folder/IQ6643-101_1.jpg',
   true,
-  '{"demo_id":"i3","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11"}'::jsonb
+  '{"demo_id":"i3","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/camiseta-manga-larga-hombre-1-equipacion-26-27/IQ6643-101.html","product_url":"https://shop.atleticodemadrid.com/es/camiseta-manga-larga-hombre-1-equipacion-26-27/IQ6643-101.html"}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -1038,15 +1038,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Pantalón Corto 1ª Equipación 26/27',
   'pantalon_juego'::item_category,
-  'ATM-HOME-SHORT-2627',
-  'ATM-HOME-SHORT-2627-ATM',
+  'II1977-455',
+  'II1977-455-ATM',
   90,
   60,
   20,
   'L',
   54.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/vestuario.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dwfbd93d53/II1977-455_6.jpg',
   true,
   '{"demo_id":"i4","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11"}'::jsonb
 )
@@ -1066,15 +1066,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Medias 1ª Equipación 26/27',
   'calcetines'::item_category,
-  'ATM-HOME-SOCK-2627',
-  'ATM-HOME-SOCK-2627-ATM',
+  'IQ6645-455',
+  'IQ6645-455-ATM',
   120,
   90,
   30,
   'M',
   24.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw82fb8356/IQ6645-455_1.jpg',
   true,
   '{"demo_id":"i5","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11"}'::jsonb
 )
@@ -1102,9 +1102,37 @@ INSERT INTO inventory_items (
   'L',
   159.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dwc5b5bad6/IR1435-011_CENTERED.jpg',
   true,
   '{"demo_id":"i6","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/camiseta-match-hombre-2-equipacion-26-27/IR1435-011.html","product_url":"https://shop.atleticodemadrid.com/es/camiseta-match-hombre-2-equipacion-26-27/IR1435-011.html"}'::jsonb
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  stock_total = EXCLUDED.stock_total,
+  stock_available = EXCLUDED.stock_available,
+  image_url = EXCLUDED.image_url,
+  updated_at = NOW();
+
+INSERT INTO inventory_items (
+  id, team_id, name, category, sku, qr_code,
+  stock_total, stock_available, stock_min, size, unit_cost,
+  location, image_url, is_active, metadata
+) VALUES (
+  '00000000-0000-4000-8006-000000000019'::uuid,
+  '00000000-0000-4000-8000-000acb423458'::uuid,
+  'Camiseta Hombre 2ª Equipación 26/27',
+  'camiseta_juego'::item_category,
+  'II1932-011',
+  'II1932-011-ATM',
+  55,
+  38,
+  12,
+  'L',
+  109.95,
+  'Ciudad Deportiva — Almacén Equipaciones Hombre',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw2fde1d06/II1932-011_CENTERED.jpg',
+  true,
+  '{"demo_id":"i19","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/segunda-equipacion/hombre","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/segunda-equipacion/hombre"}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -1130,9 +1158,37 @@ INSERT INTO inventory_items (
   'L',
   54.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dwf8a4510b/II2031-010_SIN.jpg',
   true,
   '{"demo_id":"i7","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/pantalon-corto-2-equipacion-26-27/II2031-010.html","product_url":"https://shop.atleticodemadrid.com/es/pantalon-corto-2-equipacion-26-27/II2031-010.html"}'::jsonb
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  stock_total = EXCLUDED.stock_total,
+  stock_available = EXCLUDED.stock_available,
+  image_url = EXCLUDED.image_url,
+  updated_at = NOW();
+
+INSERT INTO inventory_items (
+  id, team_id, name, category, sku, qr_code,
+  stock_total, stock_available, stock_min, size, unit_cost,
+  location, image_url, is_active, metadata
+) VALUES (
+  '00000000-0000-4000-8006-000000000020'::uuid,
+  '00000000-0000-4000-8000-000acb423458'::uuid,
+  'Medias 2ª Equipación 26/27',
+  'calcetines'::item_category,
+  'IQ6648-010',
+  'IQ6648-010-ATM',
+  90,
+  65,
+  20,
+  'M',
+  24.95,
+  'Ciudad Deportiva — Almacén Equipaciones Hombre',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw19ade56f/New%20Folder/IQ6648-010.jpg',
+  true,
+  '{"demo_id":"i20","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/segunda-equipacion/hombre","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/segunda-equipacion/hombre"}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -1150,15 +1206,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Camiseta Match Hombre 3ª Equipación 25/26',
   'camiseta_juego'::item_category,
-  'ATM-THIRD-MATCH-2526',
-  'ATM-THIRD-MATCH-2526-ATM',
+  'HM3200-407',
+  'HM3200-407-ATM',
   40,
   26,
   10,
   'L',
   149.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw60d3e5ba/HM3200-407_.jpg',
   true,
   '{"demo_id":"i8","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre"}'::jsonb
 )
@@ -1178,15 +1234,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Camiseta Hombre 3ª Equipación 25/26',
   'camiseta_juego'::item_category,
-  'ATM-THIRD-REPLICA-2526',
-  'ATM-THIRD-REPLICA-2526-ATM',
+  'HM3192-407',
+  'HM3192-407-ATM',
   50,
   34,
   12,
   'L',
   99.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw45340fbb/HM3192-407_.jpg',
   true,
   '{"demo_id":"i9","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre"}'::jsonb
 )
@@ -1206,15 +1262,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Pantalón Corto 3ª Equipación 25/26',
   'pantalon_juego'::item_category,
-  'ATM-THIRD-SHORT-2526',
-  'ATM-THIRD-SHORT-2526-ATM',
+  'IF1452-407',
+  'IF1452-407-ATM',
   55,
   38,
   12,
   'L',
   49.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw5f0e8aac/IF1452-407_01.jpg',
   true,
   '{"demo_id":"i10","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre"}'::jsonb
 )
@@ -1234,17 +1290,45 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Medias 3ª Equipación 25/26',
   'calcetines'::item_category,
-  'ATM-THIRD-SOCK-2526',
-  'ATM-THIRD-SOCK-2526-ATM',
+  'HM3220-406',
+  'HM3220-406-ATM',
   80,
   55,
   20,
   'M',
   22.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dwf38a98ea/HM3220-406_zoom.jpg',
   true,
   '{"demo_id":"i11","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre"}'::jsonb
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  stock_total = EXCLUDED.stock_total,
+  stock_available = EXCLUDED.stock_available,
+  image_url = EXCLUDED.image_url,
+  updated_at = NOW();
+
+INSERT INTO inventory_items (
+  id, team_id, name, category, sku, qr_code,
+  stock_total, stock_available, stock_min, size, unit_cost,
+  location, image_url, is_active, metadata
+) VALUES (
+  '00000000-0000-4000-8006-000000000021'::uuid,
+  '00000000-0000-4000-8000-000acb423458'::uuid,
+  'Camiseta Portero Hombre 25/26',
+  'camiseta_juego'::item_category,
+  'HQ9235-084',
+  'HQ9235-084-ATM',
+  25,
+  16,
+  6,
+  'XL',
+  109.95,
+  'Ciudad Deportiva — Almacén Equipaciones Hombre',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw2eef5d35/HQ9235-084.jpg',
+  true,
+  '{"demo_id":"i21","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/equipaciones/equipacion-de-portero/hombre","product_url":"https://shop.atleticodemadrid.com/es/equipaciones/equipacion-de-portero/hombre"}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -1262,15 +1346,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Camiseta Entrenamiento Nike Hombre 26/27',
   'camiseta_entrenamiento'::item_category,
-  'ATM-TRAIN-TEE-2627',
-  'ATM-TRAIN-TEE-2627-ATM',
+  'II2770-702',
+  'II2770-702-ATM',
   120,
   88,
   30,
   'L',
   54.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/vestuario.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw2c70d141/II2770-702_.jpg',
   true,
   '{"demo_id":"i12","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/entrenamiento","product_url":"https://shop.atleticodemadrid.com/es/entrenamiento"}'::jsonb
 )
@@ -1298,7 +1382,7 @@ INSERT INTO inventory_items (
   'L',
   69.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw2fde1d06/II1932-011_CENTERED.jpg',
   true,
   '{"demo_id":"i13","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/entrenamiento","product_url":"https://shop.atleticodemadrid.com/es/entrenamiento"}'::jsonb
 )
@@ -1318,15 +1402,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Sudadera Drill Top Nike Hombre 26/27',
   'camiseta_entrenamiento'::item_category,
-  'ATM-DRILL-TOP-2627',
-  'ATM-DRILL-TOP-2627-ATM',
+  'II2666-702',
+  'II2666-702-ATM',
   50,
   35,
   12,
   'L',
   74.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dwa77c1ae6/II2666-702.jpg',
   true,
   '{"demo_id":"i14","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/entrenamiento","product_url":"https://shop.atleticodemadrid.com/es/entrenamiento"}'::jsonb
 )
@@ -1346,15 +1430,15 @@ INSERT INTO inventory_items (
   '00000000-0000-4000-8000-000acb423458'::uuid,
   'Pantalón Corto Entrenamiento Nike Hombre 26/27',
   'camiseta_entrenamiento'::item_category,
-  'ATM-TRAIN-SHORT-2627',
-  'ATM-TRAIN-SHORT-2627-ATM',
+  'II2299-702',
+  'II2299-702-ATM',
   80,
   55,
   20,
   'L',
   47.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw6e1f0b8e/II2299-702.jpg',
   true,
   '{"demo_id":"i15","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/entrenamiento","product_url":"https://shop.atleticodemadrid.com/es/entrenamiento"}'::jsonb
 )
@@ -1382,7 +1466,7 @@ INSERT INTO inventory_items (
   'L',
   74.95,
   'Ciudad Deportiva — Almacén Equipaciones Hombre',
-  '/clubs/atm/logo.png',
+  'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default/dw6e1f0b8e/II2299-702.jpg',
   true,
   '{"demo_id":"i16","gender":"masculino","source":"https://shop.atleticodemadrid.com/es/entrenamiento","product_url":"https://shop.atleticodemadrid.com/es/entrenamiento"}'::jsonb
 )

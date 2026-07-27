@@ -32,6 +32,7 @@ import {
   ATM_SPONSORS_URL,
   ATM_STADIUM_NEWS_URL,
   ATM_SPONSORS_MAIN,
+  ATM_SHOP_IMAGES,
 } from '@/data/clubs/atm-data';
 import { vbcPlayers, vbcInventory, vbcRequests, vbcTrips, vbcAlerts, vbcLaundry, vbcCoachingStaff } from '@/data/clubs/vbc-data';
 
@@ -441,27 +442,47 @@ const atmPack: ClubDemoPack = {
       { label: 'Supercopas de Europa', count: 3, detail: 'Palmarés histórico' },
     ],
     equipacionTitle: 'Equipaciones Oficiales Hombre 26/27',
-    equipacionDescription: `Solo masculino — 1ª, 2ª (IR1435-011 / II2031-010), 3ª y entrenamiento desde ${ATM_OFFICIAL_STORE_URL}`,
+    equipacionDescription: `Solo masculino — 1ª, 2ª, 3ª, portero y entrenamiento desde ${ATM_OFFICIAL_STORE_URL}`,
     equipacionItems: [
       {
         name: 'Camiseta Match Hombre 1ª Equipación 26/27',
         price: '€159.95',
-        image: '/clubs/atm/vestuario.png',
+        image: ATM_SHOP_IMAGES.homeMatch,
+      },
+      {
+        name: 'Camiseta Manga Larga Hombre 1ª 26/27',
+        price: '€119.95',
+        image: ATM_SHOP_IMAGES.homeLongSleeve,
       },
       {
         name: 'Camiseta Match Hombre 2ª Equipación 26/27',
         price: '€159.95',
-        image: '/clubs/atm/logo.png',
+        image: ATM_SHOP_IMAGES.awayMatch,
       },
       {
         name: 'Pantalón Corto 2ª Equipación 26/27',
         price: '€54.95',
-        image: '/clubs/atm/logo.png',
+        image: ATM_SHOP_IMAGES.awayShort,
+      },
+      {
+        name: 'Camiseta Match Hombre 3ª Equipación 25/26',
+        price: '€149.95',
+        image: ATM_SHOP_IMAGES.thirdMatch,
+      },
+      {
+        name: 'Camiseta Portero Hombre 25/26',
+        price: '€109.95',
+        image: ATM_SHOP_IMAGES.gkJersey,
       },
       {
         name: 'Camiseta Entrenamiento Nike Hombre 26/27',
         price: '€54.95',
-        image: '/clubs/atm/vestuario.png',
+        image: ATM_SHOP_IMAGES.trainingTee,
+      },
+      {
+        name: 'Pantalón Corto 1ª Equipación 26/27',
+        price: '€54.95',
+        image: ATM_SHOP_IMAGES.homeShort,
       },
     ],
   },
@@ -470,7 +491,7 @@ const atmPack: ClubDemoPack = {
       id: 'n1',
       title: '¡Bienvenido, Kang In Lee!',
       tag: 'Fichajes',
-      image: '/clubs/atm/vestuario.png',
+      image: ATM_SHOP_IMAGES.homeMatch,
       description: 'Nuevo refuerzo para el primer equipo — dorsal 7 en tienda oficial.',
       date: '2026-07-25',
       url: 'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid',
@@ -497,7 +518,7 @@ const atmPack: ClubDemoPack = {
       id: 'n4',
       title: 'Equipaciones hombre 26/27 en Atleti Store',
       tag: 'Indumentaria',
-      image: '/clubs/atm/vestuario.png',
+      image: ATM_SHOP_IMAGES.awayMatch,
       description: '1ª, 2ª match, 3ª hombre y entrenamiento — solo masculino.',
       date: '2026-07-27',
       url: ATM_STORE_HOME_URL,

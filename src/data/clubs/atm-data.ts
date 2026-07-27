@@ -15,15 +15,43 @@ export const ATM_OFFICIAL_CALENDAR_URL =
 export const ATM_OFFICIAL_STORE_URL = 'https://shop.atleticodemadrid.com/es';
 export const ATM_STORE_HOME_URL =
   'https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11';
+export const ATM_STORE_HOME_LS_URL =
+  'https://shop.atleticodemadrid.com/es/camiseta-manga-larga-hombre-1-equipacion-26-27/IQ6643-101.html';
+export const ATM_STORE_AWAY_MEN_URL =
+  'https://shop.atleticodemadrid.com/es/equipaciones/segunda-equipacion/hombre';
 export const ATM_STORE_AWAY_MATCH_URL =
   'https://shop.atleticodemadrid.com/es/camiseta-match-hombre-2-equipacion-26-27/IR1435-011.html';
 export const ATM_STORE_AWAY_SHORT_URL =
   'https://shop.atleticodemadrid.com/es/pantalon-corto-2-equipacion-26-27/II2031-010.html';
 export const ATM_STORE_THIRD_MEN_URL =
   'https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre';
+export const ATM_STORE_GK_MEN_URL =
+  'https://shop.atleticodemadrid.com/es/equipaciones/equipacion-de-portero/hombre';
 export const ATM_STORE_TRAINING_URL = 'https://shop.atleticodemadrid.com/es/entrenamiento';
 export const ATM_SPONSORS_URL = 'https://www.atleticodemadrid.com/patrocinadores';
 export const ATM_STADIUM_NEWS_URL = 'https://www.atleticodemadrid.com/noticias-nuevo-estadio';
+
+/** Fotos producto tienda oficial (Demandware catalog) — hombre */
+const CAT = 'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default';
+export const ATM_SHOP_IMAGES = {
+  homeMatch: `${CAT}/dw59595213/II2740-101.jpg`,
+  homeReplica: `${CAT}/dw6a9d0b45/II1893-101_jugador.jpg`,
+  homeLongSleeve: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dwb4038a4f/New%20Folder/IQ6643-101_1.jpg`,
+  homeShort: `${CAT}/dwfbd93d53/II1977-455_6.jpg`,
+  homeSock: `${CAT}/dw82fb8356/IQ6645-455_1.jpg`,
+  awayMatch: `${CAT}/dwc5b5bad6/IR1435-011_CENTERED.jpg`,
+  awayReplica: `${CAT}/dw2fde1d06/II1932-011_CENTERED.jpg`,
+  awayShort: `${CAT}/dwf8a4510b/II2031-010_SIN.jpg`,
+  awaySock: `${CAT}/dw19ade56f/New%20Folder/IQ6648-010.jpg`,
+  thirdMatch: `${CAT}/dw60d3e5ba/HM3200-407_.jpg`,
+  thirdReplica: `${CAT}/dw45340fbb/HM3192-407_.jpg`,
+  thirdShort: `${CAT}/dw5f0e8aac/IF1452-407_01.jpg`,
+  thirdSock: `${CAT}/dwf38a98ea/HM3220-406_zoom.jpg`,
+  gkJersey: `${CAT}/dw2eef5d35/HQ9235-084.jpg`,
+  trainingTee: `${CAT}/dw2c70d141/II2770-702_.jpg`,
+  trainingShort: `${CAT}/dw6e1f0b8e/II2299-702.jpg`,
+  drillTop: `${CAT}/dwa77c1ae6/II2666-702.jpg`,
+} as const;
 /** Principales + camiseta (oficial atleticodemadrid.com/patrocinadores) */
 export const ATM_SPONSORS_MAIN = [
   'Riyadh Air',
@@ -471,11 +499,7 @@ function kitItem(p: {
 
 /**
  * Inventario utilería — SOLO hombre / masculino
- * Fuentes:
- * - Primera: shop.../primera-equipacion
- * - 2ª match: IR1435-011 · pantalón II2031-010
- * - Tercera hombre: /tercera-equipacion/hombre
- * - Entrenamiento (hombre): /entrenamiento
+ * Fuentes tienda: 1ª · 2ª hombre · 3ª hombre · portero hombre · entrenamiento
  * Precios EUR tienda ES (referencia web club / tienda oficial).
  */
 export const atmInventory = [
@@ -483,66 +507,66 @@ export const atmInventory = [
   kitItem({
     id: 'i1',
     name: 'Camiseta Match Hombre 1ª Equipación 26/27',
-    sku: 'ATM-HOME-MATCH-2627',
+    sku: 'II2740-101',
     category: 'camiseta_juego',
     price: 159.95,
     stock_total: 80,
     stock_available: 54,
     stock_min: 20,
     size: 'L',
-    image_url: '/clubs/atm/vestuario.png',
+    image_url: ATM_SHOP_IMAGES.homeMatch,
     product_url: ATM_STORE_HOME_URL,
   }),
   kitItem({
     id: 'i2',
     name: 'Camiseta Hombre 1ª Equipación 26/27',
-    sku: 'ATM-HOME-REPLICA-2627',
+    sku: 'II1893-101',
     category: 'camiseta_juego',
     price: 109.95,
     stock_total: 100,
     stock_available: 72,
     stock_min: 25,
     size: 'L',
-    image_url: '/clubs/atm/vestuario.png',
+    image_url: ATM_SHOP_IMAGES.homeReplica,
     product_url: ATM_STORE_HOME_URL,
   }),
   kitItem({
     id: 'i3',
     name: 'Camiseta Manga Larga Hombre 1ª Equipación 26/27',
-    sku: 'ATM-HOME-LS-2627',
+    sku: 'IQ6643-101',
     category: 'camiseta_juego',
     price: 119.95,
     stock_total: 40,
     stock_available: 28,
     stock_min: 10,
     size: 'L',
-    image_url: '/clubs/atm/vestuario.png',
-    product_url: ATM_STORE_HOME_URL,
+    image_url: ATM_SHOP_IMAGES.homeLongSleeve,
+    product_url: ATM_STORE_HOME_LS_URL,
   }),
   kitItem({
     id: 'i4',
     name: 'Pantalón Corto 1ª Equipación 26/27',
-    sku: 'ATM-HOME-SHORT-2627',
+    sku: 'II1977-455',
     category: 'pantalon_juego',
     price: 54.95,
     stock_total: 90,
     stock_available: 60,
     stock_min: 20,
     size: 'L',
-    image_url: '/clubs/atm/vestuario.png',
+    image_url: ATM_SHOP_IMAGES.homeShort,
     product_url: ATM_STORE_HOME_URL,
   }),
   kitItem({
     id: 'i5',
     name: 'Medias 1ª Equipación 26/27',
-    sku: 'ATM-HOME-SOCK-2627',
+    sku: 'IQ6645-455',
     category: 'calcetines',
     price: 24.95,
     stock_total: 120,
     stock_available: 90,
     stock_min: 30,
     size: 'M',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.homeSock,
     product_url: ATM_STORE_HOME_URL,
   }),
   // ——— 2ª equipación hombre ———
@@ -556,8 +580,21 @@ export const atmInventory = [
     stock_available: 40,
     stock_min: 15,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.awayMatch,
     product_url: ATM_STORE_AWAY_MATCH_URL,
+  }),
+  kitItem({
+    id: 'i19',
+    name: 'Camiseta Hombre 2ª Equipación 26/27',
+    sku: 'II1932-011',
+    category: 'camiseta_juego',
+    price: 109.95,
+    stock_total: 55,
+    stock_available: 38,
+    stock_min: 12,
+    size: 'L',
+    image_url: ATM_SHOP_IMAGES.awayReplica,
+    product_url: ATM_STORE_AWAY_MEN_URL,
   }),
   kitItem({
     id: 'i7',
@@ -569,74 +606,101 @@ export const atmInventory = [
     stock_available: 48,
     stock_min: 15,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.awayShort,
     product_url: ATM_STORE_AWAY_SHORT_URL,
+  }),
+  kitItem({
+    id: 'i20',
+    name: 'Medias 2ª Equipación 26/27',
+    sku: 'IQ6648-010',
+    category: 'calcetines',
+    price: 24.95,
+    stock_total: 90,
+    stock_available: 65,
+    stock_min: 20,
+    size: 'M',
+    image_url: ATM_SHOP_IMAGES.awaySock,
+    product_url: ATM_STORE_AWAY_MEN_URL,
   }),
   // ——— 3ª equipación hombre ———
   kitItem({
     id: 'i8',
     name: 'Camiseta Match Hombre 3ª Equipación 25/26',
-    sku: 'ATM-THIRD-MATCH-2526',
+    sku: 'HM3200-407',
     category: 'camiseta_juego',
     price: 149.95,
     stock_total: 40,
     stock_available: 26,
     stock_min: 10,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.thirdMatch,
     product_url: ATM_STORE_THIRD_MEN_URL,
   }),
   kitItem({
     id: 'i9',
     name: 'Camiseta Hombre 3ª Equipación 25/26',
-    sku: 'ATM-THIRD-REPLICA-2526',
+    sku: 'HM3192-407',
     category: 'camiseta_juego',
     price: 99.95,
     stock_total: 50,
     stock_available: 34,
     stock_min: 12,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.thirdReplica,
     product_url: ATM_STORE_THIRD_MEN_URL,
   }),
   kitItem({
     id: 'i10',
     name: 'Pantalón Corto 3ª Equipación 25/26',
-    sku: 'ATM-THIRD-SHORT-2526',
+    sku: 'IF1452-407',
     category: 'pantalon_juego',
     price: 49.95,
     stock_total: 55,
     stock_available: 38,
     stock_min: 12,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.thirdShort,
     product_url: ATM_STORE_THIRD_MEN_URL,
   }),
   kitItem({
     id: 'i11',
     name: 'Medias 3ª Equipación 25/26',
-    sku: 'ATM-THIRD-SOCK-2526',
+    sku: 'HM3220-406',
     category: 'calcetines',
     price: 22.95,
     stock_total: 80,
     stock_available: 55,
     stock_min: 20,
     size: 'M',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.thirdSock,
     product_url: ATM_STORE_THIRD_MEN_URL,
+  }),
+  // ——— Portero hombre ———
+  kitItem({
+    id: 'i21',
+    name: 'Camiseta Portero Hombre 25/26',
+    sku: 'HQ9235-084',
+    category: 'camiseta_juego',
+    price: 109.95,
+    stock_total: 25,
+    stock_available: 16,
+    stock_min: 6,
+    size: 'XL',
+    image_url: ATM_SHOP_IMAGES.gkJersey,
+    product_url: ATM_STORE_GK_MEN_URL,
   }),
   // ——— Entrenamiento hombre ———
   kitItem({
     id: 'i12',
     name: 'Camiseta Entrenamiento Nike Hombre 26/27',
-    sku: 'ATM-TRAIN-TEE-2627',
+    sku: 'II2770-702',
     category: 'entrenamiento',
     price: 54.95,
     stock_total: 120,
     stock_available: 88,
     stock_min: 30,
     size: 'L',
-    image_url: '/clubs/atm/vestuario.png',
+    image_url: ATM_SHOP_IMAGES.trainingTee,
     product_url: ATM_STORE_TRAINING_URL,
   }),
   kitItem({
@@ -649,33 +713,33 @@ export const atmInventory = [
     stock_available: 42,
     stock_min: 15,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.awayReplica,
     product_url: ATM_STORE_TRAINING_URL,
   }),
   kitItem({
     id: 'i14',
     name: 'Sudadera Drill Top Nike Hombre 26/27',
-    sku: 'ATM-DRILL-TOP-2627',
+    sku: 'II2666-702',
     category: 'entrenamiento',
     price: 74.95,
     stock_total: 50,
     stock_available: 35,
     stock_min: 12,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.drillTop,
     product_url: ATM_STORE_TRAINING_URL,
   }),
   kitItem({
     id: 'i15',
     name: 'Pantalón Corto Entrenamiento Nike Hombre 26/27',
-    sku: 'ATM-TRAIN-SHORT-2627',
+    sku: 'II2299-702',
     category: 'entrenamiento',
     price: 47.95,
     stock_total: 80,
     stock_available: 55,
     stock_min: 20,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.trainingShort,
     product_url: ATM_STORE_TRAINING_URL,
   }),
   kitItem({
@@ -688,7 +752,7 @@ export const atmInventory = [
     stock_available: 30,
     stock_min: 10,
     size: 'L',
-    image_url: '/clubs/atm/logo.png',
+    image_url: ATM_SHOP_IMAGES.trainingShort,
     product_url: ATM_STORE_TRAINING_URL,
   }),
   kitItem({
