@@ -171,12 +171,20 @@ export async function GET(req: NextRequest) {
   }
   if (onlyLow) filtered = filtered.filter((i) => i.low_stock);
 
+  const bySectionSource =
+    scope === 'all_rm'
+      ? SECTIONS
+      : SECTIONS.filter((s) => {
+          if (teamIdParam) return s.teamId === teamIdParam;
+          return true;
+        });
+
   const stats = {
     total_refs: filtered.length,
     total_units: filtered.reduce((s, i) => s + i.stock, 0),
     total_value: filtered.reduce((s, i) => s + i.value, 0),
     low_stock: filtered.filter((i) => i.low_stock).length,
-    by_section: SECTIONS.map((s) => ({
+    by_section: bySectionSource.map((s) => ({
       id: s.id,
       label: s.label,
       shortLabel: s.shortLabel,
@@ -205,7 +213,7 @@ export async function GET(req: NextRequest) {
     data: {
       items: filtered,
       stats,
-      sections: SECTIONS.map((s) => ({
+      sections: bySectionSource.map((s) => ({
         id: s.id,
         label: s.label,
         shortLabel: s.shortLabel,

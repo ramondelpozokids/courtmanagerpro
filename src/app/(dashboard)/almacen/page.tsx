@@ -167,7 +167,7 @@ export default function AlmacenGeneralPage() {
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
             {scope === 'active'
               ? `Stock y valor de ${branding.name} (${branding.sport === 'football' ? 'fútbol' : 'baloncesto'}).`
-              : 'Vista unificada RMB + RMF + ATM (solo si la eliges).'}
+              : 'Vista unificada de todos los clubs live (RMB, RMF y ATM).'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -184,7 +184,7 @@ export default function AlmacenGeneralPage() {
               onClick={() => setScope('all_rm')}
               className={`px-3 py-2 ${scope === 'all_rm' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-900 text-slate-600'}`}
             >
-              RMB + RMF + ATM
+              Todos los clubs
             </button>
           </div>
           <Link href="/movimientos" className="text-xs font-bold text-slate-600 hover:text-orange-600">

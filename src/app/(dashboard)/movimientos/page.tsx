@@ -84,7 +84,7 @@ export default function MovimientosPage() {
             scope === 'all_rm' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800'
           }`}
         >
-          RMB + RMF + ATM
+          Todos los clubs
         </button>
         <button
           type="button"
