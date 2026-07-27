@@ -447,7 +447,6 @@ export const atmPlayers = [
  */
 const TM_STAFF =
   'https://img.a.transfermarkt.technology/portrait/header';
-const TM_SSL = 'https://tmssl.akamaized.net/images/portrait/header';
 
 export const atmCoachingStaff = [
   {
