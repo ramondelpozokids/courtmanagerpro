@@ -54,17 +54,21 @@ function guessPosition(dorsal: number): PlayerPosition {
 
 function parsePlayersFromHtml(html: string): OfficialPlayer[] {
   const re =
-    /href="(https?:\/\/www\.atleticodemadrid\.com\/jugadores\/([^"]+))"[^>]*>[\s\S]*?(\d{1,2})\s*([A-ZÁÉÍÓÚÜÑ0-9 .'\-]+?)\s*</gi;
+    /href="(https?:\/\/www\.atleticodemadrid\.com\/jugadores\/([^"]+))"[^>]*>[\s\S]*?(?:src="(https:\/\/img-estaticos\.atleticodemadrid\.com[^"]+)"[\s\S]*?)?(\d{1,2})\s*([A-ZÁÉÍÓÚÜÑ0-9 .'\-]+?)\s*</gi;
+  // Prefer link+img cards
+  const cardRe =
+    /href="(https?:\/\/www\.atleticodemadrid\.com\/jugadores\/([^"]+))"[\s\S]{0,800}?src="(https:\/\/img-estaticos\.atleticodemadrid\.com[^"]+)"[\s\S]{0,400}?(\d{1,2})\s*<\/?[^>]*>?\s*([A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 .'\-]+)/gi;
   const seen = new Set<string>();
   const players: OfficialPlayer[] = [];
   let m: RegExpExecArray | null;
-  while ((m = re.exec(html)) !== null) {
+  while ((m = cardRe.exec(html)) !== null) {
     const profile_url = m[1];
     const slug = m[2];
     if (seen.has(slug)) continue;
     seen.add(slug);
-    const dorsal = num(m[3]) || 0;
-    const display = decodeHtml(m[4]);
+    const photo_url = m[3] || null;
+    const dorsal = num(m[4]) || 0;
+    const display = decodeHtml(m[5]);
     const parts = display.split(/\s+/);
     const first_name = parts[0] || display;
     const last_name = parts.slice(1).join(' ') || display;
@@ -77,7 +81,34 @@ function parsePlayersFromHtml(html: string): OfficialPlayer[] {
       dorsal,
       position: position_demo,
       position_demo,
-      photo_url: null,
+      photo_url,
+      nationality: null,
+      birth_date: null,
+      profile_url,
+    });
+  }
+  if (players.length > 0) return players;
+
+  while ((m = re.exec(html)) !== null) {
+    const profile_url = m[1];
+    const slug = m[2];
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    const dorsal = num(m[4]) || 0;
+    const display = decodeHtml(m[5]);
+    const parts = display.split(/\s+/);
+    const first_name = parts[0] || display;
+    const last_name = parts.slice(1).join(' ') || display;
+    const position_demo = guessPosition(dorsal);
+    players.push({
+      slug,
+      full_name: display,
+      first_name,
+      last_name,
+      dorsal,
+      position: position_demo,
+      position_demo,
+      photo_url: m[3] || null,
       nationality: null,
       birth_date: null,
       profile_url,

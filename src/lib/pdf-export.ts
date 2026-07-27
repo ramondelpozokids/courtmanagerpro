@@ -92,6 +92,12 @@ function formatExportDateTime(): string {
 }
 
 function pdfVenueLines(identity: ClubCsvIdentity): { venue: string; city: string } {
+  if (identity.department.toLowerCase().includes('atlético')) {
+    return {
+      venue: identity.addressLine,
+      city: `${identity.cityLine}${identity.website ? ` · ${identity.website}` : ''}`,
+    };
+  }
   if (identity.department.toLowerCase().includes('real madrid')) {
     return { venue: 'Ciudad Real Madrid', city: 'Madrid, España' };
   }

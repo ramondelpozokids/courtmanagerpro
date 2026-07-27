@@ -405,7 +405,7 @@ const atmPack: ClubDemoPack = {
     name: 'Atlético de Madrid',
     shortName: 'ATM',
     tagline: 'Primer Equipo · Atleti Lab',
-    venue: 'Riyadh Air Metropolitano · Madrid',
+    venue: 'Riyadh Air Metropolitano',
     sport: 'football',
     league: 'LaLiga',
     primaryColor: '#FFFFFF',
@@ -417,7 +417,8 @@ const atmPack: ClubDemoPack = {
   },
   blog: {
     portalTitle: 'ATM Portal: Noticias, Historia e Indumentaria',
-    portalSubtitle: 'Primer equipo de fútbol — utilería, plantilla y actualidad oficial.',
+    portalSubtitle:
+      'Avenida de Luis Aragonés, 4 · 28022 Madrid España · atleticodemadrid.com',
     historyTitle: 'Historia del Atlético de Madrid',
     historySubtitle: 'Club Atlético de Madrid — Riyadh Air Metropolitano · Territorio Atleti.',
     historyIntro: [

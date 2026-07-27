@@ -9,11 +9,14 @@ import { useState } from "react";
 import { Search, PlusCircle, Package, ArrowUpRight, ArrowDownRight, QrCode, ClipboardList, Trash2, Edit2 } from "lucide-react";
 import Link from "next/link";
 import { useClubBranding } from "@/contexts/ClubDemoContext";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 
 export default function InventoryPage() {
-  const { user, userEmail, isSuperadmin } = useAuth();
+  const { user, userEmail, isSuperadmin, currentTeam } = useAuth();
   const branding = useClubBranding();
-  const { items, loading, createItem, adjustStock, deleteItem } = useInventory();
+  const { items, loading, createItem, adjustStock, deleteItem } = useInventory(
+    currentTeam?.id || DEFAULT_TEAM_ID
+  );
   const [showAddForm, setShowAddForm] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");

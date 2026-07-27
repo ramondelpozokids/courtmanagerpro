@@ -2,13 +2,14 @@
 
 import { useMedical } from "@/hooks/useMedical";
 import { useAuth } from "@/contexts/AuthContext";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { canAccessMedical, canWriteClubData } from "@/lib/permissions";
 import { useMemo, useState } from "react";
 import {
   HeartPulse, Calendar, AlertTriangle, CheckCircle, RefreshCw, Minus, Plus, Search, MapPin, BriefcaseMedical, PlusCircle,
 } from "lucide-react";
 
-const KIT_OPTIONS = [
+const KIT_OPTIONS_BASKETBALL = [
   { value: "Armario Central", label: "Armario Médico Central", location: "Armario Médico" },
   { value: "Botiquín Partido", label: "Botiquín Partido ACB", location: "Vestuario — Banquillo" },
   { value: "Botiquín Viaje", label: "Botiquín Viaje Euroliga", location: "Almacén Logística" },
@@ -16,13 +17,23 @@ const KIT_OPTIONS = [
   { value: "Vestuario Principal", label: "Nevera Vestuario", location: "Nevera Vestuario" },
 ] as const;
 
-const KIT_LABELS: Record<string, string> = {
-  ALL: "Todos los botiquines",
-  ...Object.fromEntries(KIT_OPTIONS.map((k) => [k.value, k.label])),
-};
+const KIT_OPTIONS_FOOTBALL = [
+  { value: "Armario Central", label: "Armario Médico Central", location: "Armario Médico" },
+  { value: "Botiquín Partido", label: "Botiquín Partido LaLiga", location: "Vestuario — Banquillo" },
+  { value: "Botiquín Viaje", label: "Botiquín Viaje Champions / Europa", location: "Almacén Logística" },
+  { value: "Fisioterapia", label: "Kit Fisioterapia", location: "Botiquín Fisioterapia" },
+  { value: "Vestuario Principal", label: "Nevera Vestuario", location: "Nevera Vestuario" },
+] as const;
 
 export default function MedicalStockPage() {
   const { user, userEmail, hasOperationalAccess } = useAuth();
+  const branding = useClubBranding();
+  const isFootball = branding.sport === "football";
+  const KIT_OPTIONS = isFootball ? KIT_OPTIONS_FOOTBALL : KIT_OPTIONS_BASKETBALL;
+  const KIT_LABELS: Record<string, string> = {
+    ALL: "Todos los botiquines",
+    ...Object.fromEntries(KIT_OPTIONS.map((k) => [k.value, k.label])),
+  };
   const { items, loading, adjustQty, createItem } = useMedical();
   const [search, setSearch] = useState("");
   const [kitFilter, setKitFilter] = useState("ALL");
@@ -49,7 +60,7 @@ export default function MedicalStockPage() {
     const ordered = KIT_OPTIONS.map((k) => k.value);
     const extra = Array.from(new Set(fromData)).filter((k) => !ordered.includes(k as any));
     return ["ALL", ...ordered, ...extra];
-  }, [items]);
+  }, [items, KIT_OPTIONS]);
 
   const openAddForm = () => {
     const preselect =
@@ -120,7 +131,9 @@ export default function MedicalStockPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Material Médico y Botiquines ACB</h2>
+          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
+            Material Médico y Botiquines {isFootball ? "LaLiga" : "ACB"}
+          </h2>
           <p className="text-sm text-slate-500 mt-1">
             {stats.total} referencias · {stats.expired} caducadas · {stats.expiring} próximas a caducar · {stats.lowStock} bajo mínimo
           </p>

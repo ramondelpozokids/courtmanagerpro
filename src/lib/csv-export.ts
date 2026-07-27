@@ -15,6 +15,9 @@ export interface ClubCsvIdentity {
   logoPath: string;
   department: string;
   sportSection: string;
+  /** Sitio web oficial (sin Gabriel Cocca ni contactos personales) */
+  website?: string;
+  email?: string;
 }
 
 export const CLUB_CSV_IDENTITY: Record<ClubSlug, ClubCsvIdentity> = {
@@ -23,30 +26,34 @@ export const CLUB_CSV_IDENTITY: Record<ClubSlug, ClubCsvIdentity> = {
     legalName: 'REAL MADRID C.F.',
     venue: 'Estadio Santiago Bernabéu',
     addressLine: 'Av. Concha Espina, 1',
-    cityLine: '28036 Madrid',
+    cityLine: '28036 Madrid España',
     logoPath: '/clubs/rmb/logo.png',
     department: 'Real Madrid Baloncesto',
     sportSection: 'Baloncesto — Primer Equipo',
+    website: 'realmadrid.com',
   },
   rmf: {
     brandLine: 'Realmadrid',
     legalName: 'REAL MADRID C.F.',
     venue: 'Estadio Santiago Bernabéu',
     addressLine: 'Av. Concha Espina, 1',
-    cityLine: '28036 Madrid',
+    cityLine: '28036 Madrid España',
     logoPath: '/clubs/rmf/logo.png',
     department: 'Real Madrid Fútbol',
     sportSection: 'Fútbol — Primer Equipo',
+    website: 'realmadrid.com',
   },
   atm: {
     brandLine: 'Atlético de Madrid',
     legalName: 'CLUB ATLÉTICO DE MADRID S.A.D.',
     venue: 'Riyadh Air Metropolitano',
     addressLine: 'Avenida de Luis Aragonés, 4',
-    cityLine: '28022 Madrid',
+    cityLine: '28022 Madrid España',
     logoPath: '/clubs/atm/logo.png',
     department: 'Atlético de Madrid Fútbol',
     sportSection: 'Fútbol — Primer Equipo',
+    website: 'atleticodemadrid.com',
+    email: 'info@atleticodemadrid.com',
   },
   fcb: {
     brandLine: 'FC Barcelona',
@@ -174,6 +181,8 @@ function buildCorporateLetterhead(
     row([identity.venue]),
     row([identity.addressLine]),
     row([identity.cityLine]),
+    ...(identity.website ? [row([identity.website])] : []),
+    ...(identity.email ? [row([identity.email])] : []),
     emptyRow(),
     row([identity.department.toUpperCase()]),
     row([identity.sportSection]),
@@ -599,9 +608,12 @@ export function exportInventoryCsv(
   items: InventoryCsvRow[],
   options?: CsvExportOptions
 ): void {
-  void import('@/lib/pdf-export').then(({ exportInventoryPdf }) => {
-    exportInventoryPdf(slug, items, options);
-  });
+  const identity = CLUB_CSV_IDENTITY[slug];
+  const season = (options?.season ?? '2025-26').replace(/\//g, '-');
+  downloadCsv(
+    `inventario_utileria_${slug}_${season}.csv`,
+    buildInventoryCsvLines(identity, items, options)
+  );
 }
 
 export function exportSizingCsv(
@@ -611,7 +623,10 @@ export function exportSizingCsv(
   customProducts: SizingProduct[] = [],
   options?: CsvExportOptions
 ): void {
-  void import('@/lib/pdf-export').then(({ exportSizingPdf }) => {
-    exportSizingPdf(slug, players, staff, customProducts, options);
-  });
+  const identity = CLUB_CSV_IDENTITY[slug];
+  const season = (options?.season ?? '2025-26').replace(/\//g, '-');
+  downloadCsv(
+    `tallas_utileria_${slug}_${season}.csv`,
+    buildSizingCsvLines(identity, players, staff, customProducts, options)
+  );
 }

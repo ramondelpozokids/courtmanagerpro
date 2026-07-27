@@ -15,7 +15,10 @@ import {
   Euro,
 } from 'lucide-react';
 import { downloadCsv } from '@/lib/csv-export';
-import { useClubBranding, useClubDemo } from '@/contexts/ClubDemoContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useClubBranding } from '@/contexts/ClubDemoContext';
+import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 
 type WarehouseItem = {
   id: string;
@@ -55,8 +58,9 @@ function eur(n: number) {
 }
 
 export default function AlmacenGeneralPage() {
+  const { currentTeam } = useAuth();
   const branding = useClubBranding();
-  const { clubSlug } = useClubDemo();
+  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
   const [items, setItems] = useState<WarehouseItem[]>([]);
   const [stats, setStats] = useState<{
     total_refs: number;
@@ -68,6 +72,8 @@ export default function AlmacenGeneralPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scope, setScope] = useState<'active' | 'all_rm'>('active');
+  const [sport, setSport] = useState<'all' | 'basketball' | 'football'>('all');
   const [category, setCategory] = useState<'all' | 'primer_equipo' | 'inferiores'>('all');
   const [onlyLow, setOnlyLow] = useState(false);
   const [q, setQ] = useState('');
@@ -78,9 +84,15 @@ export default function AlmacenGeneralPage() {
     setError(null);
     try {
       const params = new URLSearchParams();
-      // Solo el club activo — nunca mezclar Real Madrid con ATM
-      params.set('club', clubSlug);
-      if (category !== 'all') params.set('category', category);
+      params.set('scope', scope);
+      params.set('team_id', teamId);
+      if (scope === 'all_rm') {
+        if (sport !== 'all') params.set('sport', sport);
+        if (category !== 'all') params.set('category', category);
+      } else {
+        params.set('sport', branding.sport === 'football' ? 'football' : 'basketball');
+        params.set('category', 'primer_equipo');
+      }
       if (onlyLow) params.set('low_stock', '1');
       if (q.trim()) params.set('q', q.trim());
       const res = await fetch(`/api/warehouse?${params}`, { credentials: 'include' });
@@ -94,12 +106,21 @@ export default function AlmacenGeneralPage() {
     } finally {
       setLoading(false);
     }
-  }, [clubSlug, category, onlyLow, q]);
+  }, [scope, teamId, branding.sport, sport, category, onlyLow, q]);
 
   useEffect(() => {
     const t = setTimeout(() => void load(), q ? 250 : 0);
     return () => clearTimeout(t);
   }, [load, q]);
+
+  const clubSlug =
+    teamId === CLUB_TEAM_IDS.atm
+      ? 'atm'
+      : teamId === CLUB_TEAM_IDS.rmf
+        ? 'rmf'
+        : teamId === CLUB_TEAM_IDS.rmb
+          ? 'rmb'
+          : branding.slug;
 
   const grouped = useMemo(() => {
     const map = new Map<string, WarehouseItem[]>();
@@ -147,10 +168,28 @@ export default function AlmacenGeneralPage() {
             Almacén general
           </h2>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Stock y valor de <strong>{branding.name}</strong> únicamente. Sin mezclar otros clubes.
+            {scope === 'active'
+              ? `Stock y valor de ${branding.name} (${branding.sport === 'football' ? 'fútbol' : 'baloncesto'}).`
+              : 'Vista unificada RMB + RMF + ATM (solo si la eliges).'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setScope('active')}
+              className={`px-3 py-2 ${scope === 'active' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-900 text-slate-600'}`}
+            >
+              Solo {branding.shortName}
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope('all_rm')}
+              className={`px-3 py-2 ${scope === 'all_rm' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-900 text-slate-600'}`}
+            >
+              RMB + RMF + ATM
+            </button>
+          </div>
           <Link href="/movimientos" className="text-xs font-bold text-slate-600 hover:text-orange-600">
             Historial movimientos
           </Link>
@@ -253,6 +292,7 @@ export default function AlmacenGeneralPage() {
             key={s.id}
             type="button"
             onClick={() => {
+              setSport(s.sport as 'basketball' | 'football');
               setCategory(s.category as 'primer_equipo' | 'inferiores');
             }}
             className={`text-left rounded-xl border p-3 transition-all ${
@@ -287,17 +327,17 @@ export default function AlmacenGeneralPage() {
         <div className="flex flex-wrap gap-1.5">
           {(
             [
-              ['all', 'Todas'],
-              ['primer_equipo', 'Primer equipo'],
-              ['inferiores', 'Inferiores'],
+              ['all', 'Todos'],
+              ['basketball', 'Baloncesto'],
+              ['football', 'Fútbol'],
             ] as const
           ).map(([id, label]) => (
             <button
               key={id}
               type="button"
-              onClick={() => setCategory(id)}
+              onClick={() => setSport(id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                category === id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'
+                sport === id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'
               }`}
             >
               {label}

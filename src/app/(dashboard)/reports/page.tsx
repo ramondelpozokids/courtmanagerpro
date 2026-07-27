@@ -6,16 +6,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { canAccessReports, canWriteClubData } from "@/lib/permissions";
 import { exportInventoryCsv, exportSizingCsv } from "@/lib/csv-export";
-import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
+import { getClubPack } from "@/data/clubs";
+import { DEFAULT_TEAM_ID } from "@/lib/team-constants";
 import {
   TrendingUp, Download, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler,
 } from "lucide-react";
 
 export default function ReportsPage() {
-  const { user, userEmail, hasOperationalAccess } = useAuth();
+  const { user, userEmail, hasOperationalAccess, currentTeam } = useAuth();
   const branding = useClubBranding();
-  const { items } = useInventory();
-  const { players } = usePlayers();
+  const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
+  const { items } = useInventory(teamId);
+  const { players } = usePlayers(teamId);
+  const pack = getClubPack(branding.slug);
+  const coachingStaff = pack.coachingStaff || [];
   const role = user?.profile?.role;
   const canExport = hasOperationalAccess || canWriteClubData(role, userEmail);
 
@@ -44,12 +48,15 @@ export default function ReportsPage() {
         size: item.size,
         unit_cost: item.unit_cost,
         location: (item as { location?: string }).location,
-      }))
+      })),
+      { season: branding.slug === "atm" ? "2025-26" : "2026-27" }
     );
   };
 
   const handleExportSizing = () => {
-    exportSizingCsv(branding.slug, db.players, db.coachingStaff, db.customSizingProducts);
+    exportSizingCsv(branding.slug, players, coachingStaff, [], {
+      season: branding.slug === "atm" ? "2025-26" : "2026-27",
+    });
   };
 
   if (!hasOperationalAccess && !canAccessReports(role, userEmail)) {
@@ -72,7 +79,7 @@ export default function ReportsPage() {
             Informes de Equipación y Utilería
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            {branding.name} — exportación con cabecera oficial, valor de almacén y tabla de tallas ({players.length} jugadores).
+            {branding.name} — exportación CSV con cabecera oficial, valor de almacén y tabla de tallas ({players.length} jugadores).
           </p>
         </div>
         {canExport && (
@@ -87,107 +94,57 @@ export default function ReportsPage() {
         )}
       </div>
 
-      {/* KPIs equipación */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Package, label: "Valor Almacén", value: `€${totalValue.toLocaleString("es-ES")}`, color: "text-slate-800 dark:text-white" },
           { icon: Users, label: "Jugadores Activos", value: String(players.length), color: "text-orange-600" },
           { icon: Shirt, label: "Referencias Inventario", value: String(items.length), color: "text-slate-800 dark:text-white" },
-          { icon: Ruler, label: "Productos de Talla", value: String(26 + db.customSizingProducts.length), color: "text-emerald-600" },
+          { icon: Ruler, label: "Productos de Talla", value: String(26), color: "text-emerald-600" },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
             <Icon className="h-5 w-5 text-orange-500 mb-2" />
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">{label}</span>
-            <h3 className={`text-xl font-black mt-1 ${color}`}>{value}</h3>
+            <span className={`text-2xl font-black ${color}`}>{value}</span>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 border rounded-xl p-4">
-          <span className="text-xs font-bold text-slate-400 uppercase">Fuera de Stock</span>
-          <h3 className="text-2xl font-black text-red-500 mt-1">{outOfStockCount}</h3>
-        </div>
-        <div className="bg-white dark:bg-slate-900 border rounded-xl p-4">
-          <span className="text-xs font-bold text-slate-400 uppercase">Bajo Mínimo</span>
-          <h3 className="text-2xl font-black text-orange-500 mt-1">{lowStockCount}</h3>
-        </div>
-        <div className="bg-white dark:bg-slate-900 border rounded-xl p-4">
-          <span className="text-xs font-bold text-slate-400 uppercase">Staff Técnico</span>
-          <h3 className="text-2xl font-black mt-1">{db.coachingStaff.length}</h3>
-        </div>
-      </div>
-
-      {/* Desglose por categoría de equipación */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
-        <h3 className="font-extrabold text-sm mb-4 flex items-center gap-2">
-          <PieChart className="h-5 w-5 text-orange-500" />
-          Inventario por Categoría de Equipación
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-xs uppercase text-slate-400 border-b">
-                <th className="text-left py-2">Categoría</th>
-                <th className="text-right py-2">Unidades</th>
-                <th className="text-right py-2">Valor €</th>
-                <th className="text-right py-2">% del total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(categoryBreakdown).sort((a, b) => b[1].value - a[1].value).map(([cat, data]) => (
-                <tr key={cat} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="py-2 font-semibold capitalize">{cat.replace(/_/g, " ")}</td>
-                  <td className="py-2 text-right">{data.count}</td>
-                  <td className="py-2 text-right font-bold">€{data.value.toLocaleString("es-ES")}</td>
-                  <td className="py-2 text-right text-orange-600">{totalValue ? Math.round((data.value / totalValue) * 100) : 0}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Gráfico consumo */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-900 border rounded-xl p-5 shadow-sm">
-          <h3 className="font-extrabold text-sm mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-orange-500" />
-            Consumo Mensual Equipación (uds)
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm lg:col-span-2">
+          <h3 className="text-sm font-black uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+            <PieChart className="h-4 w-4 text-orange-500" /> Inventario por Categoría de Equipación
           </h3>
-          <svg viewBox="0 0 500 240" className="w-full max-w-lg mx-auto h-auto">
-            <line x1="40" y1="200" x2="480" y2="200" stroke="#cbd5e1" strokeWidth="1.5" />
-            {[80, 50, 110, 40, 90].map((y, i) => (
-              <rect key={i} x={70 + i * 80} y={y} width="35" height={200 - y} rx="3" fill={i % 2 ? "#fb923c" : "#ea580c"} />
-            ))}
-            {["Ene", "Feb", "Mar", "Abr", "May"].map((m, i) => (
-              <text key={m} x={87 + i * 80} y="220" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#64748b">{m}</text>
-            ))}
-          </svg>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 border rounded-xl p-5 shadow-sm">
-          <h3 className="font-extrabold text-sm mb-4 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-orange-500" />
-            Distribución de Costes por Tipo
-          </h3>
-          <div className="space-y-3 text-sm">
-            {[
-              { label: "Uniformes Competición", pct: 52 },
-              { label: "Zapatillas Técnicas", pct: 28 },
-              { label: "Ropa Entrenamiento / Chándal", pct: 14 },
-              { label: "Accesorios y Material Viaje", pct: 6 },
-            ].map(({ label, pct }) => (
-              <div key={label}>
-                <div className="flex justify-between font-bold mb-1">
-                  <span>{label}</span><span>{pct}%</span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-orange-500 h-full rounded-full" style={{ width: `${pct}%` }} />
-                </div>
+          <div className="space-y-3">
+            {Object.entries(categoryBreakdown).length === 0 && (
+              <p className="text-sm text-slate-400">Sin referencias de inventario para este club.</p>
+            )}
+            {Object.entries(categoryBreakdown).map(([cat, data]) => (
+              <div key={cat} className="flex items-center justify-between gap-3 text-sm">
+                <span className="font-bold text-slate-700 dark:text-slate-200 capitalize">{cat.replace(/_/g, " ")}</span>
+                <span className="text-slate-500">{data.count} uds · €{data.value.toLocaleString("es-ES")}</span>
               </div>
             ))}
           </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+          <h3 className="text-sm font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-orange-500" /> Alertas de stock
+          </h3>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600 dark:text-slate-300">Fuera de stock</span>
+            <span className="font-black text-rose-600">{outOfStockCount}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600 dark:text-slate-300">Bajo mínimo</span>
+            <span className="font-black text-amber-600">{lowStockCount}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600 dark:text-slate-300">Staff técnico</span>
+            <span className="font-black text-slate-800 dark:text-white">{coachingStaff.length}</span>
+          </div>
+          <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1">
+            <TrendingUp className="h-3 w-3" /> Club activo: {branding.shortName}
+          </p>
         </div>
       </div>
     </div>

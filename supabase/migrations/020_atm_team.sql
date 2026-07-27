@@ -8,7 +8,7 @@ VALUES (
   'LaLiga',
   '#FFFFFF',
   '#E8151E',
-  '{"demoSlug":"atm","sport":"football","plantillaUrl":"https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026","calendarUrl":"https://www.atleticodemadrid.com/calendario-completo-primer-equipo/","storeUrl":"https://www.atleticodemadrid.com/atm/atleti-store"}'::jsonb
+  '{"demoSlug":"atm","sport":"football","plantillaUrl":"https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026","calendarUrl":"https://www.atleticodemadrid.com/calendario-completo-primer-equipo/","storeUrl":"https://shop.atleticodemadrid.com/es","address":"Avenida de Luis Aragonés, 4","city":"28022 Madrid España","website":"atleticodemadrid.com"}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
