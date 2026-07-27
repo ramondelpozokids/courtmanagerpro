@@ -134,16 +134,18 @@ export default function TopBar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <a
-          href="https://wa.me/34637237100?text=Hola%20Carlos%20Rodriguez%20Kobe%2C%20te%20contacto%20desde%20la%20plataforma%20CourtManager%20Pro"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-1.5 rounded-full text-[#25D366] hover:bg-[#25D366]/10 transition-all flex items-center gap-1.5 text-[11px] font-extrabold"
-          title="WhatsApp — Carlos Rodriguez Kobe"
-        >
-          <WhatsAppIcon className="h-5 w-5 shrink-0" />
-          <span className="hidden sm:inline">Carlos Kobe (+34 637 23 71 00)</span>
-        </a>
+        {branding.slug === "rmb" && (
+          <a
+            href="https://wa.me/34637237100?text=Hola%20Carlos%20Rodriguez%20Kobe%2C%20te%20contacto%20desde%20la%20plataforma%20CourtManager%20Pro"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1.5 rounded-full text-[#25D366] hover:bg-[#25D366]/10 transition-all flex items-center gap-1.5 text-[11px] font-extrabold"
+            title="WhatsApp — Carlos Rodriguez Kobe"
+          >
+            <WhatsAppIcon className="h-5 w-5 shrink-0" />
+            <span className="hidden sm:inline">Carlos Kobe (+34 637 23 71 00)</span>
+          </a>
+        )}
 
         {user ? (
           <>

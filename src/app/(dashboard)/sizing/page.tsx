@@ -451,7 +451,7 @@ export default function SizingTablePage() {
             Fichas de Tallas y Plantilla Oficial
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Catálogo completo de equipación RMB 25/26 — {catalog.length} productos ({DEFAULT_SIZING_PRODUCTS.length} oficiales
+            Catálogo de equipación {branding.shortName || branding.name} {seasonLabelForClub(branding.slug as "rmb" | "rmf" | "atm")} — {catalog.length} productos ({DEFAULT_SIZING_PRODUCTS.length} oficiales
             {db.customSizingProducts.length > 0 ? ` + ${db.customSizingProducts.length} personalizados` : ""})
           </p>
         </div>
@@ -742,7 +742,7 @@ export default function SizingTablePage() {
             <div className="p-5 border-b flex justify-between items-center">
               <div>
                 <h3 className="font-extrabold text-sm">Nuevo Producto de Talla</h3>
-                <p className="text-[10px] text-slate-400">Como en la tienda oficial RMB — Carlos puede ampliar el catálogo</p>
+                <p className="text-[10px] text-slate-400">Como en la tienda oficial — puedes ampliar el catálogo</p>
               </div>
               <button type="button" onClick={() => setShowAddProductModal(false)} className="text-slate-400">
                 <X className="h-4 w-4" />

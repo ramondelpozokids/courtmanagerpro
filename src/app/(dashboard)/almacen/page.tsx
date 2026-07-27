@@ -362,24 +362,25 @@ export default function AlmacenGeneralPage() {
           />
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {(
-            [
-              ['all', 'Todos'],
-              ['basketball', 'Baloncesto'],
-              ['football', 'Fútbol'],
-            ] as const
-          ).map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setSport(id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                sport === id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+          {scope === 'all_rm' &&
+            (
+              [
+                ['all', 'Todos'],
+                ['basketball', 'Baloncesto'],
+                ['football', 'Fútbol'],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setSport(id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                  sport === id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
         </div>
         <label className="inline-flex items-center gap-2 text-xs font-bold cursor-pointer">
           <input type="checkbox" checked={onlyLow} onChange={(e) => setOnlyLow(e.target.checked)} />

@@ -10,8 +10,10 @@ import Link from "next/link";
 import { ChevronUp } from "lucide-react";
 import { footerLegalLinks } from "@/content/legal";
 import { SITE_URL } from "@/content/seo";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 
 export default function AppShell({ children }: { children: ReactNode }) {
+  const branding = useClubBranding();
   const [showScroll, setShowScroll] = useState(false);
 
   // Check scroll position to show/hide the "scroll-to-top" button
@@ -59,7 +61,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 Todos los derechos reservados.
               </p>
               <p className="text-xs">
-                Creado por <strong>Ramón del Pozo Rott</strong> · Utilería: <strong>Carlos Rodriguez Kobe</strong>
+                Creado por <strong>Ramón del Pozo Rott</strong>
+                {branding.slug === 'rmb' ? (
+                  <>
+                    {' '}
+                    · Utilería: <strong>Carlos Rodriguez Kobe</strong>
+                  </>
+                ) : null}
               </p>
             </div>
 

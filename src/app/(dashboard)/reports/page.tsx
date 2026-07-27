@@ -105,7 +105,7 @@ export default function ReportsPage() {
         <AlertCircle className="h-12 w-12 mx-auto mb-3 text-red-500" />
         <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Acceso restringido</p>
         <p className="text-sm mt-1 max-w-md mx-auto text-muted">
-          Informes de equipación: solo Administrador (Carlos Kobe), Utillero Jefe y Superadmin (Ramón del Pozo Rott).
+          Informes de equipación: Administrador, Utillero Jefe y Superadmin.
         </p>
       </div>
     );

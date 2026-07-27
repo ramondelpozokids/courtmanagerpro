@@ -48,42 +48,28 @@ type PdfDoc = {
 
 type AutoTableFn = (doc: PdfDoc, opts: Record<string, unknown>) => void;
 
-declare global {
-  interface Window {
-    jspdf?: { jsPDF: new (opts?: Record<string, unknown>) => PdfDoc };
-  }
-}
-
 let libsPromise: Promise<{ jsPDF: new (opts?: Record<string, unknown>) => PdfDoc; autoTable: AutoTableFn }> | null =
   null;
-
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) {
-      resolve();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`No se pudo cargar ${src}`));
-    document.head.appendChild(script);
-  });
-}
 
 async function loadPdfLibs() {
   if (!libsPromise) {
     libsPromise = (async () => {
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js');
-      const jsPDF = window.jspdf?.jsPDF;
-      if (!jsPDF) throw new Error('jsPDF no disponible');
-      const autoTable: AutoTableFn = (doc, opts) => {
-        (doc as PdfDoc & { autoTable: (o: Record<string, unknown>) => void }).autoTable(opts);
+      const [{ jsPDF }, autoTableMod] = await Promise.all([
+        import('jspdf'),
+        import('jspdf-autotable'),
+      ]);
+      const autoTableFn =
+        (autoTableMod as { default?: AutoTableFn }).default ||
+        (autoTableMod as { autoTable?: AutoTableFn }).autoTable;
+      if (!autoTableFn) throw new Error('jspdf-autotable no disponible');
+      return {
+        jsPDF: jsPDF as unknown as new (opts?: Record<string, unknown>) => PdfDoc,
+        autoTable: ((doc: PdfDoc, opts: Record<string, unknown>) => autoTableFn(doc, opts)) as AutoTableFn,
       };
-      return { jsPDF, autoTable };
-    })();
+    })().catch((err) => {
+      libsPromise = null;
+      throw err;
+    });
   }
   return libsPromise;
 }

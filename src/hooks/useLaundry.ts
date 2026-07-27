@@ -77,7 +77,7 @@ export function useLaundry() {
           itemCount: batchData.itemCount || 0,
           status: "PENDING" as const,
           receivedDate: new Date().toISOString().split("T")[0],
-          responsible: batchData.responsible || "Carlos (Utillero)",
+          responsible: batchData.responsible || "Utillero",
         };
         db.laundry.push(newBatch);
         setBatches((prev) => [...prev, newBatch]);

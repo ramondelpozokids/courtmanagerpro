@@ -39,7 +39,8 @@ export default function MedicalStockPage() {
   const [kitFilter, setKitFilter] = useState("ALL");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newKit, setNewKit] = useState<string>("Armario Central");
+  const [newLocation, setNewLocation] = useState("");
+  const [newKit, setNewKit] = useState<string>("");
   const [newQty, setNewQty] = useState(10);
   const [newMinQty, setNewMinQty] = useState(5);
   const [newExpiry, setNewExpiry] = useState("2027-12-31");
@@ -63,9 +64,11 @@ export default function MedicalStockPage() {
   }, [items, KIT_OPTIONS]);
 
   const openAddForm = () => {
-    const preselect =
-      kitFilter !== "ALL" ? kitFilter : "Armario Central";
-    setNewKit(preselect);
+    setNewName("");
+    setNewLocation("");
+    setNewKit(kitFilter !== "ALL" ? kitFilter : "");
+    setNewQty(10);
+    setNewMinQty(5);
     setShowAddForm(true);
   };
 
@@ -102,18 +105,24 @@ export default function MedicalStockPage() {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    const kitMeta = KIT_OPTIONS.find((k) => k.value === newKit);
+    const kitMeta = newKit ? KIT_OPTIONS.find((k) => k.value === newKit) : undefined;
+    const location =
+      newLocation.trim() ||
+      kitMeta?.location ||
+      (newKit || "Almacén médico");
     await createItem({
       name: newName.trim(),
-      kit: newKit,
-      location: kitMeta?.location || newKit,
+      kit: newKit || undefined,
+      location,
       quantity: newQty,
       minQuantity: newMinQty,
       expiryDate: newExpiry,
     });
     setNewName("");
+    setNewLocation("");
+    setNewKit("");
     setShowAddForm(false);
-    if (newKit !== "ALL") setKitFilter(newKit);
+    setKitFilter("ALL");
   };
   if (!hasAccess) {
     return (
@@ -121,7 +130,7 @@ export default function MedicalStockPage() {
         <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-amber-500" />
         <p className="text-sm font-bold">Acceso restringido</p>
         <p className="text-sm mt-1 max-w-md mx-auto text-slate-500">
-          Material médico: Administrador, Carlos Kobe (utilería), staff médico o Superadmin Ramón del Pozo Rott.
+          Material médico: Administrador, utilería, staff médico o Superadmin.
         </p>
       </div>
     );
@@ -155,22 +164,40 @@ export default function MedicalStockPage() {
           <form onSubmit={handleAddProduct} className="bg-white dark:bg-slate-900 border rounded-xl p-6 shadow-lg max-w-md w-full space-y-4 text-left">
             <h3 className="font-bold text-base">Nuevo producto médico</h3>
             <div>
-              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Nombre</label>
-              <input type="text" required value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent" />
+              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Nombre del producto</label>
+              <input
+                type="text"
+                required
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Ej. Vendas elásticas, suero, hielo…"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              />
             </div>
             <div>
-              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Botiquín / sección</label>
+              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Ubicación (libre)</label>
+              <input
+                type="text"
+                value={newLocation}
+                onChange={(e) => setNewLocation(e.target.value)}
+                placeholder="Ej. Armario médico, vestuario, nevera…"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Botiquín (opcional)</label>
               <select
                 value={newKit}
                 onChange={(e) => setNewKit(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
               >
+                <option value="">Sin botiquín — solo producto</option>
                 {KIT_OPTIONS.map((k) => (
                   <option key={k.value} value={k.value}>{k.label}</option>
                 ))}
               </select>
               <p className="text-[10px] text-slate-400 mt-1">
-                Elige dónde vive el producto: partido, viaje, fisio, nevera o armario.
+                Puedes añadir el producto suelto. El botiquín es opcional.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3">

@@ -85,14 +85,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(item);
       }
 
-      const kit = body.kit || body.location || 'Armario Central';
-      const locationHints: Record<string, string> = {
-        'Botiquín Partido': 'Vestuario — Banquillo',
-        'Botiquín Viaje': 'Almacén Logística',
-        Fisioterapia: 'Botiquín Fisioterapia',
-        'Vestuario Principal': 'Nevera Vestuario',
-        'Armario Central': 'Armario Médico',
-      };
+      const kit = body.kit || '';
+      const location = body.location || 'Almacén médico';
       const newItem = {
         id: 'm_' + Math.random().toString(36).substr(2, 9),
         name: body.name,
@@ -101,8 +95,8 @@ export async function POST(request: NextRequest) {
         expiryDate: body.expiryDate || '2027-12-31',
         batchNumber: body.batchNumber || `B-${Math.floor(1000 + Math.random() * 9000)}`,
         status: 'OK' as const,
-        kit,
-        location: body.location || locationHints[kit] || kit,
+        kit: kit || undefined,
+        location,
         category: body.category || 'material_cura',
         brand: body.brand || '',
         is_active: true,

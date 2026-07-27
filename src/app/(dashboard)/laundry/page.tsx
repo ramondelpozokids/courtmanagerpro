@@ -3,18 +3,22 @@
 import { useState } from "react";
 import { useLaundry } from "@/hooks/useLaundry";
 import { useAuth } from "@/contexts/AuthContext";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { canWriteClubData } from "@/lib/permissions";
 import { Droplet, Wind, CheckCircle, Clock, PlusCircle, RefreshCw, User, Trash2 } from "lucide-react";
 
 export default function LaundryPage() {
   const { user, userEmail, isSuperadmin } = useAuth();
+  const branding = useClubBranding();
   const { batches, loading, updateBatchStatus, createBatch, deleteBatch } = useLaundry();
   const [showAddForm, setShowAddForm] = useState(false);
   
   // Create batch form state
   const [name, setName] = useState("");
   const [itemCount, setItemCount] = useState<number>(20);
-  const [responsible, setResponsible] = useState("Carlos (Utillero)");
+  const [responsible, setResponsible] = useState(
+    branding.slug === "rmb" ? "Carlos (Utillero)" : "Utillero"
+  );
 
   const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
 
