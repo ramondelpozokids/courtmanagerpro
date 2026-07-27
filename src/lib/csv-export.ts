@@ -177,7 +177,7 @@ function formatPositionLabel(position: string | null | undefined): string {
 }
 
 function sectionDivider(title: string): string[] {
-  return [emptyRow(), row(['—'.repeat(56)]), row([title]), row(['—'.repeat(56)]), emptyRow()];
+  return [emptyRow(), row([`— ${title} —`]), emptyRow()];
 }
 
 function buildCorporateLetterhead(

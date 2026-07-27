@@ -280,7 +280,11 @@ function renderCsvLinesToPdf(doc: PdfDoc, autoTable: AutoTableFn, lines: string[
   let tableBody: string[][] = [];
 
   const flushTable = () => {
-    if (!tableHead || tableBody.length === 0) return;
+    if (!tableHead || tableBody.length === 0) {
+      tableHead = null;
+      tableBody = [];
+      return;
+    }
     autoTable(doc, {
       startY: y,
       head: [tableHead],
@@ -306,31 +310,44 @@ function renderCsvLinesToPdf(doc: PdfDoc, autoTable: AutoTableFn, lines: string[
     const cells = parseCsvLine(line);
     const first = cells[0]?.trim() ?? '';
 
-    if (first.startsWith('—') && first.length > 10 && cells.length === 1) continue;
+    // Separadores antiguos (solo guiones) o títulos — SECCIÓN —
+    const isDashOnly = cells.length === 1 && /^—+$/.test(first);
+    const isSectionTitle =
+      cells.length === 1 &&
+      ((first.startsWith('— ') && first.endsWith(' —')) ||
+        /^(RESUMEN|DETALLE|MATRIZ|ESTAD|INDICADORES|INFORME)/i.test(first));
 
-    if (first.startsWith('— ') && first.endsWith(' —') && cells.length === 1) {
+    if (isDashOnly) continue;
+
+    if (isSectionTitle) {
       flushTable();
       if (y > pageHeight - 40) {
         doc.addPage();
         y = 20;
       }
+      const label = first.replace(/^—\s*|\s*—$/g, '').trim() || first;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       doc.setTextColor(...BRAND_NAVY);
-      doc.text(first.replace(/^—\s*|\s*—$/g, ''), 14, y);
+      doc.text(label, 14, y);
       y += 8;
       doc.setFont('helvetica', 'normal');
       continue;
     }
 
-    if (cells.length >= 2 && !tableHead) {
+    if (cells.length < 2) continue;
+
+    // Nueva cabecera (otro nº de columnas) → cerrar tabla anterior
+    if (tableHead && cells.length !== tableHead.length) {
+      flushTable();
+    }
+
+    if (!tableHead) {
       tableHead = cells;
       continue;
     }
 
-    if (cells.length >= 2 && tableHead && cells.length === tableHead.length) {
-      tableBody.push(cells);
-    }
+    tableBody.push(cells);
   }
 
   flushTable();
