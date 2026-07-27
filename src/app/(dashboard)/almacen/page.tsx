@@ -159,13 +159,16 @@ export default function AlmacenGeneralPage() {
   const exportPdf = async () => {
     try {
       setPdfBusy(true);
+      if (!items.length) {
+        throw new Error('Espera a que cargue el listado de almacén (o pulsa Actualizar) y reintenta.');
+      }
       await exportWarehousePdf(
         branding.slug,
         items.map((i) => ({
           name: i.name,
           sku: i.sku,
           section_label: i.section_label,
-          sport: i.sport,
+          sport: i.sport === 'football' ? 'Fútbol' : 'Baloncesto',
           size: i.size,
           stock: i.stock,
           stock_min: i.stock_min,
@@ -286,6 +289,22 @@ export default function AlmacenGeneralPage() {
           </div>
         ))}
       </div>
+
+      {branding.slug === 'atm' && (
+        <div className="rounded-xl border border-orange-200 bg-orange-50/80 dark:bg-orange-950/20 dark:border-orange-900 px-4 py-3 text-xs text-slate-700 dark:text-slate-200">
+          <strong className="text-orange-700 dark:text-orange-400">Botiquín ATM:</strong>{' '}
+          está en{' '}
+          <Link href="/inventory" className="font-bold text-orange-600 hover:underline">
+            Inventario
+          </Link>{' '}
+          como <em>Botiquín viaje Champions / LaLiga</em> (SKU <code className="text-[10px]">ATM-MED-KIT</code>) · ubicación{' '}
+          <strong>Vestuario Metropolitano — Banquillo</strong>. El contenido sanitario detallado está en{' '}
+          <Link href="/medical" className="font-bold text-orange-600 hover:underline">
+            Material Médico
+          </Link>
+          .
+        </div>
+      )}
 
       {/* Mapa ubicaciones compacto */}
       {(stats?.by_location?.length || 0) > 0 && (

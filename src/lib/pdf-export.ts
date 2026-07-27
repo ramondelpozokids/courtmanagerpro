@@ -295,7 +295,7 @@ function renderCsvLinesToPdf(doc: PdfDoc, autoTable: AutoTableFn, lines: string[
       alternateRowStyles: { fillColor: [255, 255, 255] },
       margin: { left: 14, right: 14 },
     });
-    y = doc.lastAutoTable?.finalY ?? y;
+    y = (doc as PdfDoc & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
     y += 6;
     tableHead = null;
     tableBody = [];
@@ -406,13 +406,27 @@ export async function exportWarehousePdf(
   options?: CsvExportOptions
 ): Promise<void> {
   const identity = CLUB_CSV_IDENTITY[slug];
+  if (!identity) throw new Error(`Club no soportado para PDF: ${slug}`);
+  if (!items.length) throw new Error('No hay líneas de almacén para exportar');
+
   const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
   const lines = buildWarehouseCsvLines(identity, items, opts);
-  const doc = await buildPdfDocument(
+  const { jsPDF, autoTable } = await loadPdfLibs();
+  // Landscape: muchas columnas (sección, SKU, stock, valor…)
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  await addLogoToCover(doc, identity, 'INFORME DE ALMACÉN GENERAL — STOCK Y VALOR', opts);
+  doc.addPage();
+
+  const headerEnd = addCorporateHeader(
+    doc,
     identity,
     'INFORME DE ALMACÉN GENERAL — STOCK Y VALOR',
-    lines,
     opts
   );
-  doc.save(`almacen_general_${fileSlug(identity)}_${opts.season!.replace('/', '-')}.pdf`);
+  renderCsvLinesToPdf(doc, autoTable, lines, headerEnd);
+  addPageFooter(doc, identity);
+
+  const season = opts.season!.replace('/', '-');
+  doc.save(`almacen_general_${slug}_${season}.pdf`);
 }
