@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         id: 'l_' + Math.random().toString(36).substr(2, 9),
         name: body.name,
         itemCount: body.itemCount || 0,
-        status: (body.flow === 'salida' ? 'READY' : 'PENDING') as const,
+        status: (body.flow === 'salida' ? 'READY' : 'PENDING') as 'READY' | 'PENDING',
         receivedDate: new Date().toISOString().split('T')[0],
         completedDate:
           body.flow === 'salida' ? new Date().toISOString().split('T')[0] : undefined,

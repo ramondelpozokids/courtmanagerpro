@@ -56,7 +56,20 @@ const DEMO_MOVEMENTS = [
   },
 ];
 
-let demoStore = [...DEMO_MOVEMENTS];
+type DemoMovement = {
+  id: string;
+  team_id: string;
+  item_id?: string | null;
+  item_name: string;
+  qty_delta: number;
+  stock_after: number | null;
+  reason: string;
+  actor_name: string;
+  notes?: string | null;
+  created_at: string;
+};
+
+let demoStore: DemoMovement[] = [...DEMO_MOVEMENTS];
 
 export async function GET(req: NextRequest) {
   if (isServerProduction()) {

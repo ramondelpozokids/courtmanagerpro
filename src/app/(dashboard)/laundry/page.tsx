@@ -65,7 +65,7 @@ export default function LaundryPage() {
 
   const [kitType, setKitType] = useState<KitId>("primera");
   const [flow, setFlow] = useState<FlowId>("entrada");
-  const [name, setName] = useState(KIT_OPTIONS[0].name);
+  const [name, setName] = useState<string>(KIT_OPTIONS[0].name);
   const [itemCount, setItemCount] = useState<number>(20);
   const [responsible, setResponsible] = useState(
     branding.slug === "rmb" ? "Carlos (Utillero)" : "Utillero Primer Equipo"

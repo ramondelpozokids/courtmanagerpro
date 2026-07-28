@@ -75,7 +75,9 @@ export function useLaundry() {
           id: "l_" + Math.random().toString(36).substr(2, 9),
           name: batchData.name,
           itemCount: batchData.itemCount || 0,
-          status: (batchData.flow === "salida" ? "READY" : "PENDING") as const,
+          status: (batchData.flow === "salida" ? "READY" : "PENDING") as
+            | "READY"
+            | "PENDING",
           receivedDate: new Date().toISOString().split("T")[0],
           completedDate:
             batchData.flow === "salida"

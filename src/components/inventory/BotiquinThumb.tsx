@@ -25,8 +25,8 @@ export function BotiquinThumb({
 
 export function isBotiquinInventoryItem(item: {
   name?: string;
-  sku?: string;
-  category?: string;
+  sku?: string | null;
+  category?: string | null;
   image_url?: string | null;
 }): boolean {
   const cat = String(item.category || '').toLowerCase();

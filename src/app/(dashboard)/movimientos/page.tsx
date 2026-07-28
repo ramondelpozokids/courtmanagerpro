@@ -113,7 +113,7 @@ export default function MovimientosPage() {
 
   const onPickItem = (id: string) => {
     setItemId(id);
-    const hit = inventory.data.find((i) => i.id === id);
+    const hit = inventory.find((i) => i.id === id);
     if (hit) setItemName(hit.name);
   };
 
@@ -334,7 +334,7 @@ export default function MovimientosPage() {
                 className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent"
               >
                 <option value="">— Libre / sin vincular stock —</option>
-                {inventory.data.map((i) => (
+                {inventory.map((i) => (
                   <option key={i.id} value={i.id}>
                     {i.name} (stock {i.stock_available})
                   </option>
