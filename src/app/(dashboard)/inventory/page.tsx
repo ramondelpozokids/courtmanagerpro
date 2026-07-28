@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { canWriteClubData } from "@/lib/permissions";
 import StockBadge from "@/components/inventory/StockBadge";
 import ItemForm from "@/components/inventory/ItemForm";
+import { BotiquinThumb, isBotiquinInventoryItem } from "@/components/inventory/BotiquinThumb";
 import { useState } from "react";
 import { Search, PlusCircle, Package, ArrowUpRight, ArrowDownRight, QrCode, ClipboardList, Trash2, Edit2, FileText } from "lucide-react";
 import Link from "next/link";
@@ -197,14 +198,12 @@ export default function InventoryPage() {
                     <td className="px-6 py-4 flex items-center gap-3">
                       <div className="h-10 w-10 shrink-0 rounded overflow-hidden bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 flex items-center justify-center font-bold text-slate-400">
                         {(() => {
+                          if (isBotiquinInventoryItem(item)) {
+                            return <BotiquinThumb title={item.name} />;
+                          }
                           const raw = item.image_url || '';
                           const isClubLogo = /\/logo\.png|\/clubs\/[^/]+\/logo|realmadrid/i.test(raw);
-                          const isMedical =
-                            item.category === 'medico' ||
-                            /botiqu/i.test(item.name || '') ||
-                            /MED-KIT/i.test(item.sku || '');
-                          const src =
-                            isMedical && (!raw || isClubLogo) ? '/images/botiquin.svg' : raw || null;
+                          const src = raw && !isClubLogo ? raw : null;
                           return src ? (
                             <img src={src} alt={item.name} className="h-full w-full object-contain p-0.5" />
                           ) : (

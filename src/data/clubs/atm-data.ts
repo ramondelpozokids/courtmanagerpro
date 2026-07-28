@@ -448,6 +448,17 @@ export const atmPlayers = [
 const TM_STAFF =
   'https://img.a.transfermarkt.technology/portrait/header';
 
+/** Perfil oficial del cuerpo técnico: plantilla ATM (no hay ficha individual en la web del club). */
+export function resolveAtmStaffProfileUrl(
+  current?: string | null,
+  packUrl?: string | null
+): string {
+  const isAtm = (u: string) => /atleticodemadrid\.com/i.test(u);
+  if (current && isAtm(current)) return current;
+  if (packUrl && isAtm(packUrl)) return packUrl;
+  return ATM_OFFICIAL_PLANTILLA_URL;
+}
+
 export const atmCoachingStaff = [
   {
     id: 'c1',
@@ -461,7 +472,7 @@ export const atmCoachingStaff = [
     birth_date: '1970-04-28',
     birth_place: 'Buenos Aires, Argentina',
     photo_url: `${TM_STAFF}/2868-1666861792.jpg?lm=1`,
-    profile_url: 'https://www.transfermarkt.es/diego-simeone/profil/trainer/2066',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
       'Dirige al Atlético de Madrid desde el 23 de diciembre de 2011. Exfutbolista argentino nacionalizado español; consolidó al club en la élite europea.',
   },
@@ -477,7 +488,7 @@ export const atmCoachingStaff = [
     birth_date: '1979-05-17',
     birth_place: 'La Plata, Argentina',
     photo_url: '/clubs/atm/staff/bonvicini.png?v=2',
-    profile_url: 'https://www.transfermarkt.es/atletico-de-madrid/mitarbeiter/verein/13',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
       'Hernán Alejandro Bonvicini — entrenador asistente del primer equipo del Club Atlético de Madrid S.A.D. Nacido en La Plata el 17/05/1979.',
   },
@@ -493,7 +504,7 @@ export const atmCoachingStaff = [
     birth_date: '1983-07-10',
     birth_place: 'Madrid, España',
     photo_url: `${TM_STAFF}/97091-1732139341.JPG?lm=1`,
-    profile_url: 'https://www.transfermarkt.es/gabi/profil/spieler/97091',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
       'Gabriel Luis Fernández Arenas, conocido como Gabi. Excentrocampista (nº 14 Atlético de Madrid / Al-Sadd). Entrenador asistente del Atlético desde la temporada 2026-27; antes director técnico del Real Zaragoza (2025). Nacido en Madrid el 10/07/1983. Estatura 1,80 m.',
   },
@@ -509,7 +520,7 @@ export const atmCoachingStaff = [
     birth_date: '1971-01-16',
     birth_place: 'Valencia, España',
     photo_url: '/clubs/atm/staff/pitillas.png',
-    profile_url: 'https://www.transfermarkt.es/oscar-pitillas/profil/trainer/16403',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
       'Óscar Miguel Pitillas Torra — preparador físico del Atlético de Madrid (temporada 2025/26). Nacido en Valencia el 16/01/1971. En el club desde 2016 (antes 2003–2014 y NYCFC 2014–2016). Exatleta olímpico (400 m vallas).',
   },
@@ -525,7 +536,7 @@ export const atmCoachingStaff = [
     birth_date: '1968-04-24',
     birth_place: 'Buenos Aires, Argentina',
     photo_url: '/clubs/atm/staff/vercellone.png',
-    profile_url: 'https://www.transfermarkt.es/pablo-vercellone/profil/trainer/11448',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
       'Pablo Ignacio Vercellone — entrenador de porteros del Atlético de Madrid. Nacido en Buenos Aires el 24/04/1968. Contrato hasta 30/06/2027.',
   },
@@ -1419,6 +1430,30 @@ export const atmTrips = [
         isPacked: false,
       },
       {
+        id: 'tp1b',
+        itemName: 'Camiseta Match Hombre 2ª Equipación 26/27',
+        quantityRequired: 25,
+        quantityPacked: 0,
+        category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp1c',
+        itemName: 'Camiseta Match Hombre 3ª Equipación 26/27',
+        quantityRequired: 25,
+        quantityPacked: 0,
+        category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp1d',
+        itemName: 'Equipación entrenamiento (camisetas + pantalones)',
+        quantityRequired: 30,
+        quantityPacked: 0,
+        category: 'camiseta_entrenamiento',
+        isPacked: false,
+      },
+      {
         id: 'tp2',
         itemName: 'Botiquín viaje primer equipo',
         quantityRequired: 2,
@@ -1439,10 +1474,42 @@ export const atmTrips = [
     packingList: [
       {
         id: 'tp3',
+        itemName: 'Camiseta Match Hombre 1ª Equipación 26/27',
+        quantityRequired: 25,
+        quantityPacked: 0,
+        category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp3b',
         itemName: 'Camiseta Match Hombre 2ª Equipación 26/27',
         quantityRequired: 25,
         quantityPacked: 0,
         category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp3c',
+        itemName: 'Camiseta Match Hombre 3ª Equipación 26/27',
+        quantityRequired: 25,
+        quantityPacked: 0,
+        category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp3d',
+        itemName: 'Equipación entrenamiento (camisetas + pantalones)',
+        quantityRequired: 30,
+        quantityPacked: 0,
+        category: 'camiseta_entrenamiento',
+        isPacked: false,
+      },
+      {
+        id: 'tp3e',
+        itemName: 'Botiquín viaje primer equipo',
+        quantityRequired: 2,
+        quantityPacked: 0,
+        category: 'medico',
         isPacked: false,
       },
     ],
@@ -1462,6 +1529,38 @@ export const atmTrips = [
         quantityRequired: 25,
         quantityPacked: 0,
         category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp4b',
+        itemName: 'Camiseta Match Hombre 2ª Equipación 26/27',
+        quantityRequired: 25,
+        quantityPacked: 0,
+        category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp4c',
+        itemName: 'Camiseta Match Hombre 3ª Equipación 26/27',
+        quantityRequired: 25,
+        quantityPacked: 0,
+        category: 'camiseta_juego',
+        isPacked: false,
+      },
+      {
+        id: 'tp4d',
+        itemName: 'Equipación entrenamiento (camisetas + pantalones)',
+        quantityRequired: 30,
+        quantityPacked: 0,
+        category: 'camiseta_entrenamiento',
+        isPacked: false,
+      },
+      {
+        id: 'tp4e',
+        itemName: 'Botiquín viaje primer equipo',
+        quantityRequired: 2,
+        quantityPacked: 0,
+        category: 'medico',
         isPacked: false,
       },
     ],

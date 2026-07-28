@@ -528,3 +528,292 @@ export async function exportWarehousePdf(
   const season = opts.season!.replace('/', '-');
   doc.save(`almacen_general_${slug}_${season}.pdf`);
 }
+
+export type MovementPdfRow = {
+  created_at: string;
+  item_name: string;
+  qty_delta: number;
+  stock_after?: number | null;
+  reason: string;
+  actor_name?: string | null;
+  notes?: string | null;
+};
+
+const MOVEMENT_REASON_LABELS: Record<string, string> = {
+  ajuste: 'Ajuste manual',
+  asignacion_jugador: 'Asignación a jugador',
+  solicitud_aprobada: 'Solicitud aprobada',
+  entrada_almacen: 'Entrada almacén',
+  salida_material: 'Salida de material',
+  lavanderia: 'Lavandería',
+  viaje: 'Viaje / packing',
+};
+
+function buildMovementsCsvLines(
+  identity: ClubCsvIdentity,
+  slug: ClubSlug,
+  rows: MovementPdfRow[],
+  options?: CsvExportOptions
+): string[] {
+  const season = options?.season ?? seasonLabelForClub(slug);
+  const lines: string[] = [
+    `"Club";"${identity.brandLine}"`,
+    `"Informe";"Historial de movimientos de material"`,
+    `"Temporada";"${season}"`,
+    `"Generado";"${formatExportDateTime()}"`,
+    '',
+    '"Fecha";"Artículo";"Tipo";"Cantidad";"Stock tras movimiento";"Motivo";"Quién";"Notas"',
+  ];
+  for (const m of rows) {
+    const tipo = m.qty_delta < 0 ? 'Salida' : 'Entrada';
+    const fecha = m.created_at
+      ? new Date(m.created_at).toLocaleString('es-ES')
+      : '—';
+    const motivo = MOVEMENT_REASON_LABELS[m.reason] || m.reason || '—';
+    const qty = m.qty_delta > 0 ? `+${m.qty_delta}` : String(m.qty_delta);
+    lines.push(
+      [
+        fecha,
+        m.item_name || '—',
+        tipo,
+        qty,
+        m.stock_after != null ? String(m.stock_after) : '—',
+        motivo,
+        m.actor_name || '—',
+        m.notes || '',
+      ]
+        .map((c) => `"${String(c).replace(/"/g, '""')}"`)
+        .join(';')
+    );
+  }
+  return lines;
+}
+
+export async function exportMovementsPdf(
+  slug: ClubSlug,
+  rows: MovementPdfRow[],
+  options?: CsvExportOptions
+): Promise<void> {
+  const identity = CLUB_CSV_IDENTITY[slug];
+  if (!identity) throw new Error(`Club no soportado para PDF: ${slug}`);
+  if (!rows.length) throw new Error('No hay movimientos para exportar');
+
+  const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
+  const lines = buildMovementsCsvLines(identity, slug, rows, opts);
+  const doc = await buildPdfDocument(
+    identity,
+    'HISTORIAL DE MOVIMIENTOS — ENTRADAS Y SALIDAS',
+    lines,
+    opts,
+    'landscape'
+  );
+  const season = opts.season!.replace('/', '-');
+  doc.save(`movimientos_${slug}_${season}.pdf`);
+}
+
+export type TransportPdfCargoItem = {
+  label: string;
+  bus: 'bus1' | 'bus2';
+  done: boolean;
+};
+
+export type TransportPdfPayload = {
+  tripLabel: string;
+  destination?: string;
+  departureDates?: string;
+  bus1Name: string;
+  bus2Name: string;
+  bus1Driver: string;
+  bus2Driver: string;
+  departureTime: string;
+  meetingPoint: string;
+  notes: string;
+  cargo: TransportPdfCargoItem[];
+  convocados?: { dorsal: number; name: string; kit: string }[];
+};
+
+function buildTransportCsvLines(
+  identity: ClubCsvIdentity,
+  slug: ClubSlug,
+  data: TransportPdfPayload,
+  options?: CsvExportOptions
+): string[] {
+  const season = options?.season ?? seasonLabelForClub(slug);
+  const lines: string[] = [
+    `"Club";"${identity.brandLine}"`,
+    `"Informe";"Manifiesto de transporte — 2 autobuses"`,
+    `"Temporada";"${season}"`,
+    `"Generado";"${formatExportDateTime()}"`,
+    '',
+    '— DATOS DEL DESPLAZAMIENTO —',
+    '"Campo";"Valor"',
+    `"Partido / viaje";"${data.tripLabel.replace(/"/g, '""')}"`,
+    `"Destino";"${(data.destination || '—').replace(/"/g, '""')}"`,
+    `"Fechas";"${(data.departureDates || '—').replace(/"/g, '""')}"`,
+    `"Salida autobuses";"${data.departureTime || '—'}"`,
+    `"Punto de encuentro";"${(data.meetingPoint || '—').replace(/"/g, '""')}"`,
+    `"Notas";"${(data.notes || '—').replace(/"/g, '""')}"`,
+    '',
+    '— AUTOBUSES —',
+    '"Autobús";"Nombre";"Conductor"',
+    `"Bus 1";"${data.bus1Name.replace(/"/g, '""')}";"${(data.bus1Driver || '—').replace(/"/g, '""')}"`,
+    `"Bus 2";"${data.bus2Name.replace(/"/g, '""')}";"${(data.bus2Driver || '—').replace(/"/g, '""')}"`,
+    '',
+    '— CARGA BUS 1 —',
+    '"Ítem";"Estado"',
+  ];
+
+  const bus1 = data.cargo.filter((c) => c.bus === 'bus1');
+  const bus2 = data.cargo.filter((c) => c.bus === 'bus2');
+
+  for (const c of bus1) {
+    lines.push(`"${c.label.replace(/"/g, '""')}";"${c.done ? 'Listo' : 'Pendiente'}"`);
+  }
+  if (!bus1.length) lines.push('"—";"—"');
+
+  lines.push('', '— CARGA BUS 2 —', '"Ítem";"Estado"');
+  for (const c of bus2) {
+    lines.push(`"${c.label.replace(/"/g, '""')}";"${c.done ? 'Listo' : 'Pendiente'}"`);
+  }
+  if (!bus2.length) lines.push('"—";"—"');
+
+  if (data.convocados && data.convocados.length) {
+    lines.push('', '— CONVOCADOS (referencia) —', '"Dorsal";"Jugador";"Kit"');
+    for (const p of data.convocados) {
+      lines.push(
+        `"${p.dorsal}";"${p.name.replace(/"/g, '""')}";"${(p.kit || '—').replace(/"/g, '""')}"`
+      );
+    }
+  }
+
+  return lines;
+}
+
+export async function exportTransportPdf(
+  slug: ClubSlug,
+  data: TransportPdfPayload,
+  options?: CsvExportOptions
+): Promise<void> {
+  const identity = CLUB_CSV_IDENTITY[slug];
+  if (!identity) throw new Error(`Club no soportado para PDF: ${slug}`);
+  if (!data.cargo.length) throw new Error('No hay carga para exportar');
+
+  const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
+  const lines = buildTransportCsvLines(identity, slug, data, opts);
+  const doc = await buildPdfDocument(
+    identity,
+    'MANIFIESTO DE TRANSPORTE — 2 AUTOBUSES',
+    lines,
+    opts,
+    'portrait'
+  );
+  const season = opts.season!.replace('/', '-');
+  const safeTrip = data.tripLabel
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 40);
+  doc.save(`manifiesto_transporte_${slug}_${safeTrip || 'viaje'}_${season}.pdf`);
+}
+
+export type PreMatchPdfPayload = {
+  matchLabel: string;
+  matchDate?: string;
+  venue?: string;
+  homeAway?: string;
+  competition?: string;
+  kits: string[];
+  checks: { label: string; done: boolean }[];
+  packing: { category: string; label: string; done: boolean }[];
+  busSummary?: { label: string; done: number; total: number }[];
+  medicalAlerts?: string[];
+};
+
+function buildPreMatchCsvLines(
+  identity: ClubCsvIdentity,
+  slug: ClubSlug,
+  data: PreMatchPdfPayload,
+  options?: CsvExportOptions
+): string[] {
+  const season = options?.season ?? seasonLabelForClub(slug);
+  const lines = [
+    `"Club";"${identity.legalName.replace(/"/g, '""')}"`,
+    `"Temporada";"${season}"`,
+    `"Documento";"Informe pre-partido utilería"`,
+    `"Generado";"${formatExportDateTime()}"`,
+    '',
+    '— PARTIDO —',
+    `"Encuentro";"${data.matchLabel.replace(/"/g, '""')}"`,
+    `"Fecha";"${(data.matchDate || '—').replace(/"/g, '""')}"`,
+    `"Competición";"${(data.competition || '—').replace(/"/g, '""')}"`,
+    `"Sede";"${(data.venue || '—').replace(/"/g, '""')}"`,
+    `"Local/Visitante";"${(data.homeAway || '—').replace(/"/g, '""')}"`,
+    '',
+    '— EQUIPACIÓN —',
+    '"Kit"',
+  ];
+
+  if (data.kits.length) {
+    for (const k of data.kits) lines.push(`"${k.replace(/"/g, '""')}"`);
+  } else {
+    lines.push('"Sin equipación marcada"');
+  }
+
+  lines.push('', '— CHECKLIST OPERATIVA —', '"Ítem";"Estado"');
+  for (const c of data.checks) {
+    lines.push(`"${c.label.replace(/"/g, '""')}";"${c.done ? 'Listo' : 'Pendiente'}"`);
+  }
+
+  lines.push('', '— PACKING MATERIAL —', '"Categoría";"Ítem";"Estado"');
+  for (const p of data.packing) {
+    lines.push(
+      `"${p.category.replace(/"/g, '""')}";"${p.label.replace(/"/g, '""')}";"${p.done ? 'Listo' : 'Pendiente'}"`
+    );
+  }
+
+  if (data.busSummary?.length) {
+    lines.push('', '— AUTOBUSES (resumen LS) —', '"Autobús";"Progreso"');
+    for (const b of data.busSummary) {
+      lines.push(`"${b.label.replace(/"/g, '""')}";"${b.done}/${b.total}"`);
+    }
+  }
+
+  if (data.medicalAlerts?.length) {
+    lines.push('', '— ALERTAS MÉDICAS / FRÍO —', '"Alerta"');
+    for (const a of data.medicalAlerts) {
+      lines.push(`"${a.replace(/"/g, '""')}"`);
+    }
+  }
+
+  return lines;
+}
+
+export async function exportPreMatchPdf(
+  slug: ClubSlug,
+  data: PreMatchPdfPayload,
+  options?: CsvExportOptions
+): Promise<void> {
+  const identity = CLUB_CSV_IDENTITY[slug];
+  if (!identity) throw new Error(`Club no soportado para PDF: ${slug}`);
+
+  const opts = { ...options, season: options?.season ?? seasonLabelForClub(slug) };
+  const lines = buildPreMatchCsvLines(identity, slug, data, opts);
+  const doc = await buildPdfDocument(
+    identity,
+    'INFORME PRE-PARTIDO — UTILERÍA',
+    lines,
+    opts,
+    'portrait'
+  );
+  const season = opts.season!.replace('/', '-');
+  const safeMatch = data.matchLabel
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 40);
+  doc.save(`informe_prepartido_${slug}_${safeMatch || 'partido'}_${season}.pdf`);
+}

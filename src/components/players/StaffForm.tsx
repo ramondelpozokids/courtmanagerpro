@@ -10,21 +10,32 @@ export type StaffFormData = {
   shirt_size: string;
   shorts_size: string;
   shoe_size: number;
+  profile_url?: string;
 };
 
 type StaffFormProps = {
   initialValues?: StaffFormData & { id?: string };
   onSubmit: (data: StaffFormData) => void;
   onClose: () => void;
+  /** Placeholder del perfil oficial según club (p.ej. plantilla ATM). */
+  defaultProfileUrl?: string;
 };
 
-export default function StaffForm({ initialValues, onSubmit, onClose }: StaffFormProps) {
+export default function StaffForm({
+  initialValues,
+  onSubmit,
+  onClose,
+  defaultProfileUrl = "",
+}: StaffFormProps) {
   const [fullName, setFullName] = useState(initialValues?.full_name ?? "");
   const [role, setRole] = useState(initialValues?.role ?? "Entrenador Ayudante");
   const [nationality, setNationality] = useState(initialValues?.nationality ?? "España");
   const [shirtSize, setShirtSize] = useState(initialValues?.shirt_size ?? "L");
   const [shortsSize, setShortsSize] = useState(initialValues?.shorts_size ?? "L");
   const [shoeSize, setShoeSize] = useState(initialValues?.shoe_size ?? 43);
+  const [profileUrl, setProfileUrl] = useState(
+    initialValues?.profile_url ?? defaultProfileUrl
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +50,7 @@ export default function StaffForm({ initialValues, onSubmit, onClose }: StaffFor
       shirt_size: shirtSize,
       shorts_size: shortsSize,
       shoe_size: Number(shoeSize) || 43,
+      profile_url: profileUrl.trim() || undefined,
     });
   };
 
@@ -78,6 +90,13 @@ export default function StaffForm({ initialValues, onSubmit, onClose }: StaffFor
         placeholder="Nacionalidad"
         value={nationality}
         onChange={(e) => setNationality(e.target.value)}
+        className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
+      />
+      <input
+        type="url"
+        placeholder={defaultProfileUrl || "URL perfil oficial (plantilla del club)"}
+        value={profileUrl}
+        onChange={(e) => setProfileUrl(e.target.value)}
         className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
       />
 

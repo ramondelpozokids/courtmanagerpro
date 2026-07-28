@@ -1,8 +1,8 @@
 import type { ClubSlug } from '@/data/clubs/types';
 import { isDemoMode, isProductionApp } from '@/lib/app-mode';
 
-/** Clubs seleccionables por superadmin (live + demos comerciales). */
-export const SUPERADMIN_PREVIEW_CLUBS = ['rmb', 'rmf', 'atm', 'fcb', 'vbc'] as const;
+/** Clubs seleccionables por superadmin (live + demos comerciales). Orden alfabético live: ATM → RMB → RMF. */
+export const SUPERADMIN_PREVIEW_CLUBS = ['atm', 'rmb', 'rmf', 'fcb', 'vbc'] as const;
 export type SuperadminPreviewClub = (typeof SUPERADMIN_PREVIEW_CLUBS)[number];
 
 /** Solo demos comerciales (no tenants live). */

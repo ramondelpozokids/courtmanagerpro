@@ -75,9 +75,15 @@ export function useLaundry() {
           id: "l_" + Math.random().toString(36).substr(2, 9),
           name: batchData.name,
           itemCount: batchData.itemCount || 0,
-          status: "PENDING" as const,
+          status: (batchData.flow === "salida" ? "READY" : "PENDING") as const,
           receivedDate: new Date().toISOString().split("T")[0],
+          completedDate:
+            batchData.flow === "salida"
+              ? new Date().toISOString().split("T")[0]
+              : undefined,
           responsible: batchData.responsible || "Utillero",
+          kitType: batchData.kitType || undefined,
+          flow: batchData.flow || undefined,
         };
         db.laundry.push(newBatch);
         setBatches((prev) => [...prev, newBatch]);

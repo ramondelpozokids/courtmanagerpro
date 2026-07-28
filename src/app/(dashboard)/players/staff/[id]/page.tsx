@@ -9,6 +9,7 @@ import {
   Globe,
   Landmark,
   Mail,
+  Pencil,
   Shirt,
   Sparkles,
   Trophy,
@@ -23,19 +24,74 @@ import {
 import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import { usesProductionClubData } from "@/lib/club-preview";
 import { getClubPack } from "@/data/clubs";
+import {
+  ATM_OFFICIAL_PLANTILLA_URL,
+  resolveAtmStaffProfileUrl,
+} from "@/data/clubs/atm-data";
+import { RMF_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/rmf-data";
+import { resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
+import { useAuth } from "@/contexts/AuthContext";
+import { canWriteClubData } from "@/lib/permissions";
+import { persistDemoDb } from "@/lib/demo-persistence";
 
 interface StaffProfileProps {
   params: Promise<{ id: string }>;
+}
+
+function officialMeta(slug: string) {
+  if (slug === "atm") {
+    return {
+      plantillaUrl: ATM_OFFICIAL_PLANTILLA_URL,
+      siteLabel: "atleticodemadrid.com",
+      fichaLabel: "Ver Ficha Oficial Atlético de Madrid",
+    };
+  }
+  if (slug === "rmf") {
+    return {
+      plantillaUrl: RMF_OFFICIAL_PLANTILLA_URL,
+      siteLabel: "realmadrid.com",
+      fichaLabel: "Ver Ficha Oficial Real Madrid",
+    };
+  }
+  return {
+    plantillaUrl: RMB_OFFICIAL_SOURCE,
+    siteLabel: "realmadrid.com",
+    fichaLabel: "Ver Ficha Oficial Real Madrid",
+  };
+}
+
+function matchPackStaff(fullName: string, packStaff: Record<string, unknown>[]) {
+  const a = fullName
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+  return packStaff.find((p) => {
+    const b = String(p.full_name || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+    return a === b;
+  });
 }
 
 export default function StaffProfilePage({ params }: StaffProfileProps) {
   const { id } = use(params);
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
+  const { user, userEmail, hasOperationalAccess } = useAuth();
   const productionClub = usesProductionClubData();
   const applyOfficialRoster = branding.slug === "rmb";
+  const canWrite = hasOperationalAccess || canWriteClubData(user?.profile?.role, userEmail);
+  const meta = officialMeta(branding.slug);
   const [remoteStaff, setRemoteStaff] = useState<Record<string, unknown> | null>(null);
   const [loadingRemote, setLoadingRemote] = useState(productionClub);
+  const [editingSizes, setEditingSizes] = useState(false);
+  const [savingSizes, setSavingSizes] = useState(false);
+  const [shirtSize, setShirtSize] = useState("L");
+  const [shortsSize, setShortsSize] = useState("L");
+  const [shoeSize, setShoeSize] = useState<string | number>(43);
 
   useEffect(() => {
     if (!productionClub) {
@@ -73,41 +129,112 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
   }, [productionClub, teamId, branding.slug, id]);
 
   const staff = useMemo(() => {
-    if (productionClub) {
-      return normalizeStaffProfile(remoteStaff, { applyOfficialRoster });
+    const baseRow = productionClub
+      ? remoteStaff
+      : (db.coachingStaff.find((s) => s.id === id) as Record<string, unknown> | null) || null;
+
+    let normalized = normalizeStaffProfile(baseRow, { applyOfficialRoster });
+
+    if (!normalized && applyOfficialRoster) {
+      const official = getOfficialStaffByLegacyId(id);
+      if (official) {
+        normalized = normalizeStaffProfile(
+          {
+            id: official.legacyId,
+            full_name: official.full_name,
+            role: official.role,
+            nationality: official.nationality,
+            birth_date: official.birth_date,
+            birth_place: official.birth_place,
+            photo_url: official.photo_url,
+            profile_url: official.profile_url,
+            trajectory: official.trajectory,
+            trajectory_items: official.trajectory_items,
+            palmares: official.palmares,
+            shirt_size: "L",
+            shorts_size: "L",
+            shoe_size: 43,
+            email: `${official.slug}@realmadrid.com`,
+          },
+          { applyOfficialRoster: true }
+        );
+      }
     }
 
-    const local = db.coachingStaff.find((s) => s.id === id) || null;
-    const normalized = normalizeStaffProfile(local as Record<string, unknown> | null, {
-      applyOfficialRoster,
-    });
-    if (normalized) return normalized;
+    if (!normalized) return null;
 
-    if (!applyOfficialRoster) return null;
+    if (branding.slug === "atm") {
+      const pack = getClubPack("atm");
+      const packHit = matchPackStaff(
+        normalized.full_name,
+        (pack.coachingStaff || []) as Record<string, unknown>[]
+      );
+      const photo = resolveAtmPackStaffPhoto({
+        fullName: normalized.full_name,
+        photo_url: normalized.photo_url,
+      });
+      return {
+        ...normalized,
+        photo_url: photo || normalized.photo_url,
+        birth_date: normalized.birth_date || (packHit?.birth_date as string) || null,
+        birth_place: normalized.birth_place || (packHit?.birth_place as string) || null,
+        trajectory: normalized.trajectory || String(packHit?.trajectory || ""),
+        role: String(packHit?.role || normalized.role),
+        profile_url: resolveAtmStaffProfileUrl(
+          normalized.profile_url,
+          typeof packHit?.profile_url === "string" ? packHit.profile_url : null
+        ),
+      };
+    }
 
-    const official = getOfficialStaffByLegacyId(id);
-    if (!official) return null;
-    return normalizeStaffProfile(
-      {
-        id: official.legacyId,
-        full_name: official.full_name,
-        role: official.role,
-        nationality: official.nationality,
-        birth_date: official.birth_date,
-        birth_place: official.birth_place,
-        photo_url: official.photo_url,
-        profile_url: official.profile_url,
-        trajectory: official.trajectory,
-        trajectory_items: official.trajectory_items,
-        palmares: official.palmares,
-        shirt_size: "L",
-        shorts_size: "L",
-        shoe_size: 43,
-        email: `${official.slug}@realmadrid.com`,
-      },
-      { applyOfficialRoster: true }
-    );
-  }, [id, productionClub, remoteStaff, applyOfficialRoster]);
+    return {
+      ...normalized,
+      profile_url: normalized.profile_url || meta.plantillaUrl,
+    };
+  }, [id, productionClub, remoteStaff, applyOfficialRoster, branding.slug, meta.plantillaUrl]);
+
+  useEffect(() => {
+    if (!staff) return;
+    setShirtSize(staff.shirt_size || "L");
+    setShortsSize(staff.shorts_size || "L");
+    setShoeSize(staff.shoe_size ?? 43);
+  }, [staff]);
+
+  const handleSaveSizes = async () => {
+    if (!staff?.id) return;
+    setSavingSizes(true);
+    const payload = {
+      shirt_size: shirtSize,
+      shorts_size: shortsSize,
+      shoe_size: Number(shoeSize) || 43,
+    };
+    try {
+      if (productionClub) {
+        const res = await fetch(`/api/coaching-staff/${staff.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          throw new Error((await res.json().catch(() => ({}))).error || "Error al guardar");
+        }
+        const json = await res.json().catch(() => ({}));
+        if (json.data) setRemoteStaff(json.data as Record<string, unknown>);
+      } else {
+        const idx = db.coachingStaff.findIndex((s) => s.id === staff.id);
+        if (idx !== -1) {
+          db.coachingStaff[idx] = { ...db.coachingStaff[idx], ...payload };
+          persistDemoDb();
+        }
+      }
+      setEditingSizes(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error al guardar medidas");
+    } finally {
+      setSavingSizes(false);
+    }
+  };
 
   if (loadingRemote) {
     return (
@@ -139,6 +266,8 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
   const birthDate = staff.birth_date?.includes("-")
     ? staff.birth_date.split("-").reverse().join("/")
     : staff.birth_date || "—";
+
+  const profileUrl = staff.profile_url || meta.plantillaUrl;
 
   return (
     <div className="space-y-6 text-left max-w-5xl mx-auto">
@@ -199,17 +328,15 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
           <span className="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20">
             Activo
           </span>
-          {staff.profile_url ? (
-            <a
-              href={staff.profile_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-extrabold shadow-sm transition-colors"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Ver Ficha Oficial Real Madrid
-            </a>
-          ) : null}
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-extrabold shadow-sm transition-colors"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {meta.fichaLabel}
+          </a>
         </div>
       </div>
 
@@ -247,30 +374,97 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
-            <h2 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm flex items-center gap-1.5">
-              <Shirt className="h-4 w-4 text-orange-500" />
-              Medidas de Utilería
-            </h2>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-bold uppercase">Chaqueta</span>
-                <span className="text-lg font-black text-slate-800 dark:text-slate-100">
-                  {staff.shirt_size || "L"}
-                </span>
-              </div>
-              <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-bold uppercase">Pantalón</span>
-                <span className="text-lg font-black text-slate-800 dark:text-slate-100">
-                  {staff.shorts_size || "L"}
-                </span>
-              </div>
-              <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-bold uppercase">Calzado</span>
-                <span className="text-lg font-black text-slate-800 dark:text-slate-100">
-                  {staff.shoe_size ?? "43"}
-                </span>
-              </div>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm flex items-center gap-1.5">
+                <Shirt className="h-4 w-4 text-orange-500" />
+                Medidas de Utilería
+              </h2>
+              {canWrite && !editingSizes ? (
+                <button
+                  type="button"
+                  onClick={() => setEditingSizes(true)}
+                  className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-600 hover:text-orange-500"
+                >
+                  <Pencil className="h-3 w-3" />
+                  Editar
+                </button>
+              ) : null}
             </div>
+            {editingSizes ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <label className="text-center space-y-1">
+                    <span className="text-[10px] text-slate-400 block font-bold uppercase">Chaqueta</span>
+                    <input
+                      value={shirtSize}
+                      onChange={(e) => setShirtSize(e.target.value)}
+                      className="w-full px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-center text-sm font-black"
+                    />
+                  </label>
+                  <label className="text-center space-y-1">
+                    <span className="text-[10px] text-slate-400 block font-bold uppercase">Pantalón</span>
+                    <input
+                      value={shortsSize}
+                      onChange={(e) => setShortsSize(e.target.value)}
+                      className="w-full px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-center text-sm font-black"
+                    />
+                  </label>
+                  <label className="text-center space-y-1">
+                    <span className="text-[10px] text-slate-400 block font-bold uppercase">Calzado</span>
+                    <input
+                      type="number"
+                      value={shoeSize}
+                      onChange={(e) => setShoeSize(e.target.value)}
+                      className="w-full px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-center text-sm font-black"
+                    />
+                  </label>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShirtSize(staff.shirt_size || "L");
+                      setShortsSize(staff.shorts_size || "L");
+                      setShoeSize(staff.shoe_size ?? 43);
+                      setEditingSizes(false);
+                    }}
+                    className="px-3 py-1.5 rounded-lg border text-[10px] font-bold text-slate-500"
+                    disabled={savingSizes}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleSaveSizes()}
+                    className="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold disabled:opacity-60"
+                    disabled={savingSizes}
+                  >
+                    {savingSizes ? "Guardando..." : "Guardar"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-400 block font-bold uppercase">Chaqueta</span>
+                  <span className="text-lg font-black text-slate-800 dark:text-slate-100">
+                    {staff.shirt_size || "L"}
+                  </span>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-400 block font-bold uppercase">Pantalón</span>
+                  <span className="text-lg font-black text-slate-800 dark:text-slate-100">
+                    {staff.shorts_size || "L"}
+                  </span>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-400 block font-bold uppercase">Calzado</span>
+                  <span className="text-lg font-black text-slate-800 dark:text-slate-100">
+                    {staff.shoe_size ?? "43"}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -325,7 +519,7 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
             <p>
               Ficha sincronizada desde la{" "}
               <a
-                href={RMB_OFFICIAL_SOURCE}
+                href={meta.plantillaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-bold text-orange-700 dark:text-orange-400 hover:underline"
@@ -334,17 +528,15 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
               </a>
               .
             </p>
-            {staff.profile_url ? (
-              <a
-                href={staff.profile_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-700 dark:text-orange-400"
-              >
-                Abrir perfil en realmadrid.com
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            ) : null}
+            <a
+              href={profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-700 dark:text-orange-400"
+            >
+              Abrir perfil en {meta.siteLabel}
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
           </div>
         </div>
       </div>

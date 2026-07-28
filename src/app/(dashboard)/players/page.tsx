@@ -23,7 +23,7 @@ import { normalizeStaffProfile } from "@/lib/player-profile";
 import { resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
 import { RMF_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/rmf-data";
-import { ATM_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/atm-data";
+import { ATM_OFFICIAL_PLANTILLA_URL, resolveAtmStaffProfileUrl } from "@/data/clubs/atm-data";
 import { UpdateOfficialRosterButton } from "@/components/roster/UpdateOfficialRosterButton";
 
 type StaffMember = StaffFormData & {
@@ -99,7 +99,10 @@ export default function PlayersPage() {
               birth_date: (normalized.birth_date || packHit?.birth_date || undefined) as string | undefined,
               birth_place: (normalized.birth_place || packHit?.birth_place || undefined) as string | undefined,
               trajectory: (normalized.trajectory || packHit?.trajectory || undefined) as string | undefined,
-              profile_url: (normalized.profile_url || packHit?.profile_url || undefined) as string | undefined,
+              profile_url: resolveAtmStaffProfileUrl(
+                normalized.profile_url,
+                typeof packHit?.profile_url === "string" ? packHit.profile_url : null
+              ),
               role: String(packHit?.role || normalized.role),
             } as StaffMember;
           }
@@ -183,6 +186,22 @@ export default function PlayersPage() {
     setShowPlayerForm(true);
   };
 
+  const staffEmailDomain =
+    branding.slug === "atm"
+      ? "atleticodemadrid.com"
+      : branding.slug === "rmf" || branding.slug === "rmb"
+        ? "realmadrid.com"
+        : "club.local";
+
+  const defaultStaffProfileUrl =
+    branding.slug === "atm"
+      ? ATM_OFFICIAL_PLANTILLA_URL
+      : branding.slug === "rmf"
+        ? RMF_OFFICIAL_PLANTILLA_URL
+        : branding.slug === "rmb"
+          ? OFFICIAL_PLANTILLA_URL
+          : "";
+
   const handleSaveStaff = async (data: StaffFormData) => {
     if (productionClub) {
       try {
@@ -202,7 +221,7 @@ export default function PlayersPage() {
             body: JSON.stringify({
               ...data,
               team_id: teamId,
-              email: `${data.full_name.toLowerCase().replace(/\s/g, "")}@club.local`,
+              email: `${data.full_name.toLowerCase().replace(/\s/g, "")}@${staffEmailDomain}`,
             }),
           });
           if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Error al crear");
@@ -225,7 +244,8 @@ export default function PlayersPage() {
     } else {
       db.coachingStaff.push({
         id: `c_${Math.random().toString(36).slice(2, 9)}`,
-        email: `${data.full_name.toLowerCase().replace(/\s/g, "")}@club.local`,
+        email: `${data.full_name.toLowerCase().replace(/\s/g, "")}@${staffEmailDomain}`,
+        profile_url: data.profile_url || defaultStaffProfileUrl || undefined,
         ...data,
       });
     }
@@ -356,6 +376,15 @@ export default function PlayersPage() {
         .
       </div>
       )}
+      {branding.slug === 'atm' && (
+      <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
+        Plantilla y cuerpo técnico del <strong>Atlético de Madrid</strong> — perfiles oficiales en{' '}
+        <a href={ATM_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
+          atleticodemadrid.com
+        </a>
+        . Las medidas de utilería se editan en cada ficha o desde Tallas.
+      </div>
+      )}
 
       <div className="flex border-b border-slate-200 dark:border-slate-800">
         <button
@@ -392,6 +421,7 @@ export default function PlayersPage() {
         <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <StaffForm
             initialValues={editingStaff ?? undefined}
+            defaultProfileUrl={defaultStaffProfileUrl}
             onSubmit={handleSaveStaff}
             onClose={() => { setShowStaffForm(false); setEditingStaff(null); }}
           />

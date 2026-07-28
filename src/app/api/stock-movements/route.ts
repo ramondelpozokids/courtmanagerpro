@@ -56,6 +56,8 @@ const DEMO_MOVEMENTS = [
   },
 ];
 
+let demoStore = [...DEMO_MOVEMENTS];
+
 export async function GET(req: NextRequest) {
   if (isServerProduction()) {
     const { user, response } = await requireApiUser();
@@ -69,9 +71,13 @@ export async function GET(req: NextRequest) {
   if (isDemoMode() || !isServerProduction()) {
     const rows =
       scope === 'all_rm'
-        ? DEMO_MOVEMENTS
-        : DEMO_MOVEMENTS.filter((m) => m.team_id === teamId);
-    return NextResponse.json({ data: rows.slice(0, limit) });
+        ? demoStore
+        : demoStore.filter((m) => m.team_id === teamId);
+    return NextResponse.json({
+      data: [...rows].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ).slice(0, limit),
+    });
   }
 
   const client = await getClient();
@@ -83,14 +89,13 @@ export async function GET(req: NextRequest) {
     .limit(limit);
 
   if (scope === 'all_rm') {
-    query = query.in('team_id', [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf, CLUB_TEAM_IDS.atm]);
+    query = query.in('team_id', [CLUB_TEAM_IDS.atm, CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf]);
   } else {
     query = query.eq('team_id', teamId);
   }
 
   const { data, error } = await query;
   if (error) {
-    // Tabla aún no creada → demo fallback
     if (/does not exist|relation/i.test(error.message)) {
       return NextResponse.json({ data: DEMO_MOVEMENTS, warning: 'Ejecuta 019_stock_movements.sql' });
     }
@@ -98,7 +103,6 @@ export async function GET(req: NextRequest) {
   }
 
   if (!data?.length) {
-    // Vacío real: no inventar movimientos de demo (mezclaba RMB/RMF y confundía el historial).
     return NextResponse.json({ data: [] });
   }
 
@@ -107,34 +111,110 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   let user: { id: string } | null = null;
+  let profileName: string | null = null;
   if (isServerProduction()) {
     const auth = await requireApiUser();
     if (auth.response || !auth.user) return auth.response!;
     user = auth.user;
+    const meta = (auth.user as { user_metadata?: { full_name?: string } }).user_metadata;
+    profileName = meta?.full_name || null;
   }
 
   const body = await req.json();
   const teamId = resolveTeamId(body.team_id || DEFAULT_TEAM_ID);
+  const direction = String(body.direction || '').toLowerCase(); // entrada | salida
+  let qtyDelta = Number(body.qty_delta);
+  if (!Number.isFinite(qtyDelta) || qtyDelta === 0) {
+    const qty = Math.abs(Number(body.quantity) || 0);
+    if (qty <= 0) {
+      return NextResponse.json({ error: 'Indica una cantidad válida' }, { status: 400 });
+    }
+    qtyDelta = direction === 'salida' || direction === 'out' ? -qty : qty;
+  }
+  if (qtyDelta === 0) {
+    return NextResponse.json({ error: 'La cantidad no puede ser 0' }, { status: 400 });
+  }
+
+  const itemName = String(body.item_name || '').trim() || 'Material';
+  const actorName =
+    String(body.actor_name || '').trim() ||
+    profileName ||
+    'Utilería';
+  const reason =
+    String(body.reason || '').trim() ||
+    (qtyDelta < 0 ? 'salida_material' : 'entrada_almacen');
+  const notes = body.notes != null ? String(body.notes) : null;
+  const itemId = body.item_id ? String(body.item_id) : null;
 
   if (isDemoMode() || !isServerProduction()) {
-    return NextResponse.json({ data: { id: 'demo', ...body }, demo: true }, { status: 201 });
+    const row = {
+      id: `sm_${Math.random().toString(36).slice(2, 9)}`,
+      team_id: teamId,
+      item_id: itemId,
+      item_name: itemName,
+      qty_delta: qtyDelta,
+      stock_after: body.stock_after != null ? Number(body.stock_after) : null,
+      reason,
+      actor_name: actorName,
+      notes,
+      created_at: new Date().toISOString(),
+    };
+    demoStore = [row, ...demoStore];
+    return NextResponse.json({ data: row, demo: true }, { status: 201 });
   }
 
   const client = await getClient();
   const pg = client as any;
 
+  let stockAfter: number | null =
+    body.stock_after != null ? Number(body.stock_after) : null;
+  let resolvedName = itemName;
+
+  // Si hay artículo de inventario, ajustar stock disponible
+  if (itemId) {
+    const { data: item, error: itemErr } = await pg
+      .from('inventory_items')
+      .select('id, name, stock_available, team_id')
+      .eq('id', itemId)
+      .eq('team_id', teamId)
+      .maybeSingle();
+    if (itemErr) return NextResponse.json({ error: itemErr.message }, { status: 400 });
+    if (!item) {
+      return NextResponse.json({ error: 'Artículo de inventario no encontrado' }, { status: 404 });
+    }
+    resolvedName = String(item.name || itemName);
+    const current = Number(item.stock_available ?? 0);
+    const next = current + qtyDelta;
+    if (next < 0) {
+      return NextResponse.json(
+        { error: `Stock insuficiente (disponible: ${current})` },
+        { status: 400 }
+      );
+    }
+    const { error: updErr } = await pg
+      .from('inventory_items')
+      .update({
+        stock_available: next,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', itemId)
+      .eq('team_id', teamId);
+    if (updErr) return NextResponse.json({ error: updErr.message }, { status: 400 });
+    stockAfter = next;
+  }
+
   const { data, error } = await pg
     .from('stock_movements')
     .insert({
       team_id: teamId,
-      item_id: body.item_id || null,
-      item_name: body.item_name || 'Material',
-      qty_delta: Number(body.qty_delta) || 0,
-      stock_after: body.stock_after != null ? Number(body.stock_after) : null,
-      reason: body.reason || 'ajuste',
+      item_id: itemId,
+      item_name: resolvedName,
+      qty_delta: qtyDelta,
+      stock_after: stockAfter,
+      reason,
       actor_id: user?.id || null,
-      actor_name: body.actor_name || null,
-      notes: body.notes || null,
+      actor_name: actorName,
+      notes,
     })
     .select()
     .single();
@@ -155,10 +235,10 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'Falta id' }, { status: 400 });
 
   if (isDemoMode() || !isServerProduction()) {
+    demoStore = demoStore.filter((m) => m.id !== id);
     return NextResponse.json({ ok: true, demo: true, id });
   }
 
-  // No borrar filas demo inventadas (sm1/sm2/sm3)
   if (/^sm\d+$/i.test(id)) {
     return NextResponse.json({ ok: true, skipped: 'demo' });
   }

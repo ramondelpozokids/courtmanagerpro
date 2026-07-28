@@ -10,7 +10,7 @@ async function logStockMovement(item: {
   name?: string;
   team_id?: string;
   stock_available?: number;
-}, qtyDelta: number) {
+}, qtyDelta: number, actorName?: string | null) {
   if (isDemoMode() || !isServerProduction()) return;
   try {
     const hasService =
@@ -25,6 +25,7 @@ async function logStockMovement(item: {
       qty_delta: qtyDelta,
       stock_after: item.stock_available ?? null,
       reason: "ajuste",
+      actor_name: actorName || null,
     });
   } catch {
     // Tabla aún no migrada o RLS: no bloquear el ajuste de stock
@@ -73,7 +74,11 @@ export async function PUT(
               ? Math.abs(body.qtyChange)
               : 0;
       if (delta !== 0) {
-        void logStockMovement(updated as any, delta);
+        void logStockMovement(
+          updated as any,
+          delta,
+          typeof body.actor_name === "string" ? body.actor_name : null
+        );
       }
       return NextResponse.json(updated);
     }

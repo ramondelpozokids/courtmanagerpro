@@ -34,7 +34,12 @@ export default function DemoClubBanner() {
     const sb = b.branding.slug as ClubSlug;
     const rank = (s: ClubSlug) =>
       realMadridClubs.includes(s) ? 0 : commercialDemoClubs.includes(s) ? 1 : 2;
-    return rank(sa) - rank(sb);
+    const byRank = rank(sa) - rank(sb);
+    if (byRank !== 0) return byRank;
+    // Alfabético por shortName: ATM → RMB → RMF (luego FCB → VBC)
+    return a.branding.shortName.localeCompare(b.branding.shortName, 'es', {
+      sensitivity: 'base',
+    });
   });
 
   const modeLabel = (() => {

@@ -48,9 +48,13 @@ export async function POST(request: NextRequest) {
         id: 'l_' + Math.random().toString(36).substr(2, 9),
         name: body.name,
         itemCount: body.itemCount || 0,
-        status: 'PENDING' as const,
+        status: (body.flow === 'salida' ? 'READY' : 'PENDING') as const,
         receivedDate: new Date().toISOString().split('T')[0],
+        completedDate:
+          body.flow === 'salida' ? new Date().toISOString().split('T')[0] : undefined,
         responsible: body.responsible || 'Carlos (Utillero)',
+        kitType: body.kitType || undefined,
+        flow: body.flow || undefined,
       };
       memoryDb.laundry.push(newBatch);
       return NextResponse.json(newBatch, { status: 201 });

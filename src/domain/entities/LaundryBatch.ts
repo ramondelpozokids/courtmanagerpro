@@ -6,4 +6,8 @@ export interface LaundryBatch {
   receivedDate: string;
   completedDate?: string;
   responsible: string;
+  /** primera | segunda | tercera | entrenamiento | staff */
+  kitType?: string;
+  /** entrada = ropa sucia a lavandería · salida = limpia entregada */
+  flow?: "entrada" | "salida";
 }

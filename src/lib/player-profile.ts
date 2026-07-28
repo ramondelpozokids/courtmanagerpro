@@ -57,6 +57,29 @@ export type NormalizedStaffProfile = {
   shoe_size?: string | number | null;
 };
 
+/** Notas de coaching_staff: JSON con profile_url / birth_* o URL suelta de sync. */
+export function parseStaffNotes(notes: unknown): Record<string, unknown> {
+  if (notes == null) return {};
+  if (typeof notes === 'object' && !Array.isArray(notes)) {
+    return notes as Record<string, unknown>;
+  }
+  if (typeof notes !== 'string') return {};
+  const trimmed = notes.trim();
+  if (!trimmed) return {};
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>;
+      }
+    } catch {
+      return {};
+    }
+  }
+  if (/^https?:\/\//i.test(trimmed)) return { profile_url: trimmed };
+  return {};
+}
+
 export function normalizeStaffProfile(
   staff: Record<string, unknown> | null,
   options?: { applyOfficialRoster?: boolean }
@@ -69,8 +92,11 @@ export function normalizeStaffProfile(
       ? staff.id
       : null;
   const official = legacyId ? getOfficialStaffByLegacyId(legacyId) : null;
+  const notes = parseStaffNotes(staff.notes);
   const birthPlace =
-    (official?.birth_place ?? (typeof staff.birth_place === 'string' ? staff.birth_place : null)) ||
+    (official?.birth_place ??
+      (typeof staff.birth_place === 'string' ? staff.birth_place : null) ??
+      (typeof notes.birth_place === 'string' ? notes.birth_place : null)) ||
     null;
   const nationalityRaw =
     official?.nationality ?? (typeof staff.nationality === 'string' ? staff.nationality : null);
@@ -85,6 +111,10 @@ export function normalizeStaffProfile(
     : Array.isArray(staff.palmares)
       ? (staff.palmares as string[])
       : [];
+  const profileFromNotes =
+    typeof notes.profile_url === 'string' ? notes.profile_url : null;
+  const trajectoryFromNotes =
+    typeof notes.trajectory === 'string' ? notes.trajectory : null;
 
   return {
     id: typeof staff.id === 'string' ? staff.id : legacyId || undefined,
@@ -97,15 +127,19 @@ export function normalizeStaffProfile(
     nationality,
     birth_date:
       official?.birth_date ??
-      (typeof staff.birth_date === 'string' ? staff.birth_date : null),
+      (typeof staff.birth_date === 'string' ? staff.birth_date : null) ??
+      (typeof notes.birth_date === 'string' ? notes.birth_date : null),
     birth_place: birthPlace,
     photo_url:
       official?.photo_url ??
       (typeof staff.photo_url === 'string' ? staff.photo_url : null),
     profile_url:
       official?.profile_url ??
-      (typeof staff.profile_url === 'string' ? staff.profile_url : null),
-    trajectory: String(official?.trajectory ?? staff.trajectory ?? ''),
+      (typeof staff.profile_url === 'string' ? staff.profile_url : null) ??
+      profileFromNotes,
+    trajectory: String(
+      official?.trajectory ?? staff.trajectory ?? trajectoryFromNotes ?? ''
+    ),
     trajectory_items: trajectoryItems,
     palmares,
     email: typeof staff.email === 'string' ? staff.email : null,

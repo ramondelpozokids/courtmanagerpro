@@ -537,14 +537,14 @@ const atmPack: ClubDemoPack = {
 };
 
 export const CLUB_PACKS: Record<ClubSlug, ClubDemoPack> = {
+  atm: atmPack,
   rmb: rmbPack,
   rmf: rmfPack,
-  atm: atmPack,
   fcb: fcbPack,
   vbc: vbcPack,
 };
 
-export const CLUB_LIST: ClubDemoPack[] = [rmbPack, rmfPack, atmPack, fcbPack, vbcPack];
+export const CLUB_LIST: ClubDemoPack[] = [atmPack, rmbPack, rmfPack, fcbPack, vbcPack];
 
 export function getClubPack(slug: ClubSlug): ClubDemoPack {
   return CLUB_PACKS[slug];

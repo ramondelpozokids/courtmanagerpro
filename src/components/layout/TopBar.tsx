@@ -91,7 +91,7 @@ export default function TopBar() {
             </button>
             {showServicesDropdown && (
               <div
-                className="absolute left-0 mt-1.5 w-48 rounded-xl bg-white dark:bg-slate-800 border border-slate-150 dark:border-slate-700 shadow-xl py-1 z-50 text-left animate-in fade-in zoom-in-95 duration-100"
+                className="absolute left-0 mt-1.5 w-56 rounded-xl bg-white dark:bg-slate-800 border border-slate-150 dark:border-slate-700 shadow-xl py-1 z-50 text-left animate-in fade-in zoom-in-95 duration-100"
                 onMouseLeave={() => setShowServicesDropdown(false)}
               >
                 <Link href="/trips" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
@@ -100,8 +100,29 @@ export default function TopBar() {
                 <Link href="/laundry" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
                   🧺 Servicio Lavandería
                 </Link>
-                <Link href="/trips" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                <Link href="/transporte" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
                   🚌 Transporte y Equipaje
+                </Link>
+                <Link href="/convocatoria" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                  ✅ Convocatoria
+                </Link>
+                <Link href="/postpartido" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                  📋 Post-partido
+                </Link>
+                <Link href="/botas" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                  👟 Botas personales
+                </Link>
+                <Link href="/incidencias" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                  ⚠️ Incidencias
+                </Link>
+                <Link href="/hotel-vestuario" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                  🏨 Hotel / vestuario
+                </Link>
+                <Link href="/repuestos" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                  📦 Repuestos
+                </Link>
+                <Link href="/caducidades-medico" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                  ❄️ Caducidades / frío
                 </Link>
               </div>
             )}

@@ -129,6 +129,25 @@ export async function applyRosterDiff(params: {
       targetId = byName?.id;
     }
 
+    let existingNotes: Record<string, unknown> = {};
+    if (targetId) {
+      const { data: existing } = await supabase
+        .from('coaching_staff')
+        .select('notes')
+        .eq('id', targetId)
+        .maybeSingle();
+      const raw = existing?.notes;
+      if (typeof raw === 'string' && raw.trim().startsWith('{')) {
+        try {
+          existingNotes = JSON.parse(raw) as Record<string, unknown>;
+        } catch {
+          existingNotes = {};
+        }
+      } else if (raw && typeof raw === 'object') {
+        existingNotes = raw as Record<string, unknown>;
+      }
+    }
+
     const payload = {
       team_id: teamId,
       full_name: os.full_name,
@@ -136,12 +155,18 @@ export async function applyRosterDiff(params: {
       photo_url: photo,
       nationality: os.nationality || 'España',
       is_active: true,
-      source: 'realmadrid.com',
+      source: snapshot.source_id?.includes('atletico')
+        ? 'atleticodemadrid.com'
+        : 'realmadrid.com',
       official_slug: os.slug,
       activated_at: now,
       deactivated_at: null,
       updated_at: now,
-      notes: os.profile_url,
+      notes: JSON.stringify({
+        ...existingNotes,
+        profile_url: os.profile_url,
+        official_slug: os.slug,
+      }),
     };
 
     if (targetId) {
