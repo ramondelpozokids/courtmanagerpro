@@ -79,7 +79,7 @@ export function Sidebar() {
     /ram[oó]n/i.test(full_name) ||
     /ramondelpozo/i.test(String(userEmail || user?.email || ''));
 
-  const seasonLabel = branding.slug === 'atm' ? '2025-2026' : '2026-2027';
+  const seasonLabel = '2026/2027';
 
   const AvatarPhoto = ({ size = 32 }: { size?: number }) =>
     isRamonAccount ? (

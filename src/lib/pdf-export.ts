@@ -15,16 +15,17 @@ import {
   buildWarehouseCsvLines,
 } from '@/lib/csv-export';
 
-const DEFAULT_SEASON = '2025/26';
-const DOC_VERSION = 'v1.1';
+const DEFAULT_SEASON = '2026/2027';
+const DOC_VERSION = 'v1.2';
 const BRAND_GOLD: [number, number, number] = [180, 140, 60];
 const BRAND_NAVY: [number, number, number] = [15, 23, 42];
 const TEXT_MUTED: [number, number, number] = [100, 116, 139];
 const BG_LIGHT: [number, number, number] = [248, 250, 252];
 const TABLE_HEAD_BG: [number, number, number] = [241, 245, 249];
 
-export function seasonLabelForClub(slug: ClubSlug): string {
-  return slug === 'atm' ? '2025-26' : '2026-27';
+/** Temporada única en todos los informes PDF (ATM / RMB / RMF). */
+export function seasonLabelForClub(_slug?: ClubSlug): string {
+  return DEFAULT_SEASON;
 }
 
 type PdfDoc = {
@@ -253,6 +254,28 @@ function parseCsvLine(line: string): string[] {
   const cells: string[] = [];
   let current = '';
   let inQuotes = false;
+  // Inventario/tallas usan `,`; movimientos/transporte usan `;`.
+  const delimiter = (() => {
+    let commas = 0;
+    let semis = 0;
+    let q = false;
+    for (let i = 0; i < line.length; i += 1) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (q && line[i + 1] === '"') {
+          i += 1;
+          continue;
+        }
+        q = !q;
+        continue;
+      }
+      if (q) continue;
+      if (ch === ',') commas += 1;
+      if (ch === ';') semis += 1;
+    }
+    return semis > commas ? ';' : ',';
+  })();
+
   for (let i = 0; i < line.length; i += 1) {
     const ch = line[i];
     if (ch === '"') {
@@ -262,7 +285,7 @@ function parseCsvLine(line: string): string[] {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (ch === ',' && !inQuotes) {
+    } else if (ch === delimiter && !inQuotes) {
       cells.push(current);
       current = '';
     } else {
@@ -446,10 +469,11 @@ async function buildPdfDocument(
   reportTitle: string,
   csvLines: string[],
   options?: CsvExportOptions,
-  orientation: 'portrait' | 'landscape' = 'portrait'
+  _orientation: 'portrait' | 'landscape' = 'portrait'
 ): Promise<PdfDoc> {
   const { jsPDF, autoTable } = await loadPdfLibs();
-  const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
+  // Todos los informes: A4 vertical, misma tipografía y márgenes.
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
   await addLogoToCover(doc, identity, reportTitle, options);
   doc.addPage();
@@ -483,7 +507,7 @@ export async function exportInventoryPdf(
     lines,
     opts
   );
-  doc.save(`inventario_utileria_${fileSlug(identity)}_${opts.season!.replace('/', '-')}.pdf`);
+  doc.save(`inventario_utileria_${fileSlug(identity)}_${opts.season!.replace(/\//g, '-')}.pdf`);
 }
 
 export async function exportSizingPdf(
@@ -502,7 +526,7 @@ export async function exportSizingPdf(
     lines,
     opts
   );
-  doc.save(`tabla_tallas_${fileSlug(identity)}_${opts.season!.replace('/', '-')}.pdf`);
+  doc.save(`tabla_tallas_${fileSlug(identity)}_${opts.season!.replace(/\//g, '-')}.pdf`);
 }
 
 export async function exportWarehousePdf(
@@ -525,7 +549,7 @@ export async function exportWarehousePdf(
     'portrait'
   );
 
-  const season = opts.season!.replace('/', '-');
+  const season = opts.season!.replace(/\//g, '-');
   doc.save(`almacen_general_${slug}_${season}.pdf`);
 }
 
@@ -562,6 +586,7 @@ function buildMovementsCsvLines(
     `"Temporada";"${season}"`,
     `"Generado";"${formatExportDateTime()}"`,
     '',
+    '— DETALLE DE MOVIMIENTOS —',
     '"Fecha";"Artículo";"Tipo";"Cantidad";"Stock tras movimiento";"Motivo";"Quién";"Notas"',
   ];
   for (const m of rows) {
@@ -604,10 +629,9 @@ export async function exportMovementsPdf(
     identity,
     'HISTORIAL DE MOVIMIENTOS — ENTRADAS Y SALIDAS',
     lines,
-    opts,
-    'landscape'
+    opts
   );
-  const season = opts.season!.replace('/', '-');
+  const season = opts.season!.replace(/\//g, '-');
   doc.save(`movimientos_${slug}_${season}.pdf`);
 }
 
@@ -707,7 +731,7 @@ export async function exportTransportPdf(
     opts,
     'portrait'
   );
-  const season = opts.season!.replace('/', '-');
+  const season = opts.season!.replace(/\//g, '-');
   const safeTrip = data.tripLabel
     .toLowerCase()
     .normalize('NFD')
@@ -807,7 +831,7 @@ export async function exportPreMatchPdf(
     opts,
     'portrait'
   );
-  const season = opts.season!.replace('/', '-');
+  const season = opts.season!.replace(/\//g, '-');
   const safeMatch = data.matchLabel
     .toLowerCase()
     .normalize('NFD')

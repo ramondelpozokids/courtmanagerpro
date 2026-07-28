@@ -112,7 +112,7 @@ export interface WarehouseCsvRow {
   low_stock?: boolean;
 }
 
-const DEFAULT_SEASON = '2025/26';
+const DEFAULT_SEASON = '2026/2027';
 
 const SHIRT_SIZE_KEYS = ['jersey_home', 'jersey_away', 'jersey_third', 'jersey'];
 const SHORT_SIZE_KEYS = ['shorts_game', 'shorts'];
@@ -677,7 +677,7 @@ export function exportInventoryCsv(
   options?: CsvExportOptions
 ): void {
   const identity = CLUB_CSV_IDENTITY[slug];
-  const season = (options?.season ?? '2025-26').replace(/\//g, '-');
+  const season = (options?.season ?? '2026/2027').replace(/\//g, '-');
   downloadCsv(
     `inventario_utileria_${slug}_${season}.csv`,
     buildInventoryCsvLines(identity, items, options)
@@ -692,7 +692,7 @@ export function exportSizingCsv(
   options?: CsvExportOptions
 ): void {
   const identity = CLUB_CSV_IDENTITY[slug];
-  const season = (options?.season ?? '2025-26').replace(/\//g, '-');
+  const season = (options?.season ?? '2026/2027').replace(/\//g, '-');
   downloadCsv(
     `tallas_utileria_${slug}_${season}.csv`,
     buildSizingCsvLines(identity, players, staff, customProducts, options)
@@ -705,7 +705,7 @@ export function exportWarehouseCsv(
   options?: CsvExportOptions
 ): void {
   const identity = CLUB_CSV_IDENTITY[slug];
-  const season = (options?.season ?? '2025-26').replace(/\//g, '-');
+  const season = (options?.season ?? '2026/2027').replace(/\//g, '-');
   downloadCsv(
     `almacen_general_${slug}_${season}.csv`,
     buildWarehouseCsvLines(identity, items, options)

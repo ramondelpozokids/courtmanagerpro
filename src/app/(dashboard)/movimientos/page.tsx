@@ -53,6 +53,37 @@ const REASON_OPTIONS = [
   { value: 'ajuste', label: 'Ajuste manual' },
 ];
 
+const LS_PREFIX = 'cm-movimientos:';
+
+function readLocalMovements(teamId: string): Movement[] {
+  try {
+    const raw = localStorage.getItem(`${LS_PREFIX}${teamId}`);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as Movement[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalMovements(teamId: string, rows: Movement[]) {
+  try {
+    localStorage.setItem(`${LS_PREFIX}${teamId}`, JSON.stringify(rows.slice(0, 200)));
+  } catch {
+    /* ignore */
+  }
+}
+
+function mergeMovements(server: Movement[], local: Movement[]): Movement[] {
+  const byId = new Map<string, Movement>();
+  for (const m of [...local, ...server]) {
+    if (m?.id) byId.set(m.id, m);
+  }
+  return [...byId.values()].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+}
+
 export default function MovimientosPage() {
   const teamId = useActiveTeamId();
   const branding = useClubBranding();
@@ -89,7 +120,15 @@ export default function MovimientosPage() {
         { credentials: 'include' }
       );
       const json = await res.json();
-      setRows(json.data || []);
+      const serverRows = (json.data || []) as Movement[];
+      const localRows = readLocalMovements(teamId);
+      // Demo/serverless: memoria se pierde entre deploys — fusionar con LS del navegador.
+      const merged =
+        json.demo || serverRows.length === 0
+          ? mergeMovements(serverRows, localRows)
+          : mergeMovements(serverRows, localRows.filter((m) => m.id.startsWith('sm_')));
+      setRows(merged);
+      writeLocalMovements(teamId, merged);
       setWarning(json.warning || null);
     } finally {
       setLoading(false);
@@ -134,6 +173,12 @@ export default function MovimientosPage() {
     }
     setSaving(true);
     try {
+      const selected = itemId ? inventory.find((i) => i.id === itemId) : null;
+      const qtyAbs = Math.abs(quantity);
+      const signed = direction === 'salida' ? -qtyAbs : qtyAbs;
+      const stockAfter =
+        selected != null ? Number(selected.stock_available ?? 0) + signed : null;
+
       const res = await fetch('/api/stock-movements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -147,10 +192,17 @@ export default function MovimientosPage() {
           actor_name: actorName.trim(),
           reason,
           notes: notes.trim() || null,
+          stock_after: stockAfter,
         }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || 'No se pudo registrar el movimiento');
+      const created = json.data as Movement | undefined;
+      if (created?.id) {
+        const next = mergeMovements([created], readLocalMovements(teamId));
+        writeLocalMovements(teamId, next);
+        setRows(next);
+      }
       setShowForm(false);
       await load();
     } catch (err) {
@@ -169,7 +221,11 @@ export default function MovimientosPage() {
       );
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || 'No se pudo eliminar');
-      setRows((prev) => prev.filter((r) => r.id !== id));
+      setRows((prev) => {
+        const next = prev.filter((r) => r.id !== id);
+        writeLocalMovements(teamId, next);
+        return next;
+      });
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al eliminar');
     }
