@@ -422,7 +422,7 @@ export default function SizingTablePage() {
                 try {
                   setPdfBusy(true);
                   if (!rosterReady) {
-                    throw new Error('Espera a que cargue la plantilla ATM (24 jugadores + 5 cuerpo técnico).');
+                    throw new Error('Espera a que cargue la plantilla ATM (27 jugadores + 5 cuerpo técnico).');
                   }
                   await exportSizingPdf(
                     branding.slug,

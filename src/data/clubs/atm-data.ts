@@ -72,7 +72,7 @@ export const ATM_SPONSORS_PREMIUM = [
   'Coca-Cola',
 ] as const;
 export const ATM_TEAM_ID = '00000000-0000-4000-8000-000acb423458';
-export const ATM_OFFICIAL_SYNCED_AT = '2026-07-27T13:20:00.000Z';
+export const ATM_OFFICIAL_SYNCED_AT = '2026-07-28T09:00:00.000Z';
 
 const PLANTILLA_URL = ATM_OFFICIAL_PLANTILLA_URL;
 
@@ -136,6 +136,9 @@ const ATM_PLAYER_PHOTOS: Record<string, string> = {
   'ademola-olajade-alade-aylola-lookman-2025-2026': laligaPhoto('p219352'),
   'morten-hjulmand-2025-2026': '/clubs/atm/players/hjulmand.png',
   'kang-in-lee-ficha-por-el-atletico-de-madrid': '/clubs/atm/players/kang-in-lee.png',
+  'alejandro-grimaldo-2025-2026': '/clubs/atm/logo.png',
+  'thomas-lemar-2025-2026': '/clubs/atm/logo.png',
+  'carlos-martin-alvarez-2025-2026': '/clubs/atm/logo.png',
 };
 
 function resolvePlayerPhoto(profileUrl: string, fallback: string) {
@@ -158,8 +161,14 @@ function mk(p: DemoPlayer) {
 }
 
 /** Plantilla oficial 2025-2026 — atleticodemadrid.com */
+/**
+ * Plantilla ATM 2026/27 — fuente: LALIGA + Marca.
+ * Sin Horațiu Moldovan (fuera / cedido).
+ * Dorsales sin asignar oficial: Grimaldo #25, Lemar #27 (Marca marca #11 duplicado con Almada),
+ * Hjulmand #28 (Marca #23 choca con Nico González en LALIGA).
+ */
 export const atmPlayers = [
-  // Porteros
+  // Porteros (2) — Moldovan fuera
   mk({
     id: 'p1',
     firstName: 'Juan Agustín',
@@ -207,6 +216,18 @@ export const atmPlayers = [
     birthDate: '2002-07-11',
     imageUrl: '/clubs/atm/logo.png',
     profile_url: playerUrl('matteo-ruggeri-2025-2026'),
+    sizes: defaultSizes.L,
+  }),
+  mk({
+    id: 'p25',
+    firstName: 'Alejandro',
+    lastName: 'Grimaldo',
+    number: 25,
+    position: 'defensa',
+    nationality: 'España',
+    birthDate: '1995-09-20',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('alejandro-grimaldo-2025-2026'),
     sizes: defaultSizes.L,
   }),
   mk({
@@ -307,6 +328,18 @@ export const atmPlayers = [
     sizes: defaultSizes.L,
   }),
   mk({
+    id: 'p19',
+    firstName: 'Kang-in',
+    lastName: 'Lee',
+    number: 7,
+    position: 'centrocampista',
+    nationality: 'Corea del Sur',
+    birthDate: '2001-02-19',
+    imageUrl: '/clubs/atm/players/kang-in-lee.png',
+    profile_url: 'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid',
+    sizes: defaultSizes.M,
+  }),
+  mk({
     id: 'p13',
     firstName: 'Pablo',
     lastName: 'Barrios',
@@ -331,6 +364,30 @@ export const atmPlayers = [
     sizes: defaultSizes.M,
   }),
   mk({
+    id: 'p21',
+    firstName: 'Thiago',
+    lastName: 'Almada',
+    number: 11,
+    position: 'centrocampista',
+    nationality: 'Argentina',
+    birthDate: '2001-04-26',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('thiago-ezequiel-almada-2025-2026'),
+    sizes: defaultSizes.M,
+  }),
+  mk({
+    id: 'p26',
+    firstName: 'Thomas',
+    lastName: 'Lemar',
+    number: 27,
+    position: 'centrocampista',
+    nationality: 'Francia',
+    birthDate: '1995-11-12',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('thomas-lemar-2025-2026'),
+    sizes: defaultSizes.M,
+  }),
+  mk({
     id: 'p15',
     firstName: 'Marcos',
     lastName: 'Llorente',
@@ -343,18 +400,6 @@ export const atmPlayers = [
     sizes: defaultSizes.L,
   }),
   mk({
-    id: 'p16',
-    firstName: 'Giuliano',
-    lastName: 'Simeone',
-    number: 20,
-    position: 'centrocampista',
-    nationality: 'Argentina',
-    birthDate: '2002-12-18',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('giuliano-simeone-baldini-2025-2026'),
-    sizes: defaultSizes.M,
-  }),
-  mk({
     id: 'p17',
     firstName: 'Obed',
     lastName: 'Vargas',
@@ -365,6 +410,18 @@ export const atmPlayers = [
     imageUrl: '/clubs/atm/logo.png',
     profile_url: playerUrl('obed-gomez-vargas-2025-2026'),
     sizes: defaultSizes.M,
+  }),
+  mk({
+    id: 'p24',
+    firstName: 'Nicolás',
+    lastName: 'González',
+    number: 23,
+    position: 'centrocampista',
+    nationality: 'Argentina',
+    birthDate: '1998-04-06',
+    imageUrl: '/clubs/atm/players/nico-gonzalez.png',
+    profile_url: playerUrl('nicolas-ivan-gonzalez-2025-2026'),
+    sizes: defaultSizes.L,
   }),
   mk({
     id: 'p18',
@@ -380,18 +437,6 @@ export const atmPlayers = [
   }),
   // Delanteros
   mk({
-    id: 'p19',
-    firstName: 'Kang-in',
-    lastName: 'Lee',
-    number: 7,
-    position: 'centrocampista',
-    nationality: 'Corea del Sur',
-    birthDate: '2001-02-19',
-    imageUrl: '/clubs/atm/players/kang-in-lee.png',
-    profile_url: 'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid',
-    sizes: defaultSizes.M,
-  }),
-  mk({
     id: 'p20',
     firstName: 'Alexander',
     lastName: 'Sørloth',
@@ -404,15 +449,15 @@ export const atmPlayers = [
     sizes: defaultSizes.XXL,
   }),
   mk({
-    id: 'p21',
-    firstName: 'Thiago',
-    lastName: 'Almada',
-    number: 11,
+    id: 'p27',
+    firstName: 'Carlos',
+    lastName: 'Martín',
+    number: 12,
     position: 'delantero',
-    nationality: 'Argentina',
-    birthDate: '2001-04-26',
+    nationality: 'España',
+    birthDate: '2002-04-22',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('thiago-ezequiel-almada-2025-2026'),
+    profile_url: playerUrl('carlos-martin-alvarez-2025-2026'),
     sizes: defaultSizes.M,
   }),
   mk({
@@ -428,6 +473,18 @@ export const atmPlayers = [
     sizes: defaultSizes.M,
   }),
   mk({
+    id: 'p16',
+    firstName: 'Giuliano',
+    lastName: 'Simeone',
+    number: 20,
+    position: 'delantero',
+    nationality: 'Argentina',
+    birthDate: '2002-12-18',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('giuliano-simeone-baldini-2025-2026'),
+    sizes: defaultSizes.M,
+  }),
+  mk({
     id: 'p23',
     firstName: 'Ademola',
     lastName: 'Lookman',
@@ -438,18 +495,6 @@ export const atmPlayers = [
     imageUrl: '/clubs/atm/logo.png',
     profile_url: playerUrl('ademola-olajade-alade-aylola-lookman-2025-2026'),
     sizes: defaultSizes.M,
-  }),
-  mk({
-    id: 'p24',
-    firstName: 'Nicolás',
-    lastName: 'González',
-    number: 23,
-    position: 'delantero',
-    nationality: 'Argentina',
-    birthDate: '1998-04-06',
-    imageUrl: '/clubs/atm/players/nico-gonzalez.png',
-    profile_url: playerUrl('nicolas-ivan-gonzalez-2025-2026'),
-    sizes: defaultSizes.L,
   }),
 ];
 
