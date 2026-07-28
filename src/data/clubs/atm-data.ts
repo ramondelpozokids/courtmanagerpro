@@ -31,6 +31,9 @@ export const ATM_STORE_GK_MEN_URL =
 export const ATM_STORE_TRAINING_URL = 'https://shop.atleticodemadrid.com/es/entrenamiento';
 export const ATM_SPONSORS_URL = 'https://www.atleticodemadrid.com/patrocinadores';
 export const ATM_STADIUM_NEWS_URL = 'https://www.atleticodemadrid.com/noticias-nuevo-estadio';
+export const ATM_NEWS_URL = 'https://www.atleticodemadrid.com/noticias-primer-equipo/';
+export const ATM_KANG_IN_LEE_NEWS_URL =
+  'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid';
 
 /** Fotos producto tienda oficial (Demandware catalog) — hombre */
 const CAT = 'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default';

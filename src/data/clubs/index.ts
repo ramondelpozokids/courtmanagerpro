@@ -32,7 +32,9 @@ import {
   ATM_STORE_HOME_URL,
   ATM_SPONSORS_URL,
   ATM_STADIUM_NEWS_URL,
+  ATM_KANG_IN_LEE_NEWS_URL,
   ATM_SPONSORS_MAIN,
+  ATM_SPONSORS_PREMIUM,
   ATM_SHOP_IMAGES,
 } from '@/data/clubs/atm-data';
 import { vbcPlayers, vbcInventory, vbcRequests, vbcTrips, vbcAlerts, vbcLaundry, vbcCoachingStaff } from '@/data/clubs/vbc-data';
@@ -493,10 +495,11 @@ const atmPack: ClubDemoPack = {
       id: 'n1',
       title: '¡Bienvenido, Kang In Lee!',
       tag: 'Fichajes',
-      image: ATM_SHOP_IMAGES.homeMatch,
-      description: 'Nuevo refuerzo para el primer equipo — dorsal 7 en tienda oficial.',
+      image: '/clubs/atm/news/kang-in-lee.png',
+      description:
+        'El centrocampista internacional surcoreano llega al Atlético procedente del PSG, con el que conquistó las dos últimas Champions. Dorsal 7.',
       date: '2026-07-25',
-      url: 'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid',
+      url: ATM_KANG_IN_LEE_NEWS_URL,
     },
     {
       id: 'n2',
@@ -509,15 +512,25 @@ const atmPack: ClubDemoPack = {
     },
     {
       id: 'n3',
-      title: 'Patrocinadores oficiales',
+      title: 'Patrocinadores principales y premium',
       tag: 'Club',
-      image: '/clubs/atm/logo.png',
-      description: `Principales: ${ATM_SPONSORS_MAIN.join(', ')}. Ver listado completo en el club.`,
+      image: '/clubs/atm/news/patrocinadores-principales.png',
+      description: `Principales: ${ATM_SPONSORS_MAIN.join(', ')}. Premium: ${ATM_SPONSORS_PREMIUM.join(', ')}.`,
       date: '2026-07-27',
       url: ATM_SPONSORS_URL,
     },
     {
       id: 'n4',
+      title: 'Patrocinadores y proveedores oficiales',
+      tag: 'Club',
+      image: '/clubs/atm/news/patrocinadores-oficiales.png',
+      description:
+        'Hyundai, EA Sports FC, Red Bull, Movistar, CaixaBank, Google Cloud, Coca-Cola y proveedores oficiales del club.',
+      date: '2026-07-27',
+      url: ATM_SPONSORS_URL,
+    },
+    {
+      id: 'n5',
       title: 'Equipaciones hombre 26/27 en Atleti Store',
       tag: 'Indumentaria',
       image: ATM_SHOP_IMAGES.awayMatch,

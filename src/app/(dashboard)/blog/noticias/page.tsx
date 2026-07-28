@@ -4,10 +4,39 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Newspaper, ShieldCheck } from "lucide-react";
 import { useClubNews, useClubBranding } from "@/contexts/ClubDemoContext";
+import { ATM_NEWS_URL } from "@/data/clubs/atm-data";
+
+function newsSourceForClub(slug: string, sport: string, name: string, shortName: string) {
+  if (slug === "atm") {
+    return {
+      caption: "Fuente oficial: atleticodemadrid.com/noticias-primer-equipo",
+      label: "atleticodemadrid.com",
+      fallbackHref: ATM_NEWS_URL,
+    };
+  }
+  if (sport === "football") {
+    return {
+      caption: "Fuente oficial: realmadrid.com/es-ES/noticias/futbol",
+      label: "realmadrid.com",
+      fallbackHref: "https://www.realmadrid.com/es-ES/noticias/futbol",
+    };
+  }
+  return {
+    caption: `Crónicas y actualidad del ${name} esta temporada.`,
+    label: `${shortName} Demo`,
+    fallbackHref: undefined as string | undefined,
+  };
+}
 
 export default function BlogNoticiasPage() {
   const newsList = useClubNews();
   const branding = useClubBranding();
+  const source = newsSourceForClub(
+    branding.slug,
+    branding.sport,
+    branding.name,
+    branding.shortName
+  );
 
   return (
     <div className="space-y-6 text-left max-w-6xl mx-auto">
@@ -25,16 +54,25 @@ export default function BlogNoticiasPage() {
             Noticias de Actualidad — {branding.shortName}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            {branding.sport === 'football'
-              ? 'Fuente oficial: realmadrid.com/es-ES/noticias/futbol'
-              : `Crónicas y actualidad del ${branding.name} esta temporada.`}
+            {source.fallbackHref ? (
+              <a
+                href={source.fallbackHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-orange-600 hover:underline"
+              >
+                {source.caption}
+              </a>
+            ) : (
+              source.caption
+            )}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {newsList.map((news) => {
-          const href = news.url || (branding.sport === 'football' ? 'https://www.realmadrid.com/es-ES/noticias/futbol' : undefined);
+          const href = news.url || source.fallbackHref;
           const CardInner = (
             <>
             <div className="relative aspect-[4/3] w-full bg-slate-950 flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
@@ -64,7 +102,7 @@ export default function BlogNoticiasPage() {
               <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider pt-2.5 border-t border-slate-100 dark:border-slate-800/60">
                 <span className="flex items-center gap-1">
                   <ShieldCheck className="h-3.5 w-3.5 text-orange-500" />
-                  {branding.sport === 'football' ? 'realmadrid.com' : `${branding.shortName} Demo`}
+                  {source.label}
                 </span>
                 {news.date && (
                   <span suppressHydrationWarning>{new Date(news.date).toLocaleDateString()}</span>
