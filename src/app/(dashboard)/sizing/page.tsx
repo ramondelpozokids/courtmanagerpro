@@ -552,8 +552,9 @@ export default function SizingTablePage() {
             <table className="w-full border-collapse text-xs text-left min-w-max">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/40 border-b border-slate-150 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                  <th className="p-3 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800/95">Foto</th>
-                  <th className="p-3 sticky left-10 z-10 bg-slate-50 dark:bg-slate-800/95 min-w-[140px]">Jugador</th>
+                  <th className="p-3 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800/95 w-10 text-center">#</th>
+                  <th className="p-3 sticky left-10 z-10 bg-slate-50 dark:bg-slate-800/95">Foto</th>
+                  <th className="p-3 sticky left-20 z-10 bg-slate-50 dark:bg-slate-800/95 min-w-[140px]">Jugador</th>
                   <th className="p-3 text-center">Dorsal</th>
                   <th className="p-3 min-w-[100px]">Posición</th>
                   {visibleProducts.map((p) => (
@@ -566,13 +567,16 @@ export default function SizingTablePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredPlayers.map((p) => {
+                {filteredPlayers.map((p, idx) => {
                   const fullName = `${p.firstName} ${p.lastName}`;
                   const sizes = normalizeSizes(p.sizes, catalog);
                   const photo = playerPhoto(p);
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                      <td className="p-3 sticky left-0 bg-white dark:bg-slate-900 z-[1]">
+                      <td className="p-3 sticky left-0 bg-white dark:bg-slate-900 z-[1] text-center">
+                        <span className="text-[11px] font-black text-slate-500">{idx + 1}</span>
+                      </td>
+                      <td className="p-3 sticky left-10 bg-white dark:bg-slate-900 z-[1]">
                         <div className="h-9 w-8 rounded-md overflow-hidden bg-slate-100 border flex items-center justify-center">
                           {photo ? (
                             <img
@@ -595,7 +599,7 @@ export default function SizingTablePage() {
                           </span>
                         </div>
                       </td>
-                      <td className="p-3 font-bold sticky left-10 bg-white dark:bg-slate-900 z-[1] whitespace-nowrap">{fullName}</td>
+                      <td className="p-3 font-bold sticky left-20 bg-white dark:bg-slate-900 z-[1] whitespace-nowrap">{fullName}</td>
                       <td className="p-3 text-center">
                         <span className="text-xs bg-orange-50 px-2 py-0.5 rounded font-black text-orange-600">#{p.number}</span>
                       </td>
@@ -622,8 +626,9 @@ export default function SizingTablePage() {
             <table className="w-full border-collapse text-xs text-left min-w-max">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/40 border-b text-slate-400 font-bold uppercase text-[10px]">
-                  <th className="p-3 sticky left-0 bg-slate-50 dark:bg-slate-800/95">Foto</th>
-                  <th className="p-3 sticky left-10 bg-slate-50 dark:bg-slate-800/95 min-w-[140px]">Nombre</th>
+                  <th className="p-3 sticky left-0 bg-slate-50 dark:bg-slate-800/95 w-10 text-center">#</th>
+                  <th className="p-3 sticky left-10 bg-slate-50 dark:bg-slate-800/95">Foto</th>
+                  <th className="p-3 sticky left-20 bg-slate-50 dark:bg-slate-800/95 min-w-[140px]">Nombre</th>
                   <th className="p-3">Cargo</th>
                   {visibleProducts.map((p) => (
                     <th key={p.id} className="p-3 text-center whitespace-nowrap" title={p.label}>{p.shortLabel}</th>
@@ -632,12 +637,15 @@ export default function SizingTablePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredStaff.map((s) => {
+                {filteredStaff.map((s, idx) => {
                   const sizes = staffToSizes(s, catalog);
                   const photo = staffPhoto(s);
                   return (
                     <tr key={s.id} className="hover:bg-slate-50/50">
-                      <td className="p-3 sticky left-0 bg-white dark:bg-slate-900">
+                      <td className="p-3 sticky left-0 bg-white dark:bg-slate-900 text-center">
+                        <span className="text-[11px] font-black text-slate-500">{idx + 1}</span>
+                      </td>
+                      <td className="p-3 sticky left-10 bg-white dark:bg-slate-900">
                         <div className="h-9 w-9 rounded-full overflow-hidden bg-slate-100 border flex items-center justify-center">
                           {photo ? (
                             <img
@@ -660,7 +668,7 @@ export default function SizingTablePage() {
                           </span>
                         </div>
                       </td>
-                      <td className="p-3 font-bold sticky left-10 bg-white dark:bg-slate-900 whitespace-nowrap">{s.full_name}</td>
+                      <td className="p-3 font-bold sticky left-20 bg-white dark:bg-slate-900 whitespace-nowrap">{s.full_name}</td>
                       <td className="p-3 font-bold text-orange-500">{s.role}</td>
                       {visibleProducts.map((prod) => renderSizeCell(sizes, prod))}
                       {canWrite && (
