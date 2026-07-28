@@ -7,6 +7,8 @@ import { useRequests } from "@/hooks/useRequests";
 import { useTrips } from "@/hooks/useTrips";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClubBranding, useClubBlog, useActiveTeamId } from "@/contexts/ClubDemoContext";
+import { getClubPack } from "@/data/clubs";
+import { equipoConjuntoTotal } from "@/lib/atm-roster";
 import { KPICard } from "@/components/dashboard/KPICard";
 import AlertsWidget from "@/components/dashboard/AlertsWidget";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
@@ -27,9 +29,10 @@ export default function DashboardPage() {
   const { requests } = useRequests(teamId);
   const { trips } = useTrips();
   const [blogTab, setBlogTab] = useState<"equipacion" | "history" | "palmares">("equipacion");
+  const staffCount = getClubPack(branding.slug).coachingStaff?.length ?? 0;
+  const teamTotal = equipoConjuntoTotal(players.length, staffCount);
 
   // Compute actual KPIs dynamically
-  const totalPlayers = players.length;
   const totalStock = items.reduce((acc, item) => acc + item.stock_available, 0);
   const pendingRequests = requests.filter((r) => r.status === "pendiente" || r.status === "aprobada").length;
   const planningTripsCount = trips.filter((t) => t.status === "PLANNING" || t.status === "READY" || (t.status as any) === "planificado" || (t.status as any) === "en_preparacion").length;
@@ -44,12 +47,7 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-slate-900 to-orange-900/60 text-white rounded-2xl p-6 md:p-8 border border-slate-800 shadow-lg text-left">
         <span className="bg-orange-500/20 text-orange-400 font-semibold px-2.5 py-1 rounded-full text-xs tracking-wider uppercase border border-orange-500/30">
-          {branding.league}
-          {branding.slug === 'atm'
-            ? ' 2025/2026'
-            : branding.sport === 'football'
-              ? ' 2026/2027'
-              : ' 2026/2027'}
+          {branding.league} 2026/2027
         </span>
         <h2 className="text-2xl md:text-3.5xl font-extrabold mt-3 tracking-tight">
           ¡Hola de nuevo, <span className="text-orange-400">{user?.profile?.full_name || "…"}</span>!
@@ -66,9 +64,9 @@ export default function DashboardPage() {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <KPICard
-          title="Fichas de Jugadores"
-          value={totalPlayers}
-          subtitle={branding.sport === 'football' ? 'Jugadores primer equipo' : 'Jugadores ACB registrados'}
+          title="Equipo conjunto"
+          value={teamTotal}
+          subtitle={`${players.length} jugadores + ${staffCount} cuerpo técnico`}
           icon={Users}
           trend={{ value: 4.8, label: "este mes" }}
           variant="default"

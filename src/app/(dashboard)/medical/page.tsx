@@ -102,6 +102,19 @@ export default function MedicalStockPage() {
     return matchesKit && matchesSearch;
   });
 
+  const botiquinesConContenido = useMemo(
+    () =>
+      items.filter(
+        (i) =>
+          Array.isArray((i as any).contents) &&
+          (i as any).contents.length > 0 &&
+          (/botiquin/i.test(String((i as any).category || "")) ||
+            /botiqu[ií]n/i.test(i.name) ||
+            /Botiquín/i.test(String((i as any).kit || "")))
+      ),
+    [items]
+  );
+
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
@@ -158,6 +171,47 @@ export default function MedicalStockPage() {
           </button>
         )}
       </div>
+
+      {botiquinesConContenido.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <BriefcaseMedical className="h-4 w-4 text-orange-500" />
+            Contenido de botiquines ({isFootball ? "partido LaLiga · Champions / Europa" : "partido · viaje"})
+          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {botiquinesConContenido.map((kit) => (
+              <div
+                key={`kit-summary-${kit.id}`}
+                className="bg-white dark:bg-slate-900 border border-orange-200/60 dark:border-orange-900/40 rounded-2xl p-5 shadow-sm text-left"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-orange-600">
+                      {(kit as any).kit || "Botiquín"}
+                    </p>
+                    <h4 className="font-extrabold text-base text-slate-800 dark:text-slate-100">{kit.name}</h4>
+                    <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                      <MapPin className="h-3 w-3" /> {kit.location} · Stock {kit.quantity} uds
+                    </p>
+                  </div>
+                  {getStatusBadge(kit.status, kit.expiryDate)}
+                </div>
+                <ul className="space-y-1.5 max-h-72 overflow-y-auto border-t border-slate-100 dark:border-slate-800 pt-3">
+                  {((kit as any).contents as { name: string; qty: number }[]).map((c, idx) => (
+                    <li
+                      key={`${kit.id}-sum-${idx}`}
+                      className="flex items-start justify-between gap-3 text-sm text-slate-600 dark:text-slate-300"
+                    >
+                      <span className="leading-snug">{c.name}</span>
+                      <span className="font-black text-slate-800 dark:text-white shrink-0">×{c.qty}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {showAddForm && (
         <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">

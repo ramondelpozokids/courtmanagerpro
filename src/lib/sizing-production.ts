@@ -215,9 +215,15 @@ export async function loadProductionSizing(
     supabaseStaffToSizingRow(s, fullCatalog)
   );
 
-  // ATM: alinear con plantilla LALIGA/Marca 26/27 (27 jugadores + 5 cuerpo técnico; sin Moldovan)
+  // ATM: pack canónico 26/27 si Supabase está vacío o desfasado (sin Moldovan)
   if (teamId === CLUB_TEAM_IDS.atm) {
-    if (players.length === 0) players = atmPackPlayersToSizing(fullCatalog);
+    const packPlayers = atmPackPlayersToSizing(fullCatalog);
+    if (players.length < packPlayers.length) {
+      players = packPlayers.map((packP) => {
+        const live = players.find((p) => p.number === packP.number);
+        return live ? { ...packP, id: live.id, sizes: { ...packP.sizes, ...live.sizes } } : packP;
+      });
+    }
     if (staff.length === 0) staff = atmPackStaffToSizing(fullCatalog);
   }
 

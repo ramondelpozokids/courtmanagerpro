@@ -38,6 +38,19 @@ function packMedicalFallback(teamId: string): MedicalUi[] {
   }));
 }
 
+/** Si la API/DB no trae `contents`, rellena desde el pack ATM (botiquín partido / Champions). */
+function mergeAtmBotiquinContents(items: MedicalUi[], teamId: string): MedicalUi[] {
+  if (teamId !== ATM_TEAM_ID || items.length === 0) return items;
+  const byId = new Map(atmMedical.map((m) => [m.id, m]));
+  const byName = new Map(atmMedical.map((m) => [m.name.toLowerCase(), m]));
+  return items.map((item) => {
+    if (item.contents && item.contents.length > 0) return item;
+    const pack = byId.get(item.id) || byName.get(item.name.toLowerCase());
+    const contents = (pack as { contents?: { name: string; qty: number }[] } | undefined)?.contents;
+    return contents?.length ? { ...item, contents, kit: item.kit || pack?.kit, category: item.category || pack?.category } : item;
+  });
+}
+
 export function useMedical() {
   const teamId = useActiveTeamId();
   const [items, setItems] = useState<MedicalUi[]>([]);
@@ -52,7 +65,8 @@ export function useMedical() {
       if (isMockMode() || usesDemoClubData()) {
         const demo = (db.medical || []) as MedicalUi[];
         const filtered = demo.filter((i) => !i.team_id || i.team_id === teamId);
-        setItems(filtered.length > 0 ? filtered : packMedicalFallback(teamId));
+        const rows = filtered.length > 0 ? filtered : packMedicalFallback(teamId);
+        setItems(mergeAtmBotiquinContents(rows, teamId));
         return;
       }
 
@@ -62,10 +76,11 @@ export function useMedical() {
       if (!res.ok) throw new Error('Error fetching medical stock');
       const data = await res.json();
       const rows = Array.isArray(data) ? data : [];
-      setItems(rows.length > 0 ? rows : packMedicalFallback(teamId));
+      const base = rows.length > 0 ? rows : packMedicalFallback(teamId);
+      setItems(mergeAtmBotiquinContents(base, teamId));
     } catch (err: any) {
       setError(err.message);
-      setItems(packMedicalFallback(teamId));
+      setItems(mergeAtmBotiquinContents(packMedicalFallback(teamId), teamId));
     } finally {
       setLoading(false);
     }

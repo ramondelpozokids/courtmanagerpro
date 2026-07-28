@@ -19,6 +19,7 @@ import {
   sortAllClubPlayers,
 } from '@/lib/players-all-clubs-query';
 import { resolveAtmPackPlayerPhoto } from '@/lib/atm-pack-photos';
+import { preferAtmRosterIfStale } from '@/lib/atm-roster';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
 
@@ -76,7 +77,9 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
 
       if (mockMode || usesDemoClubData()) {
         setUsingDemoData(true);
-        setPlayers(enrichPlayerPhotos(mapDemoPlayers(teamId), teamId));
+        setPlayers(
+          enrichPlayerPhotos(preferAtmRosterIfStale(mapDemoPlayers(teamId), teamId), teamId)
+        );
         return;
       }
 
@@ -91,17 +94,23 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
         setError(error.message);
         if (usesProductionClubData()) {
           setUsingDemoData(false);
-          setPlayers([]);
+          setPlayers(
+            enrichPlayerPhotos(preferAtmRosterIfStale([], teamId), teamId)
+          );
         } else {
           setUsingDemoData(true);
           setPlayers(enrichPlayerPhotos(mapDemoPlayers(teamId), teamId));
         }
       } else if (shouldUseDemoFallback(data)) {
         setUsingDemoData(true);
-        setPlayers(enrichPlayerPhotos(mapDemoPlayers(teamId), teamId));
+        setPlayers(
+          enrichPlayerPhotos(preferAtmRosterIfStale(mapDemoPlayers(teamId), teamId), teamId)
+        );
       } else {
         setUsingDemoData(false);
-        setPlayers(enrichPlayerPhotos(data as Player[], teamId));
+        setPlayers(
+          enrichPlayerPhotos(preferAtmRosterIfStale(data as Player[], teamId), teamId)
+        );
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar jugadores');

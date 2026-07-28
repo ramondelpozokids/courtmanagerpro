@@ -14,6 +14,7 @@ import {
   seasonLabelForClub,
 } from "@/lib/pdf-export";
 import { getClubPack } from "@/data/clubs";
+import { equipoConjuntoTotal } from "@/lib/atm-roster";
 import {
   TrendingUp, Download, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler, FileText, Warehouse,
 } from "lucide-react";
@@ -26,6 +27,7 @@ export default function ReportsPage() {
   const { players } = usePlayers(teamId);
   const pack = getClubPack(branding.slug);
   const coachingStaff = pack.coachingStaff || [];
+  const teamTotal = equipoConjuntoTotal(players.length, coachingStaff.length);
   const role = user?.profile?.role;
   const canExport = hasOperationalAccess || canWriteClubData(role, userEmail);
   const season = seasonLabelForClub(branding.slug);
@@ -119,7 +121,7 @@ export default function ReportsPage() {
             Informes de Equipación y Utilería
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            {branding.name} — CSV y PDF con logo, dirección y cabecera oficial del club activo ({players.length} jugadores).
+            {branding.name} — CSV y PDF con logo, dirección y cabecera oficial del club activo (equipo conjunto: {teamTotal} = {players.length} jugadores + {coachingStaff.length} cuerpo técnico).
           </p>
         </div>
         {canExport && (
@@ -176,7 +178,7 @@ export default function ReportsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Package, label: "Valor Almacén", value: `€${totalValue.toLocaleString("es-ES")}`, color: "text-slate-800 dark:text-white" },
-          { icon: Users, label: "Jugadores Activos", value: String(players.length), color: "text-orange-600" },
+          { icon: Users, label: "Equipo conjunto", value: String(teamTotal), color: "text-orange-600" },
           { icon: Shirt, label: "Referencias Inventario", value: String(items.length), color: "text-slate-800 dark:text-white" },
           { icon: Ruler, label: "Productos de Talla", value: String(26), color: "text-emerald-600" },
         ].map(({ icon: Icon, label, value, color }) => (
@@ -218,8 +220,16 @@ export default function ReportsPage() {
             <span className="font-black text-amber-600">{lowStockCount}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600 dark:text-slate-300">Jugadores</span>
+            <span className="font-black text-slate-800 dark:text-white">{players.length}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
             <span className="text-slate-600 dark:text-slate-300">Staff técnico</span>
             <span className="font-black text-slate-800 dark:text-white">{coachingStaff.length}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600 dark:text-slate-300">Equipo conjunto</span>
+            <span className="font-black text-orange-600">{teamTotal}</span>
           </div>
           <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1">
             <TrendingUp className="h-3 w-3" /> Club activo: {branding.shortName}

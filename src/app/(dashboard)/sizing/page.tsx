@@ -422,7 +422,9 @@ export default function SizingTablePage() {
                 try {
                   setPdfBusy(true);
                   if (!rosterReady) {
-                    throw new Error('Espera a que cargue la plantilla ATM (27 jugadores + 5 cuerpo técnico).');
+                    throw new Error(
+                      `Espera a que cargue la plantilla (${players.length} jugadores + ${staff.length} cuerpo técnico).`
+                    );
                   }
                   await exportSizingPdf(
                     branding.slug,
@@ -469,6 +471,9 @@ export default function SizingTablePage() {
           <p className="text-xs text-slate-400 mt-1">
             Catálogo de equipación {branding.shortName || branding.name} {seasonLabelForClub(branding.slug as "rmb" | "rmf" | "atm")} — {catalog.length} productos ({DEFAULT_SIZING_PRODUCTS.length} oficiales
             {db.customSizingProducts.length > 0 ? ` + ${db.customSizingProducts.length} personalizados` : ""})
+          </p>
+          <p className="text-xs font-bold text-orange-600 mt-1">
+            Equipo conjunto: {players.length + staff.length} ({players.length} jugadores + {staff.length} cuerpo técnico)
           </p>
         </div>
       </div>

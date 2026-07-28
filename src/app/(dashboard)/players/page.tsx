@@ -326,6 +326,9 @@ export default function PlayersPage() {
               ? `Datos oficiales realmadrid.com · ${branding.venue}${RMB_OFFICIAL_SYNCED_AT ? ` · sync ${new Date(RMB_OFFICIAL_SYNCED_AT).toLocaleDateString('es-ES')}` : ''}`
               : `${branding.name} · ${branding.venue} · ${branding.league}`}
           </p>
+          <p className="text-xs font-bold text-orange-600 mt-1">
+            Equipo conjunto: {players.length + staff.length} ({players.length} jugadores + {staff.length} cuerpo técnico)
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {branding.slug === 'rmb' && (

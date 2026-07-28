@@ -164,22 +164,27 @@ export class AtleticoOfficialSource implements RosterSource {
   }
 
   async fetchRoster(): Promise<OfficialRosterSnapshot> {
+    // Pack ATM = plantilla canónica (LALIGA/Marca 26/27). El HTML del club suele ir desfasado.
     try {
       const html = await fetchHtml(this.url);
-      const players = parsePlayersFromHtml(html);
-      if (players.length === 0) {
-        console.warn('[roster-sync] ATM HTML vacío — fallback pack');
-        return packFallback();
-      }
+      const scraped = parsePlayersFromHtml(html);
       const fallback = packFallback();
-      return {
-        source_id: this.id,
-        source_url: this.url,
-        source_label: this.label,
-        fetched_at: new Date().toISOString(),
-        players,
-        staff: fallback.staff,
-      };
+      if (scraped.length >= fallback.players.length) {
+        return {
+          source_id: this.id,
+          source_url: this.url,
+          source_label: this.label,
+          fetched_at: new Date().toISOString(),
+          players: scraped,
+          staff: fallback.staff,
+        };
+      }
+      if (scraped.length > 0) {
+        console.warn(
+          `[roster-sync] ATM HTML (${scraped.length}) < pack (${fallback.players.length}) — usando pack`
+        );
+      }
+      return fallback;
     } catch (err) {
       console.warn('[roster-sync] ATM fetch failed — fallback pack', err);
       return packFallback();
