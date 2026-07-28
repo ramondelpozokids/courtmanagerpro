@@ -76,6 +76,7 @@ export default function AlmacenGeneralPage() {
   const [category, setCategory] = useState<'all' | 'primer_equipo' | 'inferiores'>('all');
   const [onlyLow, setOnlyLow] = useState(false);
   const [q, setQ] = useState('');
+  const [locationFilter, setLocationFilter] = useState<string | null>(null);
   const [view, setView] = useState<'secciones' | 'ubicaciones'>('secciones');
   const [pdfBusy, setPdfBusy] = useState(false);
 
@@ -94,7 +95,9 @@ export default function AlmacenGeneralPage() {
         params.set('category', 'primer_equipo');
       }
       if (onlyLow) params.set('low_stock', '1');
-      if (q.trim()) params.set('q', q.trim());
+      // Búsqueda de texto libre; la ubicación se filtra aparte (no mezclar con el buscador).
+      if (q.trim() && !locationFilter) params.set('q', q.trim());
+      if (locationFilter) params.set('q', locationFilter);
       const res = await fetch(`/api/warehouse?${params}`, { credentials: 'include' });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Error al cargar almacén');
@@ -106,7 +109,7 @@ export default function AlmacenGeneralPage() {
     } finally {
       setLoading(false);
     }
-  }, [scope, teamId, branding.sport, sport, category, onlyLow, q]);
+  }, [scope, teamId, branding.sport, sport, category, onlyLow, q, locationFilter]);
 
   useEffect(() => {
     const t = setTimeout(() => void load(), q ? 250 : 0);
@@ -122,16 +125,32 @@ export default function AlmacenGeneralPage() {
           ? 'rmb'
           : branding.slug;
 
+  const hasDrillDown =
+    Boolean(locationFilter) ||
+    (scope === 'all_rm' && (sport !== 'all' || category !== 'all'));
+
+  const resetAlmacen = () => {
+    setLocationFilter(null);
+    setQ('');
+    setSport('all');
+    setCategory('all');
+    setView('secciones');
+    setOnlyLow(false);
+  };
+
   const grouped = useMemo(() => {
     const map = new Map<string, WarehouseItem[]>();
-    for (const item of items) {
+    const source = locationFilter
+      ? items.filter((i) => i.location === locationFilter)
+      : items;
+    for (const item of source) {
       const key = view === 'ubicaciones' ? item.location : item.section_label;
       const list = map.get(key) || [];
       list.push(item);
       map.set(key, list);
     }
     return [...map.entries()];
-  }, [items, view]);
+  }, [items, view, locationFilter]);
 
   const exportCsv = () => {
     const lines = [
@@ -293,35 +312,61 @@ export default function AlmacenGeneralPage() {
       {/* Mapa ubicaciones compacto */}
       {(stats?.by_location?.length || 0) > 0 && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 gap-2">
             <h3 className="text-sm font-extrabold flex items-center gap-1.5">
               <MapPin className="h-4 w-4 text-orange-500" /> Mapa de ubicaciones
             </h3>
-            <button
-              type="button"
-              onClick={() => setView(view === 'ubicaciones' ? 'secciones' : 'ubicaciones')}
-              className="text-[11px] font-bold text-orange-600"
-            >
-              Ver por {view === 'ubicaciones' ? 'sección' : 'ubicación'}
-            </button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {stats!.by_location.slice(0, 9).map((loc) => (
+            <div className="flex items-center gap-3">
+              {hasDrillDown && (
+                <button
+                  type="button"
+                  onClick={resetAlmacen}
+                  className="text-[11px] font-bold text-slate-500 hover:text-orange-600"
+                >
+                  ← Almacén general
+                </button>
+              )}
               <button
-                key={loc.location}
                 type="button"
-                onClick={() => {
-                  setView('ubicaciones');
-                  setQ(loc.location);
-                }}
-                className="text-left rounded-lg border border-slate-100 dark:border-slate-800 px-3 py-2 hover:border-orange-300"
+                onClick={() => setView(view === 'ubicaciones' ? 'secciones' : 'ubicaciones')}
+                className="text-[11px] font-bold text-orange-600"
               >
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{loc.location}</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">
-                  {loc.refs} refs · {loc.units} uds · {eur(loc.value)}
-                </p>
+                Ver por {view === 'ubicaciones' ? 'sección' : 'ubicación'}
               </button>
-            ))}
+            </div>
+          </div>
+          {locationFilter && (
+            <p className="text-[11px] font-semibold text-orange-600 mb-2">
+              Filtrado: {locationFilter}
+            </p>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {stats!.by_location.slice(0, 9).map((loc) => {
+              const active = locationFilter === loc.location;
+              return (
+                <button
+                  key={loc.location}
+                  type="button"
+                  onClick={() => {
+                    setView('ubicaciones');
+                    setQ('');
+                    setLocationFilter(active ? null : loc.location);
+                  }}
+                  className={`text-left rounded-lg border px-3 py-2 transition-colors ${
+                    active
+                      ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/30'
+                      : 'border-slate-100 dark:border-slate-800 hover:border-orange-300'
+                  }`}
+                >
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                    {loc.location}
+                  </p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    {loc.refs} refs · {loc.units} uds · {eur(loc.value)}
+                  </p>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -332,8 +377,11 @@ export default function AlmacenGeneralPage() {
             key={s.id}
             type="button"
             onClick={() => {
+              setScope('all_rm');
               setSport(s.sport as 'basketball' | 'football');
               setCategory(s.category as 'primer_equipo' | 'inferiores');
+              setLocationFilter(null);
+              setQ('');
             }}
             className={`text-left rounded-xl border p-3 transition-all ${
               s.ready

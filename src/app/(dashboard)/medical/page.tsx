@@ -307,6 +307,26 @@ export default function MedicalStockPage() {
                   {(item as any).prescription_required && (
                     <p className="text-xs text-red-500 font-bold">⚕ Requiere prescripción médica</p>
                   )}
+                  {Array.isArray((item as any).contents) && (item as any).contents.length > 0 && (
+                    <div className="mt-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40 p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        Contenido del botiquín
+                      </p>
+                      <ul className="space-y-1 max-h-40 overflow-y-auto">
+                        {((item as any).contents as { name: string; qty: number }[]).map((c, idx) => (
+                          <li
+                            key={`${item.id}-c-${idx}`}
+                            className="flex items-start justify-between gap-2 text-[11px] text-slate-600 dark:text-slate-300"
+                          >
+                            <span className="leading-snug">{c.name}</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-100 shrink-0">
+                              ×{c.qty}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
               {canEdit && (

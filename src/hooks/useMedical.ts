@@ -12,6 +12,7 @@ type MedicalUi = MedicalItem & {
   category?: string;
   prescription_required?: boolean;
   team_id?: string;
+  contents?: { name: string; qty: number }[];
 };
 
 function packMedicalFallback(teamId: string): MedicalUi[] {
@@ -33,6 +34,7 @@ function packMedicalFallback(teamId: string): MedicalUi[] {
     unit_cost: m.unit_cost,
     is_active: m.is_active,
     prescription_required: (m as { prescription_required?: boolean }).prescription_required,
+    contents: (m as { contents?: { name: string; qty: number }[] }).contents,
   }));
 }
 

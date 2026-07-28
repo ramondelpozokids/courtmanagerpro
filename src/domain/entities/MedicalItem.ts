@@ -11,4 +11,6 @@ export interface MedicalItem {
   brand?: string;
   category?: string;
   prescription_required?: boolean;
+  /** Contenido del botiquín (solo contenedores). */
+  contents?: { name: string; qty: number }[];
 }

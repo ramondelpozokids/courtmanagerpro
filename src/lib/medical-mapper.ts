@@ -7,6 +7,7 @@ export type MedicalUiItem = UiMedicalItem & {
   prescription_required?: boolean;
   reference?: string | null;
   unit_cost?: number | null;
+  contents?: { name: string; qty: number }[];
 };
 
 function computeStatus(expiryDate: string | null | undefined, stock: number, stockMin: number): UiMedicalItem['status'] {
@@ -41,6 +42,11 @@ export function medicalRowToUi(row: Record<string, unknown>): MedicalUiItem {
     prescription_required: Boolean(row.prescription_required),
     reference: row.reference ? String(row.reference) : null,
     unit_cost: row.unit_cost != null ? Number(row.unit_cost) : null,
+    contents: Array.isArray(row.contents)
+      ? (row.contents as { name?: string; qty?: number }[])
+          .filter((c) => c && c.name)
+          .map((c) => ({ name: String(c.name), qty: Number(c.qty) || 1 }))
+      : undefined,
   };
 }
 

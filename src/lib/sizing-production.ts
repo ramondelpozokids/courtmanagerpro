@@ -215,7 +215,7 @@ export async function loadProductionSizing(
     supabaseStaffToSizingRow(s, fullCatalog)
   );
 
-  // ATM: alinear con plantilla oficial (23 jugadores + 5 cuerpo técnico)
+  // ATM: alinear con plantilla (24 jugadores + 5 cuerpo técnico)
   if (teamId === CLUB_TEAM_IDS.atm) {
     if (players.length === 0) players = atmPackPlayersToSizing(fullCatalog);
     if (staff.length === 0) staff = atmPackStaffToSizing(fullCatalog);

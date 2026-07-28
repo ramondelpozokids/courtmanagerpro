@@ -129,10 +129,7 @@ const ATM_PLAYER_PHOTOS: Record<string, string> = {
   'marcos-llorente-moreno-2025-2026': laligaPhoto('p192364'),
   'giuliano-simeone-baldini-2025-2026': laligaPhoto('p482652'),
   'obed-gomez-vargas-2025-2026': laligaPhoto('p502868'),
-  'nicolas-ivan-gonzalez-2025-2026':
-    clubPhoto('19397/thumb_300x400/23_NICO.jpg?1757006316'),
-  'antoine-griezmann-2025-2026':
-    clubPhoto('18077/thumb_300x400/DORSALES_WEB_7_GRIEZMANN.jpg?1750111755'),
+  'nicolas-ivan-gonzalez-2025-2026': '/clubs/atm/players/nico-gonzalez.png',
   'alexander-s-rloth-2025-2026': laligaPhoto('p143877'),
   'thiago-ezequiel-almada-2025-2026': laligaPhoto('p461360'),
   'julian-alvarez-2025-2026': laligaPhoto('p461358'),
@@ -373,7 +370,7 @@ export const atmPlayers = [
     id: 'p18',
     firstName: 'Morten',
     lastName: 'Hjulmand',
-    number: 23,
+    number: 28,
     position: 'centrocampista',
     nationality: 'Dinamarca',
     birthDate: '1999-06-25',
@@ -441,6 +438,18 @@ export const atmPlayers = [
     imageUrl: '/clubs/atm/logo.png',
     profile_url: playerUrl('ademola-olajade-alade-aylola-lookman-2025-2026'),
     sizes: defaultSizes.M,
+  }),
+  mk({
+    id: 'p24',
+    firstName: 'Nicolás',
+    lastName: 'González',
+    number: 23,
+    position: 'delantero',
+    nationality: 'Argentina',
+    birthDate: '1998-04-06',
+    imageUrl: '/clubs/atm/players/nico-gonzalez.png',
+    profile_url: playerUrl('nicolas-ivan-gonzalez-2025-2026'),
+    sizes: defaultSizes.L,
   }),
 ];
 
@@ -615,6 +624,20 @@ export const atmMedical = [
     reference: 'BQ-LL-ATM',
     unit_cost: 260,
     is_active: true,
+    contents: [
+      { name: 'Vendas elásticas (varios anchos)', qty: 12 },
+      { name: 'Vendaje cohesivo / Coban', qty: 8 },
+      { name: 'Gasas estériles 10x10', qty: 20 },
+      { name: 'Esparadrapo hipoalergénico', qty: 4 },
+      { name: 'Spray frío / hielo químico', qty: 4 },
+      { name: 'Gel antiinflamatorio', qty: 2 },
+      { name: 'Suero fisiológico monodosis', qty: 10 },
+      { name: 'Tijeras / pinzas / guantes nitrilo', qty: 1 },
+      { name: 'Kit RCP + mascarilla', qty: 1 },
+      { name: 'Desinfectante cutáneo', qty: 2 },
+      { name: 'Bolsas frío / calor', qty: 6 },
+      { name: 'Paracetamol / ibuprofeno (protocolo médico)', qty: 1 },
+    ],
   },
   {
     id: 'am5',
@@ -632,6 +655,20 @@ export const atmMedical = [
     reference: 'BQ-CH-ATM',
     unit_cost: 320,
     is_active: true,
+    contents: [
+      { name: 'Botiquín partido completo (base LaLiga)', qty: 1 },
+      { name: 'Packs frío / nevera portátil', qty: 8 },
+      { name: 'Vendas + tape extra viaje', qty: 20 },
+      { name: 'Kit sutura / apósitos avanzados', qty: 1 },
+      { name: 'Suero + antisépticos viaje', qty: 12 },
+      { name: 'Medicación crónica / urgencias (caja médico)', qty: 1 },
+      { name: 'Camilla plegable / collarín', qty: 1 },
+      { name: 'Guantes, mascarillas, gel hidroalcohólico', qty: 2 },
+      { name: 'Termómetro + oxímetro', qty: 2 },
+      { name: 'Documentación / listado caducidades', qty: 1 },
+      { name: 'Repuesto RCP + DEA portátil (si protocolo)', qty: 1 },
+      { name: 'Bolsa logística etiquetada Champions/UEL', qty: 1 },
+    ],
   },
   {
     id: 'am6',
@@ -808,7 +845,9 @@ export const atmMedical = [
 ];
 
 const LOC_KIT = 'Ciudad Deportiva — Almacén Equipaciones Hombre';
-const LOC_EST1 = 'Ciudad Deportiva — Est. 1 Equipación';
+const LOC_EST1 = 'Ciudad Deportiva — Est. 1 · 1ª Equipación';
+const LOC_EST1_AWAY = 'Ciudad Deportiva — Est. 1 · 2ª Equipación';
+const LOC_EST1_THIRD = 'Ciudad Deportiva — Est. 1 · 3ª Equipación';
 const LOC_EST2 = 'Ciudad Deportiva — Est. 2 Entrenamiento';
 const LOC_VEST = 'Vestuario Metropolitano — Banquillo';
 const LOC_GK = 'Ciudad Deportiva — Almacén Porteros';
@@ -1034,7 +1073,7 @@ export const atmInventory = [
         price: 159.95,
         image_url: ATM_SHOP_IMAGES.awayMatch,
         product_url: ATM_STORE_AWAY_MATCH_URL,
-        location: LOC_EST1,
+        location: LOC_EST1_AWAY,
       },
       SZ.kit40,
       24
@@ -1051,7 +1090,7 @@ export const atmInventory = [
         price: 109.95,
         image_url: ATM_SHOP_IMAGES.awayReplica,
         product_url: ATM_STORE_AWAY_MEN_URL,
-        location: LOC_EST1,
+        location: LOC_EST1_AWAY,
       },
       SZ.kit40,
       29
@@ -1068,7 +1107,7 @@ export const atmInventory = [
         price: 54.95,
         image_url: ATM_SHOP_IMAGES.awayShort,
         product_url: ATM_STORE_AWAY_SHORT_URL,
-        location: LOC_EST1,
+        location: LOC_EST1_AWAY,
       },
       [
         { size: 'S', available: 5, total: 8, min: 2 },
@@ -1102,13 +1141,13 @@ export const atmInventory = [
     return expandBySize(
       {
         idPrefix: 'third-match',
-        name: 'Camiseta Match Hombre 3ª Equipación 25/26',
+        name: 'Camiseta Match Hombre 3ª Equipación 26/27',
         skuBase: 'HM3200-407',
         category: 'camiseta_juego',
         price: 149.95,
         image_url: ATM_SHOP_IMAGES.thirdMatch,
         product_url: ATM_STORE_THIRD_MEN_URL,
-        location: LOC_EST1,
+        location: LOC_EST1_THIRD,
       },
       [
         { size: 'S', available: 3, total: 5, min: 1 },
@@ -1125,13 +1164,13 @@ export const atmInventory = [
     return expandBySize(
       {
         idPrefix: 'third-replica',
-        name: 'Camiseta Hombre 3ª Equipación 25/26',
+        name: 'Camiseta Hombre 3ª Equipación 26/27',
         skuBase: 'HM3192-407',
         category: 'camiseta_juego',
         price: 99.95,
         image_url: ATM_SHOP_IMAGES.thirdReplica,
         product_url: ATM_STORE_THIRD_MEN_URL,
-        location: LOC_EST1,
+        location: LOC_EST1_THIRD,
       },
       [
         { size: 'S', available: 4, total: 6, min: 1 },
@@ -1148,13 +1187,13 @@ export const atmInventory = [
     return expandBySize(
       {
         idPrefix: 'third-short',
-        name: 'Pantalón Corto 3ª Equipación 25/26',
+        name: 'Pantalón Corto 3ª Equipación 26/27',
         skuBase: 'IF1452-407',
         category: 'pantalon_juego',
         price: 49.95,
         image_url: ATM_SHOP_IMAGES.thirdShort,
         product_url: ATM_STORE_THIRD_MEN_URL,
-        location: LOC_EST1,
+        location: LOC_EST1_THIRD,
       },
       [
         { size: 'S', available: 4, total: 6, min: 1 },
@@ -1171,7 +1210,7 @@ export const atmInventory = [
     return expandBySize(
       {
         idPrefix: 'third-sock',
-        name: 'Medias 3ª Equipación 25/26',
+        name: 'Medias 3ª Equipación 26/27',
         skuBase: 'HM3220-406',
         category: 'calcetines',
         price: 22.95,
@@ -1192,7 +1231,7 @@ export const atmInventory = [
     return expandBySize(
       {
         idPrefix: 'gk',
-        name: 'Camiseta Portero Hombre 25/26',
+        name: 'Camiseta Portero Hombre 26/27',
         skuBase: 'HQ9235-084',
         category: 'camiseta_juego',
         price: 109.95,
