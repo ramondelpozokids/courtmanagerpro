@@ -475,7 +475,7 @@ export const atmCoachingStaff = [
   {
     id: 'c1',
     full_name: 'Diego Pablo Simeone',
-    role: 'Entrenador principal',
+    role: 'Entrenador',
     email: 'dsimeone@atleticodemadrid.com',
     shirt_size: 'L',
     shorts_size: 'L',
@@ -483,7 +483,7 @@ export const atmCoachingStaff = [
     nationality: 'Argentina',
     birth_date: '1970-04-28',
     birth_place: 'Buenos Aires, Argentina',
-    photo_url: `${TM_STAFF}/2868-1666861792.jpg?lm=1`,
+    photo_url: '/clubs/atm/staff/simeone.png?v=oficial-2526',
     profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
       'Dirige al Atlético de Madrid desde el 23 de diciembre de 2011. Exfutbolista argentino nacionalizado español; consolidó al club en la élite europea.',
@@ -491,7 +491,7 @@ export const atmCoachingStaff = [
   {
     id: 'c2',
     full_name: 'Hernán Bonvicini',
-    role: 'Entrenador asistente',
+    role: 'Asistente de entrenador',
     email: 'hbonvicini@atleticodemadrid.com',
     shirt_size: 'L',
     shorts_size: 'L',
@@ -499,7 +499,7 @@ export const atmCoachingStaff = [
     nationality: 'Argentina',
     birth_date: '1979-05-17',
     birth_place: 'La Plata, Argentina',
-    photo_url: '/clubs/atm/staff/bonvicini.png?v=2',
+    photo_url: '/clubs/atm/staff/bonvicini.png?v=oficial-2526',
     profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
       'Hernán Alejandro Bonvicini — entrenador asistente del primer equipo del Club Atlético de Madrid S.A.D. Nacido en La Plata el 17/05/1979.',
@@ -539,7 +539,7 @@ export const atmCoachingStaff = [
   {
     id: 'c5',
     full_name: 'Pablo Vercellone',
-    role: 'Entrenador de porteros',
+    role: 'Preparador de porteros',
     email: 'pvercellone@atleticodemadrid.com',
     shirt_size: 'L',
     shorts_size: 'L',
@@ -547,10 +547,10 @@ export const atmCoachingStaff = [
     nationality: 'Argentina',
     birth_date: '1968-04-24',
     birth_place: 'Buenos Aires, Argentina',
-    photo_url: '/clubs/atm/staff/vercellone.png',
+    photo_url: '/clubs/atm/staff/vercellone.png?v=oficial-2526',
     profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
-      'Pablo Ignacio Vercellone — entrenador de porteros del Atlético de Madrid. Nacido en Buenos Aires el 24/04/1968. Contrato hasta 30/06/2027.',
+      'Pablo Ignacio Vercellone — preparador de porteros del Atlético de Madrid. Nacido en Buenos Aires el 24/04/1968. Contrato hasta 30/06/2027.',
   },
 ];
 
