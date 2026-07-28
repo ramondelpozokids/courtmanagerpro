@@ -136,9 +136,9 @@ const ATM_PLAYER_PHOTOS: Record<string, string> = {
   'ademola-olajade-alade-aylola-lookman-2025-2026': laligaPhoto('p219352'),
   'morten-hjulmand-2025-2026': '/clubs/atm/players/hjulmand.png',
   'kang-in-lee-ficha-por-el-atletico-de-madrid': '/clubs/atm/players/kang-in-lee.png',
-  'alejandro-grimaldo-2025-2026': '/clubs/atm/logo.png',
-  'thomas-lemar-2025-2026': '/clubs/atm/logo.png',
-  'carlos-martin-alvarez-2025-2026': '/clubs/atm/logo.png',
+  'alejandro-grimaldo-2025-2026': '/clubs/atm/players/grimaldo.png',
+  'thomas-lemar-2025-2026': '/clubs/atm/players/lemar.png',
+  'carlos-martin-dominguez-2025-2026': '/clubs/atm/players/carlos-martin.png',
 };
 
 function resolvePlayerPhoto(profileUrl: string, fallback: string) {
@@ -226,7 +226,7 @@ export const atmPlayers = [
     position: 'defensa',
     nationality: 'España',
     birthDate: '1995-09-20',
-    imageUrl: '/clubs/atm/logo.png',
+    imageUrl: '/clubs/atm/players/grimaldo.png',
     profile_url: playerUrl('alejandro-grimaldo-2025-2026'),
     sizes: defaultSizes.L,
   }),
@@ -383,7 +383,7 @@ export const atmPlayers = [
     position: 'centrocampista',
     nationality: 'Francia',
     birthDate: '1995-11-12',
-    imageUrl: '/clubs/atm/logo.png',
+    imageUrl: '/clubs/atm/players/lemar.png',
     profile_url: playerUrl('thomas-lemar-2025-2026'),
     sizes: defaultSizes.M,
   }),
@@ -451,13 +451,13 @@ export const atmPlayers = [
   mk({
     id: 'p27',
     firstName: 'Carlos',
-    lastName: 'Martín',
+    lastName: 'Martín Domínguez',
     number: 12,
     position: 'delantero',
     nationality: 'España',
     birthDate: '2002-04-22',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('carlos-martin-alvarez-2025-2026'),
+    imageUrl: '/clubs/atm/players/carlos-martin.png',
+    profile_url: playerUrl('carlos-martin-dominguez-2025-2026'),
     sizes: defaultSizes.M,
   }),
   mk({
