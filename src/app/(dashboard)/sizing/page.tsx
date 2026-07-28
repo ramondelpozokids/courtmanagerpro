@@ -28,6 +28,7 @@ import {
   Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown, FileText,
 } from "lucide-react";
 import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
+import { sortPlayersByPosition } from "@/lib/player-sort";
 import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { exportSizingPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
@@ -183,14 +184,17 @@ export default function SizingTablePage() {
           pivot: "Pívot (C)",
         };
 
-  const filteredPlayers = players.filter((p) => {
-    const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
-    return (
-      fullName.includes(search.toLowerCase()) ||
-      String(p.number).includes(search) ||
-      p.position.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const filteredPlayers = sortPlayersByPosition(
+    players.filter((p) => {
+      const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
+      return (
+        fullName.includes(search.toLowerCase()) ||
+        String(p.number).includes(search) ||
+        p.position.toLowerCase().includes(search.toLowerCase())
+      );
+    }),
+    branding.sport
+  );
 
   const filteredStaff = staff.filter((s) =>
     s.full_name.toLowerCase().includes(search.toLowerCase()) ||

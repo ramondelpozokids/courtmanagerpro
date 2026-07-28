@@ -6,7 +6,7 @@ import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import PlayerCard from "@/components/players/PlayerCard";
 import PlayerForm from "@/components/players/PlayerForm";
 import StaffForm, { type StaffFormData } from "@/components/players/StaffForm";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { persistDemoDb } from "@/lib/demo-persistence";
@@ -14,6 +14,7 @@ import { apiPlayerToFormValues } from "@/lib/player-form-mapper";
 import { canWriteClubData } from "@/lib/permissions";
 import { usesProductionClubData } from "@/lib/club-preview";
 import { getClubPack } from "@/data/clubs";
+import { groupPlayersByPosition } from "@/lib/player-sort";
 import type { Player } from "@/types";
 import type { Player as FormPlayer } from "@/domain/entities/Player";
 import {
@@ -292,6 +293,11 @@ export default function PlayersPage() {
     return matchesSearch && matchesPosition && matchesStatus;
   });
 
+  const playerGroups = useMemo(
+    () => groupPlayersByPosition(filteredPlayers, branding.sport),
+    [filteredPlayers, branding.sport]
+  );
+
   const filteredStaff = staff.filter(
     (s) =>
       s.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -374,15 +380,6 @@ export default function PlayersPage() {
           realmadrid.com/futbol
         </a>
         .
-      </div>
-      )}
-      {branding.slug === 'atm' && (
-      <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
-        Plantilla y cuerpo técnico del <strong>Atlético de Madrid</strong> — perfiles oficiales en{' '}
-        <a href={ATM_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
-          atleticodemadrid.com
-        </a>
-        . Las medidas de utilería se editan en cada ficha o desde Tallas.
       </div>
       )}
 
@@ -493,15 +490,29 @@ export default function PlayersPage() {
             <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No se encontraron jugadores</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPlayers.map((player) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                canWrite={canWrite}
-                onEdit={handleEditPlayer}
-                onDelete={deletePlayer}
-              />
+          <div className="space-y-8">
+            {playerGroups.map((group) => (
+              <section key={group.key} className="space-y-3">
+                <div className="flex items-baseline justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                  <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
+                    {group.label}
+                  </h3>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    {group.players.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {group.players.map((player) => (
+                    <PlayerCard
+                      key={player.id}
+                      player={player}
+                      canWrite={canWrite}
+                      onEdit={handleEditPlayer}
+                      onDelete={deletePlayer}
+                    />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
         )

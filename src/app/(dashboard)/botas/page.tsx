@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Footprints, RefreshCw, ExternalLink, Search } from 'lucide-react';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { usePlayers } from '@/hooks/usePlayers';
+import { sortPlayersByPosition } from '@/lib/player-sort';
 
 type BootLocation = 'jugador' | 'utileria';
 
@@ -86,8 +87,12 @@ export default function BotasPage() {
   };
 
   const activePlayers = useMemo(
-    () => [...players].filter((p) => p.is_active !== false).sort((a, b) => a.dorsal - b.dorsal),
-    [players]
+    () =>
+      sortPlayersByPosition(
+        players.filter((p) => p.is_active !== false),
+        branding.sport
+      ),
+    [players, branding.sport]
   );
 
   const filtered = useMemo(() => {

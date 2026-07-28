@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
-  Plane, Shirt, BriefcaseMedical, BarChart3, Bell, ChevronLeft,
-  ChevronRight, LogOut, Calendar, Table, KeyRound, HardHat, Warehouse, ClipboardCheck, History, Bus,
-  ListChecks, Footprints, CheckCheck, AlertTriangle, Building2, PackagePlus, ThermometerSnowflake,
+  BriefcaseMedical, BarChart3, Bell, ChevronLeft,
+  ChevronRight, LogOut, Calendar, Table, KeyRound, HardHat, Warehouse, ClipboardCheck, History,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { canAccessMedical, canAccessReports, isCarlosUser } from '@/lib/permissions';
@@ -22,7 +21,8 @@ import {
 } from '@/components/ui/tooltip';
 import { CeoAvatar } from '@/components/layout/CeoAvatar';
 
-/** Orden fijo Ramón + Carlos (no filtrar ni reordenar). */
+/** Orden fijo Ramón + Carlos (no filtrar ni reordenar).
+ *  Viajes / lavandería / transporte / operativa de partido → menú Servicios (TopBar). */
 const NAV_ITEMS = [
   { href: '/',           label: 'Dashboard',    icon: LayoutDashboard, roles: [] },
   { href: '/players',    label: 'Jugadores',     icon: Users,           roles: [] },
@@ -30,22 +30,12 @@ const NAV_ITEMS = [
   { href: '/inventory',  label: 'Inventario',    icon: Package,         roles: [] },
   { href: '/equipment-team', label: 'Equipo de Utillería', icon: HardHat, roles: [] },
   { href: '/requests',   label: 'Solicitudes',   icon: ClipboardList,   roles: [] },
-  { href: '/trips',      label: 'Viajes',        icon: Plane,           roles: [] },
-  { href: '/transporte', label: 'Transporte',    icon: Bus,             roles: [] },
-  { href: '/laundry',    label: 'Lavandería',    icon: Shirt,           roles: [] },
   { href: '/medical',    label: 'Material Médico', icon: BriefcaseMedical, roles: [] },
   { href: '/reports',    label: 'Informes',      icon: BarChart3,       roles: [] },
   { href: '/alerts',     label: 'Alertas',       icon: Bell,            roles: [] },
   { href: '/almacen',    label: 'Almacén general', icon: Warehouse,     roles: [] },
   { href: '/movimientos', label: 'Movimientos', icon: History, roles: [] },
   { href: '/prepartido', label: 'Checklist pre-partido', icon: ClipboardCheck, roles: [] },
-  { href: '/convocatoria', label: 'Convocatoria', icon: ListChecks, roles: [] },
-  { href: '/botas', label: 'Botas personales', icon: Footprints, roles: [] },
-  { href: '/postpartido', label: 'Checklist post-partido', icon: CheckCheck, roles: [] },
-  { href: '/incidencias', label: 'Incidencias material', icon: AlertTriangle, roles: [] },
-  { href: '/hotel-vestuario', label: 'Hotel / vestuario', icon: Building2, roles: [] },
-  { href: '/repuestos', label: 'Repuestos emergencia', icon: PackagePlus, roles: [] },
-  { href: '/caducidades-medico', label: 'Caducidades / frío', icon: ThermometerSnowflake, roles: [] },
 ];
 
 export function Sidebar() {

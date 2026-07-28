@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { usePlayers } from '@/hooks/usePlayers';
+import { sortPlayersByPosition } from '@/lib/player-sort';
 import type { OfficialMatch } from '@/types';
 
 type IncidentType = 'rota' | 'mancha' | 'perdida' | 'dorsal' | 'otra';
@@ -115,8 +116,12 @@ export default function IncidenciasPage() {
   );
 
   const activePlayers = useMemo(
-    () => [...players].filter((p) => p.is_active !== false).sort((a, b) => a.dorsal - b.dorsal),
-    [players]
+    () =>
+      sortPlayersByPosition(
+        players.filter((p) => p.is_active !== false),
+        branding.sport
+      ),
+    [players, branding.sport]
   );
 
   const filtered = useMemo(() => {

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { usePlayers } from '@/hooks/usePlayers';
+import { sortPlayersByPosition, sortPositionKeys } from '@/lib/player-sort';
 import type { OfficialMatch } from '@/types';
 
 type KitId = 'primera' | 'segunda' | 'tercera' | 'entrenamiento' | 'portero';
@@ -134,15 +135,19 @@ export default function ConvocatoriaPage() {
   );
 
   const activePlayers = useMemo(
-    () => [...players].filter((p) => p.is_active !== false).sort((a, b) => a.dorsal - b.dorsal),
-    [players]
+    () =>
+      sortPlayersByPosition(
+        players.filter((p) => p.is_active !== false),
+        branding.sport
+      ),
+    [players, branding.sport]
   );
 
   const positions = useMemo(() => {
     const set = new Set<string>();
     activePlayers.forEach((p) => set.add(p.position));
-    return Array.from(set);
-  }, [activePlayers]);
+    return sortPositionKeys([...set], branding.sport);
+  }, [activePlayers, branding.sport]);
 
   const filtered = useMemo(() => {
     if (positionFilter === 'all') return activePlayers;
