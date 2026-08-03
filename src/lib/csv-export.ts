@@ -157,8 +157,23 @@ function formatDateValue(value: string | null | undefined): string {
   }).format(parsed);
 }
 
+const INVENTORY_CATEGORY_LABELS: Record<string, string> = {
+  camiseta_juego: 'Camiseta juego',
+  pantalon_juego: 'Pantalón juego',
+  camiseta_entrenamiento: 'Camiseta entrenamiento',
+  zapatillas: 'Zapatillas / botas',
+  calcetines: 'Calcetines',
+  chaqueta: 'Chaqueta',
+  accesorios: 'Accesorios',
+  medico: 'Médico',
+  medical: 'Médico',
+  other: 'Otros',
+};
+
 function formatCategoryLabel(category: string | null | undefined): string {
-  if (!category) return 'Other';
+  if (!category) return 'Otros';
+  const key = category.trim().toLowerCase();
+  if (INVENTORY_CATEGORY_LABELS[key]) return INVENTORY_CATEGORY_LABELS[key];
   return category
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -217,11 +232,11 @@ function buildCorporateLetterhead(
   ];
 }
 
-function inventoryStatus(item: InventoryCsvRow): 'In Stock' | 'Low Stock' | 'Out of Stock' {
+function inventoryStatus(item: InventoryCsvRow): 'En stock' | 'Stock bajo' | 'Sin stock' {
   const min = item.stock_min ?? 0;
-  if (item.stock_available === 0) return 'Out of Stock';
-  if (item.stock_available <= min) return 'Low Stock';
-  return 'In Stock';
+  if (item.stock_available === 0) return 'Sin stock';
+  if (item.stock_available <= min) return 'Stock bajo';
+  return 'En stock';
 }
 
 function inventoryItemLabel(item: InventoryCsvRow): string {
@@ -351,8 +366,8 @@ export function buildInventoryCsvLines(
     incrementCount(brandSkuCounts, brand);
     incrementCount(brandUnitCounts, brand, item.stock_available);
 
-    if (status === 'Out of Stock') outOfStock += 1;
-    else if (status === 'Low Stock') lowStock += 1;
+    if (status === 'Sin stock') outOfStock += 1;
+    else if (status === 'Stock bajo') lowStock += 1;
     else inStock += 1;
   });
 
@@ -376,15 +391,15 @@ export function buildInventoryCsvLines(
   lines.push(...sectionDivider('DETALLE DE INVENTARIO'));
   lines.push(
     row([
-      'Item',
-      'Category',
-      'Brand',
-      'Size',
-      'Quantity',
-      'Status',
-      'Location',
-      'Notes',
-      'Last Updated',
+      'Artículo',
+      'Categoría',
+      'Marca',
+      'Talla',
+      'Cantidad',
+      'Estado',
+      'Ubicación',
+      'Notas',
+      'Última actualización',
     ])
   );
 
@@ -406,28 +421,28 @@ export function buildInventoryCsvLines(
 
   lines.push(emptyRow(9));
   lines.push(
-    row(['TOTALS', '', '', '', totalUnits, '', '', '', ''])
+    row(['TOTALES', '', '', '', totalUnits, '', '', '', ''])
   );
 
   lines.push(...sectionDivider('ESTADÍSTICAS — CONTEO POR CATEGORÍA'));
-  lines.push(...sortedMetricRows(categorySkuCounts, categoryUnitCounts, 'Category'));
+  lines.push(...sortedMetricRows(categorySkuCounts, categoryUnitCounts, 'Categoría'));
 
   lines.push(...sectionDivider('ESTADÍSTICAS — CONTEO POR MARCA'));
-  lines.push(...sortedMetricRows(brandSkuCounts, brandUnitCounts, 'Brand'));
+  lines.push(...sortedMetricRows(brandSkuCounts, brandUnitCounts, 'Marca'));
 
   lines.push(...sectionDivider('ESTADÍSTICAS — CONTEO POR ESTADO'));
-  lines.push(row(['Status', 'Registros']));
+  lines.push(row(['Estado', 'Registros']));
   Object.entries(statusCounts)
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'es'))
     .forEach(([status, count]) => lines.push(row([status, count])));
 
   lines.push(...sectionDivider('INDICADORES DE STOCK'));
   lines.push(row(['Indicador', 'Valor', 'Observación']));
-  lines.push(row(['Out of Stock', outOfStock, 'Referencias agotadas']));
-  lines.push(row(['Low Stock', lowStock, 'Por debajo del stock mínimo']));
-  lines.push(row(['In Stock', inStock, 'Nivel operativo correcto']));
+  lines.push(row(['Sin stock', outOfStock, 'Referencias agotadas']));
+  lines.push(row(['Stock bajo', lowStock, 'Por debajo del stock mínimo']));
+  lines.push(row(['En stock', inStock, 'Nivel operativo correcto']));
   lines.push(row(['Total SKUs', sortedItems.length, 'Líneas únicas en inventario']));
-  lines.push(row(['Total Units', totalUnits, 'Unidades disponibles acumuladas']));
+  lines.push(row(['Total unidades', totalUnits, 'Unidades disponibles acumuladas']));
 
   lines.push(emptyRow());
   lines.push(row(['Fin del informe', identity.legalName, identity.department]));
