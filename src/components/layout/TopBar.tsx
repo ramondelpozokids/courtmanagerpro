@@ -27,7 +27,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function TopBar() {
-  const { user, logout, isSuperadmin } = useAuth();
+  const { user, logout, isSuperadmin, isAtmDemo } = useAuth();
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
   const { alerts } = useAlerts(teamId);
@@ -46,12 +46,14 @@ export default function TopBar() {
   const userRole = user?.profile?.role || "";
   const userName = user?.profile?.full_name || (isSuperadmin ? "Ramón del Pozo Rott" : "…");
   const showCeoAvatar =
-    isSuperadmin ||
-    userRole === "superadmin" ||
-    /ram[oó]n/i.test(userName) ||
-    /ramondelpozo/i.test(String(user?.email || ""));
+    !isAtmDemo &&
+    (isSuperadmin ||
+      userRole === "superadmin" ||
+      /ram[oó]n/i.test(userName) ||
+      /ramondelpozo/i.test(String(user?.email || "")));
   const showCarlosAvatar =
     Boolean(user) &&
+    !isAtmDemo &&
     !showCeoAvatar &&
     (/carlos/i.test(userName) || /charlie-r-k/i.test(String(user?.email || "")));
   const roleLabel = ROLE_LABELS[userRole] || (userRole ? userRole.replace("_", " ") : "…");
@@ -70,7 +72,7 @@ export default function TopBar() {
     <header className="h-16 border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0 relative">
       <div className="flex items-center gap-6">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <img src={branding.logoUrl} alt="Logo club" className="h-6 w-6 object-contain shrink-0" />
+          <img src="/logo.png" alt="CourtManager Pro" className="h-7 w-7 object-contain shrink-0" />
           <span className="text-sm text-slate-800 dark:text-slate-100 font-extrabold tracking-tight md:block hidden">CourtManager Pro</span>
         </Link>
 
@@ -221,7 +223,16 @@ export default function TopBar() {
         </Link>
 
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
-          {showCeoAvatar ? (
+          {isAtmDemo ? (
+            <img
+              src="/clubs/atm/logo.png"
+              alt="Atlético de Madrid"
+              width={36}
+              height={36}
+              className="h-9 w-9 rounded-full object-contain bg-white border border-slate-200 shrink-0 p-0.5"
+              draggable={false}
+            />
+          ) : showCeoAvatar ? (
             <CeoAvatar size={36} title={userName} />
           ) : showCarlosAvatar ? (
             <img

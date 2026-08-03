@@ -40,7 +40,7 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, logout, hasPermission, userEmail, hasOperationalAccess, effectiveRole, isSuperadmin } = useAuth();
+  const { user, logout, hasPermission, userEmail, hasOperationalAccess, effectiveRole, isSuperadmin, isAtmDemo } = useAuth();
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
   const { sidebarOpen, toggleSidebar } = useApp();
@@ -82,7 +82,23 @@ export function Sidebar() {
   const seasonLabel = '2026/2027';
 
   const AvatarPhoto = ({ size = 32 }: { size?: number }) =>
-    isRamonAccount ? (
+    isAtmDemo ? (
+      <span
+        className="relative inline-flex shrink-0 overflow-hidden rounded-full border border-slate-600 bg-white"
+        style={{ width: size, height: size }}
+        title={full_name}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/clubs/atm/logo.png"
+          alt="Atlético de Madrid"
+          width={size}
+          height={size}
+          className="h-full w-full object-contain p-0.5"
+          draggable={false}
+        />
+      </span>
+    ) : isRamonAccount ? (
       <CeoAvatar size={size} title={full_name} />
     ) : isCarlos ? (
       <span
@@ -121,8 +137,8 @@ export function Sidebar() {
           <div className="flex items-center gap-2 text-left">
             <div className="w-8 h-8 shrink-0 flex items-center justify-center">
               <img
-                src={branding.logoUrl}
-                alt="Logo"
+                src="/logo.png"
+                alt="CourtManager Pro"
                 className="w-full h-full object-contain"
               />
             </div>
