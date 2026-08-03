@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { createPlayerSchema } from '@/lib/validators';
-import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
-import type { ApiResponse, Player } from '@/types';
+import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = (await createSupabaseServerClient()) as any;
@@ -17,6 +17,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   if (!teamId) return NextResponse.json({ error: 'team_id requerido' }, { status: 400 });
 
+  const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
+  if (!access.ok) return access.response;
+
   let query = supabase
     .from('players')
     .select('*')
@@ -24,7 +27,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     .eq('is_active', active)
     .order('dorsal');
 
-  if (search) query = query.ilike('full_name', `%${search}%`);
+  if (search) {
+    const safe = search.replace(/[%_,]/g, '').slice(0, 80);
+    if (safe) query = query.ilike('full_name', `%${safe}%`);
+  }
   if (position) query = query.eq('position', position);
 
   const { data, error, count } = await query;
@@ -39,6 +45,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
+  const teamId = resolveTeamId(body.team_id || DEFAULT_TEAM_ID);
+  const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
+  if (!access.ok) return access.response;
+
   const parsed = createPlayerSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({
@@ -49,7 +59,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const { data, error } = await supabase
     .from('players')
-    .insert({ ...parsed.data, team_id: DEFAULT_TEAM_ID })
+    .insert({ ...parsed.data, team_id: teamId })
     .select()
     .single();
 

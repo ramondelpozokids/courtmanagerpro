@@ -45,10 +45,10 @@ const ALL_CLUB_SLUGS = Object.keys(CLUB_PACKS) as ClubSlug[];
 const RM_CLUBS: ClubSlug[] = ['atm', 'rmb', 'rmf'];
 
 export function ClubDemoProvider({ children }: { children: ReactNode }) {
-  const { setCurrentTeam, loading: authLoading, isSuperadmin } = useAuth();
+  const { setCurrentTeam, loading: authLoading, isSuperadmin, isAtmDemo } = useAuth();
   const demo = isDemoMode();
-  const canSwitchClubs = demo || isSuperadmin;
-  const isSuperadminPreview = !demo && isSuperadmin;
+  const canSwitchClubs = (demo || isSuperadmin) && !isAtmDemo;
+  const isSuperadminPreview = !demo && isSuperadmin && !isAtmDemo;
 
   const [clubSlug, setClubSlug] = useState<ClubSlug>(PRODUCTION_CLUB_SLUG);
   const [club, setClub] = useState<ClubDemoPack>(() => getClubPack(PRODUCTION_CLUB_SLUG));
@@ -93,11 +93,16 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (authLoading) return;
 
-    const initKey = `${demo ? 'demo' : 'prod'}-${isSuperadmin ? 'sa' : 'user'}`;
+    const initKey = `${demo ? 'demo' : 'prod'}-${isSuperadmin ? 'sa' : isAtmDemo ? 'atm-demo' : 'user'}`;
     if (initKeyRef.current === initKey) return;
     initKeyRef.current = initKey;
 
     setPresentationModeState(readPresentationMode());
+
+    if (isAtmDemo) {
+      applyClub('atm');
+      return;
+    }
 
     if (demo) {
       applyClub(readStoredDemoClubSlug());
@@ -114,7 +119,7 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
     }
 
     applyClub(PRODUCTION_CLUB_SLUG);
-  }, [applyClub, authLoading, demo, isSuperadmin]);
+  }, [applyClub, authLoading, demo, isSuperadmin, isAtmDemo]);
 
   const setPresentationModeOn = useCallback(
     (on: boolean) => {

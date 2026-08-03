@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = (await createSupabaseServerClient()) as any;
@@ -11,6 +12,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const teamId = resolveTeamId(searchParams.get('team_id'));
   const status = searchParams.get('status');
   const priority = searchParams.get('priority');
+
+  const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
+  if (!access.ok) return access.response;
 
   let query = supabase
     .from('requests')
@@ -38,17 +42,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
+  const teamId = resolveTeamId(body.team_id || DEFAULT_TEAM_ID);
+  const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
+  if (!access.ok) return access.response;
 
-  // If status workflow update
   if (body.requestId && body.action) {
-    const updates: any = {};
-    if (body.action === "APPROVE") {
-      updates.status = "aprobada";
+    const allowed = ['APPROVE', 'REJECT', 'DELIVER'] as const;
+    if (!allowed.includes(body.action)) {
+      return NextResponse.json({ error: 'Acción no permitida' }, { status: 400 });
+    }
+
+    const updates: Record<string, string> = {};
+    if (body.action === 'APPROVE') {
+      updates.status = 'aprobada';
       updates.approved_at = new Date().toISOString();
-    } else if (body.action === "REJECT") {
-      updates.status = "rechazada";
-    } else if (body.action === "DELIVER") {
-      updates.status = "completada";
+    } else if (body.action === 'REJECT') {
+      updates.status = 'rechazada';
+    } else if (body.action === 'DELIVER') {
+      updates.status = 'completada';
       updates.completed_at = new Date().toISOString();
     }
 
@@ -56,6 +67,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .from('requests')
       .update(updates)
       .eq('id', body.requestId)
+      .eq('team_id', teamId)
       .select()
       .single();
 
@@ -63,18 +75,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json(data);
   }
 
-  // Else, new request
+  const title = typeof body.title === 'string' ? body.title.slice(0, 200) : '';
+  if (!title) {
+    return NextResponse.json({ error: 'Título requerido' }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from('requests')
     .insert({
-      title: body.title,
-      description: body.description,
-      player_id: body.player_id,
-      quantity: body.quantity || 1,
-      size: body.size || "XL",
-      team_id: DEFAULT_TEAM_ID,
+      title,
+      description: typeof body.description === 'string' ? body.description.slice(0, 2000) : null,
+      player_id: body.player_id || null,
+      quantity: Number.isFinite(Number(body.quantity))
+        ? Math.max(1, Math.min(999, Number(body.quantity)))
+        : 1,
+      size: typeof body.size === 'string' ? body.size.slice(0, 20) : 'XL',
+      team_id: teamId,
       requester_id: user.id,
-      status: 'pendiente'
+      status: 'pendiente',
     })
     .select()
     .single();

@@ -4,6 +4,12 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { LogIn, Shield, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { safeInternalPath } from '@/lib/security/safe-redirect';
+import {
+  ATM_DEMO_EMAIL,
+  ATM_DEMO_PASSWORD,
+  showAtmDemoLoginHint,
+} from '@/lib/atm-demo-access';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -13,8 +19,16 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [configWarning, setConfigWarning] = useState('');
+  const [showAtmHint, setShowAtmHint] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'atm_demo_disabled') {
+      setError('El acceso demo ATM está desactivado. Contacta con el administrador.');
+    }
+
+    setShowAtmHint(showAtmDemoLoginHint());
+
     fetch('/api/auth/config')
       .then((r) => r.json())
       .then((cfg) => {
@@ -23,9 +37,16 @@ export default function LoginPage() {
             'Este deploy no tiene Supabase configurado en Vercel. Añade NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en Environment Variables.'
           );
         }
+        if (cfg.atmDemoHint) setShowAtmHint(true);
       })
       .catch(() => {});
   }, []);
+
+  const fillAtmDemo = () => {
+    setEmail(ATM_DEMO_EMAIL);
+    setPassword(ATM_DEMO_PASSWORD);
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +54,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login({ email, password });
-      const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+      const redirect = safeInternalPath(
+        new URLSearchParams(window.location.search).get('redirect'),
+        '/'
+      );
       window.location.href = redirect;
     } catch (err: any) {
       setError(err.message || 'Credenciales incorrectas. Verifica email y contraseña.');
@@ -58,6 +82,24 @@ export default function LoginPage() {
             </div>
           )}
 
+          {showAtmHint && (
+            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-left">
+              <p className="text-[10px] font-black uppercase tracking-wider text-red-700 dark:text-red-300 mb-1">
+                Acceso evaluación Atleti Lab (ATM)
+              </p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mb-2">
+                Cuenta limitada al primer equipo ATM. No es superadmin. Sin cambio de club ni cambios de plataforma.
+              </p>
+              <button
+                type="button"
+                onClick={fillAtmDemo}
+                className="text-[11px] font-bold text-red-700 dark:text-red-300 underline underline-offset-2"
+              >
+                Rellenar credenciales demo ATM
+              </button>
+            </div>
+          )}
+
           {error && (
             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-600 text-xs font-semibold">
               {error}
@@ -74,7 +116,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="info@ramondelpozorott.es"
+                placeholder="demo.atm@courtmanager.pro"
               />
             </div>
 

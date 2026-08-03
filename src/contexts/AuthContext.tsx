@@ -19,6 +19,15 @@ import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { isDemoMode } from '@/lib/app-mode';
 import { buildFallbackProductionUser, buildGuaranteedSuperadminUser, enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
 import { resolveTeamFromStorage } from '@/lib/active-team';
+import { validatePasswordStrength } from '@/lib/security/password-policy';
+import {
+  ATM_DEMO_CLUB_SLUG,
+  ATM_DEMO_TEAM_ID,
+  isAtmDemoAccessEnabled,
+  isAtmDemoEmail,
+} from '@/lib/atm-demo-access';
+import { getClubPack } from '@/data/clubs';
+import { packToTeam } from '@/lib/club-demo-loader';
 
 // Extend UserRole with superadmin
 export type ExtendedRole = UserRole | 'superadmin' | 'staff' | 'consulta';
@@ -37,6 +46,8 @@ interface AuthContextValue {
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   hasPermission: (roles: string[]) => boolean;
   isSuperadmin: boolean;
+  /** Cuenta de evaluación Atleti Lab (solo ATM, sin superadmin). */
+  isAtmDemo: boolean;
   /** Mismo acceso operativo que Carlos (equipment_manager). */
   hasOperationalAccess: boolean;
   /** Rol efectivo para permisos de navegación (Carlos = equipment_manager). */
@@ -319,6 +330,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applySessionUser, loadUserData, mockAuth, supabase, restoreMockSession]);
 
   const login = useCallback(async ({ email, password }: LoginForm) => {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (isAtmDemoEmail(normalizedEmail) && !isAtmDemoAccessEnabled()) {
+      throw new Error('El acceso demo ATM está desactivado. Contacta con el administrador.');
+    }
+
     if (mockAuth) {
       const cred = findMockCredential(email, password);
       if (!cred) throw new Error('Email o contraseña incorrectos.');
@@ -328,11 +345,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         avatar_url: cred.avatar_url,
       });
       setUser(userData);
-      setCurrentTeamState(defaultMockTeam);
+      if (isAtmDemoEmail(cred.email)) {
+        setCurrentTeamState(packToTeam(getClubPack(ATM_DEMO_CLUB_SLUG)));
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('currentTeamId', ATM_DEMO_TEAM_ID);
+        }
+      } else {
+        setCurrentTeamState(defaultMockTeam);
+      }
       setAuthCookies(cred.role);
       return;
     }
-    const normalizedEmail = email.trim().toLowerCase();
     const { data, error } = await supabase.auth.signInWithPassword({
       email: normalizedEmail,
       password,
@@ -343,7 +366,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!data.session?.user) {
       throw new Error('Sesión iniciada pero no se pudo cargar. Recarga la página e inténtalo de nuevo.');
     }
+    if (isAtmDemoEmail(data.session.user.email) && !isAtmDemoAccessEnabled()) {
+      await supabase.auth.signOut();
+      throw new Error('El acceso demo ATM está desactivado. Contacta con el administrador.');
+    }
     await applySessionUser(data.session);
+    if (isAtmDemoEmail(data.session.user.email)) {
+      const atmTeam = packToTeam(getClubPack(ATM_DEMO_CLUB_SLUG));
+      setCurrentTeamState(atmTeam);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('currentTeamId', ATM_DEMO_TEAM_ID);
+      }
+    }
   }, [mockAuth, supabase, buildUserFromRole, applySessionUser]);
 
   const loginWithBiometric = useCallback(async (email: string, discoverable = false) => {
@@ -360,8 +394,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
+    // Cookies de sesión las fija /api/auth/webauthn/login-verify (sin tokens en JSON).
+    let { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
+      const refreshed = await supabase.auth.refreshSession();
+      session = refreshed.data.session;
+    }
+    if (!session?.user) {
+      // Último recurso seguro: recarga completa para que middleware lea cookies.
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+        return;
+      }
       throw new Error('No se pudo iniciar sesión tras el acceso biométrico.');
     }
     setSession(session);
@@ -432,9 +476,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!email) throw new Error('No hay sesión activa.');
 
     const trimmedNew = newPassword.trim();
-    if (trimmedNew.length < 8) {
-      throw new Error('La nueva contraseña debe tener al menos 8 caracteres.');
-    }
+    const strength = validatePasswordStrength(trimmedNew);
+    if (!strength.ok) throw new Error(strength.error);
     if (trimmedNew === currentPassword) {
       throw new Error('La nueva contraseña debe ser distinta de la actual.');
     }
@@ -457,6 +500,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, mockAuth, supabase, session?.user?.email]);
 
   const setCurrentTeam = useCallback((team: Team) => {
+    // Demo ATM: no puede cambiar a otro club.
+    if (isAtmDemoEmail(user?.profile?.email) || isAtmDemoEmail(user?.email)) {
+      if (team.id !== ATM_DEMO_TEAM_ID) return;
+    }
     setCurrentTeamState((prev) => (prev?.id === team.id ? prev : team));
     localStorage.setItem('currentTeamId', team.id);
     setUser((prev: any) => {
@@ -464,7 +511,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (prev.currentTeam?.id === team.id) return prev;
       return { ...prev, currentTeam: team };
     });
-  }, []);
+  }, [user?.email, user?.profile?.email]);
 
   const userEmail = resolveUserEmail({
     profileEmail: user?.profile?.email,
@@ -477,12 +524,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userEmail: user?.email,
     sessionEmail: session?.user?.email,
   });
+  const isAtmDemo = isAtmDemoEmail(userEmail);
   const hasOperationalAccess =
+    !isAtmDemo && (
     isSuperadmin ||
     hasFullClubAccess(user?.profile?.role, userEmail) ||
     hasFullClubAccess(user?.profile?.role, user?.email) ||
     hasFullClubAccess(user?.profile?.role, session?.user?.email) ||
-    hasFullClubAccess(user?.profile?.role, user?.profile?.email);
+    hasFullClubAccess(user?.profile?.role, user?.profile?.email)
+    );
   const effectiveRole = hasOperationalAccess
     ? (isSuperadmin ? 'equipment_manager' : (user?.profile?.role || 'equipment_manager'))
     : (user?.profile?.role || 'assistant');
@@ -511,6 +561,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       changePassword,
       hasPermission,
       isSuperadmin,
+      isAtmDemo,
       hasOperationalAccess,
       effectiveRole,
       userEmail,

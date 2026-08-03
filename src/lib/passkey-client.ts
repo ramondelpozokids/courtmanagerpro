@@ -104,15 +104,19 @@ export async function loginWithPasskey(email: string, discoverable = false): Pro
 
   const user = await verifyRes.json();
 
-  if (!isDemoMode() && user.access_token && user.refresh_token) {
-    const supabase = getSupabaseClient();
-    const { error } = await supabase.auth.setSession({
-      access_token: user.access_token,
-      refresh_token: user.refresh_token,
-    });
-    if (error) throw new Error(error.message);
-  } else {
+  if (isDemoMode()) {
     setAuthCookies(user.role);
+  } else {
+    // Sesión en cookies httpOnly (Set-Cookie del verify). Sin tokens en JSON.
+    const supabase = getSupabaseClient();
+    // Dar tiempo al jar de cookies del navegador y revalidar sesión.
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data.session) {
+      const refreshed = await supabase.auth.refreshSession();
+      if (refreshed.error || !refreshed.data.session) {
+        throw new Error('No se pudo establecer la sesión segura tras el acceso biométrico.');
+      }
+    }
   }
 
   markLocalPasskey(email);

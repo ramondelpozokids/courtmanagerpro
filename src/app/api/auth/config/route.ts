@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { supabaseUrl } from '@/infrastructure/supabase/env';
 import { isProductionApp } from '@/lib/app-mode';
+import {
+  isAtmDemoAccessEnabled,
+  showAtmDemoLoginHint,
+} from '@/lib/atm-demo-access';
 
-/** Diagnóstico público: ¿Supabase configurado en este deploy? (sin secretos) */
+/** Diagnóstico público mínimo (sin secretos ni project ref en producción). */
 export async function GET() {
   const url = supabaseUrl;
   const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
@@ -12,17 +16,33 @@ export async function GET() {
     !url.includes('your-project') &&
     !url.includes('tu-proyecto');
 
-  let projectRef = '';
+  const production = isProductionApp();
+  const atmDemoEnabled = isAtmDemoAccessEnabled();
+  const atmDemoHint = showAtmDemoLoginHint();
+
+  if (production) {
+    return NextResponse.json({
+      production: true,
+      supabaseConfigured: configured,
+      demoMode: false,
+      atmDemoEnabled,
+      atmDemoHint,
+    });
+  }
+
+  let projectRef: string | null = null;
   try {
-    projectRef = new URL(url).hostname.split('.')[0];
+    projectRef = configured ? new URL(url).hostname.split('.')[0] : null;
   } catch {
     projectRef = 'invalid';
   }
 
   return NextResponse.json({
-    production: isProductionApp(),
+    production: false,
     supabaseConfigured: configured,
-    projectRef: configured ? projectRef : null,
+    projectRef,
     demoMode,
+    atmDemoEnabled,
+    atmDemoHint,
   });
 }

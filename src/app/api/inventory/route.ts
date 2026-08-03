@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
+import { createInventoryItemSchema } from '@/lib/validators';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createSupabaseServerClient();
@@ -12,11 +14,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const category = searchParams.get('category');
   const lowStock = searchParams.get('low_stock') === 'true';
   const search = searchParams.get('search');
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('page_size') || '20');
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('page_size') || '20', 10) || 20));
 
-  // If no team_id is supplied, fallback to dummy Tenerife ID
   const activeTeamId = resolveTeamId(teamId);
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, activeTeamId);
+  if (!access.ok) return access.response;
 
   let query = supabase
     .from('inventory_items')
@@ -26,8 +29,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     .order('name')
     .range((page - 1) * pageSize, page * pageSize - 1);
 
-  if (category) query = query.eq('category', category);
-  if (search) query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%,barcode.ilike.%${search}%`);
+  if (category) query = query.eq('category', category as any);
+  if (search) {
+    const safe = search.replace(/[%_,]/g, '').slice(0, 80);
+    if (safe) {
+      query = query.or(`name.ilike.%${safe}%,sku.ilike.%${safe}%,barcode.ilike.%${safe}%`);
+    }
+  }
   if (lowStock) query = query.filter('stock_available', 'lte', 'stock_min');
 
   const { data, error, count } = await query;
@@ -42,16 +50,27 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   });
 }
 
-// Support POST creation too for inventory items (restoring full REST compatibility)
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { data, error } = await supabase
+  const teamId = resolveTeamId(body.team_id || DEFAULT_TEAM_ID);
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+  if (!access.ok) return access.response;
+
+  const parsed = createInventoryItemSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Datos inválidos', details: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
+
+  const { data, error } = await (supabase as any)
     .from('inventory_items')
-    .insert({ ...body, team_id: DEFAULT_TEAM_ID })
+    .insert({ ...parsed.data, team_id: teamId })
     .select()
     .single();
 

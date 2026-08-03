@@ -3,6 +3,7 @@ import {
   CARLOS_EMAIL,
   normalizeEmail,
 } from '@/lib/access-constants';
+import { isAtmDemoEmail } from '@/lib/atm-demo-access';
 import {
   isSuperadminIdentity,
   type SuperadminAccessSources,
@@ -10,6 +11,8 @@ import {
 
 export type { SuperadminAccessSources };
 export { SUPERADMIN_EMAIL, CARLOS_EMAIL, normalizeEmail };
+export { isAtmDemoEmail, ATM_DEMO_EMAIL } from '@/lib/atm-demo-access';
+
 
 export const ALL_CLUB_SLUGS = ['atm', 'rmb', 'rmf', 'fcb', 'vbc'] as const;
 
@@ -90,8 +93,10 @@ export function resolveUserAccess(role?: string | null, email?: string | null) {
   };
 }
 
-/** Acceso operativo total: todos los módulos y escritura de datos del club. */
+/** Acceso operativo total: todos los módulos y escritura de datos del club.
+ *  La cuenta demo ATM NO hereda privilegios de Carlos/superadmin. */
 export function hasFullClubAccess(role?: string | null, email?: string | null): boolean {
+  if (isAtmDemoEmail(email)) return false;
   if (isSuperadminUser(role, email)) return true;
   if (isCarlosUser(email)) return true;
   return false;
@@ -102,17 +107,17 @@ export function hasOperationalAccess(role?: string | null, email?: string | null
   return hasFullClubAccess(role, email);
 }
 
-/**
- * Cambios de proyecto / plataforma (stats oficiales, sync plantilla, roles, demos, configuración).
- * Solo Ramón (superadmin). Carlos puede operativa del club (stock, viajes, solicitudes…)
- * pero NO puede alterar el programa CourtManager Pro.
- */
+/** Cambios de proyecto / plataforma — solo Ramón (superadmin). La cuenta demo ATM nunca. */
 export function canModifyProject(role?: string | null, email?: string | null): boolean {
+  if (isAtmDemoEmail(email)) return false;
   return isSuperadminUser(role, email);
 }
 
 /** Carlos (u otro utillero): operativa diaria del club, sin tocar el producto. */
 export function canOperateClubAsAdmin(role?: string | null, email?: string | null): boolean {
+  if (isAtmDemoEmail(email)) {
+    return role === 'admin' || role === 'equipment_manager' || role === 'assistant';
+  }
   if (isSuperadminUser(role, email)) return true;
   if (isCarlosUser(email)) return true;
   return role === 'admin' || role === 'equipment_manager';

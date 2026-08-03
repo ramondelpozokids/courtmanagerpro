@@ -29,6 +29,9 @@ Antes de la due diligence técnica, usa el kit comercial:
 | 04 | [Valoración económica](./04-valoracion-economica.md) | Coste de desarrollo y valor de mercado |
 | 05 | [Despliegue](./05-despliegue-vercel-supabase.md) | Vercel, Supabase, variables de entorno |
 | 06 | [Inventario de módulos](./06-inventario-modulos.md) | Funcionalidades, hooks, APIs, mock vs live |
+| — | [Auditoría comercial ATM](./AUDITORIA-COMERCIAL-ATM-2026.md) | Valor de negocio orientado a Atlético / Atleti Lab |
+| — | [Pentest readiness ATM](./PENTEST-READINESS-ATM.md) | Endurecimiento ante pruebas de hacking |
+| — | [Informe ejecutivo PDF](./CourtManager-Pro-Informe-Ejecutivo-ATM.pdf) | 3 páginas A4 para reenviar (HTML fuente: INFORME-EJECUTIVO-ATM.html) |
 
 ---
 

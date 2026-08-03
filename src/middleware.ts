@@ -1,11 +1,15 @@
-import { createServerClient } from '@supabase/ssr';
+﻿import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import {
   supabaseUrl,
   supabaseAnonKey,
 } from '@/infrastructure/supabase/env';
+import {
+  isAtmDemoAccessEnabled,
+  isAtmDemoEmail,
+} from '@/lib/atm-demo-access';
 
-/** Páginas HTML públicas (sin sesión). /demo es landing comercial, no da acceso al dashboard. */
+/** Paginas HTML publicas (sin sesion). /demo es landing comercial, no da acceso al dashboard. */
 const PUBLIC_PATHS = [
   '/login',
   '/seguridad',
@@ -18,7 +22,7 @@ const PUBLIC_PATHS = [
   '/demo',
 ];
 
-/** APIs públicas o con auth propia (login, webauthn, diagnóstico, ping). */
+/** APIs publicas o con auth propia (login, webauthn, diagnostico, ping). */
 const PUBLIC_API_PREFIXES = [
   '/api/auth/login',
   '/api/auth/config',
@@ -49,6 +53,20 @@ function hasCronBearer(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET?.trim();
   if (!secret) return false;
   return request.headers.get('authorization') === `Bearer ${secret}`;
+}
+
+function blockDisabledAtmDemo(request: NextRequest, userEmail?: string | null) {
+  if (!isAtmDemoEmail(userEmail)) return null;
+  if (isAtmDemoAccessEnabled()) return null;
+  const loginUrl = new URL('/login', request.url);
+  loginUrl.searchParams.set('error', 'atm_demo_disabled');
+  const res = NextResponse.redirect(loginUrl);
+  request.cookies.getAll().forEach((c) => {
+    if (c.name.startsWith('sb-')) {
+      res.cookies.set(c.name, '', { path: '/', maxAge: 0 });
+    }
+  });
+  return res;
 }
 
 async function getSupabaseUser(request: NextRequest, requestHeaders: Headers) {
@@ -84,7 +102,6 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-vercel-skip-toolbar', '1');
 
-  // Registro cerrado en producción: solo cuentas creadas por admin/Supabase
   if (
     isProductionDeployment() &&
     (pathname === '/registro' || pathname.startsWith('/registro/'))
@@ -92,7 +109,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // ——— Capa 1 también en /api (producción) ———
   if (pathname.startsWith('/api')) {
     if (isPublicApi(pathname)) {
       return NextResponse.next({ request: { headers: requestHeaders } });
@@ -106,6 +122,12 @@ export async function middleware(request: NextRequest) {
       const { user } = await getSupabaseUser(request, requestHeaders);
       if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (isAtmDemoEmail(user.email) && !isAtmDemoAccessEnabled()) {
+        return NextResponse.json(
+          { error: 'Acceso demo ATM desactivado' },
+          { status: 403 }
+        );
       }
     }
 
@@ -124,6 +146,9 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
+
+    const blocked = blockDisabledAtmDemo(request, user.email);
+    if (blocked) return blocked;
 
     return response;
   }

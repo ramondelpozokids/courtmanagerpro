@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { verifyAuthenticationResponse } from '@simplewebauthn/server';
 import { isProductionApp } from '@/lib/app-mode';
 import { getWebAuthnConfig, isBiometricUser } from '@/lib/webauthn-config';
@@ -9,8 +9,9 @@ import {
 } from '@/lib/webauthn-store';
 import { createSupabaseSessionForEmail } from '@/lib/webauthn-password-verify';
 import { getBiometricLoginUser } from '@/lib/webauthn-user';
+import { attachSupabaseSessionCookies } from '@/lib/security/session-cookies';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, response, origin: bodyOrigin } = body;
@@ -64,23 +65,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
     }
 
-    const payload: Record<string, string | undefined> = {
+    // Perfil sin tokens en el cuerpo (anti XSS / Network tab).
+    const payload = {
+      ok: true,
       role: user.role,
       email: user.email,
       full_name: user.full_name,
       avatar_url: user.avatar_url,
     };
 
+    let responseJson: NextResponse = NextResponse.json(payload);
+    responseJson.headers.set('Cache-Control', 'no-store');
+
     if (isProductionApp()) {
       const session = await createSupabaseSessionForEmail(normalized);
       if (!session) {
         return NextResponse.json({ error: 'No se pudo iniciar sesión' }, { status: 500 });
       }
-      payload.access_token = session.access_token;
-      payload.refresh_token = session.refresh_token;
+      responseJson = await attachSupabaseSessionCookies(request, responseJson, session);
+      if (responseJson.status >= 400) return responseJson;
     }
 
-    return NextResponse.json(payload);
+    return responseJson;
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error en autenticación biométrica' }, { status: 500 });
   }

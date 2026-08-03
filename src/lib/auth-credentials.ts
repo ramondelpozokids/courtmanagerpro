@@ -1,4 +1,10 @@
 import type { ExtendedRole } from '@/contexts/AuthContext';
+import {
+  ATM_DEMO_EMAIL,
+  ATM_DEMO_FULL_NAME,
+  ATM_DEMO_PASSWORD,
+  ATM_DEMO_ROLE,
+} from '@/lib/atm-demo-access';
 
 export interface MockCredential {
   email: string;
@@ -8,41 +14,58 @@ export interface MockCredential {
   avatar_url?: string;
 }
 
-/** Credenciales de demostración — sustituir por Supabase Auth en producción. */
-export const MOCK_CREDENTIALS: MockCredential[] = [
-  {
-    email: 'info@ramondelpozorott.es',
-    password: 'Benutzer555',
-    role: 'superadmin',
-    full_name: 'Ramón del Pozo Rott',
-    avatar_url: '/images/ramon-del-pozo.png',
-  },
-  {
-    email: 'charlie-r-k@hotmail.com',
-    password: 'utileria2026',
-    role: 'equipment_manager',
-    full_name: 'Carlos Rodriguez Kobe',
-    avatar_url: '/images/carlos-avatar.png',
-  },
-  {
-    email: 'marta.lopez@realmadrid.com',
-    password: 'asistente2026',
-    role: 'assistant',
-    full_name: 'Marta López',
-  },
-  {
-    email: 'dr.flores@realmadrid.com',
-    password: 'medico2026',
-    role: 'medical',
-    full_name: 'Dr. Xavier Flores',
-  },
-  {
-    email: 'scariolo@realmadrid.com',
-    password: 'entrenador2026',
-    role: 'coach',
-    full_name: 'Sergio Scariolo',
-  },
-];
+/**
+ * Credenciales mock SOLO en demo explícita o desarrollo local.
+ * En builds de producción (NODE_ENV=production y DEMO_MODE≠true) el array
+ * queda vacío para que un pentest no encuentre contraseñas en el bundle.
+ */
+const EMBED_MOCK_PASSWORDS =
+  process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+  process.env.NODE_ENV !== 'production';
+
+/** Credenciales de demostración — nunca usar en producción real. */
+export const MOCK_CREDENTIALS: MockCredential[] = EMBED_MOCK_PASSWORDS
+  ? [
+      {
+        email: 'info@ramondelpozorott.es',
+        password: 'Benutzer555',
+        role: 'superadmin',
+        full_name: 'Ramón del Pozo Rott',
+        avatar_url: '/images/ramon-del-pozo.png',
+      },
+      {
+        email: 'charlie-r-k@hotmail.com',
+        password: 'utileria2026',
+        role: 'equipment_manager',
+        full_name: 'Carlos Rodriguez Kobe',
+        avatar_url: '/images/carlos-avatar.png',
+      },
+      {
+        email: ATM_DEMO_EMAIL,
+        password: ATM_DEMO_PASSWORD,
+        role: ATM_DEMO_ROLE,
+        full_name: ATM_DEMO_FULL_NAME,
+      },
+      {
+        email: 'marta.lopez@realmadrid.com',
+        password: 'asistente2026',
+        role: 'assistant',
+        full_name: 'Marta López',
+      },
+      {
+        email: 'dr.flores@realmadrid.com',
+        password: 'medico2026',
+        role: 'medical',
+        full_name: 'Dr. Xavier Flores',
+      },
+      {
+        email: 'scariolo@realmadrid.com',
+        password: 'entrenador2026',
+        role: 'coach',
+        full_name: 'Sergio Scariolo',
+      },
+    ]
+  : [];
 
 export const BIOMETRIC_QUICK_ACCESS = [
   {

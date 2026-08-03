@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>CourtManager Pro — Informe ejecutivo ATM / Atleti Lab</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: #0f172a;
+      font-size: 10.5pt;
+      line-height: 1.45;
+      margin: 0;
+    }
+    h1 { font-size: 20pt; margin: 0 0 6px; color: #7f1d1d; letter-spacing: -0.02em; }
+    h2 { font-size: 12.5pt; margin: 18px 0 8px; color: #991b1b; border-bottom: 2px solid #fecaca; padding-bottom: 4px; }
+    h3 { font-size: 11pt; margin: 12px 0 6px; color: #1e293b; }
+    p { margin: 0 0 8px; }
+    .meta { color: #64748b; font-size: 9pt; margin-bottom: 14px; }
+    .verdict {
+      background: #fef2f2;
+      border-left: 4px solid #dc2626;
+      padding: 10px 12px;
+      margin: 12px 0 16px;
+      font-weight: 600;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.5pt; }
+    th, td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #0f172a; color: #fff; font-weight: 700; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    ul { margin: 6px 0 12px; padding-left: 18px; }
+    li { margin-bottom: 4px; }
+    .cred {
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 10px 0 14px;
+      font-size: 10pt;
+    }
+    .cred strong { color: #fca5a5; }
+    .note { font-size: 8.5pt; color: #64748b; }
+    .page-break { page-break-before: always; }
+    .footer { margin-top: 20px; font-size: 8pt; color: #94a3b8; }
+    .badge { display: inline-block; background: #dc2626; color: #fff; font-size: 8pt; font-weight: 800; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.04em; }
+  </style>
+</head>
+<body>
+
+  <!-- PÁGINA 1 -->
+  <p class="badge">CONFIDENCIAL · ATLETI LAB</p>
+  <h1>CourtManager Pro</h1>
+  <p style="font-size:13pt;font-weight:700;margin:0 0 4px;">Informe ejecutivo para Atlético de Madrid</p>
+  <p class="meta">3 de agosto de 2026 · Auditoría comercial + readiness de seguridad · Documento de evaluación</p>
+
+  <div class="verdict">
+    Veredicto: sí merece la pena un piloto de utilería del primer equipo. El producto ya incorpora pack ATM, sincronización con fuentes oficiales del club y controles de acceso en tres capas. Existe una cuenta demo limitada (sin superadmin) para que Atleti Lab pruebe sin depender del propietario del sistema.
+  </div>
+
+  <h2>1. ¿Qué es y qué problema resuelve?</h2>
+  <p><strong>CourtManager Pro</strong> es el sistema operativo de utilería de un club profesional: plantilla, tallas, inventario, solicitudes, viajes, lavandería, material médico, alertas y checklists de partido — en una sola aplicación web.</p>
+  <p>Sustituye Excel + WhatsApp + conocimiento individual por un punto de verdad con trazabilidad, roles y alertas automáticas.</p>
+
+  <h2>2. Beneficios tangibles para ATM</h2>
+  <table>
+    <tr><th>Beneficio</th><th>Impacto operativo</th></tr>
+    <tr><td>Ahorro de tiempo</td><td>Menos búsquedas y re-trabajo entre turnos</td></tr>
+    <tr><td>Control de stock / €</td><td>Almacén valorado, mínimos y caducidades</td></tr>
+    <tr><td>Menos errores</td><td>QR, tallas por jugador, aprobaciones</td></tr>
+    <tr><td>Preparación de partido</td><td>Checklists, convocatoria, transporte, packing</td></tr>
+    <tr><td>Seguridad y RGPD</td><td>Roles, RLS, auditoría, registro cerrado</td></tr>
+    <tr><td>Datos oficiales ATM</td><td>Sync plantilla y calendario atleticodemadrid.com</td></tr>
+  </table>
+
+  <h2>3. Acceso demo para evaluación (sin superadmin)</h2>
+  <div class="cred">
+    <div><strong>Email:</strong> demo.atm@courtmanager.pro</div>
+    <div><strong>Contraseña:</strong> 123456</div>
+    <div><strong>Ámbito:</strong> solo Atlético de Madrid · rol utillería · sin cambios de plataforma</div>
+  </div>
+  <p class="note">La contraseña es deliberadamente corta para facilitar la demo. Está mitigada con: kill-switch (ATM_DEMO_ENABLED), aislamiento al team ATM, rate limit reforzado (3 intentos), sin privilegios de superadmin y banner de evaluación visible.</p>
+  <p class="note"><strong>Tras la evaluación:</strong> desactivar con ATM_DEMO_ENABLED=false / NEXT_PUBLIC_ATM_DEMO_ENABLED=false y rotar o eliminar la cuenta.</p>
+
+  <p class="footer">CourtManager Pro · Ramón del Pozo Rott · Página 1/3</p>
+
+  <!-- PÁGINA 2 -->
+  <div class="page-break"></div>
+  <h2>4. Seguridad — lo que un pentest verá</h2>
+  <p>Seguridad es prioritaria. El sistema aplica <strong>tres capas reales</strong> en producción:</p>
+  <ol>
+    <li><strong>Middleware:</strong> sin sesión → login / 401; registro cerrado; crons con secreto.</li>
+    <li><strong>APIs:</strong> usuario obligatorio + pertenencia a equipo (anti-IDOR).</li>
+    <li><strong>Base de datos:</strong> Row Level Security por equipo en PostgreSQL (Supabase).</li>
+  </ol>
+
+  <table>
+    <tr><th>Control</th><th>Estado</th></tr>
+    <tr><td>Passkeys / WebAuthn (cuentas clave)</td><td>Disponible</td></tr>
+    <tr><td>Tokens fuera del JSON (cookies de sesión)</td><td>Endurecido</td></tr>
+    <tr><td>Rate limit login (IP + email)</td><td>Activo</td></tr>
+    <tr><td>HSTS, CSP, anti-clickjacking, COOP/CORP</td><td>Activo</td></tr>
+    <tr><td>Políticas legales RGPD / LSSI</td><td>Publicadas en la app</td></tr>
+    <tr><td>Cuenta demo ATM aislada</td><td>Activa con kill-switch</td></tr>
+    <tr><td>Bloqueo clic derecho / F12</td><td>Cosmético — no es control real</td></tr>
+  </table>
+
+  <h3>Qué NO se vende como hecho</h3>
+  <ul>
+    <li>Certificación ISO/SOC2 (no incluida en el repositorio).</li>
+    <li>SSO corporativo Azure AD / Okta (fase 2 si TI lo exige).</li>
+    <li>Integración nativa ERP/CRM (posible vía APIs; no conector listo).</li>
+  </ul>
+
+  <h2>5. Alcance del piloto recomendado (4–8 semanas)</h2>
+  <ul>
+    <li>Inventario + tallas + solicitudes + alertas.</li>
+    <li>Almacén / movimientos y checklist pre-partido.</li>
+    <li>3–5 KPI: tiempo de preparación, roturas de stock, % solicitudes a tiempo.</li>
+    <li>Usuarios: utillería + 1 perfil médico + 1 consulta (además del demo ATM).</li>
+  </ul>
+
+  <p class="footer">CourtManager Pro · Informe ejecutivo ATM · Página 2/3</p>
+
+  <!-- PÁGINA 3 -->
+  <div class="page-break"></div>
+  <h2>6. Fortalezas (ordenadas)</h2>
+  <ol>
+    <li>Dominio real de utilería de élite (ciclo completo).</li>
+    <li>Seguridad en capas + roles + trazabilidad.</li>
+    <li>Pack y sync específicos de ATM.</li>
+    <li>Arquitectura evolucionable (APIs, multi-equipo).</li>
+    <li>UX orientada al utillero (baja curva de formación).</li>
+  </ol>
+
+  <h2>7. Riesgos residuales y mitigación</h2>
+  <table>
+    <tr><th>Riesgo</th><th>Mitigación</th></tr>
+    <tr><td>Algunos checklists en navegador</td><td>Migrar a BD en fase piloto</td></tr>
+    <tr><td>Contraseña demo corta (123456)</td><td>Kill-switch + aislamiento + desactivar tras demo</td></tr>
+    <tr><td>Rate limit en memoria (serverless)</td><td>Redis/Upstash en fase 2</td></tr>
+    <tr><td>Sin SSO aún</td><td>Acordar con TI si es requisito de go-live</td></tr>
+  </table>
+
+  <h2>8. Conclusión para dirección</h2>
+  <div class="verdict">
+    CourtManager Pro es una buena inversión de piloto: digitaliza la utilería del primer equipo con producto ya adaptado a ATM, reduce riesgos operativos y de control, y permite evaluar con una cuenta limitada sin abrir el acceso de superadmin. La seguridad está diseñada para resistir pruebas de acceso indebido; los puntos abiertos son conocidos y planificables.
+  </div>
+
+  <h3>Próximo paso propuesto</h3>
+  <ol>
+    <li>Activar demo ATM en el entorno de evaluación.</li>
+    <li>Sesión de 60–90 min con utillería / Atleti Lab.</li>
+    <li>Decisión de piloto formal con KPI y calendario.</li>
+  </ol>
+
+  <p class="footer">
+    Documentación completa: docs/auditoria/AUDITORIA-COMERCIAL-ATM-2026.md · PENTEST-READINESS-ATM.md<br/>
+    CourtManager Pro · Ramón del Pozo Rott · Página 3/3 · Uso exclusivo evaluación Atleti Lab
+  </p>
+
+</body>
+</html>

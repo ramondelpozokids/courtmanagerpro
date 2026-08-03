@@ -3,29 +3,25 @@ import { pingAllProviders, summarizePingResults, PROVIDER_META } from "@/lib/ai/
 
 function isPingAuthorized(req: Request): boolean {
   const secret = process.env.AI_PING_SECRET?.trim();
-  if (secret) {
-    const url = new URL(req.url);
-    const header = req.headers.get("x-ai-ping-secret");
-    const query = url.searchParams.get("secret");
-    if (header === secret || query === secret) return true;
+  if (!secret) {
+    // Sin secreto configurado: solo desarrollo local (nunca Vercel).
+    return process.env.NODE_ENV === "development" && !process.env.VERCEL;
   }
-  if (process.env.NODE_ENV === "development" && !process.env.VERCEL) return true;
-  return false;
+  // Solo cabecera — nunca ?secret= (acaba en logs de proxy/CDN).
+  const header = req.headers.get("x-ai-ping-secret");
+  return header === secret;
 }
 
 export async function GET(req: Request) {
   if (!isPingAuthorized(req)) {
-    return NextResponse.json(
-      { error: "No autorizado. Usa ?secret= con AI_PING_SECRET." },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
   const started = Date.now();
   const providers = await pingAllProviders();
   const summary = summarizePingResults(providers);
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     project: process.env.NEXT_PUBLIC_APP_URL || "courtmanager-pro",
     checkedAt: new Date().toISOString(),
     durationMs: Date.now() - started,
@@ -33,4 +29,6 @@ export async function GET(req: Request) {
     summary,
     providers,
   });
+  res.headers.set("Cache-Control", "no-store");
+  return res;
 }

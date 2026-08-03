@@ -23,7 +23,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Datos identificativos',
-        body: 'Denominación: CourtManager Pro · Creador: Ramón del Pozo Rott (info@ramondelpozorott.es) · Utilería / contacto operativo: charlie-r-k@hotmail.com',
+        body: 'Denominación: CourtManager Pro · Titular / contacto: Ramón del Pozo Rott — info@ramondelpozorott.es',
       },
       {
         heading: 'Objeto',
@@ -48,7 +48,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Responsable del tratamiento',
-        body: 'Responsable: CourtManager Pro / equipo técnico del proyecto. Contacto para privacidad: charlie-r-k@hotmail.com',
+        body: 'Responsable: CourtManager Pro / Ramón del Pozo Rott. Contacto para privacidad: info@ramondelpozorott.es',
       },
       {
         heading: 'Datos que tratamos',
@@ -64,7 +64,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Tus derechos',
-        body: 'Puedes ejercer los derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a charlie-r-k@hotmail.com. También puedes reclamar ante la Agencia Española de Protección de Datos (www.aepd.es).',
+        body: 'Puedes ejercer los derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a info@ramondelpozorott.es. También puedes reclamar ante la Agencia Española de Protección de Datos (www.aepd.es).',
       },
     ],
   },
@@ -77,11 +77,11 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Medidas de seguridad',
-        body: 'Cifrado HTTPS en tránsito, Row Level Security (RLS) en base de datos PostgreSQL, control de acceso por roles (admin, equipment_manager, medical, etc.), registro de auditoría y segregación entre entorno demo y producción.',
+        body: 'Se aplican medidas técnicas y organizativas adecuadas al riesgo: comunicación cifrada, control de acceso según función, registro de actividad relevante y separación entre entornos de demostración y de uso real. Los detalles internos de configuración no se publican.',
       },
       {
         heading: 'Datos de categorías especiales',
-        body: 'Los datos de salud o tallaje detallado se tratan con acceso restringido únicamente al personal autorizado (utilería, staff médico y administradores). El acceso superadmin queda registrado para supervisión.',
+        body: 'Los datos de salud o tallaje detallado se tratan con acceso restringido únicamente al personal autorizado. El acceso privilegiado queda sujeto a supervisión del titular.',
       },
       {
         heading: 'Incidentes de seguridad',
@@ -89,7 +89,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Delegado / contacto',
-        body: 'Para consultas sobre protección de datos: Carlos Rodriguez Kobe (equipment manager) — charlie-r-k@hotmail.com · Supervisión: Ramón del Pozo Rott — info@ramondelpozorott.es',
+        body: 'Para consultas sobre protección de datos: info@ramondelpozorott.es',
       },
     ],
   },
@@ -102,7 +102,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Tipos de cookies',
-        body: 'Cookies técnicas (necesarias): autenticación Supabase, preferencias de equipo (currentTeamId en localStorage), estado de la PWA. Cookies analíticas: solo si se activan servicios de medición (actualmente no se usan cookies de publicidad de terceros).',
+        body: 'Cookies técnicas (necesarias): mantener la sesión y preferencias básicas de la aplicación. Cookies analíticas: solo si se activan servicios de medición (actualmente no se usan cookies de publicidad de terceros).',
       },
       {
         heading: 'Gestión',
@@ -110,7 +110,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Más información',
-        body: 'Para cualquier duda sobre cookies, contacta con charlie-r-k@hotmail.com. Consulta también nuestra Política de Privacidad.',
+        body: 'Para cualquier duda sobre cookies, contacta con info@ramondelpozorott.es. Consulta también nuestra Política de Privacidad.',
       },
     ],
   },
@@ -135,7 +135,7 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
       },
       {
         heading: 'Contacto',
-        body: 'Carlos Rodriguez Kobe: +34 637 23 71 00 · charlie-r-k@hotmail.com · Ramón del Pozo Rott: info@ramondelpozorott.es',
+        body: 'Contacto: Ramón del Pozo Rott — info@ramondelpozorott.es',
       },
     ],
   },
@@ -170,38 +170,38 @@ export const legalPages: Record<LegalSlug, LegalPageContent> = {
   },
   'seguridad': {
     title: 'Seguridad y Protección de la Plataforma',
-    updated: '26 de julio de 2026',
+    updated: '3 de agosto de 2026',
     sections: [
       {
-        body: 'CourtManager Pro implementa medidas de seguridad para proteger la plataforma, los datos del club y la privacidad de los usuarios autorizados. Este documento describe nuestras políticas generales sin revelar detalles técnicos internos que pudieran comprometer la seguridad.',
+        body: 'CourtManager Pro aplica medidas organizativas y técnicas para proteger la plataforma, la información del club y la privacidad de los usuarios autorizados. Esta página informa de principios generales de uso responsable; no describe la arquitectura interna ni los controles técnicos del sistema.',
       },
       {
-        heading: 'Tres capas de protección',
-        body: 'La plataforma se protege en capas: (1) acceso — solo usuarios autenticados entran al área de trabajo; (2) servicios — las operaciones sensibles exigen sesión válida en el servidor; (3) datos — la base de datos aísla la información por equipo y rol, de modo que un usuario no autorizado no obtiene filas ajenas. Además se aplican cabeceras HTTP de endurecimiento y límites ante intentos repetidos de acceso.',
+        heading: 'Compromiso de protección',
+        body: 'La información del club se trata como activo crítico. El acceso está restringido a personal autorizado, con identificación personal y permisos acordes a cada función. Los detalles de implementación de seguridad son confidenciales y no se publican, para no facilitar usos indebidos.',
       },
       {
-        heading: 'Acceso y autenticación',
-        body: 'Todo acceso a la plataforma requiere autenticación mediante credenciales personales (y, en cuentas clave, passkeys). Los roles (administrador, superadministrador, utilería, staff médico, etc.) determinan los permisos de cada usuario. Queda prohibido compartir credenciales, acceder con cuentas ajenas o intentar eludir los controles de acceso. Las demos a terceros (p. ej. programas de innovación) se realizan bajo control del titular, en reunión o pantalla compartida, sin cuentas públicas genéricas.',
+        heading: 'Acceso autorizado',
+        body: 'Solo pueden entrar usuarios con cuenta válida concedida por el titular. Queda prohibido compartir credenciales, usar cuentas ajenas o intentar eludir los controles de acceso. Las demostraciones a terceros se realizan bajo supervisión del titular, en reunión o pantalla compartida.',
       },
       {
-        heading: 'Protección contra accesos no autorizados',
-        body: 'La plataforma monitoriza intentos de acceso indebido, copia no autorizada de contenidos, extracción masiva de datos y actividades sospechosas. Cualquier intento de hackeo, robo de información, ingeniería inversa del código o uso fraudulento será registrado y puede dar lugar a acciones legales. Ninguna aplicación web puede impedir al 100 % la inspección del navegador por un técnico; la protección efectiva reside en el control de acceso, las APIs y el aislamiento de datos.',
+        heading: 'Uso indebido',
+        body: 'Están prohibidos el acceso no autorizado, la extracción indebida de información, el abuso de la plataforma y cualquier actividad fraudulenta. Los incidentes pueden registrarse y dar lugar a la suspensión de la cuenta y, si procede, a acciones legales.',
       },
       {
         heading: 'Privacidad de datos',
-        body: 'Los datos personales de jugadores, staff y operaciones del club se tratan conforme al RGPD y la LOPDGDD. Solo el personal autorizado puede acceder a información sensible (tallajes, material médico, logística). Los datos no se comparten con terceros sin base legal.',
+        body: 'Los datos personales de jugadores, staff y operaciones del club se tratan conforme al RGPD y la LOPDGDD. Solo el personal autorizado puede acceder a información sensible. Los datos no se comparten con terceros sin base legal.',
       },
       {
         heading: 'Cierre de sesión',
-        body: 'Es obligatorio cerrar sesión al terminar el uso de la plataforma, especialmente en dispositivos compartidos. Utiliza el botón "Salir" del menú superior o del panel lateral. La sesión expira automáticamente tras un periodo de inactividad.',
+        body: 'Es obligatorio cerrar sesión al terminar el uso de la plataforma, especialmente en dispositivos compartidos. Utiliza el botón "Salir" del menú superior o del panel lateral.',
       },
       {
         heading: 'Propiedad intelectual',
-        body: 'El código fuente, diseño, documentación y contenidos de CourtManager Pro están protegidos por derechos de autor. Queda prohibida la reproducción, distribución o modificación no autorizada. Las marcas de terceros pertenecen a sus respectivos titulares.',
+        body: 'El código, diseño, documentación y contenidos de CourtManager Pro están protegidos por derechos de autor. Queda prohibida la reproducción, distribución o modificación no autorizada. Las marcas de terceros pertenecen a sus respectivos titulares.',
       },
       {
         heading: 'Contacto de seguridad',
-        body: 'Para reportar vulnerabilidades o incidentes de seguridad: charlie-r-k@hotmail.com · Supervisión: info@ramondelpozorott.es. No divulgues públicamente fallos de seguridad antes de notificarnos.',
+        body: 'Para reportar vulnerabilidades o incidentes de seguridad escribe a info@ramondelpozorott.es. No divulgues públicamente posibles fallos antes de notificarnos por ese canal.',
       },
     ],
   },

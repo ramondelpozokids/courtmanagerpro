@@ -3,6 +3,7 @@
 import { Sidebar } from "./Sidebar";
 import TopBar from "./TopBar";
 import DemoClubBanner from "./DemoClubBanner";
+import { AtmDemoBanner } from "./AtmDemoBanner";
 import MobileNav from "./MobileNav";
 import { ChatAssistant } from "../shared/ChatAssistant";
 import { ReactNode, useState, useEffect } from "react";
@@ -45,6 +46,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Top bar */}
         <TopBar />
+        <AtmDemoBanner />
         <DemoClubBanner />
 
         {/* Dynamic page container */}
