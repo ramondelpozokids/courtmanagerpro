@@ -4,6 +4,7 @@ import { isServerProduction, requireProductionApiUser } from "@/lib/supabase-rou
 import { isDemoMode } from "@/lib/app-mode";
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { supabaseServiceRoleKey } from "@/infrastructure/supabase/env";
+import { assertUserBelongsToTeam } from "@/lib/security/assert-team-access";
 
 async function logStockMovement(item: {
   id: string;
@@ -32,6 +33,19 @@ async function logStockMovement(item: {
   }
 }
 
+async function assertItemTeamAccess(
+  auth: Awaited<ReturnType<typeof requireProductionApiUser>>,
+  item: { team_id?: string } | null | undefined
+) {
+  if (!auth.user || !auth.supabase || !item?.team_id) return null;
+  const access = await assertUserBelongsToTeam(
+    auth.supabase as any,
+    auth.user.id,
+    item.team_id
+  );
+  return access.ok ? null : access.response;
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -45,6 +59,8 @@ export async function GET(
     if (!item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
+    const denied = await assertItemTeamAccess(auth, item as { team_id?: string });
+    if (denied) return denied;
     return NextResponse.json(item);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -61,9 +77,11 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
+    const before = await inventoryRepository.getById(id);
+    const denied = await assertItemTeamAccess(auth, before as { team_id?: string } | null);
+    if (denied) return denied;
 
     if (body.action && typeof body.qtyChange === "number") {
-      const before = await inventoryRepository.getById(id);
       const updated = await updateStockUseCase.execute(id, body.qtyChange, body.action);
       const delta =
         typeof updated?.stock_available === "number" && typeof before?.stock_available === "number"
@@ -99,6 +117,10 @@ export async function DELETE(
 
   try {
     const { id } = await params;
+    const existing = await inventoryRepository.getById(id);
+    const denied = await assertItemTeamAccess(auth, existing as { team_id?: string } | null);
+    if (denied) return denied;
+
     const success = await inventoryRepository.delete(id);
     if (!success) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });

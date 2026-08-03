@@ -1,38 +1,33 @@
-import type { Profile } from '@/types';
-import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
-import { enrichProfileWithSuperadmin } from '@/lib/production-auth-fallback';
-import { resolveUserAccess, resolveUserEmail } from '@/lib/permissions';
+/**
+ * Acceso de API con perfil/rol — delega en el flujo único authenticate → authorize.
+ * @deprecated Preferir `authenticate` + `authorize` de `@/lib/security/auth`.
+ */
+import { authenticate, authorize, profileFromAuthUser } from '@/lib/security/auth';
 
-/** Perfil de API con rol superadmin elevado por email (Ramón). */
 export async function getApiUserAccess() {
-  const supabase = (await createSupabaseServerClient()) as any;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { supabase, user: null, access: null, response: { status: 401 as const } };
+  const auth = await authenticate();
+  if (auth.response || !auth.user) {
+    return {
+      supabase: auth.supabase as any,
+      user: null,
+      access: null,
+      response: { status: 401 as const },
+    };
   }
 
-  const { data: profileRow } = await supabase
-    .from('profiles')
-    .select('role, email, full_name')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  const email = resolveUserEmail({
-    profileEmail: profileRow?.email,
-    sessionEmail: user.email,
-  });
-  const access = resolveUserAccess(profileRow?.role, email);
-
-  return { supabase, user, access, profileRow, response: null };
+  const authorized = await authorize(auth);
+  return {
+    supabase: authorized.supabase as any,
+    user: authorized.user,
+    access: authorized.access,
+    profileRow: authorized.profileRow,
+    response: null,
+  };
 }
 
 export function profileFromApiUser(
   profileRow: { role: string; email: string; full_name?: string } | null,
   authEmail?: string | null
 ) {
-  if (!profileRow) return null;
-  return enrichProfileWithSuperadmin(profileRow as Profile, authEmail);
+  return profileFromAuthUser(profileRow, authEmail);
 }

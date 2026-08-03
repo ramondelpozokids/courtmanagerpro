@@ -4,6 +4,7 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { isRealMadridTeamId } from '@/lib/club-team-ids';
 import { mapPackTripsForTeam } from '@/lib/club-trips';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 function uiStatusToDb(status: string): string {
   if (status === 'READY') return 'en_curso';
@@ -54,6 +55,11 @@ export async function GET(req: NextRequest) {
   if (isServerProduction()) {
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
+
+    if (isRealMadridTeamId(teamId)) {
+      const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+      if (!access.ok) return access.response;
+    }
 
     if (!isRealMadridTeamId(teamId)) {
       return NextResponse.json(db.trips);
@@ -155,6 +161,9 @@ export async function POST(request: NextRequest) {
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
     const pg = supabase as any;
+
+    const access = await assertUserBelongsToTeam(pg, user.id, teamId);
+    if (!access.ok) return access.response;
 
     if (body.tripId && body.action === 'addItem') {
       const { error } = await pg.from('trip_items').insert({

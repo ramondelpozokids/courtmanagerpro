@@ -5,6 +5,10 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { isDemoMode } from '@/lib/app-mode';
+import {
+  assertUserBelongsToTeam,
+  getAccessibleTeamIds,
+} from '@/lib/security/assert-team-access';
 
 export const runtime = 'nodejs';
 
@@ -72,14 +76,30 @@ type DemoMovement = {
 let demoStore: DemoMovement[] = [...DEMO_MOVEMENTS];
 
 export async function GET(req: NextRequest) {
+  let sessionUser: { id: string } | null = null;
+  let sessionSupabase: Awaited<ReturnType<typeof createSupabaseServerClient>> | null = null;
+
   if (isServerProduction()) {
-    const { user, response } = await requireApiUser();
+    const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
+    sessionUser = user;
+    sessionSupabase = supabase;
   }
 
   const scope = req.nextUrl.searchParams.get('scope') || 'active'; // active | all_rm
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
   const limit = Math.min(Number(req.nextUrl.searchParams.get('limit') || 80), 200);
+
+  if (sessionUser && sessionSupabase) {
+    if (scope !== 'all_rm') {
+      const access = await assertUserBelongsToTeam(
+        sessionSupabase as any,
+        sessionUser.id,
+        teamId
+      );
+      if (!access.ok) return access.response;
+    }
+  }
 
   if (isDemoMode() || !isServerProduction()) {
     const rows =
@@ -102,7 +122,15 @@ export async function GET(req: NextRequest) {
     .limit(limit);
 
   if (scope === 'all_rm') {
-    query = query.in('team_id', [CLUB_TEAM_IDS.atm, CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf]);
+    const access = await getAccessibleTeamIds(sessionSupabase as any, sessionUser!.id);
+    const clubIds = [CLUB_TEAM_IDS.atm, CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf];
+    const allowed = access.superadmin
+      ? clubIds
+      : clubIds.filter((id) => access.teamIds.includes(id));
+    if (allowed.length === 0) {
+      return NextResponse.json({ data: [] });
+    }
+    query = query.in('team_id', allowed);
   } else {
     query = query.eq('team_id', teamId);
   }
@@ -125,16 +153,23 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   let user: { id: string } | null = null;
   let profileName: string | null = null;
+  let sessionSupabase: Awaited<ReturnType<typeof createSupabaseServerClient>> | null = null;
   if (isServerProduction()) {
     const auth = await requireApiUser();
     if (auth.response || !auth.user) return auth.response!;
     user = auth.user;
+    sessionSupabase = auth.supabase;
     const meta = (auth.user as { user_metadata?: { full_name?: string } }).user_metadata;
     profileName = meta?.full_name || null;
   }
 
   const body = await req.json();
   const teamId = resolveTeamId(body.team_id || DEFAULT_TEAM_ID);
+
+  if (user && sessionSupabase) {
+    const access = await assertUserBelongsToTeam(sessionSupabase as any, user.id, teamId);
+    if (!access.ok) return access.response;
+  }
   const direction = String(body.direction || '').toLowerCase(); // entrada | salida
   let qtyDelta = Number(body.qty_delta);
   if (!Number.isFinite(qtyDelta) || qtyDelta === 0) {
@@ -238,14 +273,27 @@ export async function POST(req: NextRequest) {
 
 /** Borra solo la fila del historial (no revierte stock). */
 export async function DELETE(req: NextRequest) {
+  let sessionUser: { id: string } | null = null;
+  let sessionSupabase: Awaited<ReturnType<typeof createSupabaseServerClient>> | null = null;
   if (isServerProduction()) {
-    const { user, response } = await requireApiUser();
+    const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
+    sessionUser = user;
+    sessionSupabase = supabase;
   }
 
   const id = req.nextUrl.searchParams.get('id');
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
   if (!id) return NextResponse.json({ error: 'Falta id' }, { status: 400 });
+
+  if (sessionUser && sessionSupabase) {
+    const access = await assertUserBelongsToTeam(
+      sessionSupabase as any,
+      sessionUser.id,
+      teamId
+    );
+    if (!access.ok) return access.response;
+  }
 
   if (isDemoMode() || !isServerProduction()) {
     demoStore = demoStore.filter((m) => m.id !== id);

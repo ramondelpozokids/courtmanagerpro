@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ data: searchEquipment(teamId, q) });
   }
 
-  const { supabase, user, response } = await withEquipmentAuth();
+  const { supabase, user, response } = await withEquipmentAuth(req);
   if (response || !user || !supabase) return response!;
 
   const query = q.trim();

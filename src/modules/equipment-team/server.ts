@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
+import { authenticate, assertUserBelongsToTeam, isServerProduction } from '@/lib/security/auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 
 export function teamIdFrom(req: NextRequest, body?: { team_id?: string }): string {
@@ -31,13 +31,32 @@ export async function equipmentDbAvailable(
   }
 }
 
-export async function withEquipmentAuth() {
+/**
+ * Auth + anti-IDOR del módulo utilería.
+ * En producción: sesión válida y pertenencia al team_id de la petición.
+ */
+export async function withEquipmentAuth(
+  req: NextRequest,
+  body?: { team_id?: string }
+) {
+  const teamId = teamIdFrom(req, body);
   if (!isServerProduction()) {
-    return { supabase: null as null, user: null as null, response: null as NextResponse | null };
+    return {
+      supabase: null as null,
+      user: null as null,
+      response: null as NextResponse | null,
+      teamId,
+    };
   }
-  const { supabase, user, response } = await requireApiUser();
-  if (response || !user) return { supabase: null, user: null, response: response! };
-  return { supabase, user, response: null as NextResponse | null };
+  const { supabase, user, response } = await authenticate();
+  if (response || !user) {
+    return { supabase: null, user: null, response: response!, teamId };
+  }
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+  if (!access.ok) {
+    return { supabase: null, user: null, response: access.response, teamId };
+  }
+  return { supabase, user, response: null as NextResponse | null, teamId };
 }
 
 export async function insertHistory(

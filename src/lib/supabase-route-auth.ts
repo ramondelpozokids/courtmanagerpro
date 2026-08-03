@@ -1,40 +1,29 @@
-import { NextResponse } from 'next/server';
+/**
+ * Helpers de ruta API — wrappers del flujo único en `@/lib/security/auth`.
+ * Preferir `authenticate` / `authorize` / `assertUserBelongsToTeam` en código nuevo.
+ */
 import type { NextRequest } from 'next/server';
-import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import {
+  authenticate,
+  authenticateForProduction,
+  isServerProduction,
+} from '@/lib/security/auth';
 import { isProductionApp } from '@/lib/app-mode';
 
+/** @deprecated Usar `authenticate` de `@/lib/security/auth`. */
 export async function requireApiUser() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    return {
-      supabase,
-      user: null,
-      response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
-    };
-  }
-
-  return { supabase, user, response: null as NextResponse | null };
+  return authenticate();
 }
 
 /**
  * En producción exige sesión. En demo/mock no bloquea (InMemory local).
- * Usar al inicio de handlers de datos.
+ * @deprecated Usar `authenticateForProduction` de `@/lib/security/auth`.
  */
 export async function requireProductionApiUser() {
-  if (!isProductionApp()) {
-    return { supabase: null as Awaited<ReturnType<typeof createSupabaseServerClient>> | null, user: null, response: null as NextResponse | null };
-  }
-  return requireApiUser();
+  return authenticateForProduction();
 }
 
-export function isServerProduction(): boolean {
-  return isProductionApp();
-}
+export { isServerProduction };
 
 /**
  * Cron en producción: solo Authorization Bearer CRON_SECRET.

@@ -1,0 +1,8 @@
+# Evitar subir assets de dossier/vídeo al deploy (no afectan la app)
+docs/atleti-lab/
+*.mp4
+*.wav
+*.webm
+.tmp-*
+node_modules/
+.next/

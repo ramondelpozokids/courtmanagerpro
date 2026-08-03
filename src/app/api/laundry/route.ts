@@ -4,6 +4,7 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { laundryRowToUi, laundryStatusToDb, laundryUiToDb } from '@/lib/laundry-mapper';
 import type { LaundryBatch } from '@/domain/entities/LaundryBatch';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 export async function GET(req: NextRequest) {
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
@@ -14,6 +15,10 @@ export async function GET(req: NextRequest) {
 
   const { supabase, user, response } = await requireApiUser();
   if (response || !user) return response!;
+
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+  if (!access.ok) return access.response;
+
   const pg = supabase as any;
 
   const { data, error } = await pg
@@ -64,6 +69,9 @@ export async function POST(request: NextRequest) {
     if (response || !user) return response!;
     const pg = supabase as any;
 
+    const access = await assertUserBelongsToTeam(pg, user.id, teamId);
+    if (!access.ok) return access.response;
+
     if (body.batchId && body.status) {
       const { data, error } = await pg
         .from('laundry_batches')
@@ -108,8 +116,24 @@ export async function DELETE(request: NextRequest) {
 
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
+    const pg = supabase as any;
 
-    const { error } = await (supabase as any).from('laundry_batches').delete().eq('id', batchId);
+    const { data: existing } = await pg
+      .from('laundry_batches')
+      .select('team_id')
+      .eq('id', batchId)
+      .maybeSingle();
+    if (!existing?.team_id) {
+      return NextResponse.json({ error: 'Batch not found' }, { status: 404 });
+    }
+    const access = await assertUserBelongsToTeam(pg, user.id, existing.team_id);
+    if (!access.ok) return access.response;
+
+    const { error } = await pg
+      .from('laundry_batches')
+      .delete()
+      .eq('id', batchId)
+      .eq('team_id', existing.team_id);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

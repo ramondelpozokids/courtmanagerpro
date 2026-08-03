@@ -3,6 +3,7 @@ import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { parseStaffNotes } from '@/lib/player-profile';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 export async function GET(req: NextRequest) {
   if (!isServerProduction()) {
@@ -13,6 +14,9 @@ export async function GET(req: NextRequest) {
   if (response || !user) return response!;
 
   const teamId = req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID;
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+  if (!access.ok) return access.response;
+
   const { data, error } = await (supabase as any)
     .from('coaching_staff')
     .select('*')
@@ -48,6 +52,9 @@ export async function POST(req: NextRequest) {
   if (response || !user) return response!;
 
   const teamId = body.team_id || DEFAULT_TEAM_ID;
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+  if (!access.ok) return access.response;
+
   const notes = {
     ...parseStaffNotes(body.notes),
     ...(typeof body.profile_url === 'string' && body.profile_url.trim()

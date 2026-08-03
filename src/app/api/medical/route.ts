@@ -4,6 +4,7 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { isRealMadridTeamId } from '@/lib/club-team-ids';
 import { medicalRowToUi, medicalUiToDb } from '@/lib/medical-mapper';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 export async function GET(req: NextRequest) {
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
@@ -11,6 +12,11 @@ export async function GET(req: NextRequest) {
   if (isServerProduction()) {
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
+
+    if (isRealMadridTeamId(teamId)) {
+      const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+      if (!access.ok) return access.response;
+    }
 
     if (!isRealMadridTeamId(teamId)) {
       const rows = (db.medical || []).filter(
@@ -110,6 +116,9 @@ export async function POST(request: NextRequest) {
     if (response || !user) return response!;
     const pg = supabase as any;
 
+    const access = await assertUserBelongsToTeam(pg, user.id, teamId);
+    if (!access.ok) return access.response;
+
     if (body.itemId && typeof body.quantity === 'number') {
       const { data, error } = await pg
         .from('medical_items')
@@ -158,6 +167,9 @@ export async function DELETE(request: NextRequest) {
 
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
+
+    const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
+    if (!access.ok) return access.response;
 
     const { error } = await (supabase as any)
       .from('medical_items')

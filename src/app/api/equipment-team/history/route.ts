@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ data: history.slice(0, limit) });
   }
 
-  const { supabase, user, response } = await withEquipmentAuth();
+  const { supabase, user, response } = await withEquipmentAuth(req);
   if (response || !user || !supabase) return response!;
 
   let query = (supabase as any)
@@ -70,7 +70,7 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ data: { ok: true, deleted: clearAll ? 'all' : ids.length } });
   }
 
-  const { supabase, user, response } = await withEquipmentAuth();
+  const { supabase, user, response } = await withEquipmentAuth(req, body);
   if (response || !user || !supabase) return response!;
   const pg = supabase as any;
 

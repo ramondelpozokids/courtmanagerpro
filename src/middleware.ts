@@ -4,6 +4,7 @@ import {
   supabaseUrl,
   supabaseAnonKey,
 } from '@/infrastructure/supabase/env';
+import { isProductionApp } from '@/lib/app-mode';
 import {
   isAtmDemoAccessEnabled,
   isAtmDemoEmail,
@@ -30,13 +31,6 @@ const PUBLIC_API_PREFIXES = [
   '/api/ai/ping',
 ];
 
-function isProductionDeployment(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const hasRealSupabase =
-    !!url && !url.includes('your-project') && !url.includes('dummy-project');
-  return hasRealSupabase && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true';
-}
-
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`)
@@ -54,6 +48,7 @@ function hasCronBearer(request: NextRequest): boolean {
   if (!secret) return false;
   return request.headers.get('authorization') === `Bearer ${secret}`;
 }
+
 
 function blockDisabledAtmDemo(request: NextRequest, userEmail?: string | null) {
   if (!isAtmDemoEmail(userEmail)) return null;
@@ -103,7 +98,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('x-vercel-skip-toolbar', '1');
 
   if (
-    isProductionDeployment() &&
+    isProductionApp() &&
     (pathname === '/registro' || pathname.startsWith('/registro/'))
   ) {
     return NextResponse.redirect(new URL('/login', request.url));
@@ -114,7 +109,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next({ request: { headers: requestHeaders } });
     }
 
-    if (isProductionDeployment()) {
+    if (isProductionApp()) {
       if (hasCronBearer(request)) {
         return NextResponse.next({ request: { headers: requestHeaders } });
       }
@@ -138,7 +133,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  if (isProductionDeployment()) {
+  if (isProductionApp()) {
     const { user, response } = await getSupabaseUser(request, requestHeaders);
 
     if (!user) {

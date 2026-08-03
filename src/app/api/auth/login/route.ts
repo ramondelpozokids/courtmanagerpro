@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
   pruneLoginRateLimitBuckets();
   const ip = getClientIp(request);
-  const limit = checkLoginRateLimit(ip, email);
+  const limit = await checkLoginRateLimit(ip, email);
   if (!limit.ok) {
     return NextResponse.json(
       { error: 'Demasiados intentos de acceso. Espera unos minutos e inténtalo de nuevo.' },

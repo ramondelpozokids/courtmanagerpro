@@ -5,6 +5,10 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { getClubPack } from '@/data/clubs';
 import { isDemoMode } from '@/lib/app-mode';
+import {
+  getAccessibleTeamIds,
+} from '@/lib/security/assert-team-access';
+import { forbidden } from '@/lib/security/api-error';
 
 export const runtime = 'nodejs';
 
@@ -106,9 +110,12 @@ function demoItemsForTeam(teamId: string, section: (typeof SECTIONS)[number]) {
 }
 
 export async function GET(req: NextRequest) {
+  let accessible: Awaited<ReturnType<typeof getAccessibleTeamIds>> | null = null;
+
   if (isServerProduction()) {
-    const { user, response } = await requireApiUser();
+    const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
+    accessible = await getAccessibleTeamIds(supabase as any, user.id);
   }
 
   const sport = req.nextUrl.searchParams.get('sport'); // basketball | football | all
@@ -118,11 +125,23 @@ export async function GET(req: NextRequest) {
   const scope = req.nextUrl.searchParams.get('scope') || 'active'; // active | all_rm
   const teamIdParam = req.nextUrl.searchParams.get('team_id');
 
+  if (accessible && !accessible.superadmin && teamIdParam) {
+    if (!accessible.teamIds.includes(teamIdParam)) {
+      return forbidden();
+    }
+  }
+
   let sections = SECTIONS.filter((s) => {
     if (sport && sport !== 'all' && s.sport !== sport) return false;
     if (category && category !== 'all' && s.category !== category) return false;
     return true;
   });
+
+  if (accessible && !accessible.superadmin) {
+    sections = sections.filter(
+      (s) => s.teamId != null && accessible!.teamIds.includes(s.teamId)
+    );
+  }
 
   if (scope !== 'all_rm' && teamIdParam) {
     sections = sections.filter((s) => s.teamId === teamIdParam);
@@ -171,13 +190,7 @@ export async function GET(req: NextRequest) {
   }
   if (onlyLow) filtered = filtered.filter((i) => i.low_stock);
 
-  const bySectionSource =
-    scope === 'all_rm'
-      ? SECTIONS
-      : SECTIONS.filter((s) => {
-          if (teamIdParam) return s.teamId === teamIdParam;
-          return true;
-        });
+  const bySectionSource = sections;
 
   const stats = {
     total_refs: filtered.length,

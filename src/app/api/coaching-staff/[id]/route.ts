@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { parseStaffNotes } from '@/lib/player-profile';
+import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -44,11 +45,14 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const { data: existing, error: fetchErr } = await (supabase as any)
     .from('coaching_staff')
-    .select('notes')
+    .select('notes, team_id')
     .eq('id', id)
     .maybeSingle();
   if (fetchErr) return NextResponse.json({ error: fetchErr.message }, { status: 500 });
   if (!existing) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, existing.team_id);
+  if (!access.ok) return access.response;
 
   const payload = staffUpdateFromBody(body, existing.notes);
 
@@ -59,6 +63,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
+    .eq('team_id', existing.team_id)
     .select()
     .single();
 
@@ -82,10 +87,23 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const { supabase, user, response } = await requireApiUser();
   if (response || !user) return response!;
 
+  const { data: existing } = await (supabase as any)
+    .from('coaching_staff')
+    .select('team_id')
+    .eq('id', id)
+    .maybeSingle();
+  if (!existing?.team_id) {
+    return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+  }
+
+  const access = await assertUserBelongsToTeam(supabase as any, user.id, existing.team_id);
+  if (!access.ok) return access.response;
+
   const { error } = await (supabase as any)
     .from('coaching_staff')
     .update({ is_active: false, updated_at: new Date().toISOString() })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('team_id', existing.team_id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });

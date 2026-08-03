@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ data: tasks });
   }
 
-  const { supabase, user, response } = await withEquipmentAuth();
+  const { supabase, user, response } = await withEquipmentAuth(req);
   if (response || !user || !supabase) return response!;
 
   const { data, error } = await (supabase as any)
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { supabase, user, response } = await withEquipmentAuth();
+    const { supabase, user, response } = await withEquipmentAuth(req, body);
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = body.created_by_name || actorFromUser(user);
@@ -195,7 +195,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ data: updated });
     }
 
-    const { supabase, user, response } = await withEquipmentAuth();
+    const { supabase, user, response } = await withEquipmentAuth(req, body);
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = actorFromUser(user);
@@ -256,7 +256,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    const { supabase, user, response } = await withEquipmentAuth();
+    const { supabase, user, response } = await withEquipmentAuth(req);
     if (response || !user || !supabase) return response!;
     const pg = supabase as any;
     const actor = actorFromUser(user);

@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ data: demoPayload(teamId) });
   }
 
-  const { supabase, user, response } = await withEquipmentAuth();
+  const { supabase, user, response } = await withEquipmentAuth(req);
   if (response || !user || !supabase) return response!;
   const pg = supabase as any;
 

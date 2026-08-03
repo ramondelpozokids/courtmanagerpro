@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
 import { isSuperadminUser } from '@/lib/permissions';
 import { isUuid } from '@/lib/club-team-ids';
+import { badRequest, forbidden } from '@/lib/security/api-error';
 
 type SupabaseLike = {
   from: (table: string) => {
@@ -18,14 +18,27 @@ export async function assertUserBelongsToTeam(
   supabase: SupabaseLike,
   userId: string,
   teamId: string | null | undefined
-): Promise<{ ok: true } | { ok: false; response: NextResponse }> {
+): Promise<{ ok: true } | { ok: false; response: ReturnType<typeof badRequest> }> {
   if (!teamId || !isUuid(teamId)) {
     return {
       ok: false,
-      response: NextResponse.json({ error: 'team_id inválido' }, { status: 400 }),
+      response: badRequest('team_id inválido'),
     };
   }
 
+  const access = await getAccessibleTeamIds(supabase, userId);
+  if (access.superadmin) return { ok: true };
+  if (!access.teamIds.includes(teamId)) {
+    return { ok: false, response: forbidden() };
+  }
+  return { ok: true };
+}
+
+/** Equipos activos del usuario (o superadmin con acceso total). */
+export async function getAccessibleTeamIds(
+  supabase: SupabaseLike,
+  userId: string
+): Promise<{ superadmin: true; teamIds: string[] } | { superadmin: false; teamIds: string[] }> {
   const pg = supabase as any;
 
   const { data: profile } = await pg
@@ -35,23 +48,18 @@ export async function assertUserBelongsToTeam(
     .maybeSingle();
 
   if (isSuperadminUser(profile?.role, profile?.email)) {
-    return { ok: true };
+    return { superadmin: true, teamIds: [] };
   }
 
-  const { data: membership } = await pg
+  const { data: rows } = await pg
     .from('user_teams')
-    .select('id')
+    .select('team_id')
     .eq('user_id', userId)
-    .eq('team_id', teamId)
-    .eq('is_active', true)
-    .maybeSingle();
+    .eq('is_active', true);
 
-  if (!membership) {
-    return {
-      ok: false,
-      response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }),
-    };
-  }
+  const teamIds = (rows || [])
+    .map((r: { team_id?: string }) => r.team_id)
+    .filter((id: string | undefined): id is string => Boolean(id));
 
-  return { ok: true };
+  return { superadmin: false, teamIds };
 }
