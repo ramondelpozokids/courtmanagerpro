@@ -281,7 +281,7 @@ function collectSizeDistribution(values: string[]): Record<string, number> {
 
 function distributionSection(title: string, map: Record<string, number>): string[] {
   const lines = sectionDivider(title);
-  lines.push(row(['Size', 'Count']));
+  lines.push(row(['Talla', 'Cantidad']));
   const entries = Object.entries(map).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'es'));
   if (entries.length === 0) {
     lines.push(row(['—', 0]));
@@ -541,14 +541,14 @@ export function buildSizingCsvLines(
   lines.push(...sectionDivider('MATRIZ DE TALLAS'));
   lines.push(
     row([
-      'Player',
-      'Position',
-      'Shirt Size',
-      'Short Size',
-      'Training Size',
-      'Jacket Size',
-      'Shoe Size',
-      'Notes',
+      'Nombre',
+      'Posición / rol',
+      'Talla camiseta',
+      'Talla pantalón',
+      'Talla entrenamiento',
+      'Talla chaqueta',
+      'Talla calzado',
+      'Notas',
     ])
   );
 
@@ -603,13 +603,13 @@ export function buildSizingCsvLines(
     ])
   );
 
-  lines.push(...distributionSection('DISTRIBUCIÓN — SHIRT SIZE', collectSizeDistribution(shirtSizes)));
-  lines.push(...distributionSection('DISTRIBUCIÓN — SHORT SIZE', collectSizeDistribution(shortSizes)));
+  lines.push(...distributionSection('DISTRIBUCIÓN — TALLA CAMISETA', collectSizeDistribution(shirtSizes)));
+  lines.push(...distributionSection('DISTRIBUCIÓN — TALLA PANTALÓN', collectSizeDistribution(shortSizes)));
   lines.push(
-    ...distributionSection('DISTRIBUCIÓN — TRAINING SIZE', collectSizeDistribution(trainingSizes))
+    ...distributionSection('DISTRIBUCIÓN — TALLA ENTRENAMIENTO', collectSizeDistribution(trainingSizes))
   );
-  lines.push(...distributionSection('DISTRIBUCIÓN — JACKET SIZE', collectSizeDistribution(jacketSizes)));
-  lines.push(...distributionSection('DISTRIBUCIÓN — SHOE SIZE', collectSizeDistribution(shoeSizes)));
+  lines.push(...distributionSection('DISTRIBUCIÓN — TALLA CHAQUETA', collectSizeDistribution(jacketSizes)));
+  lines.push(...distributionSection('DISTRIBUCIÓN — TALLA CALZADO', collectSizeDistribution(shoeSizes)));
 
   lines.push(emptyRow());
   lines.push(row(['Fin del informe', identity.legalName, identity.department]));
