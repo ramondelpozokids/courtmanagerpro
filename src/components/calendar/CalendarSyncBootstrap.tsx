@@ -2,15 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
-import { useAuth } from '@/contexts/AuthContext';
+import { useActiveTeamId } from '@/contexts/ClubDemoContext';
 
-/** Transparent calendar sync on dashboard mount (every ~12h / once per session window). */
+/** Sync de calendario oficial por club activo (RMB / RMF / ATM). */
 export function CalendarSyncBootstrap() {
-  const { currentTeam } = useAuth();
+  const teamId = useActiveTeamId() || DEFAULT_TEAM_ID;
   const lastTeamRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
     const teamChanged = lastTeamRef.current != null && lastTeamRef.current !== teamId;
     lastTeamRef.current = teamId;
 
@@ -34,8 +33,7 @@ export function CalendarSyncBootstrap() {
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify({
-        // Force: amistosos nuevos (p.ej. Costa del Sol sep) no deben quedar fuera
-        // por un sync "ok" reciente con calendario incompleto.
+        // Force: amistosos nuevos no deben quedar fuera por un sync "ok" reciente.
         trigger: teamChanged ? 'manual' : 'startup',
         team_id: teamId,
         force: true,
@@ -55,7 +53,7 @@ export function CalendarSyncBootstrap() {
       .catch((err) => {
         console.warn('[CalendarSyncBootstrap] non-blocking failure:', err);
       });
-  }, [currentTeam?.id]);
+  }, [teamId]);
 
   return null;
 }

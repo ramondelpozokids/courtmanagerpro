@@ -4,6 +4,7 @@ import { computeRosterDiff } from './diffEngine';
 import { syncPhotosForSnapshot } from './photoSync';
 import { createRosterSourceForTeam, plantillaUrlForTeam } from './sources/realMadridOfficial';
 import {
+  ATLETICO_SOURCE_LABEL,
   REAL_MADRID_SOURCE_LABEL,
   type DbPlayerRow,
   type DbStaffRow,
@@ -14,6 +15,13 @@ import {
 } from './sources/types';
 import { applyDemoRosterSync, getDemoSyncStatus, loadDemoCache } from './demoStore';
 import { isDemoMode } from '@/lib/app-mode';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+
+function sourceLabelForTeam(teamId: string): string {
+  if (teamId === CLUB_TEAM_IDS.atm) return ATLETICO_SOURCE_LABEL;
+  if (teamId === CLUB_TEAM_IDS.rmf) return 'Real Madrid Oficial — Fútbol';
+  return REAL_MADRID_SOURCE_LABEL;
+}
 
 const DEFAULT_SKIP_HOURS = 23;
 
@@ -123,7 +131,7 @@ export async function getRosterSyncStatus(
 
   return {
     lastSync: last,
-    sourceLabel: REAL_MADRID_SOURCE_LABEL,
+    sourceLabel: sourceLabelForTeam(teamId),
     hasPendingChanges: changes > 0 && status === 'ok',
     syncedOk: status === 'ok' || status === 'offline_cache' || status === 'skipped',
     usedCache: status === 'offline_cache',
@@ -203,29 +211,41 @@ export async function runRosterSync(params: {
 
   try {
     snapshot = await source.fetchRoster();
+    if (!snapshot?.players?.length) {
+      throw new Error('Plantilla oficial vacía o no parseable');
+    }
   } catch (err) {
     fetchError = err instanceof Error ? err.message : String(err);
     console.error('[roster-sync] fetch failed:', fetchError);
 
-    const { data: cacheRow } = await supabase
-      .from('roster_sync_cache')
-      .select('payload, fetched_at, source_url')
-      .eq('team_id', options.teamId)
-      .maybeSingle();
+    // force=manual: priorizar fallback embebido actualizado frente a caché vieja
+    // (evita reponer jugadores ya dados de baja en la web oficial).
+    if (!options.force) {
+      const { data: cacheRow } = await supabase
+        .from('roster_sync_cache')
+        .select('payload, fetched_at, source_url')
+        .eq('team_id', options.teamId)
+        .maybeSingle();
 
-    if (cacheRow?.payload) {
-      snapshot = cacheRow.payload as OfficialRosterSnapshot;
-      usedCache = true;
-    } else {
+      if (cacheRow?.payload) {
+        const cached = cacheRow.payload as OfficialRosterSnapshot;
+        if (cached.players?.length) {
+          snapshot = cached;
+          usedCache = true;
+        }
+      }
+    }
+
+    if (!snapshot?.players?.length) {
       const demoCache = loadDemoCache(options.teamId);
-      if (demoCache) {
+      if (demoCache?.players?.length) {
         snapshot = demoCache;
         usedCache = true;
       }
     }
   }
 
-  if (!snapshot) {
+  if (!snapshot?.players?.length) {
     const durationMs = Date.now() - started;
     if (syncLogId) {
       await finishSyncLog(supabase, syncLogId, {

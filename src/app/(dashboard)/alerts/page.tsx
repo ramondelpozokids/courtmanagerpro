@@ -11,7 +11,8 @@ import Link from "next/link";
 export default function AlertsPage() {
   const { user, userEmail, hasOperationalAccess } = useAuth();
   const teamId = useActiveTeamId();
-  const { alerts, loading, markAsRead, dismissAlert, markAllAsRead, refresh } = useAlerts(teamId);
+  const { alerts, loading, markAsRead, dismissAlert, dismissAll, markAllAsRead, refresh } =
+    useAlerts(teamId);
 
   const userRole = user?.profile?.role;
   const hasAccess = hasOperationalAccess || canViewAlerts(userRole, userEmail);
@@ -87,9 +88,7 @@ export default function AlertsPage() {
               type="button"
               onClick={async () => {
                 if (!confirm(`¿Eliminar las ${alerts.length} alerta(s) de la bandeja?`)) return;
-                for (const a of alerts) {
-                  await dismissAlert(a.id);
-                }
+                await dismissAll();
               }}
               className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs font-bold text-red-600 transition-all"
             >

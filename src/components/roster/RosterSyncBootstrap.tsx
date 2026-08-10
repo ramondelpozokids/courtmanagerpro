@@ -2,27 +2,31 @@
 
 import { useEffect, useRef } from 'react';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
-import { useAuth } from '@/contexts/AuthContext';
+import { useActiveTeamId } from '@/contexts/ClubDemoContext';
 
 /**
- * Transparent startup sync: fires once per browser session when the dashboard mounts.
+ * Startup sync por club activo (RMB / RMF / ATM).
+ * Al cambiar de club en el switcher, vuelve a sincronizar ese team_id.
  * Failures never block the UI.
  */
 export function RosterSyncBootstrap() {
-  const { currentTeam } = useAuth();
-  const ran = useRef(false);
+  const teamId = useActiveTeamId() || DEFAULT_TEAM_ID;
+  const lastTeamRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
+    const teamChanged = lastTeamRef.current != null && lastTeamRef.current !== teamId;
+    lastTeamRef.current = teamId;
 
-    const teamId = currentTeam?.id || DEFAULT_TEAM_ID;
     const key = `cm-roster-sync-startup:${teamId}`;
     try {
-      const last = sessionStorage.getItem(key);
-      if (last) {
-        const ageH = (Date.now() - Number(last)) / 3_600_000;
-        if (ageH < 1) return;
+      if (!teamChanged) {
+        const last = sessionStorage.getItem(key);
+        if (last) {
+          const ageH = (Date.now() - Number(last)) / 3_600_000;
+          if (ageH < 1) return;
+        }
+      } else {
+        sessionStorage.removeItem(key);
       }
     } catch {
       /* ignore */
@@ -31,7 +35,12 @@ export function RosterSyncBootstrap() {
     void fetch('/api/roster/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ trigger: 'startup', team_id: teamId }),
+      credentials: 'include',
+      body: JSON.stringify({
+        trigger: teamChanged ? 'manual' : 'startup',
+        team_id: teamId,
+        force: teamChanged,
+      }),
     })
       .then(async (res) => {
         try {
@@ -40,20 +49,14 @@ export function RosterSyncBootstrap() {
           /* ignore */
         }
         const json = await res.json().catch(() => null);
-        if (json?.data?.changesCount > 0) {
-          window.dispatchEvent(
-            new CustomEvent('roster-sync-complete', { detail: json.data })
-          );
-        } else {
-          window.dispatchEvent(
-            new CustomEvent('roster-sync-complete', { detail: json?.data || {} })
-          );
-        }
+        window.dispatchEvent(
+          new CustomEvent('roster-sync-complete', { detail: json?.data || {} })
+        );
       })
       .catch((err) => {
         console.warn('[RosterSyncBootstrap] sync failed (non-blocking):', err);
       });
-  }, [currentTeam?.id]);
+  }, [teamId]);
 
   return null;
 }

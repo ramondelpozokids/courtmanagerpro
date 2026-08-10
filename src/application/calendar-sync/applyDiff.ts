@@ -1,5 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { BIRTHDAY_ALERT_RECIPIENT_EMAILS } from '@/config/birthday-alerts';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import type { MatchDiff, OfficialCalendarSnapshot } from './types';
+
+function matchEntitySource(teamId: string, snapshot: OfficialCalendarSnapshot): string {
+  if (teamId === CLUB_TEAM_IDS.atm || snapshot.source_id?.includes('atletico')) {
+    return 'atleticodemadrid.com';
+  }
+  return 'realmadrid.com';
+}
 
 export async function applyMatchDiff(params: {
   supabase: SupabaseClient;
@@ -10,6 +19,7 @@ export async function applyMatchDiff(params: {
 }): Promise<void> {
   const { supabase, teamId, diff, snapshot, syncLogId } = params;
   const now = new Date().toISOString();
+  const entitySource = matchEntitySource(teamId, snapshot);
 
   for (const change of diff.changes) {
     if (change.change_type === 'baja' && change.match_id) {
@@ -43,7 +53,7 @@ export async function applyMatchDiff(params: {
       partial_score: f.partial_score,
       result: f.result,
       official_url: f.official_url,
-      source: 'realmadrid.com',
+      source: entitySource,
       last_synced_at: now,
       is_active: true,
       updated_at: now,
@@ -102,59 +112,141 @@ export async function applyMatchDiff(params: {
   });
 }
 
-export async function createCalendarAlerts(params: {
-  supabase: SupabaseClient;
-  teamId: string;
-  diff: MatchDiff;
-}): Promise<void> {
-  const { supabase, teamId, diff } = params;
-  if (diff.changes.length === 0) return;
+/** Cambios que importan a utillería (viaje / hora / sede). No spamear resultados ni altas masivas. */
+const ACTIONABLE_CALENDAR_CHANGES = new Set([
+  'fecha',
+  'hora',
+  'rival',
+  'pabellon',
+  'baja',
+]);
 
-  const alerts = diff.changes
-    .filter((c) =>
-      ['nuevo', 'fecha', 'hora', 'rival', 'pabellon', 'resultado', 'marcador', 'estado'].includes(
-        c.change_type
-      )
-    )
-    .slice(0, 30)
-    .map((c) => {
-      let type = 'calendario_cambio';
-      if (c.change_type === 'nuevo') type = 'calendario_nuevo';
-      if (c.change_type === 'resultado' || c.change_type === 'marcador') type = 'calendario_resultado';
+const MAX_ALERTS_PER_SYNC = 8;
+/** Si hay más altas, una sola alerta resumen (primera sync / temporada nueva). */
+const BULK_NUEVO_THRESHOLD = 3;
 
-      const title =
-        c.change_type === 'nuevo'
-          ? 'Nuevo partido oficial'
-          : c.change_type === 'marcador' || c.change_type === 'resultado'
-            ? 'Resultado oficial publicado'
-            : 'Cambio en calendario oficial';
+function calendarAlertSource(teamId: string): string {
+  return teamId === CLUB_TEAM_IDS.atm ? 'atleticodemadrid.com' : 'realmadrid.com';
+}
 
-      const message =
-        c.change_type === 'hora'
-          ? `${c.entity_name}: hora ${c.old_value} → ${c.new_value} (Real Madrid Oficial)`
-          : c.change_type === 'fecha'
-            ? `${c.entity_name}: fecha ${c.old_value} → ${c.new_value} (Real Madrid Oficial)`
-            : `${c.entity_name}: ${c.change_type} ${c.old_value || ''} → ${c.new_value || ''}`.trim();
+/** Destinatarios operativos: Ramón (superadmin) + Carlos (utilería). */
+const OPERATIONAL_NOTIFY = BIRTHDAY_ALERT_RECIPIENT_EMAILS;
 
-      return {
+export type CalendarAlertRow = {
+  team_id: string;
+  type: string;
+  severity: string;
+  title: string;
+  message: string;
+  entity_type: string;
+  entity_id: string | null;
+  is_read: boolean;
+  is_dismissed: boolean;
+  auto_generated: boolean;
+  metadata: Record<string, unknown>;
+};
+
+/** Construye alertas de calendario (misma regla en prod y demo). */
+export function buildCalendarAlertRows(teamId: string, diff: MatchDiff): CalendarAlertRow[] {
+  if (diff.changes.length === 0) return [];
+
+  const source = calendarAlertSource(teamId);
+  const rows: CalendarAlertRow[] = [];
+  const nuevos = diff.changes.filter((c) => c.change_type === 'nuevo');
+  const actionable = diff.changes.filter((c) => ACTIONABLE_CALENDAR_CHANGES.has(c.change_type));
+
+  if (nuevos.length > BULK_NUEVO_THRESHOLD) {
+    rows.push({
+      team_id: teamId,
+      type: 'calendario_nuevo',
+      severity: 'info',
+      title: 'Calendario oficial actualizado',
+      message: `${nuevos.length} partidos sincronizados desde la web oficial. Revisa el calendario.`,
+      entity_type: 'official_match',
+      entity_id: null,
+      is_read: false,
+      is_dismissed: false,
+      auto_generated: true,
+      metadata: {
+        change_type: 'nuevo',
+        source,
+        bulk: true,
+        count: nuevos.length,
+        notify: [...OPERATIONAL_NOTIFY],
+      },
+    });
+  } else {
+    for (const c of nuevos.slice(0, MAX_ALERTS_PER_SYNC)) {
+      rows.push({
         team_id: teamId,
-        type,
-        severity: c.change_type === 'nuevo' || c.change_type === 'marcador' ? 'info' : 'warning',
-        title,
-        message,
+        type: 'calendario_nuevo',
+        severity: 'info',
+        title: 'Nuevo partido oficial',
+        message: `${c.entity_name}: ${c.new_value || ''}`.trim(),
         entity_type: 'official_match',
         entity_id: c.match_id,
         is_read: false,
         is_dismissed: false,
         auto_generated: true,
         metadata: {
-          change_type: c.change_type,
-          source: 'realmadrid.com',
+          change_type: 'nuevo',
+          source,
           slug: c.slug,
+          notify: [...OPERATIONAL_NOTIFY],
         },
-      };
-    });
+      });
+    }
+  }
 
+  for (const c of actionable) {
+    if (rows.length >= MAX_ALERTS_PER_SYNC) break;
+
+    const title =
+      c.change_type === 'baja'
+        ? 'Partido retirado del calendario'
+        : c.change_type === 'hora' || c.change_type === 'fecha'
+          ? 'Cambio de horario oficial'
+          : 'Cambio en calendario oficial';
+
+    const message =
+      c.change_type === 'hora'
+        ? `${c.entity_name}: hora ${c.old_value} → ${c.new_value}`
+        : c.change_type === 'fecha'
+          ? `${c.entity_name}: fecha ${c.old_value} → ${c.new_value}`
+          : c.change_type === 'baja'
+            ? `${c.entity_name}: retirado del calendario oficial`
+            : `${c.entity_name}: ${c.change_type} ${c.old_value || ''} → ${c.new_value || ''}`.trim();
+
+    rows.push({
+      team_id: teamId,
+      type: c.change_type === 'baja' ? 'calendario_baja' : 'calendario_cambio',
+      severity: 'warning',
+      title,
+      message,
+      entity_type: 'official_match',
+      entity_id: c.match_id,
+      is_read: false,
+      is_dismissed: false,
+      auto_generated: true,
+      metadata: {
+        change_type: c.change_type,
+        source,
+        slug: c.slug,
+        notify: [...OPERATIONAL_NOTIFY],
+      },
+    });
+  }
+
+  return rows.slice(0, MAX_ALERTS_PER_SYNC);
+}
+
+export async function createCalendarAlerts(params: {
+  supabase: SupabaseClient;
+  teamId: string;
+  diff: MatchDiff;
+}): Promise<void> {
+  const { supabase, teamId, diff } = params;
+  const alerts = buildCalendarAlertRows(teamId, diff);
   if (alerts.length === 0) return;
   const { error } = await supabase.from('alerts').insert(alerts);
   if (error) {

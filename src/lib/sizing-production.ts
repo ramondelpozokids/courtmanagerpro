@@ -98,19 +98,23 @@ export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
     ...meta,
   };
   const parts = p.full_name.split(' ');
-  // ATM: no usar resolvePlayerPhotoUrl (plantilla RMB) — provoca URLs ajenas / rotas
-  let imageUrl: string | null =
-    p.team_id === CLUB_TEAM_IDS.atm
-      ? resolveAtmPackPlayerPhoto({
-          dorsal: p.dorsal,
-          fullName: p.full_name,
-          photo_url: p.photo_url,
-        })
-      : resolvePlayerPhotoUrl({
-          official_slug: p.official_slug,
-          photo_url: p.photo_url,
-          fullName: p.full_name,
-        });
+  // Fotos por club: ATM pack local; RMB assets baloncesto; RMF/otros → photo_url propia
+  let imageUrl: string | null = null;
+  if (p.team_id === CLUB_TEAM_IDS.atm) {
+    imageUrl = resolveAtmPackPlayerPhoto({
+      dorsal: p.dorsal,
+      fullName: p.full_name,
+      photo_url: p.photo_url,
+    });
+  } else if (p.team_id === CLUB_TEAM_IDS.rmb) {
+    imageUrl = resolvePlayerPhotoUrl({
+      official_slug: p.official_slug,
+      photo_url: p.photo_url,
+      fullName: p.full_name,
+    });
+  } else {
+    imageUrl = p.photo_url || null;
+  }
   return {
     id: p.id,
     firstName: parts[0] || '',
@@ -129,15 +133,19 @@ export function supabasePlayerToSizingRow(p: Player, catalog: SizingProduct[]) {
 export function supabaseStaffToSizingRow(s: Record<string, unknown>, catalog: SizingProduct[]) {
   const meta = (s.sizing_metadata as Record<string, string>) || {};
   const fullName = String(s.full_name || '');
-  let photo_url = resolvePlayerPhotoUrl({
-    official_slug: typeof s.official_slug === 'string' ? s.official_slug : null,
-    slug: typeof s.slug === 'string' ? s.slug : null,
-    photo_url: typeof s.photo_url === 'string' ? s.photo_url : null,
-    fullName,
-    isStaff: true,
-  });
-  if (String(s.team_id || '') === CLUB_TEAM_IDS.atm) {
+  const teamId = String(s.team_id || '');
+  let photo_url: string | null =
+    typeof s.photo_url === 'string' ? s.photo_url : null;
+  if (teamId === CLUB_TEAM_IDS.atm) {
     photo_url = resolveAtmPackStaffPhoto({ fullName, photo_url });
+  } else if (teamId === CLUB_TEAM_IDS.rmb) {
+    photo_url = resolvePlayerPhotoUrl({
+      official_slug: typeof s.official_slug === 'string' ? s.official_slug : null,
+      slug: typeof s.slug === 'string' ? s.slug : null,
+      photo_url,
+      fullName,
+      isStaff: true,
+    });
   }
   return {
     id: s.id,

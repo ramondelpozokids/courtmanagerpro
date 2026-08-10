@@ -32,25 +32,52 @@ export function UpdateOfficialRosterButton({
       const res = await fetch('/api/roster/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ trigger: 'manual', team_id: teamId, force: true }),
       });
-      const json = await res.json();
-      const data = json.data;
-      if (data?.status === 'error') {
-        setMessage(data.errorMessage || 'Error al sincronizar (se mantiene la plantilla actual)');
-      } else if (data?.skipped) {
-        setMessage('Ya estaba actualizada');
-      } else {
-        const n = data?.changesCount ?? 0;
-        const src = clubSlug === 'rmf' || clubSlug === 'atm' ? 'fútbol' : 'baloncesto';
-        setMessage(
-          n === 0
-            ? `Plantilla ${src} al día — sin cambios`
-            : `Sincronizado (${src}): ${n} cambio${n === 1 ? '' : 's'} aplicado${n === 1 ? '' : 's'}`
-        );
-        window.dispatchEvent(new CustomEvent('roster-sync-complete', { detail: data }));
-        onDone?.();
+      const json = await res.json().catch(() => ({} as Record<string, unknown>));
+      const data = (json as { data?: Record<string, unknown>; error?: string }).data;
+      const topError = (json as { error?: string }).error;
+
+      if (!res.ok) {
+        setMessage(topError || `Error al sincronizar (HTTP ${res.status})`);
+        return;
       }
+
+      if (!data || data.status === 'error') {
+        setMessage(
+          String(data?.errorMessage || topError || 'Error al sincronizar (se mantiene la plantilla actual)')
+        );
+        return;
+      }
+
+      if (data.skipped) {
+        setMessage('Ya estaba actualizada');
+        return;
+      }
+
+      const n = Number(data.changesCount ?? 0);
+      const added = Number(data.playersAdded ?? 0);
+      const removed = Number(data.playersRemoved ?? 0);
+      const updated = Number(data.playersUpdated ?? 0);
+      const src =
+        clubSlug === 'atm'
+          ? 'Atlético de Madrid'
+          : clubSlug === 'rmf'
+            ? 'Real Madrid Fútbol'
+            : 'Real Madrid Baloncesto';
+      const fromCache = data.usedCache ? ' (caché / fallback)' : '';
+
+      if (n === 0) {
+        setMessage(`Plantilla ${src} al día con la web oficial — sin cambios${fromCache}`);
+      } else {
+        setMessage(
+          `Sincronizado (${src})${fromCache}: ${n} cambio${n === 1 ? '' : 's'}` +
+            ` (altas ${added}, bajas ${removed}, actualizados ${updated})`
+        );
+      }
+      window.dispatchEvent(new CustomEvent('roster-sync-complete', { detail: data }));
+      onDone?.();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Error de red');
     } finally {

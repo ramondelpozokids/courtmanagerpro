@@ -48,7 +48,7 @@ function playerPhoto(
   teamId: string
 ) {
   const fullName = `${p.firstName || ""} ${p.lastName || ""}`.trim();
-  // Pack ATM solo para ATM (Koke / Lenglet locales). En RMB/RMF no mapear por dorsal.
+  // Pack ATM solo para ATM. RMB → assets baloncesto. RMF → foto propia (no mapear a RMB).
   if (teamId === CLUB_TEAM_IDS.atm) {
     const atm = resolveAtmPackPlayerPhoto({
       dorsal: p.number,
@@ -56,31 +56,37 @@ function playerPhoto(
       photo_url: p.imageUrl,
     });
     if (atm && !/\/clubs\/atm\/logo\.png|realmadrid/i.test(atm)) return atm;
+    return p.imageUrl || null;
   }
-  return resolvePlayerPhotoUrl({
-    slug: p.slug,
-    imageUrl: p.imageUrl,
-    fullName,
-  });
+  if (teamId === CLUB_TEAM_IDS.rmb) {
+    return resolvePlayerPhotoUrl({
+      slug: p.slug,
+      imageUrl: p.imageUrl,
+      fullName,
+    });
+  }
+  return p.imageUrl || null;
 }
 
 function staffPhoto(
   s: { photo_url?: string | null; slug?: string | null; full_name?: string },
   teamId: string
 ) {
-  const resolved = resolvePlayerPhotoUrl({
-    slug: s.slug,
-    photo_url: s.photo_url,
-    fullName: s.full_name,
-    isStaff: true,
-  });
   if (teamId === CLUB_TEAM_IDS.atm) {
     return resolveAtmPackStaffPhoto({
       fullName: s.full_name,
-      photo_url: resolved,
+      photo_url: s.photo_url,
     });
   }
-  return resolved;
+  if (teamId === CLUB_TEAM_IDS.rmb) {
+    return resolvePlayerPhotoUrl({
+      slug: s.slug,
+      photo_url: s.photo_url,
+      fullName: s.full_name,
+      isStaff: true,
+    });
+  }
+  return s.photo_url || null;
 }
 
 const ALL_CATEGORIES: (SizingCategory | "ALL")[] = [

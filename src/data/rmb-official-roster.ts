@@ -72,7 +72,7 @@ export interface RmbOfficialStaffProfile {
 }
 
 export const RMB_OFFICIAL_SOURCE = "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla";
-export const RMB_OFFICIAL_SYNCED_AT = "2026-07-25T18:07:12.502Z";
+export const RMB_OFFICIAL_SYNCED_AT = "2026-08-10T16:12:47.837Z";
 
 export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
   {
@@ -935,140 +935,6 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "ppg": 0,
           "rpg": 0,
           "apg": 0
-        }
-      }
-    }
-  },
-  {
-    "legacyId": "p3",
-    "slug": "mario-hezonja",
-    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/mario-hezonja",
-    "firstName": "Mario",
-    "lastName": "Hezonja",
-    "full_name": "Mario Hezonja",
-    "nickname": "Hezonja",
-    "dorsal": 11,
-    "position": "Alero",
-    "position_demo": "alero",
-    "opta_position": "foreward",
-    "nationality": "Croata",
-    "birth_date": "1995-02-25",
-    "birth_place": "Dubrovnik (Croacia)",
-    "weight": "110 kg.",
-    "height": "2,06 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/HEZONJA_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
-    "debut": "24/09/2022 Betis 69-100 Real Madrid",
-    "trajectory": "KK Dubrovnik (2008-2010), KK Zagreb (2010-2012), Barcelona (2012-2015), Orlando Magic (2015-2018), New York Knicks (2018-2019), Portland Trail Blazers (2019-2020), Panathinaikos (2020-2021), Unics Kazan (2021-2022), Real Madrid (2022-)",
-    "trajectory_items": [
-      "KK Dubrovnik (2008-2010)",
-      "KK Zagreb (2010-2012)",
-      "Barcelona (2012-2015)",
-      "Orlando Magic (2015-2018)",
-      "New York Knicks (2018-2019)",
-      "Portland Trail Blazers (2019-2020)",
-      "Panathinaikos (2020-2021)",
-      "Unics Kazan (2021-2022)",
-      "Real Madrid (2022-)"
-    ],
-    "palmares": [
-      "1 Copa de Europa",
-      "2 Ligas ACB",
-      "2 Supercopas de España",
-      "1 Copa del Rey",
-      "1 Liga Griega",
-      "1 Copa Griega",
-      "1 Copa de Croacia",
-      "1 MVP Liga ACB",
-      "2 Trofeos Mejor quinteto Liga ACB",
-      "1 MVP Liga Rusa",
-      "1 Euroliga Júnior",
-      "1 Bronce Mundial Sub-19",
-      "1 Bronce Mundial Sub-17"
-    ],
-    "matches_played": 80,
-    "points": 1203,
-    "rebounds": 348,
-    "assists": 172,
-    "minutes_played": 1852,
-    "valuation": 1187,
-    "ppg": 15,
-    "rpg": 4.3,
-    "apg": 2.1,
-    "competition_stats": {
-      "liga_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "phase": "Temporada regular",
-          "matches_played": 31,
-          "points": 543,
-          "rebounds": 151,
-          "assists": 58,
-          "minutes_played": 741,
-          "valuation": 591,
-          "steals": 29,
-          "blocks": 2,
-          "ppg": 17.5,
-          "rpg": 4.9,
-          "apg": 1.9,
-          "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:49.219Z"
-        }
-      },
-      "euroliga": {
-        "stats": {
-          "season": "2026-2027",
-          "phase": "Temporada regular",
-          "matches_played": 44,
-          "points": 587,
-          "rebounds": 178,
-          "assists": 106,
-          "minutes_played": 995,
-          "valuation": 544,
-          "steals": 37,
-          "blocks": 2,
-          "ppg": 13.3,
-          "rpg": 4,
-          "apg": 2.4,
-          "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:49.219Z"
-        }
-      },
-      "supercopa_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "phase": "Temporada regular",
-          "matches_played": 2,
-          "points": 21,
-          "rebounds": 11,
-          "assists": 1,
-          "minutes_played": 44,
-          "valuation": 16,
-          "steals": 0,
-          "blocks": 0,
-          "ppg": 10.5,
-          "rpg": 5.5,
-          "apg": 0.5,
-          "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:49.218Z"
-        }
-      },
-      "copa_del_rey": {
-        "stats": {
-          "season": "2026-2027",
-          "phase": "Temporada regular",
-          "matches_played": 3,
-          "points": 52,
-          "rebounds": 8,
-          "assists": 7,
-          "minutes_played": 72,
-          "valuation": 36,
-          "steals": 1,
-          "blocks": 0,
-          "ppg": 17.3,
-          "rpg": 2.7,
-          "apg": 2.3,
-          "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:49.219Z"
         }
       }
     }

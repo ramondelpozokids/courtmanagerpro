@@ -30,7 +30,7 @@ export default function TopBar() {
   const { user, logout, isSuperadmin, isAtmDemo } = useAuth();
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
-  const { alerts } = useAlerts(teamId);
+  const { unreadCount } = useAlerts(teamId);
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showBlogDropdown, setShowBlogDropdown] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -40,8 +40,6 @@ export default function TopBar() {
   const [contactEmail, setContactEmail] = useState(user?.profile?.email || "");
   const [contactSubject, setContactSubject] = useState("Soporte Técnico");
   const [contactMessage, setContactMessage] = useState("");
-
-  const unreadAlerts = alerts.filter((a) => !a.is_read);
 
   const userRole = user?.profile?.role || "";
   const userName = user?.profile?.full_name || (isSuperadmin ? "Ramón del Pozo Rott" : "…");
@@ -215,9 +213,9 @@ export default function TopBar() {
 
         <Link href="/alerts" className="relative p-1.5 rounded-full text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
           <Bell className="h-5 w-5" />
-          {unreadAlerts.length > 0 && (
+          {unreadCount > 0 && (
             <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-red-500 text-[9px] text-white font-extrabold flex items-center justify-center animate-pulse">
-              {unreadAlerts.length}
+              {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </Link>

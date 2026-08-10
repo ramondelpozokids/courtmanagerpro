@@ -12,6 +12,7 @@ import { ChevronUp } from "lucide-react";
 import { footerLegalLinks } from "@/content/legal";
 import { SITE_URL } from "@/content/seo";
 import { useClubBranding } from "@/contexts/ClubDemoContext";
+import { AlertsProvider } from "@/contexts/AlertsContext";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const branding = useClubBranding();
@@ -38,6 +39,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   };
 
   return (
+    <AlertsProvider>
     <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
       {/* Sidebar for Desktop */}
       <Sidebar />
@@ -123,5 +125,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </button>
       )}
     </div>
+    </AlertsProvider>
   );
 }

@@ -1,4 +1,5 @@
 import type { OfficialMatch } from '@/types';
+import { buildCalendarAlertRows } from './applyDiff';
 import { computeMatchDiff } from './diffEngine';
 import { fetchOfficialCalendarForTeam } from './source';
 import {
@@ -121,29 +122,11 @@ function fixtureToMatch(teamId: string, f: OfficialFixture, id?: string): Offici
   };
 }
 
-function pushDemoAlerts(teamId: string, changes: MatchDiff['changes']) {
-  for (const c of changes.slice(0, 20)) {
-    let type = 'calendario_cambio';
-    if (c.change_type === 'nuevo') type = 'calendario_nuevo';
-    if (c.change_type === 'resultado' || c.change_type === 'marcador') type = 'calendario_resultado';
+function pushDemoAlerts(teamId: string, diff: MatchDiff) {
+  for (const row of buildCalendarAlertRows(teamId, diff)) {
     db.alerts.unshift({
       id: `a-cal-${Math.random().toString(36).slice(2, 8)}`,
-      team_id: teamId,
-      type,
-      severity: 'info',
-      title:
-        c.change_type === 'nuevo'
-          ? 'Nuevo partido oficial'
-          : c.change_type === 'marcador' || c.change_type === 'resultado'
-            ? 'Resultado oficial publicado'
-            : 'Cambio en calendario oficial',
-      message: `${c.entity_name}: ${c.old_value || ''} → ${c.new_value || ''}`.trim(),
-      entity_type: 'official_match',
-      entity_id: c.match_id,
-      is_read: false,
-      is_dismissed: false,
-      auto_generated: true,
-      metadata: { change_type: c.change_type, source: 'realmadrid.com' },
+      ...row,
       created_at: new Date().toISOString(),
     });
   }
@@ -329,7 +312,7 @@ export async function applyDemoCalendarSync(
     });
   }
 
-  if (diff.changes.length > 0) pushDemoAlerts(options.teamId, diff.changes);
+  if (diff.changes.length > 0) pushDemoAlerts(options.teamId, diff);
 
   return {
     skipped: false,

@@ -331,7 +331,7 @@ export default function PlayersPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {branding.slug === 'rmb' && (
+          {(branding.slug === 'rmb' || branding.slug === 'rmf' || branding.slug === 'atm') && (
             <UpdateOfficialRosterButton
               onDone={() => {
                 void loadStaff();
@@ -370,19 +370,27 @@ export default function PlayersPage() {
       <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
         Jugadores y cuerpo técnico se sincronizan automáticamente al iniciar la app (y cada 24 h) desde la{' '}
         <a href={OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-orange-700 dark:text-orange-400 underline-offset-2 hover:underline">
-          plantilla oficial del Real Madrid
+          plantilla oficial del Real Madrid Baloncesto
         </a>
         . También puedes forzar una actualización con el botón «Actualizar plantilla oficial».
       </div>
       )}
       {branding.slug === 'rmf' && (
       <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
-        Demo comercial del <strong>primer equipo de fútbol</strong> — plantilla, utilería, viajes y lavandería adaptados a LaLiga / Champions.
-        Plantilla de referencia:{' '}
+        Plantilla del <strong>primer equipo de fútbol</strong> sincronizada con{' '}
         <a href={RMF_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-blue-700 dark:text-blue-400 underline-offset-2 hover:underline">
           realmadrid.com/futbol
         </a>
-        .
+        . Usa «Actualizar plantilla oficial» para alinear altas, bajas y fotos.
+      </div>
+      )}
+      {branding.slug === 'atm' && (
+      <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
+        Plantilla del <strong>Atlético de Madrid</strong> sincronizada con{' '}
+        <a href={ATM_OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-red-700 dark:text-red-400 underline-offset-2 hover:underline">
+          atleticodemadrid.com
+        </a>
+        . Usa «Actualizar plantilla oficial» para alinear altas, bajas y fotos.
       </div>
       )}
 

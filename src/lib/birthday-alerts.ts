@@ -1,11 +1,12 @@
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
+import { BIRTHDAY_ALERT_RECIPIENT_EMAILS } from '@/config/birthday-alerts';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ];
 
-/** Genera alertas de cumpleaños para Carlos Rodriguez Kobe (utilería). */
+/** Genera alertas de cumpleaños para Ramón + Carlos (utilería). */
 export function scanBirthdayAlerts(
   teamId: string = 'team-acb-123',
   referenceDate: Date = new Date()
@@ -34,7 +35,7 @@ export function scanBirthdayAlerts(
       type: 'cumpleaños',
       severity: 'info',
       title: 'Cumpleaños de la Plantilla',
-      message: `¡AVISO PARA CARLOS KOBE! ${fullName} cumple años el ${day} de ${MONTH_NAMES[month]}. Preparar lote de equipación oficial de regalo corporativo del club.`,
+      message: `AVISO UTILERÍA (Ramón + Carlos): ${fullName} cumple años el ${day} de ${MONTH_NAMES[month]}. Preparar lote de equipación oficial de regalo corporativo del club.`,
       entity_type: 'player',
       entity_id: player.id,
       is_read: false,
@@ -42,7 +43,10 @@ export function scanBirthdayAlerts(
       read_by: null,
       read_at: null,
       auto_generated: true,
-      metadata: { notify: 'charlie-r-k@hotmail.com', player_id: player.id },
+      metadata: {
+        notify: BIRTHDAY_ALERT_RECIPIENT_EMAILS,
+        player_id: player.id,
+      },
       created_at: new Date().toISOString(),
     });
     created++;

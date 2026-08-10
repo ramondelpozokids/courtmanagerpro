@@ -16,7 +16,9 @@
     "setup:carlos": "npx tsx scripts/setup-carlos.ts",
     "setup:atm-demo": "npx tsx scripts/setup-atm-demo.ts",
     "ping:ai": "npx tsx scripts/ping-ai.ts",
-    "test:app-mode": "npx tsx --test src/lib/app-mode.test.ts"
+    "test:app-mode": "npx tsx --test src/lib/app-mode.test.ts",
+    "test:alerts": "npx tsx --test src/lib/alerts-state.test.ts",
+    "test:lib": "npx tsx --test src/lib/app-mode.test.ts src/lib/alerts-state.test.ts"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.3.0",

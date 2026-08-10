@@ -248,7 +248,23 @@ function dbRowsFromMemory(): { players: DbPlayerRow[]; staff: DbStaffRow[] } {
   return { players, staff };
 }
 
+function demoEntitySource(snapshot: OfficialRosterSnapshot): string {
+  if (snapshot.source_id?.includes('atletico')) return 'atleticodemadrid.com';
+  return 'realmadrid.com';
+}
+
+function isOfficialDemoSource(source?: string | null, slug?: string | null): boolean {
+  if (slug) return true;
+  return (
+    source === 'realmadrid.com' ||
+    source === 'real_madrid_official' ||
+    source === 'atleticodemadrid.com' ||
+    source === 'atletico_madrid_official'
+  );
+}
+
 function applySnapshotToMemory(snapshot: OfficialRosterSnapshot) {
+  const entitySource = demoEntitySource(snapshot);
   const bySlugPlayer = new Map(db.players.map((p: any) => [p.slug || p.official_slug, p]));
   const nextPlayers: any[] = [];
 
@@ -264,7 +280,7 @@ function applySnapshotToMemory(snapshot: OfficialRosterSnapshot) {
         imageUrl: op.photo_url || existing.imageUrl,
         status: 'ACTIVE',
         slug: op.slug,
-        source: 'realmadrid.com',
+        source: entitySource,
         official_slug: op.slug,
         nationality: op.nationality || existing.nationality,
         birthDate: op.birth_date || existing.birthDate,
@@ -284,7 +300,7 @@ function applySnapshotToMemory(snapshot: OfficialRosterSnapshot) {
         imageUrl: op.photo_url || undefined,
         profile_url: op.profile_url,
         slug: op.slug,
-        source: 'realmadrid.com',
+        source: entitySource,
         official_slug: op.slug,
       });
     }
@@ -294,7 +310,7 @@ function applySnapshotToMemory(snapshot: OfficialRosterSnapshot) {
   for (const p of db.players) {
     const slug = p.slug || p.official_slug;
     if (slug && snapshot.players.some((op) => op.slug === slug)) continue;
-    if (p.source === 'realmadrid.com' || p.slug) {
+    if (isOfficialDemoSource(p.source, slug)) {
       nextPlayers.push({ ...p, status: 'INACTIVE' });
     } else {
       nextPlayers.push(p);
@@ -316,7 +332,7 @@ function applySnapshotToMemory(snapshot: OfficialRosterSnapshot) {
         is_active: true,
         slug: os.slug,
         official_slug: os.slug,
-        source: 'realmadrid.com',
+        source: entitySource,
       });
     } else {
       nextStaff.push({
@@ -328,14 +344,14 @@ function applySnapshotToMemory(snapshot: OfficialRosterSnapshot) {
         is_active: true,
         slug: os.slug,
         official_slug: os.slug,
-        source: 'realmadrid.com',
+        source: entitySource,
       });
     }
   }
   for (const s of db.coachingStaff) {
     const slug = s.slug || s.official_slug;
     if (slug && snapshot.staff.some((os) => os.slug === slug)) continue;
-    if (s.source === 'realmadrid.com' || s.slug) {
+    if (isOfficialDemoSource(s.source, slug)) {
       nextStaff.push({ ...s, is_active: false });
     } else {
       nextStaff.push(s);

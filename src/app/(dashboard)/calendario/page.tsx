@@ -207,28 +207,36 @@ export default function CalendarioPage() {
         credentials: 'include',
         body: JSON.stringify({ trigger: 'manual', team_id: teamId, force: true }),
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({} as { data?: any; error?: string }));
       const data = json.data;
-      if (data?.status === 'error') {
-        setSyncMsg(data.errorMessage || 'Error (se mantiene el calendario en caché)');
-      } else {
-        setSyncMsg(
-          data?.changesCount
-            ? `Actualizado: ${data.changesCount} cambio(s)`
-            : branding.slug === 'rmf'
-              ? 'Calendario fútbol al día — usa Actualizar al pasar de mes'
-              : 'Calendario al día'
-        );
-        window.dispatchEvent(new CustomEvent('calendar-sync-complete', { detail: data }));
-        const loaded = await load();
-        if (opts?.focusNextMonth || branding.slug === 'rmf') {
-          const next = loaded?.next || nextMatch;
-          if (next?.match_date) {
-            const [y, m] = next.match_date.split('-').map(Number);
-            if (y && m) {
-              setCursor(new Date(y, m - 1, 1));
-              setCursorSynced(true);
-            }
+      if (!res.ok) {
+        setSyncMsg(json.error || `Error al sincronizar (HTTP ${res.status})`);
+        return;
+      }
+      if (!data || data.status === 'error') {
+        setSyncMsg(data?.errorMessage || json.error || 'Error (se mantiene el calendario en caché)');
+        return;
+      }
+      const clubLabel =
+        branding.slug === 'atm'
+          ? 'Atlético'
+          : branding.slug === 'rmf'
+            ? 'RM Fútbol'
+            : 'RM Baloncesto';
+      setSyncMsg(
+        data.changesCount
+          ? `${clubLabel}: ${data.changesCount} cambio(s) desde la web oficial`
+          : `Calendario ${clubLabel} al día con la web oficial`
+      );
+      window.dispatchEvent(new CustomEvent('calendar-sync-complete', { detail: data }));
+      const loaded = await load();
+      if (opts?.focusNextMonth || branding.slug === 'rmf' || branding.slug === 'atm') {
+        const next = loaded?.next || nextMatch;
+        if (next?.match_date) {
+          const [y, m] = next.match_date.split('-').map(Number);
+          if (y && m) {
+            setCursor(new Date(y, m - 1, 1));
+            setCursorSynced(true);
           }
         }
       }
@@ -239,8 +247,8 @@ export default function CalendarioPage() {
     }
   }
 
-  /** Cambiar de mes y forzar sync (RMF: la web oficial no avanza sola de forma fiable). */
-  function goToMonth(next: Date, sync = branding.slug === 'rmf') {
+  /** Cambiar de mes y forzar sync en fútbol (RMF/ATM) cuando la web no avanza sola. */
+  function goToMonth(next: Date, sync = branding.slug === 'rmf' || branding.slug === 'atm') {
     setCursor(next);
     if (sync) void syncNow();
   }

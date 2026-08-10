@@ -2,6 +2,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { OfficialRosterSnapshot, RosterDiff } from './sources/types';
 import { REAL_MADRID_SOURCE_ID } from './sources/types';
 
+function officialEntitySource(snapshot: OfficialRosterSnapshot): string {
+  if (snapshot.source_id?.includes('atletico')) return 'atleticodemadrid.com';
+  return 'realmadrid.com';
+}
+
 /**
  * Apply roster diff atomically (best-effort sequential ops with soft-delete).
  * Never hard-deletes players or staff.
@@ -18,6 +23,7 @@ export async function applyRosterDiff(params: {
 }): Promise<{ syncLogId: string }> {
   const { supabase, teamId, diff, snapshot, playerPhotos, staffPhotos, syncLogId } = params;
   const now = params.nowIso || new Date().toISOString();
+  const entitySource = officialEntitySource(snapshot);
 
   for (const change of diff.changes) {
     if (change.change_type === 'baja' && change.entity_id) {
@@ -84,7 +90,7 @@ export async function applyRosterDiff(params: {
       nationality: op.nationality,
       birth_date: op.birth_date,
       is_active: true,
-      source: 'realmadrid.com',
+      source: entitySource,
       official_slug: op.slug,
       activated_at: now,
       deactivated_at: null,
@@ -155,9 +161,7 @@ export async function applyRosterDiff(params: {
       photo_url: photo,
       nationality: os.nationality || 'España',
       is_active: true,
-      source: snapshot.source_id?.includes('atletico')
-        ? 'atleticodemadrid.com'
-        : 'realmadrid.com',
+      source: entitySource,
       official_slug: os.slug,
       activated_at: now,
       deactivated_at: null,

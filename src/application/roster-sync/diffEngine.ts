@@ -157,7 +157,14 @@ export function computeRosterDiff(
     if (!dp.is_active) continue;
     if (matchedPlayerIds.has(dp.id)) continue;
     // Only soft-remove players previously synced from official source (or with slug)
-    if (dp.source && dp.source !== 'realmadrid.com' && dp.source !== 'real_madrid_official' && !dp.official_slug) {
+    if (
+      dp.source &&
+      dp.source !== 'realmadrid.com' &&
+      dp.source !== 'real_madrid_official' &&
+      dp.source !== 'atleticodemadrid.com' &&
+      dp.source !== 'atletico_madrid_official' &&
+      !dp.official_slug
+    ) {
       continue;
     }
     players_removed += 1;
@@ -254,7 +261,14 @@ export function computeRosterDiff(
   for (const ds of dbStaff) {
     if (!ds.is_active) continue;
     if (matchedStaffIds.has(ds.id)) continue;
-    if (ds.source && ds.source !== 'realmadrid.com' && ds.source !== 'real_madrid_official' && !ds.official_slug) {
+    if (
+      ds.source &&
+      ds.source !== 'realmadrid.com' &&
+      ds.source !== 'real_madrid_official' &&
+      ds.source !== 'atleticodemadrid.com' &&
+      ds.source !== 'atletico_madrid_official' &&
+      !ds.official_slug
+    ) {
       continue;
     }
     staff_removed += 1;
