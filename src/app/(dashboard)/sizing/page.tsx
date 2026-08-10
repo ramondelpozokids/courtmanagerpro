@@ -30,27 +30,33 @@ import {
 import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
 import { sortPlayersByPosition } from "@/lib/player-sort";
 import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
+import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
 import { exportSizingPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
 function saveSizingDemo() {
   persistDemoDb();
 }
 
-function playerPhoto(p: {
-  imageUrl?: string | null;
-  slug?: string | null;
-  firstName?: string;
-  lastName?: string;
-  number?: number;
-}) {
+function playerPhoto(
+  p: {
+    imageUrl?: string | null;
+    slug?: string | null;
+    firstName?: string;
+    lastName?: string;
+    number?: number;
+  },
+  teamId: string
+) {
   const fullName = `${p.firstName || ""} ${p.lastName || ""}`.trim();
-  // Pack ATM primero (Koke / Lenglet locales); evita resolver plantilla RMB
-  const atm = resolveAtmPackPlayerPhoto({
-    dorsal: p.number,
-    fullName,
-    photo_url: p.imageUrl,
-  });
-  if (atm && !/\/clubs\/atm\/logo\.png|realmadrid/i.test(atm)) return atm;
+  // Pack ATM solo para ATM (Koke / Lenglet locales). En RMB/RMF no mapear por dorsal.
+  if (teamId === CLUB_TEAM_IDS.atm) {
+    const atm = resolveAtmPackPlayerPhoto({
+      dorsal: p.number,
+      fullName,
+      photo_url: p.imageUrl,
+    });
+    if (atm && !/\/clubs\/atm\/logo\.png|realmadrid/i.test(atm)) return atm;
+  }
   return resolvePlayerPhotoUrl({
     slug: p.slug,
     imageUrl: p.imageUrl,
@@ -58,17 +64,23 @@ function playerPhoto(p: {
   });
 }
 
-function staffPhoto(s: { photo_url?: string | null; slug?: string | null; full_name?: string }) {
+function staffPhoto(
+  s: { photo_url?: string | null; slug?: string | null; full_name?: string },
+  teamId: string
+) {
   const resolved = resolvePlayerPhotoUrl({
     slug: s.slug,
     photo_url: s.photo_url,
     fullName: s.full_name,
     isStaff: true,
   });
-  return resolveAtmPackStaffPhoto({
-    fullName: s.full_name,
-    photo_url: resolved,
-  });
+  if (teamId === CLUB_TEAM_IDS.atm) {
+    return resolveAtmPackStaffPhoto({
+      fullName: s.full_name,
+      photo_url: resolved,
+    });
+  }
+  return resolved;
 }
 
 const ALL_CATEGORIES: (SizingCategory | "ALL")[] = [
@@ -575,7 +587,7 @@ export default function SizingTablePage() {
                 {filteredPlayers.map((p, idx) => {
                   const fullName = `${p.firstName} ${p.lastName}`;
                   const sizes = normalizeSizes(p.sizes, catalog);
-                  const photo = playerPhoto(p);
+                  const photo = playerPhoto(p, teamId);
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
                       <td className="p-3 sticky left-0 bg-white dark:bg-slate-900 z-[1] text-center">
@@ -644,7 +656,7 @@ export default function SizingTablePage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredStaff.map((s, idx) => {
                   const sizes = staffToSizes(s, catalog);
-                  const photo = staffPhoto(s);
+                  const photo = staffPhoto(s, teamId);
                   return (
                     <tr key={s.id} className="hover:bg-slate-50/50">
                       <td className="p-3 sticky left-0 bg-white dark:bg-slate-900 text-center">
