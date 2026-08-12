@@ -126,14 +126,39 @@ const JACKET_SIZE_KEYS = [
 ];
 const SHOE_SIZE_KEYS = ['shoes_game', 'shoes_training', 'shoes'];
 
-function escapeCsvCell(value: unknown): string {
+function escapeCsvCell(value: unknown, delimiter = ','): string {
   const str = value === null || value === undefined ? '' : String(value);
-  if (/[",\r\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+  const needsQuotes =
+    str.includes('"') ||
+    str.includes('\r') ||
+    str.includes('\n') ||
+    str.includes(delimiter);
+  if (needsQuotes) return `"${str.replace(/"/g, '""')}"`;
   return str;
 }
 
-function row(cells: unknown[]): string {
-  return cells.map(escapeCsvCell).join(',');
+function row(cells: unknown[], delimiter = ','): string {
+  return cells.map((cell) => escapeCsvCell(cell, delimiter)).join(delimiter);
+}
+
+/** Excel ES: punto y coma + BOM (downloadCsv). */
+function excelRow(cells: unknown[]): string {
+  return row(cells, ';');
+}
+
+const SIZING_EXCEL_COLUMNS = 10;
+/** Filas vacías arriba (espacio logo en Excel) — plantilla utilería. */
+const SIZING_CSV_TOP_BLANK_ROWS = 8;
+/** Separación entre membrete y tabla. */
+const SIZING_CSV_MID_BLANK_ROWS = 6;
+
+function excelBlankRow(): string {
+  return excelRow(Array(SIZING_EXCEL_COLUMNS).fill(''));
+}
+
+/** Membrete en columna A (resto vacío), como plantilla Excel manual. */
+function excelLetterheadRow(label: string): string {
+  return excelRow([label, ...Array(SIZING_EXCEL_COLUMNS - 1).fill('')]);
 }
 
 function emptyRow(cols = 2): string {
@@ -284,6 +309,146 @@ function playerDisplayName(player: {
   const composed = `${player.firstName ?? ''} ${player.lastName ?? ''}`.trim();
   return composed || '—';
 }
+
+function playerDorsal(player: {
+  dorsal?: number | string | null;
+  number?: number | string | null;
+  jersey_number?: number | string | null;
+}): string {
+  const raw = player.dorsal ?? player.number ?? player.jersey_number;
+  if (raw === null || raw === undefined || raw === '') return '';
+  return String(raw);
+}
+
+export interface SizingExportRow {
+  dorsal: string;
+  nombre: string;
+  grupo: string;
+  posicion: string;
+  camiseta: string;
+  pantalon: string;
+  entrenamiento: string;
+  chaqueta: string;
+  calzado: string;
+  notas: string;
+}
+
+/** Filas de matriz de tallas (jugadores + staff) para CSV/Excel. */
+export function buildSizingExportRows(
+  players: any[],
+  staff: any[],
+  customProducts: SizingProduct[] = []
+): SizingExportRow[] {
+  const catalog = mergeSizingCatalog(customProducts);
+  const rows: SizingExportRow[] = [];
+
+  const playerRows = [...players].sort((a, b) => {
+    const da = Number(a.dorsal ?? a.number ?? 9999);
+    const db = Number(b.dorsal ?? b.number ?? 9999);
+    if (da !== db) return da - db;
+    return playerDisplayName(a).localeCompare(playerDisplayName(b), 'es');
+  });
+
+  for (const player of playerRows) {
+    const sizes = normalizeSizes(player.sizes, catalog);
+    const shoe = pickSize(sizes, SHOE_SIZE_KEYS);
+    rows.push({
+      dorsal: playerDorsal(player),
+      nombre: playerDisplayName(player),
+      grupo: 'Jugador',
+      posicion: formatPositionLabel(player.position),
+      camiseta: pickSize(sizes, SHIRT_SIZE_KEYS),
+      pantalon: pickSize(sizes, SHORT_SIZE_KEYS),
+      entrenamiento: pickSize(sizes, TRAINING_SIZE_KEYS),
+      chaqueta: pickSize(sizes, JACKET_SIZE_KEYS),
+      calzado: shoe === '—' ? '' : shoe,
+      notas: player.notes?.trim() || '',
+    });
+  }
+
+  for (const member of staff) {
+    const sizes = staffToSizes(member, catalog);
+    const shoe = pickSize(sizes, SHOE_SIZE_KEYS);
+    rows.push({
+      dorsal: '',
+      nombre: member.full_name?.trim() || '',
+      grupo: 'Staff',
+      posicion: member.role?.trim() || '',
+      camiseta: pickSize(sizes, SHIRT_SIZE_KEYS),
+      pantalon: pickSize(sizes, SHORT_SIZE_KEYS),
+      entrenamiento: pickSize(sizes, TRAINING_SIZE_KEYS),
+      chaqueta: pickSize(sizes, JACKET_SIZE_KEYS),
+      calzado: shoe === '—' ? '' : shoe,
+      notas: member.notes?.trim() || '',
+    });
+  }
+
+  return rows;
+}
+
+/**
+ * CSV de tallas — plantilla fija de utilería (Excel ES):
+ * 8 filas vacías · membrete col. A · 6 filas vacías · tabla (;).
+ * Es el único formato de exportación CSV de tallas (PDF usa buildSizingCsvLines).
+ */
+export function buildSizingUtileriaCsvLines(
+  identity: ClubCsvIdentity,
+  players: any[],
+  staff: any[],
+  customProducts: SizingProduct[] = [],
+  _options?: CsvExportOptions
+): string[] {
+  const lines: string[] = [];
+
+  for (let i = 0; i < SIZING_CSV_TOP_BLANK_ROWS; i += 1) lines.push(excelBlankRow());
+
+  lines.push(excelLetterheadRow(identity.legalName.toUpperCase()));
+  lines.push(excelLetterheadRow(identity.department));
+  lines.push(excelLetterheadRow(identity.venue));
+  lines.push(
+    excelLetterheadRow(`${identity.addressLine} · ${identity.cityLine}`)
+  );
+  if (identity.website) lines.push(excelLetterheadRow(identity.website));
+
+  for (let i = 0; i < SIZING_CSV_MID_BLANK_ROWS; i += 1) lines.push(excelBlankRow());
+
+  lines.push(
+    excelRow([
+      'Dorsal',
+      'Nombre',
+      'Grupo',
+      'Posición / rol',
+      'Talla camiseta',
+      'Talla pantalón',
+      'Talla entrenamiento',
+      'Talla chaqueta',
+      'Talla calzado',
+      'Notas',
+    ])
+  );
+
+  for (const entry of buildSizingExportRows(players, staff, customProducts)) {
+    lines.push(
+      excelRow([
+        entry.dorsal,
+        entry.nombre,
+        entry.grupo,
+        entry.posicion,
+        entry.camiseta,
+        entry.pantalon,
+        entry.entrenamiento,
+        entry.chaqueta,
+        entry.calzado,
+        entry.notas,
+      ])
+    );
+  }
+
+  return lines;
+}
+
+/** @deprecated Alias — usar buildSizingUtileriaCsvLines */
+export const buildSizingExcelCsvLines = buildSizingUtileriaCsvLines;
 
 function collectSizeDistribution(values: string[]): Record<string, number> {
   const map: Record<string, number> = {};
@@ -710,7 +875,7 @@ export function exportSizingCsv(
   const season = (options?.season ?? '2026/2027').replace(/\//g, '-');
   downloadCsv(
     `tallas_utileria_${slug}_${season}.csv`,
-    buildSizingCsvLines(identity, players, staff, customProducts, options)
+    buildSizingUtileriaCsvLines(identity, players, staff, customProducts, options)
   );
 }
 

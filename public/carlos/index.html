@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f97316" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="CourtManager Pro" />
+  <title>Tallas utilería — Carlos · CourtManager Pro</title>
+  <link rel="icon" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(ellipse at top, #1e293b 0%, var(--bg) 55%);
+      color: var(--text);
+      padding: max(1.25rem, env(safe-area-inset-top)) 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .brand img {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.65rem;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .brand p {
+      margin: 0.15rem 0 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+    .card p {
+      margin: 0 0 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      min-height: 3.25rem;
+      padding: 0.9rem 1rem;
+      border: none;
+      border-radius: 0.85rem;
+      font-size: 1rem;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: linear-gradient(180deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: #fff;
+      box-shadow: 0 10px 28px rgba(249, 115, 22, 0.35);
+      margin-bottom: 0.75rem;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.45;
+      margin-top: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+      margin-top: 0.75rem;
+    }
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.45rem 0.35rem;
+      text-align: left;
+    }
+    th { color: var(--muted); font-weight: 700; }
+    .empty { color: #64748b; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <img src="/logo.png" alt="CourtManager Pro" />
+      <div>
+        <h1>CourtManager Pro</h1>
+        <p>Utilería RMB · 12 ago 2026</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Hola, Carlos</h2>
+      <p>
+        Tallas de la nota de hoy (Lunes R. Médico y Tino). La columna <strong>Calzado</strong> está en blanco para que la completes.
+      </p>
+
+      <a
+        class="btn btn-primary"
+        id="open-app"
+        href="https://courtmanagerpro.vercel.app/login"
+      >
+        Abrir CourtManager Pro
+      </a>
+
+      <a
+        class="btn btn-secondary"
+        href="/carlos/tallas-utileria-2026-08-12.csv"
+        download="tallas_utileria_rmb_2026-08-12.csv"
+      >
+        Descargar CSV de tallas
+      </a>
+    </div>
+
+    <div class="card">
+      <h2>Vista rápida (16 jugadores)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Jugador</th>
+            <th>Talla</th>
+            <th>Calzado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>3</td><td>Luwawu</td><td>L</td><td class="empty">—</td></tr>
+          <tr><td>4</td><td>Pradilla</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>5</td><td>Shulga</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>6</td><td>Abalde</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>7</td><td>Campazzo</td><td>L</td><td class="empty">—</td></tr>
+          <tr><td>8</td><td>Okeke</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>9</td><td>Procida</td><td>L</td><td class="empty">—</td></tr>
+          <tr><td>12</td><td>Maledon</td><td>L</td><td class="empty">—</td></tr>
+          <tr><td>13</td><td>Almansa</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>14</td><td>Deck</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>16</td><td>Garuba</td><td>2XL</td><td class="empty">—</td></tr>
+          <tr><td>17</td><td>Sarr</td><td>2XL</td><td class="empty">—</td></tr>
+          <tr><td>20</td><td>Jantunen</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>22</td><td>Tavares</td><td>2XL</td><td class="empty">—</td></tr>
+          <tr><td>23</td><td>Llull</td><td>XL</td><td class="empty">—</td></tr>
+          <tr><td>24</td><td>Feliz</td><td>L</td><td class="empty">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="meta">
+      Fuente: nota utilería 12-08-2026 · Real Madrid Baloncesto<br />
+      Tras iniciar sesión, entra en <strong>Servicios → Tabla de tallas</strong> para actualizar calzado en la app.
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var origin =
+        window.location.hostname && window.location.hostname !== "localhost"
+          ? window.location.origin
+          : "https://courtmanagerpro.vercel.app";
+      var loginUrl = origin + "/login";
+      var openBtn = document.getElementById("open-app");
+      if (openBtn) openBtn.href = loginUrl;
+    })();
+  </script>
+</body>
+</html>

@@ -121,7 +121,7 @@ export default function ReportsPage() {
             Informes de Equipación y Utilería
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            {branding.name} — CSV y PDF con logo, dirección y cabecera oficial del club activo (equipo conjunto: {teamTotal} = {players.length} jugadores + {coachingStaff.length} cuerpo técnico).
+            {branding.name} — PDF y CSV de tallas con membrete para Excel (equipo conjunto: {teamTotal} = {players.length} jugadores + {coachingStaff.length} cuerpo técnico).
           </p>
         </div>
         {canExport && (
