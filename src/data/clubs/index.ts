@@ -89,51 +89,69 @@ const rmbPack: ClubDemoPack = {
       { label: 'Copas Intercontinentales', count: 5, detail: 'Palmarés oficial' },
       { label: 'Recopas de Europa', count: 4, detail: 'Palmarés oficial' },
     ],
-    equipacionTitle: 'Equipación Oficial Real Madrid Baloncesto 26/27',
+    equipacionTitle: 'Equipación Oficial Baloncesto 26/27',
     equipacionDescription:
-      'Primera (blanca) y segunda (verde) adidas Climacool — tienda oficial Real Madrid. Calentamiento y reversible de entrenamiento incluidos.',
+      'Las 10 piezas oficiales adidas de la tienda Real Madrid (hombre): 1ª/2ª equipación, calentamiento y reversible.',
     equipacionItems: [
       {
-        name: 'Camiseta Primera Equipación 26/27',
+        name: 'Camiseta 1ª 26/27',
         price: '€90.00',
         image:
           'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT9672_2_APPAREL_Photography_Front_Center_View_white_48a54e3f-f5f8-49c3-b9f6-97f81fd2ea7e.jpg?v=1782476312&width=832',
       },
       {
-        name: 'Camiseta Segunda Equipación 26/27 Verde',
+        name: 'Camiseta 2ª 26/27 Verde',
         price: '€90.00',
         image:
           'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT9674_2_APPAREL_Photography_Front_Center_View_white.jpg?v=1783937292&width=832',
       },
       {
-        name: 'Pantalón Corto Primera 26/27',
+        name: 'Pantalón 1ª 26/27',
         price: '€60.00',
         image:
           'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1387_01.jpg?v=1782466897&width=832',
       },
       {
-        name: 'Pantalón Corto Segunda 26/27 Verde',
+        name: 'Pantalón 2ª 26/27 Verde',
         price: '€60.00',
         image:
           'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT8981_01.jpg?v=1783514779&width=832',
       },
       {
-        name: 'Chaqueta Calentamiento 26/27',
+        name: 'Chaqueta Calentamiento',
         price: '€90.00',
         image:
           'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1388_01.jpg?v=1782466810&width=832',
       },
       {
-        name: 'Reversible Entrenamiento 26/27',
-        price: '€40.00',
+        name: 'Sudadera Calentamiento',
+        price: '€60.00',
         image:
-          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1396_01.jpg?v=1784545116&width=832',
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT8983_01.jpg?v=1782466690&width=832',
       },
       {
-        name: 'Chaqueta Manga Corta 26/27',
+        name: 'Pantalón Calentamiento',
+        price: '€75.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1394_01.jpg?v=1782466853&width=832',
+      },
+      {
+        name: 'Chaqueta Manga Corta',
         price: '€70.00',
         image:
           'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT9680_01.jpg?v=1782466735&width=832',
+      },
+      {
+        name: 'Reversible Verde',
+        price: '€40.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1395_1_APPAREL_Photography_FrontCenterView_white.jpg?v=1786528847&width=832',
+      },
+      {
+        name: 'Reversible Blanca',
+        price: '€40.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1396_01.jpg?v=1784545116&width=832',
       },
     ],
   },

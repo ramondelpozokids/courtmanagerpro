@@ -235,19 +235,22 @@ export default function DashboardPage() {
               <strong className="text-orange-600 font-bold block text-sm mb-1">{blog.equipacionTitle}</strong>
               {blog.equipacionDescription}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {blog.equipacionItems.map((item) => (
               <div key={item.name} className="border border-slate-100 dark:border-slate-800/80 rounded-xl p-3 bg-slate-50/30 dark:bg-slate-900/30 space-y-2 text-center">
                 <div className="aspect-square rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform hover:scale-105" />
                 </div>
                 <div className="text-left">
-                  <h4 className="font-extrabold text-[11px] text-slate-700 dark:text-slate-200 leading-tight truncate">{item.name}</h4>
+                  <h4 className="font-extrabold text-[11px] text-slate-700 dark:text-slate-200 leading-tight line-clamp-2">{item.name}</h4>
                   <span className="text-[10px] text-orange-500 font-bold">{item.price}</span>
                 </div>
               </div>
               ))}
             </div>
+            <p className="text-[10px] text-slate-400 font-semibold">
+              {blog.equipacionItems.length} artículos oficiales · temporada 26/27
+            </p>
           </div>
         )}
 
