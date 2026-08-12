@@ -15,7 +15,30 @@ const NAVY = 'FF0F172A';
 const MUTED = 'FF64748B';
 const HEAD_BG = 'FFF1F5F9';
 
-const MEMBRETE_COLS = 'A:J';
+const MEMBRETE_LAST_COL = 'J';
+
+function mergeMembreteRow(ws: ExcelJS.Worksheet, rowNum: number) {
+  ws.mergeCells(`A${rowNum}:${MEMBRETE_LAST_COL}${rowNum}`);
+}
+
+function styleMembreteRow(
+  ws: ExcelJS.Worksheet,
+  rowNum: number,
+  value: string,
+  opts?: { bold?: boolean; size?: number; italic?: boolean }
+) {
+  mergeMembreteRow(ws, rowNum);
+  const cell = ws.getCell(`A${rowNum}`);
+  cell.value = value;
+  cell.font = {
+    bold: opts?.bold ?? false,
+    size: opts?.size ?? 10,
+    italic: opts?.italic ?? false,
+    color: { argb: opts?.bold ? NAVY : MUTED },
+  };
+  cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+  ws.getRow(rowNum).height = opts?.bold ? 22 : 18;
+}
 
 async function loadLogoBuffer(logoPath: string): Promise<ArrayBuffer | null> {
   try {
@@ -37,25 +60,6 @@ function downloadBuffer(filename: string, buffer: ArrayBuffer) {
   link.download = filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`;
   link.click();
   URL.revokeObjectURL(url);
-}
-
-function styleMembreteRow(
-  ws: ExcelJS.Worksheet,
-  rowNum: number,
-  value: string,
-  opts?: { bold?: boolean; size?: number; italic?: boolean }
-) {
-  ws.mergeCells(`${MEMBRETE_COLS}${rowNum}`);
-  const cell = ws.getCell(`A${rowNum}`);
-  cell.value = value;
-  cell.font = {
-    bold: opts?.bold ?? false,
-    size: opts?.size ?? 10,
-    italic: opts?.italic ?? false,
-    color: { argb: opts?.bold ? NAVY : MUTED },
-  };
-  cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-  ws.getRow(rowNum).height = opts?.bold ? 22 : 18;
 }
 
 export async function buildSizingXlsxBuffer(
