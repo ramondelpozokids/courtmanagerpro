@@ -27,7 +27,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function TopBar() {
-  const { user, logout, isSuperadmin, isAtmDemo } = useAuth();
+  const { user, logout, isSuperadmin, isAtmDemo, hasOperationalAccess } = useAuth();
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
   const { unreadCount } = useAlerts(teamId);
@@ -121,6 +121,11 @@ export default function TopBar() {
                 <Link href="/repuestos" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
                   📦 Repuestos
                 </Link>
+                {hasOperationalAccess && branding.slug === 'rmb' && (
+                  <Link href="/rmb/import" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-orange-50 dark:hover:bg-orange-950/30 text-orange-700 dark:text-orange-300 font-bold text-sm transition-colors border-t border-slate-100 dark:border-slate-700 mt-1 pt-2">
+                    📤 Importar documento RMB
+                  </Link>
+                )}
                 <Link href="/caducidades-medico" onClick={() => setShowServicesDropdown(false)} className="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
                   ❄️ Caducidades / frío
                 </Link>
