@@ -31,6 +31,7 @@ import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
 import { sortPlayersByPosition } from "@/lib/player-sort";
 import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
+import { seasonLabelForClub } from "@/lib/pdf-export";
 
 function saveSizingDemo() {
   persistDemoDb();
