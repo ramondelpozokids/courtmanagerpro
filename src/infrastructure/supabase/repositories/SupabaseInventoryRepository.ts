@@ -82,12 +82,15 @@ export class SupabaseInventoryRepository {
     }
 
     const { data, error, count } = await query;
-    if (error || !data?.length) {
-      const prev = this.isMockMode;
-      (this as any).isMockMode = true;
-      const fallback = await this.findAll(teamId, filters, pagination, sort);
-      (this as any).isMockMode = prev;
-      return fallback;
+    if (error) {
+      console.error('[inventory.findAll]', error.message);
+      return {
+        data: [],
+        count: 0,
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        totalPages: 0,
+      };
     }
 
     return {

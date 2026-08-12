@@ -18,7 +18,7 @@ import type {
 export function useInventory(
   teamId: string = DEFAULT_TEAM_ID,
   initialFilters: InventoryFilters = {},
-  initialPagination: PaginationConfig = { page: 1, pageSize: 50 }
+  initialPagination: PaginationConfig = { page: 1, pageSize: 500 }
 ) {
   const [items, setItems] = useState<PaginatedResponse<InventoryItem>>({
     data: [],

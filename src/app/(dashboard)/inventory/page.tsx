@@ -13,26 +13,33 @@ import { useClubBranding, useActiveTeamId } from "@/contexts/ClubDemoContext";
 import { exportInventoryPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
 export default function InventoryPage() {
-  const { user, userEmail, isSuperadmin } = useAuth();
+  const { user, userEmail, isSuperadmin, hasOperationalAccess } = useAuth();
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
-  const { items, loading, createItem, adjustStock, deleteItem } = useInventory(teamId);
+  const { items, loading, createItem, adjustStock, deleteItem, count } = useInventory(teamId);
   const [showAddForm, setShowAddForm] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
+  const [seasonFilter, setSeasonFilter] = useState<"all" | "2627">("2627");
   const [pdfBusy, setPdfBusy] = useState(false);
 
-  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
+  const canWrite = isSuperadmin || hasOperationalAccess || canWriteClubData(user?.profile?.role, userEmail);
 
   const categories = [
     { code: "ALL", name: "Todos" },
     { code: "camiseta_juego", name: "Camisetas Juego" },
     { code: "pantalon_juego", name: "Pantalones" },
     { code: "camiseta_entrenamiento", name: "Entrenamiento" },
+    { code: "pantalon_entrenamiento", name: "Pant. Entreno" },
     { code: "zapatillas", name: branding.sport === 'football' ? 'Botas' : 'Zapatillas' },
     { code: "calcetines", name: "Calcetines" },
     { code: "chaqueta", name: "Chaquetas" },
   ];
+
+  const isKit2627 = (item: { name?: string; sku?: string | null }) =>
+    /26\/27|2627/i.test(`${item.name || ""} ${item.sku || ""}`);
+
+  const kit2627Count = items.filter(isKit2627).length;
 
   const handleCreateItem = async (itemData: any) => {
     try {
@@ -43,11 +50,22 @@ export default function InventoryPage() {
     }
   };
 
-    const filteredItems = items.filter((item) => {
-      const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || (item.sku || "").toLowerCase().includes(search.toLowerCase());
-      const matchesCategory = activeCategory === "ALL" || item.category === activeCategory;
-      return matchesSearch && matchesCategory;
-    });
+    const filteredItems = items
+      .filter((item) => {
+        const matchesSearch =
+          item.name.toLowerCase().includes(search.toLowerCase()) ||
+          (item.sku || "").toLowerCase().includes(search.toLowerCase());
+        const matchesCategory = activeCategory === "ALL" || item.category === activeCategory;
+        const matchesSeason =
+          branding.slug !== "rmb" || seasonFilter === "all" || isKit2627(item);
+        return matchesSearch && matchesCategory && matchesSeason;
+      })
+      .sort((a, b) => {
+        const aKit = isKit2627(a) ? 0 : 1;
+        const bKit = isKit2627(b) ? 0 : 1;
+        if (aKit !== bKit) return aKit - bKit;
+        return a.name.localeCompare(b.name, "es");
+      });
 
   return (
     <div className="space-y-6">
@@ -58,6 +76,11 @@ export default function InventoryPage() {
           <p className="text-xs text-slate-400 mt-1">
             Control de stock, QR por prenda (móvil) y asignación de ropa técnica{' '}
             {branding.sport === 'football' ? 'de fútbol.' : 'ACB.'}
+            {branding.slug === 'rmb' && (
+              <span className="text-orange-600 font-semibold">
+                {' '}· Kit oficial 26/27: {kit2627Count} piezas · {count} activas
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -132,6 +155,36 @@ export default function InventoryPage() {
       )}
 
       {/* Tabs / Filters Bar */}
+      <div className="flex flex-col gap-3">
+        {branding.slug === 'rmb' && (
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSeasonFilter('2627')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                seasonFilter === '2627'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100'
+              }`}
+            >
+              Kit oficial 26/27 ({kit2627Count})
+            </button>
+            <button
+              type="button"
+              onClick={() => setSeasonFilter('all')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                seasonFilter === 'all'
+                  ? 'bg-slate-800 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              Todo el inventario
+            </button>
+            <span className="text-[10px] text-slate-400 font-semibold">
+              Mismo catálogo para Superadmin y Utilería
+            </span>
+          </div>
+        )}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Category Buttons */}
         <div className="flex flex-wrap gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
@@ -161,6 +214,7 @@ export default function InventoryPage() {
             className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
         </div>
+      </div>
       </div>
 
       {/* Inventory List */}
