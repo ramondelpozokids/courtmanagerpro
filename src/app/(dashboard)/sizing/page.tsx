@@ -32,6 +32,7 @@ import { sortPlayersByPosition } from "@/lib/player-sort";
 import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
 import { exportSizingCsv } from "@/lib/csv-export";
+import { exportSizingXlsx } from "@/lib/sizing-xlsx-export";
 import { exportSizingPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
 function saveSizingDemo() {
@@ -178,6 +179,7 @@ export default function SizingTablePage() {
   const [newProductDefault, setNewProductDefault] = useState("XL");
   const [newProductInputType, setNewProductInputType] = useState<"text" | "number">("text");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [xlsxBusy, setXlsxBusy] = useState(false);
 
   const visibleProducts = useMemo(
     () =>
@@ -433,6 +435,34 @@ export default function SizingTablePage() {
           Volver al Inicio
         </Link>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            disabled={xlsxBusy || !rosterReady || (players.length === 0 && staff.length === 0)}
+            onClick={() => {
+              void (async () => {
+                if (!rosterReady) return;
+                try {
+                  setXlsxBusy(true);
+                  await exportSizingXlsx(
+                    branding.slug,
+                    players,
+                    staff,
+                    customProducts,
+                    { season: seasonLabelForClub(branding.slug) }
+                  );
+                } catch (err) {
+                  console.error(err);
+                  alert(err instanceof Error ? err.message : "Error al generar Excel");
+                } finally {
+                  setXlsxBusy(false);
+                }
+              })();
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold disabled:opacity-40"
+          >
+            <Download className="h-4 w-4" />
+            {xlsxBusy ? "Excel…" : !rosterReady ? "Cargando…" : "Excel tallas"}
+          </button>
           <button
             type="button"
             disabled={!rosterReady || (players.length === 0 && staff.length === 0)}

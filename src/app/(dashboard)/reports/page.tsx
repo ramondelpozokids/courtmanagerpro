@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import { canAccessReports, canWriteClubData } from "@/lib/permissions";
 import { exportInventoryCsv, exportSizingCsv, exportWarehouseCsv } from "@/lib/csv-export";
+import { exportSizingXlsx } from "@/lib/sizing-xlsx-export";
 import {
   exportInventoryPdf,
   exportSizingPdf,
@@ -32,6 +33,7 @@ export default function ReportsPage() {
   const canExport = hasOperationalAccess || canWriteClubData(role, userEmail);
   const season = seasonLabelForClub(branding.slug);
   const [pdfBusy, setPdfBusy] = useState<string | null>(null);
+  const [xlsxBusy, setXlsxBusy] = useState(false);
 
   const totalValue = items.reduce((acc, item) => acc + (item.unit_cost || 0) * item.stock_available, 0);
   const outOfStockCount = items.filter((item) => item.stock_available === 0).length;
@@ -61,8 +63,22 @@ export default function ReportsPage() {
     exportInventoryCsv(branding.slug, inventoryRows, { season });
   };
 
-  const handleExportSizing = () => {
+  const handleExportSizingCsv = () => {
     exportSizingCsv(branding.slug, players, coachingStaff, [], { season });
+  };
+
+  const handleExportSizingXlsx = () => {
+    void (async () => {
+      try {
+        setXlsxBusy(true);
+        await exportSizingXlsx(branding.slug, players, coachingStaff, [], { season });
+      } catch (err) {
+        console.error(err);
+        alert(err instanceof Error ? err.message : "Error al generar Excel");
+      } finally {
+        setXlsxBusy(false);
+      }
+    })();
   };
 
   const loadWarehouseRows = async () => {
@@ -121,7 +137,7 @@ export default function ReportsPage() {
             Informes de Equipación y Utilería
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            {branding.name} — PDF y CSV de tallas con membrete para Excel (equipo conjunto: {teamTotal} = {players.length} jugadores + {coachingStaff.length} cuerpo técnico).
+            {branding.name} — PDF y Excel con logo; CSV solo texto (importar tallas). Equipo: {teamTotal} = {players.length} jugadores + {coachingStaff.length} staff.
           </p>
         </div>
         {canExport && (
@@ -142,10 +158,17 @@ export default function ReportsPage() {
               <FileText className="h-3.5 w-3.5" /> {pdfBusy === "inv" ? "…" : "Inventario PDF"}
             </button>
             <button
-              onClick={handleExportSizing}
+              onClick={handleExportSizingXlsx}
+              disabled={xlsxBusy}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold disabled:opacity-50"
+            >
+              <Ruler className="h-3.5 w-3.5" /> {xlsxBusy ? "…" : "Tallas Excel"}
+            </button>
+            <button
+              onClick={handleExportSizingCsv}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold"
             >
-              <Ruler className="h-3.5 w-3.5 text-orange-500" /> Tallas CSV
+              <Download className="h-3.5 w-3.5 text-orange-500" /> Tallas CSV
             </button>
             <button
               onClick={() =>
