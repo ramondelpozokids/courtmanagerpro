@@ -107,22 +107,31 @@ const TEXT_SIZE_KEYS = [
   'pre_match_shirt',
 ];
 
-function buildSizingPatch(existing: Record<string, unknown> | null | undefined, jersey: string) {
+function buildSizingPatch(
+  existing: Record<string, unknown> | null | undefined,
+  jersey: string
+): Record<string, unknown> {
   const sizing = { ...(existing?.sizing as Record<string, string> | undefined) };
   for (const key of TEXT_SIZE_KEYS) {
     sizing[key] = jersey;
   }
   return {
-    ...existing,
+    ...(existing ?? {}),
     sizing,
     sizes_import_note: 'LUNES R. MEDICO Y TINO · 2026-08-12',
   };
 }
 
-function findPlayer(
-  rows: Array<{ id: string; full_name: string; dorsal: number | null; is_active: boolean | null }>,
-  matchTerms: string[]
-) {
+type ImportPlayerRow = {
+  id: string;
+  full_name: string;
+  dorsal: number | null;
+  is_active: boolean | null;
+  metadata?: Record<string, unknown>;
+  shirt_size?: string | null;
+};
+
+function findPlayer(rows: ImportPlayerRow[], matchTerms: string[]) {
   const active = rows.filter((r) => r.is_active !== false);
   for (const row of active) {
     const name = norm(row.full_name);
@@ -147,7 +156,7 @@ async function main() {
     .eq('team_id', DEFAULT_TEAM_ID);
   if (error) throw new Error(error.message);
 
-  const rows = players || [];
+  const rows: ImportPlayerRow[] = players || [];
 
   for (const np of NEW_PLAYERS) {
     if (findPlayer(rows, np.match)) continue;
@@ -196,10 +205,7 @@ async function main() {
       continue;
     }
 
-    const metadata = buildSizingPatch(
-      (player as { metadata?: Record<string, unknown> }).metadata,
-      jersey
-    );
+    const metadata = buildSizingPatch(player.metadata, jersey);
     const patch: Record<string, unknown> = {
       shirt_size: jersey,
       shorts_size: jersey,
