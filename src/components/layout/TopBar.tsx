@@ -67,7 +67,7 @@ export default function TopBar() {
   };
 
   return (
-    <header className="h-16 border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0 relative">
+    <header className="h-16 border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between px-6 z-50 shrink-0 relative">
       <div className="flex items-center gap-6">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <img src="/logo.png" alt="CourtManager Pro" className="h-7 w-7 object-contain shrink-0" />

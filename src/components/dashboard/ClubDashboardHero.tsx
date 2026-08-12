@@ -92,12 +92,11 @@ export function ClubDashboardHero({
       </div>
 
       <div className="relative z-10 px-5 sm:px-8 pt-6 pb-5 space-y-5">
-        <div className="flex items-start justify-between gap-3 text-[10px] sm:text-xs font-semibold tracking-wide text-slate-300">
-          <div>
+        <div className="flex items-start justify-end gap-3 text-[10px] sm:text-xs font-semibold tracking-wide text-slate-300">
+          <div className="text-right">
             <p className="text-white font-bold">Ramón del Pozo Rott</p>
             <p className="uppercase text-slate-400">CEO y Creador de CourtManager Pro</p>
           </div>
-          <div aria-hidden className="w-24 sm:w-32" />
         </div>
 
         <div className="flex flex-col items-center text-center gap-3 py-2 sm:py-4">

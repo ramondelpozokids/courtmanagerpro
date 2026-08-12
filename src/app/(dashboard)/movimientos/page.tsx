@@ -93,7 +93,6 @@ export default function MovimientosPage() {
 
   const [rows, setRows] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [scope, setScope] = useState<'active' | 'all_rm'>('active');
   const [warning, setWarning] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -116,7 +115,7 @@ export default function MovimientosPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/stock-movements?scope=${scope}&team_id=${encodeURIComponent(teamId)}&limit=200`,
+        `/api/stock-movements?scope=active&team_id=${encodeURIComponent(teamId)}&limit=200`,
         { credentials: 'include' }
       );
       const json = await res.json();
@@ -133,7 +132,7 @@ export default function MovimientosPage() {
     } finally {
       setLoading(false);
     }
-  }, [scope, teamId]);
+  }, [teamId]);
 
   useEffect(() => {
     void load();
@@ -296,27 +295,6 @@ export default function MovimientosPage() {
             </button>
           )}
         </div>
-      </div>
-
-      <div className="flex gap-1.5">
-        <button
-          type="button"
-          onClick={() => setScope('all_rm')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-            scope === 'all_rm' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800'
-          }`}
-        >
-          Todos los clubs
-        </button>
-        <button
-          type="button"
-          onClick={() => setScope('active')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-            scope === 'active' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800'
-          }`}
-        >
-          Solo club activo
-        </button>
       </div>
 
       {warning && (
