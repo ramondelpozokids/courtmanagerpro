@@ -129,6 +129,12 @@ const rmbPack: ClubDemoPack = {
         image:
           'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1396_01.jpg?v=1784545116&width=832',
       },
+      {
+        name: 'Chaqueta Manga Corta 26/27',
+        price: '€70.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT9680_01.jpg?v=1782466735&width=832',
+      },
     ],
   },
   news: [

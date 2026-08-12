@@ -284,6 +284,29 @@ export const initialInventory: any[] = [
     image_url:
       "https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1395_1_APPAREL_Photography_FrontCenterView_white.jpg?v=1786528847&width=832",
   },
+  {
+    id: "i13",
+    name: "Chaqueta Manga Corta Baloncesto Hombre 26/27 Blanca",
+    sku: "RMB-SS-JKT-2627",
+    category: "chaqueta",
+    stock_total: 20,
+    stock_available: 20,
+    stock_assigned: 0,
+    stock_min: 5,
+    location: "Almacén Principal (Estantería C)",
+    qr_code: "RMB-SS-JKT-2627",
+    barcode: "4069998427800",
+    size: "XL",
+    price: 70,
+    unit_cost: 70,
+    is_active: true,
+    lastUpdated: "2026-08-12",
+    updated_at: new Date().toISOString(),
+    brand: "Adidas",
+    notes: "Adidas KT9680 · shop RMCFMJ0212",
+    image_url:
+      "https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT9680_01.jpg?v=1782466735&width=832",
+  },
 ];
 
 export const initialRequests: any[] = [
