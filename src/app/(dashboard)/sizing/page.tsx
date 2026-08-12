@@ -25,14 +25,12 @@ import {
 } from "@/content/sizing-products";
 import {
   ArrowLeft, Users, ShieldCheck, Search, Ruler,
-  Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown, FileText, Download,
+  Trash2, Edit2, Plus, X, PackagePlus, Layers, ChevronDown,
 } from "lucide-react";
 import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
 import { sortPlayersByPosition } from "@/lib/player-sort";
 import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
-import { exportSizingXlsx } from "@/lib/sizing-xlsx-export";
-import { exportSizingPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
 function saveSizingDemo() {
   persistDemoDb();
@@ -177,8 +175,6 @@ export default function SizingTablePage() {
   const [newProductCategory, setNewProductCategory] = useState<SizingCategory>("accesorios");
   const [newProductDefault, setNewProductDefault] = useState("XL");
   const [newProductInputType, setNewProductInputType] = useState<"text" | "number">("text");
-  const [pdfBusy, setPdfBusy] = useState(false);
-  const [xlsxBusy, setXlsxBusy] = useState(false);
 
   const visibleProducts = useMemo(
     () =>
@@ -434,66 +430,13 @@ export default function SizingTablePage() {
           Volver al Inicio
         </Link>
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            disabled={xlsxBusy || !rosterReady || (players.length === 0 && staff.length === 0)}
-            onClick={() => {
-              void (async () => {
-                if (!rosterReady) return;
-                try {
-                  setXlsxBusy(true);
-                  await exportSizingXlsx(
-                    branding.slug,
-                    players,
-                    staff,
-                    customProducts,
-                    { season: seasonLabelForClub(branding.slug) }
-                  );
-                } catch (err) {
-                  console.error(err);
-                  alert(err instanceof Error ? err.message : "Error al generar Excel");
-                } finally {
-                  setXlsxBusy(false);
-                }
-              })();
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold disabled:opacity-40"
+          <Link
+            href="/reports"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold"
           >
-            <Download className="h-4 w-4" />
-            {xlsxBusy ? "Excel…" : !rosterReady ? "Cargando…" : "Excel tallas"}
-          </button>
-          <button
-            type="button"
-            disabled={pdfBusy || !rosterReady || (players.length === 0 && staff.length === 0)}
-            onClick={() => {
-              void (async () => {
-                try {
-                  setPdfBusy(true);
-                  if (!rosterReady) {
-                    throw new Error(
-                      `Espera a que cargue la plantilla (${players.length} jugadores + ${staff.length} cuerpo técnico).`
-                    );
-                  }
-                  await exportSizingPdf(
-                    branding.slug,
-                    players,
-                    staff,
-                    customProducts,
-                    { season: seasonLabelForClub(branding.slug) }
-                  );
-                } catch (err) {
-                  console.error(err);
-                  alert(err instanceof Error ? err.message : "Error al generar PDF");
-                } finally {
-                  setPdfBusy(false);
-                }
-              })();
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-40"
-          >
-            <FileText className="h-4 w-4" />
-            {pdfBusy ? "PDF…" : !rosterReady ? "Cargando…" : "PDF tallas"}
-          </button>
+            <Ruler className="h-4 w-4" />
+            Informes (Excel / PDF)
+          </Link>
           {canWrite && (
             <button
               type="button"

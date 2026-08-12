@@ -71,12 +71,10 @@ export default function AlmacenGeneralPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [scope, setScope] = useState<'active' | 'all_rm'>('active');
-  const [sport, setSport] = useState<'all' | 'basketball' | 'football'>('all');
-  const [category, setCategory] = useState<'all' | 'primer_equipo' | 'inferiores'>('all');
   const [onlyLow, setOnlyLow] = useState(false);
   const [q, setQ] = useState('');
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
+  const [sectionFilter, setSectionFilter] = useState<string | null>(null);
   const [view, setView] = useState<'secciones' | 'ubicaciones'>('secciones');
   const [pdfBusy, setPdfBusy] = useState(false);
 
@@ -85,15 +83,10 @@ export default function AlmacenGeneralPage() {
     setError(null);
     try {
       const params = new URLSearchParams();
-      params.set('scope', scope);
+      params.set('scope', 'active');
       params.set('team_id', teamId);
-      if (scope === 'all_rm') {
-        if (sport !== 'all') params.set('sport', sport);
-        if (category !== 'all') params.set('category', category);
-      } else {
-        params.set('sport', branding.sport === 'football' ? 'football' : 'basketball');
-        params.set('category', 'primer_equipo');
-      }
+      params.set('sport', branding.sport === 'football' ? 'football' : 'basketball');
+      params.set('category', 'primer_equipo');
       if (onlyLow) params.set('low_stock', '1');
       // Búsqueda de texto libre; la ubicación se filtra aparte (no mezclar con el buscador).
       if (q.trim() && !locationFilter) params.set('q', q.trim());
@@ -109,7 +102,7 @@ export default function AlmacenGeneralPage() {
     } finally {
       setLoading(false);
     }
-  }, [scope, teamId, branding.sport, sport, category, onlyLow, q, locationFilter]);
+  }, [teamId, branding.sport, onlyLow, q, locationFilter]);
 
   useEffect(() => {
     const t = setTimeout(() => void load(), q ? 250 : 0);
@@ -125,32 +118,33 @@ export default function AlmacenGeneralPage() {
           ? 'rmb'
           : branding.slug;
 
-  const hasDrillDown =
-    Boolean(locationFilter) ||
-    (scope === 'all_rm' && (sport !== 'all' || category !== 'all'));
+  const hasDrillDown = Boolean(locationFilter || sectionFilter);
 
   const resetAlmacen = () => {
     setLocationFilter(null);
+    setSectionFilter(null);
     setQ('');
-    setSport('all');
-    setCategory('all');
     setView('secciones');
     setOnlyLow(false);
   };
 
+  const visibleItems = useMemo(() => {
+    let source = items;
+    if (locationFilter) source = source.filter((i) => i.location === locationFilter);
+    if (sectionFilter) source = source.filter((i) => i.section_label === sectionFilter);
+    return source;
+  }, [items, locationFilter, sectionFilter]);
+
   const grouped = useMemo(() => {
     const map = new Map<string, WarehouseItem[]>();
-    const source = locationFilter
-      ? items.filter((i) => i.location === locationFilter)
-      : items;
-    for (const item of source) {
+    for (const item of visibleItems) {
       const key = view === 'ubicaciones' ? item.location : item.section_label;
       const list = map.get(key) || [];
       list.push(item);
       map.set(key, list);
     }
     return [...map.entries()];
-  }, [items, view, locationFilter]);
+  }, [visibleItems, view]);
 
   const exportCsv = () => {
     const lines = [
@@ -218,28 +212,10 @@ export default function AlmacenGeneralPage() {
             Almacén general
           </h2>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            {scope === 'active'
-              ? `Stock y valor de ${branding.name} (${branding.sport === 'football' ? 'fútbol' : 'baloncesto'}).`
-              : 'Vista unificada de todos los clubs live (RMB, RMF y ATM).'}
+            Stock y valor de {branding.name} ({branding.sport === 'football' ? 'fútbol' : 'baloncesto'}).
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs font-bold">
-            <button
-              type="button"
-              onClick={() => setScope('active')}
-              className={`px-3 py-2 ${scope === 'active' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-900 text-slate-600'}`}
-            >
-              Solo {branding.shortName}
-            </button>
-            <button
-              type="button"
-              onClick={() => setScope('all_rm')}
-              className={`px-3 py-2 ${scope === 'all_rm' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-900 text-slate-600'}`}
-            >
-              Todos los clubs
-            </button>
-          </div>
           <Link href="/movimientos" className="text-xs font-bold text-slate-600 hover:text-orange-600">
             Historial movimientos
           </Link>
@@ -372,19 +348,22 @@ export default function AlmacenGeneralPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {(stats?.by_section || []).map((s) => (
+        {(stats?.by_section || []).map((s) => {
+          const active = sectionFilter === s.label;
+          return (
           <button
             key={s.id}
             type="button"
             onClick={() => {
-              setScope('all_rm');
-              setSport(s.sport as 'basketball' | 'football');
-              setCategory(s.category as 'primer_equipo' | 'inferiores');
+              setSectionFilter(active ? null : s.label);
               setLocationFilter(null);
               setQ('');
+              setView('secciones');
             }}
             className={`text-left rounded-xl border p-3 transition-all ${
-              s.ready
+              active
+                ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/30'
+                : s.ready
                 ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-orange-300'
                 : 'bg-slate-50 dark:bg-slate-950 border-dashed border-slate-300 opacity-80'
             }`}
@@ -399,7 +378,8 @@ export default function AlmacenGeneralPage() {
               <p className="text-[11px] text-amber-600 font-semibold mt-2">Próximamente</p>
             )}
           </button>
-        ))}
+          );
+        })}
       </div>
 
       <div className="flex flex-col md:flex-row gap-3 md:items-center">
@@ -412,32 +392,17 @@ export default function AlmacenGeneralPage() {
             className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
           />
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {scope === 'all_rm' &&
-            (
-              [
-                ['all', 'Todos'],
-                ['basketball', 'Baloncesto'],
-                ['football', 'Fútbol'],
-              ] as const
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setSport(id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                  sport === id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-        </div>
         <label className="inline-flex items-center gap-2 text-xs font-bold cursor-pointer">
           <input type="checkbox" checked={onlyLow} onChange={(e) => setOnlyLow(e.target.checked)} />
           Solo bajo mínimo
         </label>
       </div>
+
+      {sectionFilter && (
+        <p className="text-[11px] font-semibold text-orange-600">
+          Sección: {sectionFilter}
+        </p>
+      )}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs font-semibold px-3 py-2">
@@ -450,7 +415,7 @@ export default function AlmacenGeneralPage() {
           <RefreshCw className="h-8 w-8 animate-spin mx-auto text-orange-500 mb-2" />
           <p className="text-xs font-semibold">Cargando almacén general…</p>
         </div>
-      ) : items.length === 0 ? (
+      ) : visibleItems.length === 0 ? (
         <div className="rounded-xl border py-16 text-center text-slate-400">
           <Package className="h-10 w-10 mx-auto mb-2 opacity-40" />
           <p className="text-sm font-bold text-slate-600">Sin referencias con este filtro</p>
