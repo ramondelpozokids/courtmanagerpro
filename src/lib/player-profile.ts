@@ -4,6 +4,8 @@ import {
 } from '@/data/rmb-official-roster';
 import { getOfficialStatsByLegacyId } from '@/data/rmb-official-stats';
 import { getPlayerCompetitionStats } from '@/lib/player-competitions';
+import { getRmbProvisionalPlayer } from '@/data/rmb-provisional-players';
+import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 
 export function normalizePlayerProfile(player: Record<string, unknown> | null) {
   if (!player) return null;
@@ -14,15 +16,19 @@ export function normalizePlayerProfile(player: Record<string, unknown> | null) {
   const meta = (player.metadata || {}) as Record<string, unknown>;
   const competition_stats = getPlayerCompetitionStats(player);
 
+  const provisional = getRmbProvisionalPlayer(
+    (meta.official_slug as string) || official?.slug || String(player.full_name || '')
+  );
+
   return {
     ...player,
     full_name: official?.full_name ?? player.full_name ?? officialStats?.full_name ?? player.full_name,
     dorsal: official?.dorsal ?? player.dorsal ?? officialStats?.dorsal,
-    nationality: official?.nationality ?? player.nationality,
-    birth_date: official?.birth_date ?? player.birth_date ?? meta.birth_date,
-    birth_place: official?.birth_place ?? player.birth_place ?? meta.birth_place ?? officialStats?.birth_place,
-    weight: official?.weight ?? player.weight ?? meta.weight ?? officialStats?.weight,
-    height: official?.height ?? player.height ?? meta.height ?? officialStats?.height,
+    nationality: official?.nationality ?? provisional?.nationality ?? player.nationality,
+    birth_date: official?.birth_date ?? provisional?.birth_date ?? player.birth_date ?? meta.birth_date,
+    birth_place: official?.birth_place ?? provisional?.birth_place ?? player.birth_place ?? meta.birth_place ?? officialStats?.birth_place,
+    weight: official?.weight ?? provisional?.weight ?? player.weight ?? meta.weight ?? officialStats?.weight,
+    height: official?.height ?? provisional?.height ?? player.height ?? meta.height ?? officialStats?.height,
     matches_played: official?.matches_played ?? player.matches_played ?? meta.matches_played ?? officialStats?.matches_played,
     points: official?.points ?? player.points ?? meta.points ?? officialStats?.points,
     rebounds: official?.rebounds ?? player.rebounds ?? meta.rebounds ?? officialStats?.rebounds,
@@ -30,10 +36,24 @@ export function normalizePlayerProfile(player: Record<string, unknown> | null) {
     minutes_played: official?.minutes_played ?? player.minutes_played ?? meta.minutes_played ?? officialStats?.minutes_played,
     valuation: official?.valuation ?? player.valuation ?? meta.valuation ?? officialStats?.valuation,
     debut: official?.debut ?? player.debut ?? meta.debut,
-    trajectory: official?.trajectory ?? player.trajectory ?? meta.trajectory,
+    trajectory: official?.trajectory ?? provisional?.trajectory ?? player.trajectory ?? meta.trajectory,
     palmares: official?.palmares?.length ? official.palmares : player.palmares ?? meta.palmares,
     profile_url: official?.profile_url ?? player.profile_url ?? meta.profile_url ?? officialStats?.profile_url,
-    photo_url: official?.photo_url ?? player.photo_url ?? officialStats?.photo_url,
+    photo_url:
+      resolvePlayerPhotoUrl({
+        official_slug: (meta.official_slug as string) || official?.slug || null,
+        photo_url:
+          (typeof player.photo_url === 'string' ? player.photo_url : null) ??
+          official?.photo_url ??
+          officialStats?.photo_url ??
+          null,
+        fullName: String(official?.full_name ?? player.full_name ?? officialStats?.full_name ?? ''),
+      }) ??
+      official?.photo_url ??
+      (typeof player.photo_url === 'string' ? player.photo_url : null) ??
+      officialStats?.photo_url ??
+      null,
+    photo_provisional: Boolean(provisional && !official && (meta.photo_provisional || provisional.slug)),
     action_image: player.action_image ?? meta.action_image,
     competition_stats,
   };

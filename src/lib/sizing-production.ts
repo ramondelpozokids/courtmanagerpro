@@ -11,6 +11,7 @@ import { atmPlayers, atmCoachingStaff } from '@/data/clubs/atm-data';
 import {
   mergeSizingCatalog,
   normalizeSizes,
+  formatApparelSize,
   staffToSizes,
   sizesToStaffFields,
   type SizingProduct,
@@ -168,21 +169,22 @@ function sizesToPlayerPayload(sizes: Record<string, string>, catalog: SizingProd
     if (!product.legacyKey) continue;
     const val = sizes[product.id];
     if (val == null || val === '—') continue;
+    const stored = product.inputType === 'text' ? formatApparelSize(val) : val;
     switch (product.legacyKey) {
       case 'jersey':
-        payload.shirt_size = val;
+        payload.shirt_size = stored;
         break;
       case 'shorts':
-        payload.shorts_size = val;
+        payload.shorts_size = stored;
         break;
       case 'shoes':
-        payload.shoe_size = Number(val) || val;
+        payload.shoe_size = Number(stored) || stored;
         break;
       case 'warmupShirt':
-        payload.jacket_size = val;
+        payload.jacket_size = stored;
         break;
       case 'socks':
-        payload.sock_size = val;
+        payload.sock_size = stored;
         break;
     }
   }

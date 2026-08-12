@@ -2,6 +2,7 @@ import {
   RMB_OFFICIAL_PLAYERS,
   RMB_OFFICIAL_STAFF,
 } from '@/data/rmb-official-roster';
+import { getRmbProvisionalPlayer } from '@/data/rmb-provisional-players';
 
 /** Fotos locales ya descargadas en public/assets/players */
 const LOCAL_PLAYER_SLUGS = new Set(RMB_OFFICIAL_PLAYERS.map((p) => p.slug));
@@ -37,6 +38,10 @@ export function resolvePlayerPhotoUrl(opts: {
     if (!opts.isStaff && LOCAL_PLAYER_SLUGS.has(slug)) {
       return `/assets/players/${slug}.webp`;
     }
+    if (!opts.isStaff) {
+      const provisional = getRmbProvisionalPlayer(slug);
+      if (provisional) return provisional.photoPath;
+    }
     // Nombre ya en formato slug coincidente con fichero local
     if (!opts.isStaff && LOCAL_PLAYER_SLUGS.has(slugifyName(slug))) {
       return `/assets/players/${slugifyName(slug)}.webp`;
@@ -62,6 +67,9 @@ export function resolvePlayerPhotoUrl(opts: {
       return candidates.some((c) => c && (c === lower || lower.includes(c) || c.includes(lower)));
     });
     if (official) return `/assets/players/${official.slug}.webp`;
+
+    const provisional = getRmbProvisionalPlayer(opts.fullName);
+    if (provisional && !opts.isStaff) return provisional.photoPath;
 
     if (opts.isStaff) {
       const staff = RMB_OFFICIAL_STAFF.find((s) => norm(s.full_name) === lower);

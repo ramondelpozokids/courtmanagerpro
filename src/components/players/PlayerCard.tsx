@@ -3,6 +3,7 @@
 import { Player } from "@/types";
 import { UserCheck, AlertTriangle, Shirt, Landmark, Footprints } from "lucide-react";
 import Link from "next/link";
+import { formatApparelSize } from "@/content/sizing-products";
 
 interface PlayerCardProps {
   player: Player;
@@ -77,11 +78,11 @@ export default function PlayerCard({ player, onDelete, onEdit, canWrite }: Playe
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="bg-white dark:bg-slate-800 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
             <span className="text-[9px] text-slate-400 block">Camiseta</span>
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{player.shirt_size || "XL"}</span>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{formatApparelSize(player.shirt_size) || "XL"}</span>
           </div>
           <div className="bg-white dark:bg-slate-800 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
             <span className="text-[9px] text-slate-400 block">Pantalón</span>
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{player.shorts_size || "XL"}</span>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{formatApparelSize(player.shorts_size) || "XL"}</span>
           </div>
           <div className="bg-white dark:bg-slate-800 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
             <span className="text-[9px] text-slate-400 block">Calzado</span>

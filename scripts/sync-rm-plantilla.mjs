@@ -7,6 +7,7 @@
  */
 
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs';
+import { execSync } from 'node:child_process';
 
 const PLANTILLA_URL = 'https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla';
 const SEASON = '2026-2027';
@@ -557,3 +558,10 @@ console.log(
   `Written ${players.length} players + ${staff.length} staff → src/data/rmb-official-roster.ts`
 );
 console.log(`Written stats for ${Object.keys(statsByLegacy).length} players → src/data/rmb-official-stats.ts`);
+
+// Aviso si algún jugador provisional ya está en realmadrid.com
+try {
+  execSync('npx tsx scripts/check-rmb-provisional-roster.ts', { stdio: 'inherit', cwd: process.cwd() });
+} catch {
+  /* check script imprime estado */
+}

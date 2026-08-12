@@ -23,6 +23,7 @@ import {
 import { normalizeStaffProfile } from "@/lib/player-profile";
 import { resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
+import { formatApparelSize } from "@/content/sizing-products";
 import { RMF_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/rmf-data";
 import { ATM_OFFICIAL_PLANTILLA_URL, resolveAtmStaffProfileUrl } from "@/data/clubs/atm-data";
 import { UpdateOfficialRosterButton } from "@/components/roster/UpdateOfficialRosterButton";
@@ -579,11 +580,11 @@ export default function PlayersPage() {
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-white dark:bg-slate-800 p-1.5 rounded-lg border">
                     <span className="text-[9px] text-slate-400 block">Chaqueta</span>
-                    <span className="text-xs font-bold">{member.shirt_size || "L"}</span>
+                    <span className="text-xs font-bold">{formatApparelSize(member.shirt_size) || "L"}</span>
                   </div>
                   <div className="bg-white dark:bg-slate-800 p-1.5 rounded-lg border">
                     <span className="text-[9px] text-slate-400 block">Pantalón</span>
-                    <span className="text-xs font-bold">{member.shorts_size || "L"}</span>
+                    <span className="text-xs font-bold">{formatApparelSize(member.shorts_size) || "L"}</span>
                   </div>
                   <div className="bg-white dark:bg-slate-800 p-1.5 rounded-lg border">
                     <span className="text-[9px] text-slate-400 block">Calzado</span>

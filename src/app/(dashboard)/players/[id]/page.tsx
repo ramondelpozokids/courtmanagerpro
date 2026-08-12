@@ -19,6 +19,7 @@ import { normalizePlayerProfile } from "@/lib/player-profile";
 import { useAuth } from "@/contexts/AuthContext";
 import { canModifyProject } from "@/lib/permissions";
 import { uuidToDemoPlayerId } from "@/lib/team-constants";
+import { formatApparelSize } from "@/content/sizing-products";
 
 interface PlayerProfileProps {
   params: Promise<{ id: string }>;
@@ -116,11 +117,11 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
 
   // Create player sizes object for size chart component compatibility
   const sizesObj = {
-    jersey: player.shirt_size || "XL",
-    shorts: player.shorts_size || "XL",
+    jersey: formatApparelSize(player.shirt_size) || "XL",
+    shorts: formatApparelSize(player.shorts_size) || "XL",
     shoes: String(player.shoe_size || "46"),
-    socks: player.sock_size || "L",
-    warmupShirt: player.jacket_size || "XXL"
+    socks: formatApparelSize(player.sock_size) || "L",
+    warmupShirt: formatApparelSize(player.jacket_size) || "2XL",
   };
 
   return (
@@ -175,6 +176,11 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
             }`}>
               {player.is_active ? "Activo" : "Inactivo"}
             </span>
+            {(player as { photo_provisional?: boolean }).photo_provisional && (
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                Foto provisional
+              </span>
+            )}
             {player.profile_url && (
               <a
                 href={player.profile_url}

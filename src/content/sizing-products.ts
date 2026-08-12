@@ -71,6 +71,15 @@ export function mergeSizingCatalog(custom: SizingProduct[] = []): SizingProduct[
   return [...DEFAULT_SIZING_PRODUCTS, ...extra];
 }
 
+/** Talla de ropa: unifica XXL → 2XL (convención Adidas / utilería RMB) */
+export function formatApparelSize(size: string | null | undefined): string {
+  if (!size) return '';
+  const trimmed = String(size).trim();
+  const key = trimmed.toUpperCase().replace(/\s+/g, '');
+  if (key === 'XXL') return '2XL';
+  return trimmed;
+}
+
 /** Migra tallas legacy y rellena huecos del catálogo */
 export function normalizeSizes(
   raw: Record<string, string | number | undefined> | undefined,
@@ -92,6 +101,12 @@ export function normalizeSizes(
       sizes[product.id] = product.defaultSize;
     } else {
       sizes[product.id] = '—';
+    }
+  }
+
+  for (const product of catalog) {
+    if (product.inputType === 'text' && sizes[product.id] && sizes[product.id] !== '—') {
+      sizes[product.id] = formatApparelSize(sizes[product.id]);
     }
   }
 

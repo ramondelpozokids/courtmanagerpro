@@ -13,26 +13,41 @@ import {
   formDataToUpdatePayload,
 } from '@/lib/player-form-mapper';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
+import { formatApparelSize } from '@/content/sizing-products';
 import {
   fetchAllClubPlayersFromSupabase,
   mapAllClubPlayersFromPacks,
   sortAllClubPlayers,
 } from '@/lib/players-all-clubs-query';
 import { resolveAtmPackPlayerPhoto } from '@/lib/atm-pack-photos';
+import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 import { preferAtmRosterIfStale } from '@/lib/atm-roster';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
 
 function enrichPlayerPhotos(list: Player[], teamId: string): Player[] {
-  if (teamId !== CLUB_TEAM_IDS.atm) return list;
-  return list.map((p) => ({
-    ...p,
-    photo_url: resolveAtmPackPlayerPhoto({
-      dorsal: p.dorsal,
-      fullName: p.full_name,
-      photo_url: p.photo_url,
-    }),
-  }));
+  if (teamId === CLUB_TEAM_IDS.atm) {
+    return list.map((p) => ({
+      ...p,
+      photo_url: resolveAtmPackPlayerPhoto({
+        dorsal: p.dorsal,
+        fullName: p.full_name,
+        photo_url: p.photo_url,
+      }),
+    }));
+  }
+  if (teamId === CLUB_TEAM_IDS.rmb) {
+    return list.map((p) => ({
+      ...p,
+      photo_url:
+        resolvePlayerPhotoUrl({
+          official_slug: p.official_slug,
+          photo_url: p.photo_url,
+          fullName: p.full_name,
+        }) || p.photo_url,
+    }));
+  }
+  return list;
 }
 
 export interface UsePlayersOptions {
@@ -205,11 +220,11 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
           status: 'ACTIVE',
           nationality: form.nationality,
           sizes: {
-            jersey: form.shirt_size || 'XL',
-            shorts: form.shorts_size || 'XL',
+            jersey: formatApparelSize(form.shirt_size) || 'XL',
+            shorts: formatApparelSize(form.shorts_size) || 'XL',
             shoes: String(form.shoe_size || 47),
             socks: 'L',
-            warmupShirt: form.jacket_size || 'XXL',
+            warmupShirt: formatApparelSize(form.jacket_size) || '2XL',
           },
         }),
       };

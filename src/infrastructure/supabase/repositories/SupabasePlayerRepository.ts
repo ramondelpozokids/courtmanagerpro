@@ -1,6 +1,7 @@
 import { Player } from "@/types";
 import { IPlayerRepository } from "../../../domain/repositories/IPlayerRepository";
 import { db } from "./InMemoryDB";
+import { formatApparelSize } from "@/content/sizing-products";
 
 export class SupabasePlayerRepository implements IPlayerRepository {
   async getById(id: string): Promise<Player | null> {
@@ -55,11 +56,11 @@ export class SupabasePlayerRepository implements IPlayerRepository {
       position: (player.position || "base").toUpperCase() as any,
       status: "ACTIVE" as const,
       sizes: {
-        jersey: player.shirt_size || "XL",
-        shorts: player.shorts_size || "XL",
+        jersey: formatApparelSize(player.shirt_size) || "XL",
+        shorts: formatApparelSize(player.shorts_size) || "XL",
         shoes: String(player.shoe_size || 47),
         socks: "L",
-        warmupShirt: player.jacket_size || "XXL"
+        warmupShirt: formatApparelSize(player.jacket_size) || "2XL"
       },
       nationality: player.nationality || "España",
       birthDate: player.birth_date || "1998-05-10"

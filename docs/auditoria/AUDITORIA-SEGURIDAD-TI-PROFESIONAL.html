@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>CourtManager Pro — Auditoría de seguridad para TI</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #111; --muted: #6b6b6b; --line: #e8e8e8; --soft: #fafafa;
+      --accent: #c8102e; --accent-soft: #f9ecee; --ok-bg: #f0fdf4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { size: A4; margin: 0; }
+    html, body {
+      background: #e5e5e5; color: var(--ink);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 11pt; line-height: 1.42;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    h1, h2, h3 { font-family: "IBM Plex Serif", Georgia, serif; font-weight: 600; letter-spacing: -0.02em; }
+    .page {
+      width: 210mm; height: 297mm;
+      margin: 10px auto; background: #fff;
+      box-shadow: 0 8px 28px rgba(0,0,0,.08);
+      page-break-after: always; break-after: page;
+      position: relative; overflow: hidden;
+    }
+    .page:last-child { page-break-after: auto; }
+    .pad { padding: 11mm 13mm 16mm; height: 100%; display: flex; flex-direction: column; }
+    .kicker { font-size: 8.5pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .kicker.red { color: var(--accent); }
+    .title { font-size: 18pt; line-height: 1.12; margin-bottom: 7px; }
+    .lead { font-size: 11pt; color: var(--muted); margin-bottom: 8px; line-height: 1.4; }
+    .muted { color: var(--muted); }
+    .foot {
+      position: absolute; left: 13mm; right: 13mm; bottom: 7mm;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 8pt; color: #a3a3a3; border-top: 1px solid var(--line); padding-top: 5px;
+    }
+    .foot-logos { display: flex; align-items: center; gap: 8px; }
+    .foot-logos img { height: 28px; width: auto; object-fit: contain; }
+    .foot-logos img.cm,
+    .foot-logos img.atm { height: 28px; }
+    /* Páginas interiores — mismo nivel / peso visual */
+    .page.inner .hdr-logos .cm { height: 78px; }
+    .page.inner .hdr-logos .atm { height: 88px; }
+    .page.inner .hdr-logos img { height: 78px; }
+    p { margin: 0 0 6px; }
+    ul, ol { margin: 0 0 7px 1.1rem; }
+    li { margin-bottom: 3px; }
+    .hdr {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 12px; margin-bottom: 10px; padding-bottom: 9px; border-bottom: 1px solid var(--line);
+    }
+    .hdr-logos { display: flex; align-items: center; gap: 18px; }
+    .hdr-logos img {
+      height: 110px; width: auto; object-fit: contain;
+      display: block; flex-shrink: 0;
+    }
+    .hdr-logos .sep { width: 1px; height: 78px; background: var(--line); align-self: center; }
+    .hdr-logos .cm { height: 110px; }
+    /* Escudo ATM: +12% óptico para igualar peso visual del badge cuadrado */
+    .hdr-logos .atm { height: 124px; }
+    .hdr-meta { text-align: right; font-size: 9pt; color: var(--muted); line-height: 1.45; padding-top: 8px; }
+    .hdr-meta strong { color: var(--ink); display: block; font-size: 10pt; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card { border: 1px solid var(--line); background: var(--soft); padding: 10px 11px; }
+    .card h3 { font-family: "IBM Plex Sans", sans-serif; font-size: 10.5pt; font-weight: 650; margin-bottom: 4px; }
+    .card p, .card li { font-size: 10pt; color: var(--muted); margin: 0; line-height: 1.38; }
+    .stat { border: 1px solid var(--line); background: var(--soft); padding: 11px 8px; text-align: center; }
+    .stat .v { font-family: "IBM Plex Serif", Georgia, serif; font-size: 22pt; font-weight: 600; line-height: 1; }
+    .stat .l { font-size: 8pt; color: var(--muted); margin-top: 5px; text-transform: uppercase; letter-spacing: .05em; font-weight: 650; }
+    .box { padding: 10px 12px; background: var(--soft); border: 1px solid var(--line); font-size: 10.5pt; color: #444; line-height: 1.4; }
+    .box ul { font-size: 10pt; }
+    .note { padding: 10px 12px; background: var(--accent-soft); border-left: 3px solid var(--accent); font-size: 10.5pt; color: #444; line-height: 1.4; margin: 8px 0; }
+    .okbox { padding: 10px 12px; background: var(--ok-bg); border-left: 3px solid #16a34a; font-size: 10.5pt; color: #14532d; line-height: 1.4; margin: 8px 0; }
+    .band {
+      background: #0f172a; color: #fff; padding: 12px 14px; margin: 8px 0 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .band .big { font-family: "IBM Plex Serif", Georgia, serif; font-size: 15pt; line-height: 1.15; }
+    .band .small { font-size: 9.5pt; opacity: .85; margin-top: 4px; line-height: 1.35; }
+    .mini-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 6px 0 10px; }
+    .mini-table th, .mini-table td { border: 1px solid var(--line); padding: 5px 7px; text-align: left; vertical-align: top; }
+    .mini-table th { background: #111; color: #fff; font-size: 9pt; font-weight: 650; }
+    .mini-table tr:nth-child(even) td { background: var(--soft); }
+    .badge {
+      display: inline-block; font-size: 8pt; font-weight: 750; letter-spacing: .03em;
+      padding: 2px 6px; background: #dcfce7; color: #166534;
+    }
+    .badge.warn { background: #fef3c7; color: #92400e; }
+    .badge.info { background: #e2e8f0; color: #334155; }
+    code { font-size: 9pt; background: #f1f5f9; padding: 0 3px; }
+    .layer { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .layer .n {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 10pt;
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .layer h3 { font-family: "IBM Plex Sans", sans-serif; font-size: 11pt; font-weight: 650; margin-bottom: 2px; }
+    .layer p { margin: 0; font-size: 10pt; color: var(--muted); line-height: 1.38; }
+    .fill { flex: 1; display: flex; flex-direction: column; gap: 9px; min-height: 0; }
+    .sec { margin-top: 2px; }
+    .sec h3 {
+      font-family: "IBM Plex Sans", sans-serif; font-size: 11pt; font-weight: 700;
+      margin: 0 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--line);
+    }
+    @media print {
+      html, body { background: #fff; }
+      .page { margin: 0; box-shadow: none; }
+      .no-print { display: none !important; }
+    }
+    .actions { position: sticky; top: 0; z-index: 10; display: flex; gap: 8px; justify-content: flex-end; padding: 10px 14px; background: #111; }
+    .actions button { border: 0; cursor: pointer; font: inherit; font-size: 12px; font-weight: 650; padding: 8px 12px; border-radius: 6px; background: #fff; color: #111; }
+  </style>
+</head>
+<body>
+  <div class="actions no-print">
+    <button type="button" onclick="window.print()">Guardar / imprimir PDF</button>
+  </div>
+
+  <!-- ========== PÁGINA 01 ========== -->
+  <section class="page">
+    <div class="pad">
+      <div class="hdr">
+        <div class="hdr-logos">
+          <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="CourtManager Pro" />
+          <span class="sep"></span>
+          <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="Atlético de Madrid" />
+        </div>
+        <div class="hdr-meta">
+          <strong>Auditoría de seguridad · TI</strong>
+          Confidencial · Atleti Lab<br />
+          3 agosto 2026 · Commit 0121a987
+        </div>
+      </div>
+
+      <p class="kicker red">Destinatario: Tecnología de la Información</p>
+      <h1 class="title">CourtManager Pro — Informe de seguridad</h1>
+      <p class="lead">
+        Controles, arquitectura y residuales para evaluación Atleti Lab — Atlético de Madrid.
+        Sin precios ni oferta comercial vinculante.
+      </p>
+
+      <div class="band">
+        <div>
+          <div class="big">Veredicto: nivel profesional / muy bueno</div>
+          <div class="small">Adecuado para piloto controlado y uso diario en producción · Preparado para primera ronda de pentest · 0 hallazgos críticos abiertos</div>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:6px">
+        <div class="stat"><div class="v">4</div><div class="l">Capas</div></div>
+        <div class="stat"><div class="v">12+</div><div class="l">Controles clave</div></div>
+        <div class="stat"><div class="v">0</div><div class="l">Críticos abiertos</div></div>
+        <div class="stat"><div class="v">6</div><div class="l">Residuales opcionales</div></div>
+      </div>
+
+      <div class="fill">
+        <div class="sec">
+          <h3>Arquitectura de defensa en profundidad</h3>
+          <div class="layer">
+            <div class="n">1</div>
+            <div><h3>Perímetro HTTP</h3><p>CSP, HSTS, X-Frame-Options DENY, nosniff, COOP, CORP, Permissions-Policy · <code>next.config.js</code></p></div>
+          </div>
+          <div class="layer">
+            <div class="n">2</div>
+            <div><h3>Acceso / sesión</h3><p>Sin sesión → login o 401 en APIs · Registro cerrado · Crons con <code>Bearer CRON_SECRET</code> · <code>middleware.ts</code></p></div>
+          </div>
+          <div class="layer">
+            <div class="n">3</div>
+            <div><h3>APIs — auth + anti-IDOR</h3><p>Flujo <code>authenticate → authorize → assertUserBelongsToTeam</code> · Librería <code>src/lib/security/</code></p></div>
+          </div>
+          <div class="layer" style="border-bottom:0">
+            <div class="n">4</div>
+            <div><h3>Datos — Row Level Security</h3><p>PostgreSQL / Supabase aísla por equipo · Anon key no salta RLS · Migraciones 002+ / 020</p></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Alcance de esta auditoría</h3>
+            <p>Next.js, APIs, autenticación, autorización por equipo, RLS Supabase, cabeceras HTTP, rate limiting Upstash y configuración Vercel Production (agosto 2026).</p>
+          </div>
+          <div class="card">
+            <h3>Fuera de alcance</h3>
+            <p>Red corporativa del club, cuentas personales, laboratorio de pentest de terceros, certificación ISO/SOC 2, auditoría física de instalaciones.</p>
+          </div>
+        </div>
+
+        <div class="okbox" style="margin:0">
+          <strong>Conclusión operativa:</strong> el sistema puede presentarse a TI como plataforma con madurez de seguridad profesional,
+          lista para evaluación Atleti Lab / piloto. El bloqueo de clic derecho / F12 es solo cosmético y <em>no</em> cuenta como control.
+        </div>
+
+        <div class="grid-2" style="margin-top:auto">
+          <div class="box">
+            <strong>Preparado por</strong><br />
+            Ramón del Pozo Rott<br />
+            info@ramondelpozorott.es<br />
+            courtmanagerpro.vercel.app
+          </div>
+          <div class="box">
+            <strong>Referencias</strong><br />
+            Commit <code>0121a987</code><br />
+            PENTEST-READINESS-ATM.md<br />
+            03-seguridad-rls.md
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <span class="foot-logos">
+        <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="" />
+        <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="" />
+        <span>CourtManager Pro · Auditoría TI · Atleti Lab</span>
+      </span>
+      <span>01 / 04</span>
+    </div>
+  </section>
+
+  <!-- ========== PÁGINA 02 ========== -->
+  <section class="page inner">
+    <div class="pad">
+      <div class="hdr">
+        <div>
+          <p class="kicker">02 · Controles implementados</p>
+          <h2 class="title" style="margin:0">Matriz de controles verificados</h2>
+        </div>
+        <div class="hdr-logos">
+          <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="" />
+          <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="" />
+        </div>
+      </div>
+
+      <div class="fill">
+        <div class="sec">
+          <h3>Controles en código y Production</h3>
+          <table class="mini-table">
+            <tr><th style="width:38%">Control</th><th style="width:12%">Estado</th><th>Evidencia</th></tr>
+            <tr><td>Middleware de sesión (páginas + APIs)</td><td><span class="badge">HECHO</span></td><td><code>src/middleware.ts</code></td></tr>
+            <tr><td>Auth unificada authenticate / authorize</td><td><span class="badge">HECHO</span></td><td><code>src/lib/security/auth.ts</code></td></tr>
+            <tr><td>Anti-IDOR por pertenencia a equipo</td><td><span class="badge">HECHO</span></td><td>APIs críticas + warehouse / stock / medical / trips / laundry</td></tr>
+            <tr><td>RLS PostgreSQL por equipo</td><td><span class="badge">HECHO</span></td><td>Migraciones Supabase 002+ / 020</td></tr>
+            <tr><td>Rate limit login distribuido (Upstash Redis)</td><td><span class="badge">HECHO</span></td><td><code>login-rate-limit.ts</code> + env Vercel</td></tr>
+            <tr><td>Cookies httpOnly (sin JWT en JSON login)</td><td><span class="badge">HECHO</span></td><td><code>POST /api/auth/login</code></td></tr>
+            <tr><td>Passkeys / WebAuthn</td><td><span class="badge">HECHO</span></td><td>API webauthn + migraciones</td></tr>
+            <tr><td>Política de contraseña (≥10, letras y números)</td><td><span class="badge">HECHO</span></td><td><code>password-policy.ts</code></td></tr>
+            <tr><td>Anti open-redirect</td><td><span class="badge">HECHO</span></td><td><code>safe-redirect.ts</code></td></tr>
+            <tr><td>Validación Zod (anti mass-assignment)</td><td><span class="badge">HECHO</span></td><td>POST inventario</td></tr>
+            <tr><td>Cabeceras HTTP (CSP, HSTS, XFO, COOP/CORP…)</td><td><span class="badge">HECHO</span></td><td><code>next.config.js</code></td></tr>
+            <tr><td>Fail-fast variables críticas en Production</td><td><span class="badge">HECHO</span></td><td><code>instrumentation.ts</code> + <code>env.ts</code></td></tr>
+            <tr><td>DEMO_MODE=false + hard-stop Vercel Production</td><td><span class="badge">HECHO</span></td><td>Vercel + <code>app-mode.ts</code></td></tr>
+            <tr><td>Cron con Bearer CRON_SECRET</td><td><span class="badge">HECHO</span></td><td><code>isCronAuthorized</code></td></tr>
+            <tr><td>Audit log / triggers sensibles</td><td><span class="badge">HECHO</span></td><td>Tabla <code>audit_log</code></td></tr>
+          </table>
+        </div>
+
+        <div class="okbox" style="margin:0">
+          <strong>Almacén / movimientos:</strong> rutas con service role (bypass RLS del cliente) filtran por equipos accesibles del usuario — cierre de IDOR típico en pentest.
+        </div>
+
+        <div class="note" style="margin:0;margin-top:auto">
+          <strong>Premisa:</strong> la seguridad al 100&nbsp;% no existe en sistemas conectados a Internet.
+          Este informe describe controles verificables y residuales conscientes, no impenetrabilidad.
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <span class="foot-logos">
+        <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="" />
+        <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="" />
+        <span>CourtManager Pro · Auditoría TI · Atleti Lab</span>
+      </span>
+      <span>02 / 04</span>
+    </div>
+  </section>
+
+  <!-- ========== PÁGINA 03 ========== -->
+  <section class="page inner">
+    <div class="pad">
+      <div class="hdr">
+        <div>
+          <p class="kicker">03 · Residuales y validación</p>
+          <h2 class="title" style="margin:0">Hallazgos residuales y checklist de prueba</h2>
+        </div>
+        <div class="hdr-logos">
+          <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="" />
+          <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="" />
+        </div>
+      </div>
+
+      <div class="fill">
+        <div class="sec">
+          <h3>Residuales no bloqueantes (fase 2 / enterprise)</h3>
+          <table class="mini-table">
+            <tr><th>Ítem</th><th style="width:16%">Riesgo</th><th>Nota para TI</th></tr>
+            <tr>
+              <td>SSO corporativo (Microsoft Entra ID / Azure AD)</td>
+              <td><span class="badge warn">MEDIO</span></td>
+              <td>Exigencia habitual de TI de club grande; no bloquea piloto con cuentas Supabase.</td>
+            </tr>
+            <tr>
+              <td>WAF perimetral (Cloudflare / Vercel Firewall)</td>
+              <td><span class="badge warn">BAJO–MEDIO</span></td>
+              <td>Capa extra ante bots; el rate limit de login ya mitiga fuerza bruta.</td>
+            </tr>
+            <tr>
+              <td>CSP sin <code>unsafe-eval</code></td>
+              <td><span class="badge info">BAJO</span></td>
+              <td>Nota típica en informes; ligado al runtime de Next.js.</td>
+            </tr>
+            <tr>
+              <td>Checklists localStorage → base de datos</td>
+              <td><span class="badge info">BAJO</span></td>
+              <td>Integridad multi-dispositivo; no es bypass de autenticación.</td>
+            </tr>
+            <tr>
+              <td>Pentest externo formal + informe firmado</td>
+              <td><span class="badge info">PROCESO</span></td>
+              <td>Evidencia contractual; el producto ya está preparado para la prueba.</td>
+            </tr>
+            <tr>
+              <td>ISO 27001 / SOC 2</td>
+              <td><span class="badge info">FUERA DE ALCANCE</span></td>
+              <td>Programa de compliance aparte (meses + auditor externo).</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="sec">
+          <h3>Checklist de validación (QA / pentest)</h3>
+          <table class="mini-table">
+            <tr><th>Prueba</th><th>Resultado esperado</th></tr>
+            <tr><td>API de datos sin cookie de sesión</td><td><strong>401 Unauthorized</strong></td></tr>
+            <tr><td>Sesión válida + <code>team_id</code> de otro club</td><td><strong>403</strong> (capa app) y/o vacío por RLS</td></tr>
+            <tr><td>Fuerza bruta en login (más del límite)</td><td><strong>429</strong>; contador compartido vía Redis/Upstash</td></tr>
+            <tr><td>Cuerpo JSON del login</td><td>Sin <code>access_token</code> / <code>refresh_token</code></td></tr>
+            <tr><td><code>?redirect=//evil.com</code> tras login</td><td>Solo rutas internas permitidas</td></tr>
+            <tr><td>Clickjacking (iframe)</td><td>Bloqueado (XFO + CSP <code>frame-ancestors</code>)</td></tr>
+            <tr><td><code>/api/ai/ping?secret=</code> en query</td><td><strong>401</strong> (solo cabecera secreta)</td></tr>
+            <tr><td>Passwords mock en bundle de producción</td><td>No deben aparecer</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <span class="foot-logos">
+        <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="" />
+        <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="" />
+        <span>CourtManager Pro · Auditoría TI · Atleti Lab</span>
+      </span>
+      <span>03 / 04</span>
+    </div>
+  </section>
+
+  <!-- ========== PÁGINA 04 ========== -->
+  <section class="page inner">
+    <div class="pad">
+      <div class="hdr">
+        <div>
+          <p class="kicker">04 · Operación y recomendaciones</p>
+          <h2 class="title" style="margin:0">Configuración operativa y cierre</h2>
+        </div>
+        <div class="hdr-logos">
+          <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="" />
+          <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="" />
+        </div>
+      </div>
+
+      <div class="fill">
+        <div class="grid-2">
+          <div class="box">
+            <strong style="display:block;margin-bottom:4px">Production (Vercel)</strong>
+            <ul style="margin:0;padding-left:1.1rem">
+              <li><code>NEXT_PUBLIC_DEMO_MODE=false</code></li>
+              <li><code>UPSTASH_REDIS_REST_URL</code> / <code>TOKEN</code></li>
+              <li><code>CRON_SECRET</code> obligatorio</li>
+              <li>Supabase URL + anon + service role reales</li>
+              <li>Host: courtmanagerpro-umber.vercel.app</li>
+            </ul>
+          </div>
+          <div class="box">
+            <strong style="display:block;margin-bottom:4px">Preview / Development</strong>
+            <ul style="margin:0;padding-left:1.1rem">
+              <li><code>NEXT_PUBLIC_DEMO_MODE=true</code> (demos)</li>
+              <li>No usar como fuente de verdad de datos reales</li>
+              <li>Staging preferible para pruebas de seguridad</li>
+              <li>Cuentas de prueba por rol · sin superadmin</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sec">
+          <h3>Recomendaciones a TI</h3>
+          <div class="grid-2">
+            <div class="card">
+              <h3>1. Aceptar nivel actual</h3>
+              <p>Piloto / operación controlada del club con los controles ya desplegados en Production.</p>
+            </div>
+            <div class="card">
+              <h3>2. SSO si lo exige política</h3>
+              <p>Planificar Microsoft Entra ID / Azure AD como fase 2 de identidad corporativa.</p>
+            </div>
+            <div class="card">
+              <h3>3. Evidencia contractual</h3>
+              <p>Pentest externo en staging (caja gris) + este informe como anexo técnico.</p>
+            </div>
+            <div class="card">
+              <h3>4. Perímetro opcional</h3>
+              <p>WAF (Cloudflare / Vercel Firewall) · mantener DEMO_MODE=false y secretos rotados.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="okbox" style="margin:0;margin-top:auto">
+          <strong>Cierre:</strong> CourtManager Pro alcanza un nivel de seguridad <em>profesional</em> para SaaS de utilería deportiva.
+          Adecuado para evaluación Atleti Lab y uso productivo controlado. Residuales documentados para roadmap TI (SSO, WAF, pentest formal, compliance).
+          <br /><br />
+          <span style="opacity:.9">Contacto: Ramón del Pozo Rott · info@ramondelpozorott.es · Versión 1.2 · 3 agosto 2026</span>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <span class="foot-logos">
+        <img class="cm" src="_ti-assets/pdf-p0-img0.png" alt="" />
+        <img class="atm" src="_ti-assets/pdf-p0-img1.png" alt="" />
+        <span>Confidencial — Atleti Lab / TI · v1.2</span>
+      </span>
+      <span>04 / 04</span>
+    </div>
+  </section>
+</body>
+</html>

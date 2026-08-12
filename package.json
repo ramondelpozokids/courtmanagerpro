@@ -9,6 +9,8 @@
     "sync:rm-plantilla": "node scripts/sync-rm-plantilla.mjs",
     "sync:rm-stats": "node scripts/sync-rm-plantilla.mjs",
     "sync:roster": "node scripts/sync-rm-plantilla.mjs",
+    "check:rmb-provisional": "npx tsx scripts/check-rmb-provisional-roster.ts",
+    "sync:rmb-provisional": "npx tsx scripts/set-rmb-provisional-players.ts",
     "seed:roster": "npx tsx scripts/seed-roster.ts",
     "seed:roster:sql": "npx tsx scripts/seed-roster.ts --sql",
     "seed:production": "npx tsx scripts/seed-production.ts",

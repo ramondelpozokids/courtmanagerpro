@@ -23,7 +23,7 @@ export default function PlayerForm({ onSubmit, onClose, initialValues }: PlayerF
   const [shorts, setShorts] = useState(initialValues?.sizes?.shorts || "XL");
   const [shoes, setShoes] = useState(initialValues?.sizes?.shoes || "46");
   const [socks, setSocks] = useState(initialValues?.sizes?.socks || "L");
-  const [warmupShirt, setWarmupShirt] = useState(initialValues?.sizes?.warmupShirt || "XXL");
+  const [warmupShirt, setWarmupShirt] = useState(initialValues?.sizes?.warmupShirt || "2XL");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,7 +197,7 @@ export default function PlayerForm({ onSubmit, onClose, initialValues }: PlayerF
               value={warmupShirt}
               onChange={(e) => setWarmupShirt(e.target.value)}
               className="w-full px-2 py-1.5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-center font-bold text-slate-800 dark:text-slate-100"
-              placeholder="XXL"
+              placeholder="2XL"
             />
           </div>
         </div>

@@ -1,5 +1,6 @@
 import type { Player as ApiPlayer } from '@/types';
 import type { Player as FormPlayer } from '@/domain/entities/Player';
+import { formatApparelSize } from '@/content/sizing-products';
 
 export type PlayerFormData = Omit<FormPlayer, 'id'> & { id?: string };
 
@@ -49,11 +50,11 @@ export function apiPlayerToFormValues(player: ApiPlayer): FormPlayer {
     status: player.is_active ? 'ACTIVE' : 'INACTIVE',
     nationality: player.nationality ?? 'España',
     sizes: {
-      jersey: player.shirt_size ?? 'XL',
-      shorts: player.shorts_size ?? 'XL',
+      jersey: formatApparelSize(player.shirt_size) || 'XL',
+      shorts: formatApparelSize(player.shorts_size) || 'XL',
       shoes: String(player.shoe_size ?? 46),
-      socks: player.sock_size ?? 'L',
-      warmupShirt: player.jacket_size ?? 'XXL',
+      socks: formatApparelSize(player.sock_size) || 'L',
+      warmupShirt: formatApparelSize(player.jacket_size) || '2XL',
     },
   };
 }
@@ -94,10 +95,10 @@ export function formDataToCreatePlayerForm(form: PlayerFormData) {
     full_name: `${form.firstName} ${form.lastName}`.trim(),
     position: formPositionToDemo(form.position) as ApiPlayer['position'],
     nationality: form.nationality,
-    shirt_size: form.sizes.jersey,
-    shorts_size: form.sizes.shorts,
+    shirt_size: formatApparelSize(form.sizes.jersey),
+    shorts_size: formatApparelSize(form.sizes.shorts),
     shoe_size: Number(form.sizes.shoes) || 46,
-    jacket_size: form.sizes.warmupShirt,
+    jacket_size: formatApparelSize(form.sizes.warmupShirt),
   };
 }
 
@@ -108,10 +109,10 @@ export function formDataToUpdatePayload(form: PlayerFormData): Partial<import('@
     position: formPositionToDemo(form.position) as import('@/types').Player['position'],
     nationality: form.nationality,
     is_active: form.status === 'ACTIVE',
-    shirt_size: form.sizes.jersey,
-    shorts_size: form.sizes.shorts,
+    shirt_size: formatApparelSize(form.sizes.jersey),
+    shorts_size: formatApparelSize(form.sizes.shorts),
     shoe_size: Number(form.sizes.shoes) || 46,
-    jacket_size: form.sizes.warmupShirt,
+    jacket_size: formatApparelSize(form.sizes.warmupShirt),
     sock_size: form.sizes.socks,
   };
 }
