@@ -1,6 +1,5 @@
 /**
- * Exportación Excel (.xlsx) con logo y membrete — igual que el PDF.
- * El CSV solo puede llevar texto; el logo va aquí o en el PDF.
+ * Exportación Excel (.xlsx) con logo y membrete — optimizado para impresión A4 apaisado.
  */
 import ExcelJS from 'exceljs';
 import type { ClubSlug } from '@/data/clubs/types';
@@ -15,6 +14,8 @@ import {
 const NAVY = 'FF0F172A';
 const MUTED = 'FF64748B';
 const HEAD_BG = 'FFF1F5F9';
+
+const MEMBRETE_COLS = 'A:J';
 
 async function loadLogoBuffer(logoPath: string): Promise<ArrayBuffer | null> {
   try {
@@ -38,6 +39,25 @@ function downloadBuffer(filename: string, buffer: ArrayBuffer) {
   URL.revokeObjectURL(url);
 }
 
+function styleMembreteRow(
+  ws: ExcelJS.Worksheet,
+  rowNum: number,
+  value: string,
+  opts?: { bold?: boolean; size?: number; italic?: boolean }
+) {
+  ws.mergeCells(`${MEMBRETE_COLS}${rowNum}`);
+  const cell = ws.getCell(`A${rowNum}`);
+  cell.value = value;
+  cell.font = {
+    bold: opts?.bold ?? false,
+    size: opts?.size ?? 10,
+    italic: opts?.italic ?? false,
+    color: { argb: opts?.bold ? NAVY : MUTED },
+  };
+  cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+  ws.getRow(rowNum).height = opts?.bold ? 22 : 18;
+}
+
 export async function buildSizingXlsxBuffer(
   identity: ClubCsvIdentity,
   players: any[],
@@ -50,21 +70,29 @@ export async function buildSizingXlsxBuffer(
   const wb = new ExcelJS.Workbook();
   wb.creator = 'CourtManager Pro';
   const ws = wb.addWorksheet('Tallas', {
-    views: [{ showGridLines: true }],
+    views: [{ showGridLines: false }],
   });
 
   ws.columns = [
-    { width: 8 },
-    { width: 28 },
+    { width: 7 },
+    { width: 30 },
     { width: 10 },
-    { width: 16 },
-    { width: 14 },
-    { width: 14 },
-    { width: 16 },
-    { width: 14 },
-    { width: 12 },
     { width: 18 },
+    { width: 14 },
+    { width: 14 },
+    { width: 18 },
+    { width: 14 },
+    { width: 11 },
+    { width: 16 },
   ];
+
+  // Filas 1-6: logo grande centrado
+  for (let i = 1; i <= 6; i += 1) {
+    ws.getRow(i).height = 20;
+  }
+  ws.getRow(1).height = 28;
+  ws.getRow(2).height = 28;
+  ws.getRow(3).height = 28;
 
   const logoBuf = await loadLogoBuffer(identity.logoPath);
   if (logoBuf) {
@@ -73,47 +101,27 @@ export async function buildSizingXlsxBuffer(
       extension: 'png',
     });
     ws.addImage(imageId, {
-      tl: { col: 0.2, row: 0.2 },
-      ext: { width: 72, height: 72 },
+      tl: { col: 4.2, row: 0.3 },
+      ext: { width: 128, height: 128 },
     });
   }
 
-  // Filas 1-4: espacio logo · membrete filas 5-9 · separador · tabla fila 11+
-  ws.mergeCells('A5:J5');
-  const legal = ws.getCell('A5');
-  legal.value = identity.legalName.toUpperCase();
-  legal.font = { bold: true, size: 14, color: { argb: NAVY } };
-  legal.alignment = { horizontal: 'center' };
+  // Membrete centrado (filas 7-13) — líneas cortas para que no se corte al imprimir
+  styleMembreteRow(ws, 7, identity.legalName.toUpperCase(), { bold: true, size: 16 });
+  styleMembreteRow(ws, 8, identity.department, { size: 12 });
+  styleMembreteRow(ws, 9, identity.venue, { size: 11 });
+  styleMembreteRow(ws, 10, identity.addressLine, { size: 10 });
+  styleMembreteRow(ws, 11, identity.cityLine, { size: 10 });
+  if (identity.website) styleMembreteRow(ws, 12, identity.website, { size: 10 });
+  styleMembreteRow(ws, 13, `Temporada ${season}`, { size: 10, italic: true });
+  styleMembreteRow(ws, 14, identity.sportSection, { size: 10, italic: true });
 
-  const dept = ws.getCell('A6');
-  ws.mergeCells('A6:J6');
-  dept.value = identity.department;
-  dept.font = { size: 11, color: { argb: MUTED } };
-  dept.alignment = { horizontal: 'center' };
+  // Separador antes de la tabla
+  ws.getRow(15).height = 14;
+  ws.getRow(16).height = 8;
 
-  ws.mergeCells('A7:J7');
-  ws.getCell('A7').value = identity.venue;
-  ws.getCell('A7').font = { size: 10, color: { argb: MUTED } };
-  ws.getCell('A7').alignment = { horizontal: 'center' };
-
-  ws.mergeCells('A8:J8');
-  ws.getCell('A8').value = `${identity.addressLine} · ${identity.cityLine}`;
-  ws.getCell('A8').font = { size: 10, color: { argb: MUTED } };
-  ws.getCell('A8').alignment = { horizontal: 'center' };
-
-  if (identity.website) {
-    ws.mergeCells('A9:J9');
-    ws.getCell('A9').value = identity.website;
-    ws.getCell('A9').font = { size: 10, color: { argb: MUTED } };
-    ws.getCell('A9').alignment = { horizontal: 'center' };
-  }
-
-  ws.mergeCells('A10:J10');
-  ws.getCell('A10').value = `Temporada ${season} · ${identity.sportSection}`;
-  ws.getCell('A10').font = { size: 9, italic: true, color: { argb: MUTED } };
-  ws.getCell('A10').alignment = { horizontal: 'center' };
-
-  const headerRow = ws.getRow(11);
+  const TABLE_HEADER_ROW = 17;
+  const headerRow = ws.getRow(TABLE_HEADER_ROW);
   const headers = [
     'Dorsal',
     'Nombre',
@@ -129,10 +137,10 @@ export async function buildSizingXlsxBuffer(
   headerRow.values = headers;
   headerRow.font = { bold: true, size: 10, color: { argb: NAVY } };
   headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEAD_BG } };
-  headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
-  headerRow.height = 22;
+  headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+  headerRow.height = 28;
 
-  let r = 12;
+  let r = TABLE_HEADER_ROW + 1;
   for (const entry of rows) {
     const dataRow = ws.getRow(r);
     dataRow.values = [
@@ -148,27 +156,43 @@ export async function buildSizingXlsxBuffer(
       entry.notas,
     ];
     dataRow.font = { size: 10 };
+    dataRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    dataRow.height = 20;
     if (r % 2 === 0) {
       dataRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
     }
     r += 1;
   }
 
-  ws.getCell(`A${r + 1}`).value = 'Generado por CourtManager Pro';
-  ws.getCell(`A${r + 1}`).font = { size: 8, color: { argb: MUTED } };
+  const lastRow = r - 1;
+  for (let rowNumber = TABLE_HEADER_ROW; rowNumber <= lastRow; rowNumber += 1) {
+    ws.getRow(rowNumber).eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      };
+    });
+  }
 
-  ws.eachRow((row, rowNumber) => {
-    if (rowNumber >= 11) {
-      row.eachCell((cell) => {
-        cell.border = {
-          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-          bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-          right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-        };
-      });
-    }
-  });
+  ws.pageSetup = {
+    paperSize: 9,
+    orientation: 'landscape',
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 0,
+    horizontalCentered: true,
+    margins: {
+      left: 0.5,
+      right: 0.5,
+      top: 0.6,
+      bottom: 0.6,
+      header: 0.2,
+      footer: 0.2,
+    },
+    printArea: `A1:J${lastRow}`,
+  };
 
   const buffer = await wb.xlsx.writeBuffer();
   return buffer as ArrayBuffer;
