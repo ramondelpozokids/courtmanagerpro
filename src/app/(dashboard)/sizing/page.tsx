@@ -31,7 +31,6 @@ import { resolvePlayerPhotoUrl } from "@/lib/player-photo";
 import { sortPlayersByPosition } from "@/lib/player-sort";
 import { resolveAtmPackPlayerPhoto, resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { CLUB_TEAM_IDS } from "@/lib/club-team-ids";
-import { exportSizingCsv } from "@/lib/csv-export";
 import { exportSizingXlsx } from "@/lib/sizing-xlsx-export";
 import { exportSizingPdf, seasonLabelForClub } from "@/lib/pdf-export";
 
@@ -465,24 +464,6 @@ export default function SizingTablePage() {
           </button>
           <button
             type="button"
-            disabled={!rosterReady || (players.length === 0 && staff.length === 0)}
-            onClick={() => {
-              if (!rosterReady) return;
-              exportSizingCsv(
-                branding.slug,
-                players,
-                staff,
-                customProducts,
-                { season: seasonLabelForClub(branding.slug) }
-              );
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 disabled:opacity-40"
-          >
-            <Download className="h-4 w-4 text-orange-500" />
-            {!rosterReady ? "Cargando…" : "CSV tallas"}
-          </button>
-          <button
-            type="button"
             disabled={pdfBusy || !rosterReady || (players.length === 0 && staff.length === 0)}
             onClick={() => {
               void (async () => {
@@ -508,9 +489,9 @@ export default function SizingTablePage() {
                 }
               })();
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-40"
           >
-            <FileText className="h-4 w-4 text-orange-500" />
+            <FileText className="h-4 w-4" />
             {pdfBusy ? "PDF…" : !rosterReady ? "Cargando…" : "PDF tallas"}
           </button>
           {canWrite && (

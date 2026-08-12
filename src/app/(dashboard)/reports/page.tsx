@@ -6,7 +6,6 @@ import { usePlayers } from "@/hooks/usePlayers";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import { canAccessReports, canWriteClubData } from "@/lib/permissions";
-import { exportInventoryCsv, exportSizingCsv, exportWarehouseCsv } from "@/lib/csv-export";
 import { exportSizingXlsx } from "@/lib/sizing-xlsx-export";
 import {
   exportInventoryPdf,
@@ -17,7 +16,7 @@ import {
 import { getClubPack } from "@/data/clubs";
 import { equipoConjuntoTotal } from "@/lib/atm-roster";
 import {
-  TrendingUp, Download, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler, FileText, Warehouse,
+  TrendingUp, PieChart, BarChart3, AlertCircle, Shirt, Users, Package, Ruler, FileText, Warehouse,
 } from "lucide-react";
 
 export default function ReportsPage() {
@@ -58,14 +57,6 @@ export default function ReportsPage() {
     unit_cost: item.unit_cost,
     location: (item as { location?: string }).location,
   }));
-
-  const handleExportInventory = () => {
-    exportInventoryCsv(branding.slug, inventoryRows, { season });
-  };
-
-  const handleExportSizingCsv = () => {
-    exportSizingCsv(branding.slug, players, coachingStaff, [], { season });
-  };
 
   const handleExportSizingXlsx = () => {
     void (async () => {
@@ -137,63 +128,67 @@ export default function ReportsPage() {
             Informes de Equipación y Utilería
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            {branding.name} — PDF y Excel con logo; CSV solo texto (importar tallas). Equipo: {teamTotal} = {players.length} jugadores + {coachingStaff.length} staff.
+            {branding.name} · {teamTotal} personas ({players.length} jugadores + {coachingStaff.length} staff)
           </p>
         </div>
         {canExport && (
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={handleExportInventory}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold"
-            >
-              <Download className="h-3.5 w-3.5" /> Inventario CSV
-            </button>
-            <button
-              onClick={() =>
-                void runPdf("inv", () => exportInventoryPdf(branding.slug, inventoryRows, { season }))
-              }
-              disabled={!!pdfBusy}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-50"
-            >
-              <FileText className="h-3.5 w-3.5" /> {pdfBusy === "inv" ? "…" : "Inventario PDF"}
-            </button>
-            <button
-              onClick={handleExportSizingXlsx}
-              disabled={xlsxBusy}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold disabled:opacity-50"
-            >
-              <Ruler className="h-3.5 w-3.5" /> {xlsxBusy ? "…" : "Tallas Excel"}
-            </button>
-            <button
-              onClick={handleExportSizingCsv}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold"
-            >
-              <Download className="h-3.5 w-3.5 text-orange-500" /> Tallas CSV
-            </button>
-            <button
-              onClick={() =>
-                void runPdf("siz", () =>
-                  exportSizingPdf(branding.slug, players, coachingStaff, [], { season })
-                )
-              }
-              disabled={!!pdfBusy}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-50"
-            >
-              <FileText className="h-3.5 w-3.5" /> {pdfBusy === "siz" ? "…" : "Tallas PDF"}
-            </button>
-            <button
-              onClick={() =>
-                void runPdf("wh", async () => {
-                  const rows = await loadWarehouseRows();
-                  exportWarehouseCsv(branding.slug, rows, { season });
-                  await exportWarehousePdf(branding.slug, rows, { season });
-                })
-              }
-              disabled={!!pdfBusy}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold disabled:opacity-50"
-            >
-              <Warehouse className="h-3.5 w-3.5" /> {pdfBusy === "wh" ? "…" : "Almacén PDF"}
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full sm:w-auto sm:min-w-[28rem]">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-3 bg-white dark:bg-slate-900">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
+                <Ruler className="h-3 w-3 text-orange-500" /> Tallas
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportSizingXlsx}
+                  disabled={xlsxBusy || !!pdfBusy}
+                  className="flex-1 flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold disabled:opacity-50"
+                >
+                  {xlsxBusy ? "…" : "Excel"}
+                </button>
+                <button
+                  onClick={() =>
+                    void runPdf("siz", () =>
+                      exportSizingPdf(branding.slug, players, coachingStaff, [], { season })
+                    )
+                  }
+                  disabled={!!pdfBusy || xlsxBusy}
+                  className="flex-1 flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-50"
+                >
+                  {pdfBusy === "siz" ? "…" : "PDF"}
+                </button>
+              </div>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-3 bg-white dark:bg-slate-900">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
+                <Package className="h-3 w-3 text-orange-500" /> Inventario
+              </p>
+              <button
+                onClick={() =>
+                  void runPdf("inv", () => exportInventoryPdf(branding.slug, inventoryRows, { season }))
+                }
+                disabled={!!pdfBusy}
+                className="w-full flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold disabled:opacity-50"
+              >
+                <FileText className="h-3.5 w-3.5" /> {pdfBusy === "inv" ? "…" : "PDF"}
+              </button>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-3 bg-white dark:bg-slate-900">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
+                <Warehouse className="h-3 w-3 text-orange-500" /> Almacén
+              </p>
+              <button
+                onClick={() =>
+                  void runPdf("wh", async () => {
+                    const rows = await loadWarehouseRows();
+                    await exportWarehousePdf(branding.slug, rows, { season });
+                  })
+                }
+                disabled={!!pdfBusy}
+                className="w-full flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold disabled:opacity-50"
+              >
+                <FileText className="h-3.5 w-3.5" /> {pdfBusy === "wh" ? "…" : "PDF"}
+              </button>
+            </div>
           </div>
         )}
       </div>
