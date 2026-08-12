@@ -1,6 +1,8 @@
 import {
   getOfficialPlayerByLegacyId,
   getOfficialStaffByLegacyId,
+  getOfficialStaffByName,
+  getOfficialStaffBySlug,
 } from '@/data/rmb-official-roster';
 import { getOfficialStatsByLegacyId } from '@/data/rmb-official-stats';
 import { getPlayerCompetitionStats } from '@/lib/player-competitions';
@@ -105,32 +107,51 @@ export function normalizeStaffProfile(
   options?: { applyOfficialRoster?: boolean }
 ): NormalizedStaffProfile | null {
   if (!staff) return null;
-  // Solo RMB: c1..cn del pack ATM/RMF/VBC no deben mapearse a Pedro Martínez et al.
+  // Solo RMB: no mapear IDs ATM/RMF/VBC a Pedro Martínez et al.
   const applyOfficial = options?.applyOfficialRoster === true;
+  const notes = parseStaffNotes(staff.notes);
+  const meta =
+    staff.metadata && typeof staff.metadata === 'object' && !Array.isArray(staff.metadata)
+      ? (staff.metadata as Record<string, unknown>)
+      : {};
   const legacyId =
     applyOfficial && typeof staff.id === 'string' && /^c\d+$/i.test(staff.id)
       ? staff.id
-      : null;
-  const official = legacyId ? getOfficialStaffByLegacyId(legacyId) : null;
-  const notes = parseStaffNotes(staff.notes);
+      : typeof notes.demo_id === 'string' && /^c\d+$/i.test(notes.demo_id)
+        ? notes.demo_id
+        : null;
+  const slugCandidate =
+    (typeof notes.official_slug === 'string' && notes.official_slug) ||
+    (typeof meta.official_slug === 'string' && meta.official_slug) ||
+    null;
+  const official = applyOfficial
+    ? (legacyId ? getOfficialStaffByLegacyId(legacyId) : null) ||
+      (slugCandidate ? getOfficialStaffBySlug(slugCandidate) : null) ||
+      getOfficialStaffByName(String(staff.full_name || ''))
+    : null;
   const birthPlace =
     (official?.birth_place ??
       (typeof staff.birth_place === 'string' ? staff.birth_place : null) ??
-      (typeof notes.birth_place === 'string' ? notes.birth_place : null)) ||
+      (typeof notes.birth_place === 'string' ? notes.birth_place : null) ??
+      (typeof meta.birth_place === 'string' ? meta.birth_place : null)) ||
     null;
   const nationalityRaw =
     official?.nationality ?? (typeof staff.nationality === 'string' ? staff.nationality : null);
   const nationality = nationalityRaw || 'España';
+  const notesTrajectoryItems = Array.isArray(notes.trajectory_items)
+    ? (notes.trajectory_items as string[])
+    : [];
+  const notesPalmares = Array.isArray(notes.palmares) ? (notes.palmares as string[]) : [];
   const trajectoryItems = official?.trajectory_items?.length
     ? official.trajectory_items
     : Array.isArray(staff.trajectory_items)
       ? (staff.trajectory_items as string[])
-      : [];
+      : notesTrajectoryItems;
   const palmares = official?.palmares?.length
     ? official.palmares
     : Array.isArray(staff.palmares)
       ? (staff.palmares as string[])
-      : [];
+      : notesPalmares;
   const profileFromNotes =
     typeof notes.profile_url === 'string' ? notes.profile_url : null;
   const trajectoryFromNotes =
@@ -148,7 +169,8 @@ export function normalizeStaffProfile(
     birth_date:
       official?.birth_date ??
       (typeof staff.birth_date === 'string' ? staff.birth_date : null) ??
-      (typeof notes.birth_date === 'string' ? notes.birth_date : null),
+      (typeof notes.birth_date === 'string' ? notes.birth_date : null) ??
+      (typeof meta.birth_date === 'string' ? meta.birth_date : null),
     birth_place: birthPlace,
     photo_url:
       official?.photo_url ??

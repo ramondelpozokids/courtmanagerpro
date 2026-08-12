@@ -170,6 +170,18 @@ async function main() {
   }
 
   for (const st of RMB_OFFICIAL_STAFF) {
+    const notes = {
+      demo_id: st.legacyId,
+      official_slug: st.slug,
+      source: 'realmadrid.com',
+      profile_url: st.profile_url,
+      birth_date: st.birth_date,
+      birth_place: st.birth_place,
+      trajectory: st.trajectory,
+      trajectory_items: st.trajectory_items,
+      palmares: st.palmares,
+      season: '2026-2027',
+    };
     const row = {
       team_id: DEFAULT_TEAM_ID,
       full_name: st.full_name,
@@ -177,14 +189,7 @@ async function main() {
       photo_url: st.photo_url || null,
       nationality: st.nationality || 'España',
       is_active: true,
-      metadata: {
-        official_slug: st.slug,
-        source: 'realmadrid.com',
-        trajectory: st.trajectory,
-        palmares: st.palmares,
-        birth_date: st.birth_date,
-        season: '2026-2027',
-      },
+      notes: JSON.stringify(notes),
       updated_at: new Date().toISOString(),
     };
     const match = (oldStaff || []).find((s) => norm(s.full_name) === norm(st.full_name));

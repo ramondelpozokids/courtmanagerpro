@@ -1793,7 +1793,7 @@ export const RMB_OFFICIAL_STAFF: RmbOfficialStaffProfile[] = [
     "birth_date": "1961-06-29",
     "birth_place": "Barcelona, España",
     "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PEDRO MARTINEZ_380x501-1?$Desktop$&fit=wrap&wid=288&hei=384",
-    "trajectory": "Joventut categorías inferiores (1986-89), Joventut entrenador ayudante (1989-90), Joventut (1990), Manresa (1990-94), Joventut (1994-95), Salamanca (1995-96), Granada (1997-98), Menorca (1999-00), Ourense (2001), Tenerife (2001-02), Gran Canaria (2002-05), Baskonia (2005), Estudiantes (2006-07), Girona (2007-08), Cajasol (2008-09), Gran Canaria (2009-14), Manresa (2014-15), Valencia Basket (20015-17), Baskonia (2017-18), Gran Canaria (2019), Manresa (2019-24), Valencia Basket (2024-26), Real Madrid (2026- )",
+    "trajectory": "Joventut categorías inferiores (1986-89), Joventut entrenador ayudante (1989-90), Joventut (1990), Manresa (1990-94), Joventut (1994-95), Salamanca (1995-96), Granada (1997-98), Menorca (1999-00), Ourense (2001), Tenerife (2001-02), Gran Canaria (2002-05), Baskonia (2005), Estudiantes (2006-07), Girona (2007-08), Cajasol (2008-09), Gran Canaria (2009-14), Manresa (2014-15), Valencia Basket (2015-17), Baskonia (2017-18), Gran Canaria (2019), Manresa (2019-24), Valencia Basket (2024-26), Real Madrid (2026- )",
     "trajectory_items": [
       "Joventut categorías inferiores (1986-89)",
       "Joventut entrenador ayudante (1989-90)",
@@ -1812,7 +1812,7 @@ export const RMB_OFFICIAL_STAFF: RmbOfficialStaffProfile[] = [
       "Cajasol (2008-09)",
       "Gran Canaria (2009-14)",
       "Manresa (2014-15)",
-      "Valencia Basket (20015-17)",
+      "Valencia Basket (2015-17)",
       "Baskonia (2017-18)",
       "Gran Canaria (2019)",
       "Manresa (2019-24)",
@@ -1837,4 +1837,25 @@ export function getOfficialPlayerBySlug(slug: string): RmbOfficialPlayerProfile 
 
 export function getOfficialStaffByLegacyId(legacyId: string): RmbOfficialStaffProfile | null {
   return RMB_OFFICIAL_STAFF.find((s) => s.legacyId === legacyId) ?? null;
+}
+
+export function getOfficialStaffBySlug(slug: string): RmbOfficialStaffProfile | null {
+  const key = slug.trim().toLowerCase();
+  if (!key) return null;
+  return RMB_OFFICIAL_STAFF.find((s) => s.slug === key) ?? null;
+}
+
+function normStaffName(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+export function getOfficialStaffByName(fullName: string): RmbOfficialStaffProfile | null {
+  const key = normStaffName(fullName);
+  if (!key) return null;
+  return RMB_OFFICIAL_STAFF.find((s) => normStaffName(s.full_name) === key) ?? null;
 }
