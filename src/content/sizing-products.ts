@@ -25,20 +25,20 @@ export const SIZING_CATEGORY_LABELS: Record<SizingCategory, string> = {
   viaje: 'Viaje & Pre-Partido',
 };
 
-/** Catálogo base inspirado en shop.realmadrid.com — Baloncesto 25/26 */
+/** Catálogo base — shop.realmadrid.com Equipación Baloncesto 26/27 */
 export const DEFAULT_SIZING_PRODUCTS: SizingProduct[] = [
   // Equipación oficial de juego
-  { id: 'jersey_home', label: 'Camiseta Local 25/26', shortLabel: 'C. Local', category: 'equipacion', inputType: 'text', defaultSize: 'XL', legacyKey: 'jersey' },
-  { id: 'jersey_away', label: 'Camiseta Visitante 25/26', shortLabel: 'C. Visit.', category: 'equipacion', inputType: 'text', defaultSize: 'XL' },
-  { id: 'jersey_third', label: 'Tercera Equipación 25/26', shortLabel: '3ª Eq.', category: 'equipacion', inputType: 'text', defaultSize: 'XL' },
-  { id: 'shorts_game', label: 'Pantalón Corto Juego', shortLabel: 'P. Juego', category: 'equipacion', inputType: 'text', defaultSize: 'XL', legacyKey: 'shorts' },
-  { id: 'jersey_shootaround', label: 'Camiseta Shootaround', shortLabel: 'Shoot.', category: 'equipacion', inputType: 'text', defaultSize: 'XL' },
+  { id: 'jersey_home', label: 'Camiseta Local 26/27', shortLabel: 'C. Local', category: 'equipacion', inputType: 'text', defaultSize: 'XL', legacyKey: 'jersey' },
+  { id: 'jersey_away', label: 'Camiseta Visitante 26/27 Verde', shortLabel: 'C. Visit.', category: 'equipacion', inputType: 'text', defaultSize: 'XL' },
+  { id: 'jersey_third', label: 'Chaqueta Manga Corta 26/27', shortLabel: 'C. MC', category: 'equipacion', inputType: 'text', defaultSize: 'XL' },
+  { id: 'shorts_game', label: 'Pantalón Corto Juego 26/27', shortLabel: 'P. Juego', category: 'equipacion', inputType: 'text', defaultSize: 'XL', legacyKey: 'shorts' },
+  { id: 'jersey_shootaround', label: 'Sudadera Calentamiento 26/27', shortLabel: 'Shoot.', category: 'equipacion', inputType: 'text', defaultSize: 'XL' },
 
   // Entrenamiento (shop.realmadrid.com → Entrenamiento Baloncesto)
-  { id: 'training_shirt', label: 'Camiseta Entrenamiento', shortLabel: 'C. Entr.', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },
+  { id: 'training_shirt', label: 'Camiseta Reversible Entrenamiento 26/27', shortLabel: 'C. Entr.', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },
   { id: 'training_shorts', label: 'Pantalón Corto Entrenamiento', shortLabel: 'P.C. Entr.', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },
-  { id: 'training_pants_long', label: 'Pantalón Largo Entrenamiento', shortLabel: 'P.L. Entr.', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },
-  { id: 'tracksuit_jacket', label: 'Chándal — Chaqueta', shortLabel: 'Chándal ↑', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL', legacyKey: 'warmupShirt' },
+  { id: 'training_pants_long', label: 'Pantalón Calentamiento 26/27', shortLabel: 'P.L. Entr.', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },
+  { id: 'tracksuit_jacket', label: 'Chaqueta Calentamiento 26/27', shortLabel: 'Warm ↑', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL', legacyKey: 'warmupShirt' },
   { id: 'tracksuit_pants', label: 'Chándal — Pantalón', shortLabel: 'Chándal ↓', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },
   { id: 'hoodie', label: 'Sudadera con Capucha', shortLabel: 'Sudadera', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },
   { id: 'windbreaker', label: 'Chaqueta Cortavientos', shortLabel: 'Cortav.', category: 'entrenamiento', inputType: 'text', defaultSize: 'XL' },

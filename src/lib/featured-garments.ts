@@ -7,7 +7,7 @@ export const SERGIO_LLULL_AW_JACKET: GarmentUnit = {
   qr_code: 'CMP-RMB-I9-P6-001',
   team_id: CLUB_TEAM_IDS.rmb,
   item_id: 'i9',
-  item_name: 'Chubasquero Real Madrid AW JKT 25/26 (Adidas JP4057)',
+  item_name: 'Chubasquero Real Madrid AW JKT (Adidas JP4057)',
   display_name: 'Chubasquero #23',
   category: 'chaqueta',
   player_id: 'p6',

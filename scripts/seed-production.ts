@@ -31,10 +31,12 @@ function loadEnvFile() {
 }
 
 const SAMPLE_INVENTORY = [
-  { name: 'Camiseta Oficial Local 25/26', category: 'camiseta_juego', sku: 'RMB-JER-HOME-2526', stock_total: 20, stock_available: 18, stock_min: 5, size: 'XL', unit_cost: 85, location: 'Almacén A — Est. 1' },
-  { name: 'Camiseta Oficial Visitante 25/26', category: 'camiseta_juego', sku: 'RMB-JER-AWAY-2526', stock_total: 20, stock_available: 20, stock_min: 5, size: 'XL', unit_cost: 85, location: 'Almacén A — Est. 1' },
-  { name: 'Pantalón Juego 25/26', category: 'pantalon_juego', sku: 'RMB-SHT-2526', stock_total: 20, stock_available: 19, stock_min: 5, size: 'XL', unit_cost: 65, location: 'Almacén A — Est. 2' },
-  { name: 'Chaqueta Cortavientos AW JKT', category: 'chaqueta', sku: 'RMB-AW-JKT', stock_total: 17, stock_available: 15, stock_min: 3, size: '2XL', unit_cost: 120, location: 'Vestuario principal' },
+  { name: 'Camiseta Primera Equipación 26/27 Blanca', category: 'camiseta_juego', sku: 'RMB-JER-HOME-2627', stock_total: 20, stock_available: 18, stock_min: 5, size: 'XL', unit_cost: 90, location: 'Almacén A — Est. 1' },
+  { name: 'Camiseta Segunda Equipación 26/27 Verde', category: 'camiseta_juego', sku: 'RMB-JER-AWAY-2627', stock_total: 20, stock_available: 20, stock_min: 5, size: 'XL', unit_cost: 90, location: 'Almacén A — Est. 1' },
+  { name: 'Pantalón Corto Primera 26/27 Blanco', category: 'pantalon_juego', sku: 'RMB-SHT-H-2627', stock_total: 20, stock_available: 19, stock_min: 5, size: 'XL', unit_cost: 60, location: 'Almacén A — Est. 2' },
+  { name: 'Pantalón Corto Segunda 26/27 Verde', category: 'pantalon_juego', sku: 'RMB-SHT-A-2627', stock_total: 18, stock_available: 18, stock_min: 5, size: 'XL', unit_cost: 60, location: 'Almacén A — Est. 2' },
+  { name: 'Chaqueta Calentamiento 26/27', category: 'chaqueta', sku: 'RMB-WARM-JKT-2627', stock_total: 17, stock_available: 15, stock_min: 3, size: 'XL', unit_cost: 90, location: 'Almacén A — Est. 3' },
+  { name: 'Chubasquero AW JKT JP4057', category: 'chaqueta', sku: 'RMB-AW-JKT', stock_total: 17, stock_available: 15, stock_min: 3, size: '2XL', unit_cost: 120, location: 'Vestuario principal' },
   { name: 'Zapatillas Juego', category: 'zapatillas', sku: 'RMB-SHO-GAME', stock_total: 15, stock_available: 14, stock_min: 3, size: '46', unit_cost: 150, location: 'Almacén calzado' },
   { name: 'Calcetines Oficiales', category: 'calcetines', sku: 'RMB-SOCK', stock_total: 50, stock_available: 42, stock_min: 10, size: 'L', unit_cost: 18, location: 'Almacén A — Est. 3' },
 ];

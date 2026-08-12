@@ -89,13 +89,46 @@ const rmbPack: ClubDemoPack = {
       { label: 'Copas Intercontinentales', count: 5, detail: 'Palmarés oficial' },
       { label: 'Recopas de Europa', count: 4, detail: 'Palmarés oficial' },
     ],
-    equipacionTitle: 'Camiseta Oficial Real Madrid Baloncesto 26/27',
-    equipacionDescription: 'Equipaciones oficiales ACB y Euroliga con tejido transpirable, detalles dorados y escudo termosellado.',
+    equipacionTitle: 'Equipación Oficial Real Madrid Baloncesto 26/27',
+    equipacionDescription:
+      'Primera (blanca) y segunda (verde) adidas Climacool — tienda oficial Real Madrid. Calentamiento y reversible de entrenamiento incluidos.',
     equipacionItems: [
-      { name: 'Camiseta Juego Local', price: '€85.00', image: 'https://shop.realmadrid.com/cdn/shop/files/image_07d5be34-9b06-4afd-9aa9-2bfd0a489720.jpg?v=1768385431&width=832' },
-      { name: 'Camiseta Visitante', price: '€85.00', image: 'https://shop.realmadrid.com/cdn/shop/files/image_b4701b50-3403-4235-ab4f-d74f11c29772.jpg?v=1767814661&width=832' },
-      { name: 'Pantalón Corto Local', price: '€45.00', image: 'https://shop.realmadrid.com/cdn/shop/files/image_3e0e5795-0cfe-45e7-8b2d-607ea47a8d94.jpg?v=1768407965&width=832' },
-      { name: 'Cortavientos Técnico', price: '€95.00', image: 'https://shop.realmadrid.com/cdn/shop/files/image_0dc6e676-5277-4b85-9620-74d9e6e37daa.jpg?v=1768385666&width=832' },
+      {
+        name: 'Camiseta Primera Equipación 26/27',
+        price: '€90.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT9672_2_APPAREL_Photography_Front_Center_View_white_48a54e3f-f5f8-49c3-b9f6-97f81fd2ea7e.jpg?v=1782476312&width=832',
+      },
+      {
+        name: 'Camiseta Segunda Equipación 26/27 Verde',
+        price: '€90.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT9674_2_APPAREL_Photography_Front_Center_View_white.jpg?v=1783937292&width=832',
+      },
+      {
+        name: 'Pantalón Corto Primera 26/27',
+        price: '€60.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1387_01.jpg?v=1782466897&width=832',
+      },
+      {
+        name: 'Pantalón Corto Segunda 26/27 Verde',
+        price: '€60.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KT8981_01.jpg?v=1783514779&width=832',
+      },
+      {
+        name: 'Chaqueta Calentamiento 26/27',
+        price: '€90.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1388_01.jpg?v=1782466810&width=832',
+      },
+      {
+        name: 'Reversible Entrenamiento 26/27',
+        price: '€40.00',
+        image:
+          'https://cdn.shopify.com/s/files/1/0985/4143/7258/files/KU1396_01.jpg?v=1784545116&width=832',
+      },
     ],
   },
   news: [

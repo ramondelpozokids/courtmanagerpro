@@ -203,7 +203,7 @@ export default function DashboardPage() {
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
               }`}
             >
-              {branding.sport === 'football' ? 'Colección 26/27' : 'Colección 25/26'}
+              Colección 26/27
             </button>
             <button
               onClick={() => setBlogTab("history")}
