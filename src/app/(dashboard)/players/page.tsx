@@ -14,6 +14,7 @@ import { apiPlayerToFormValues } from "@/lib/player-form-mapper";
 import { canWriteClubData } from "@/lib/permissions";
 import { usesProductionClubData } from "@/lib/club-preview";
 import { getClubPack } from "@/data/clubs";
+import { preferRmbStaffIfStale } from "@/lib/rmb-roster";
 import { groupPlayersByPosition } from "@/lib/player-sort";
 import type { Player } from "@/types";
 import type { Player as FormPlayer } from "@/domain/entities/Player";
@@ -122,7 +123,9 @@ export default function PlayersPage() {
         });
         const json = await res.json().catch(() => ({}));
         let rows: Record<string, unknown>[] = Array.isArray(json.data) ? json.data : [];
-        if (rows.length === 0) {
+        if (branding.slug === "rmb") {
+          rows = preferRmbStaffIfStale(rows, teamId);
+        } else if (rows.length === 0) {
           const pack = getClubPack(branding.slug);
           rows = (pack.coachingStaff || []) as Record<string, unknown>[];
         }
@@ -150,9 +153,17 @@ export default function PlayersPage() {
         );
       } catch (err) {
         console.error("Error cargando cuerpo técnico:", err);
-        const pack = getClubPack(branding.slug);
-        setStaff(mapStaffRows((pack.coachingStaff || []) as Record<string, unknown>[]));
+        if (branding.slug === "rmb") {
+          setStaff(mapStaffRows(preferRmbStaffIfStale([], teamId)));
+        } else {
+          const pack = getClubPack(branding.slug);
+          setStaff(mapStaffRows((pack.coachingStaff || []) as Record<string, unknown>[]));
+        }
       }
+      return;
+    }
+    if (branding.slug === "rmb") {
+      setStaff(mapStaffRows(preferRmbStaffIfStale(db.coachingStaff as Record<string, unknown>[], teamId)));
       return;
     }
     setStaff(mapStaffRows(db.coachingStaff as Record<string, unknown>[]));

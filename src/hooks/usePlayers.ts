@@ -22,8 +22,13 @@ import {
 import { resolveAtmPackPlayerPhoto } from '@/lib/atm-pack-photos';
 import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 import { preferAtmRosterIfStale } from '@/lib/atm-roster';
+import { preferRmbRosterIfStale } from '@/lib/rmb-roster';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import type { Player, CreatePlayerForm, ItemAssignment, AssignItemForm } from '@/types';
+
+function preferOfficialRosterIfStale(list: Player[], teamId: string): Player[] {
+  return preferRmbRosterIfStale(preferAtmRosterIfStale(list, teamId), teamId);
+}
 
 function enrichPlayerPhotos(list: Player[], teamId: string): Player[] {
   if (teamId === CLUB_TEAM_IDS.atm) {
@@ -93,7 +98,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
       if (mockMode || usesDemoClubData()) {
         setUsingDemoData(true);
         setPlayers(
-          enrichPlayerPhotos(preferAtmRosterIfStale(mapDemoPlayers(teamId), teamId), teamId)
+          enrichPlayerPhotos(preferOfficialRosterIfStale(mapDemoPlayers(teamId), teamId), teamId)
         );
         return;
       }
@@ -110,7 +115,7 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
         if (usesProductionClubData()) {
           setUsingDemoData(false);
           setPlayers(
-            enrichPlayerPhotos(preferAtmRosterIfStale([], teamId), teamId)
+            enrichPlayerPhotos(preferOfficialRosterIfStale([], teamId), teamId)
           );
         } else {
           setUsingDemoData(true);
@@ -119,19 +124,21 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
       } else if (shouldUseDemoFallback(data)) {
         setUsingDemoData(true);
         setPlayers(
-          enrichPlayerPhotos(preferAtmRosterIfStale(mapDemoPlayers(teamId), teamId), teamId)
+          enrichPlayerPhotos(preferOfficialRosterIfStale(mapDemoPlayers(teamId), teamId), teamId)
         );
       } else {
         setUsingDemoData(false);
         setPlayers(
-          enrichPlayerPhotos(preferAtmRosterIfStale(data as Player[], teamId), teamId)
+          enrichPlayerPhotos(preferOfficialRosterIfStale(data as Player[], teamId), teamId)
         );
       }
     } catch (err: any) {
       setError(err.message || 'Error al cargar jugadores');
       if (usesProductionClubData()) {
         setUsingDemoData(false);
-        setPlayers([]);
+        setPlayers(
+          enrichPlayerPhotos(preferOfficialRosterIfStale([], teamId), teamId)
+        );
       } else {
         setUsingDemoData(true);
         setPlayers(mapDemoPlayers(teamId));

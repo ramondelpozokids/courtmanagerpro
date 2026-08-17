@@ -6,7 +6,7 @@ import {
   resolveAtmPackPlayerPhoto,
   resolveAtmPackStaffPhoto,
 } from '@/lib/atm-pack-photos';
-import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+import { preferRmbRosterIfStale, preferRmbStaffIfStale } from '@/lib/rmb-roster';
 import { atmPlayers, atmCoachingStaff } from '@/data/clubs/atm-data';
 import {
   mergeSizingCatalog,
@@ -235,6 +235,16 @@ export async function loadProductionSizing(
       });
     }
     if (staff.length === 0) staff = atmPackStaffToSizing(fullCatalog);
+  }
+
+  if (teamId === CLUB_TEAM_IDS.rmb) {
+    const mergedPlayers = preferRmbRosterIfStale((playerRows as Player[]) || [], teamId);
+    players = mergedPlayers.map((p) => supabasePlayerToSizingRow(p, fullCatalog));
+    const mergedStaff = preferRmbStaffIfStale(
+      dedupeStaffByName(staffRows as Record<string, unknown>[]),
+      teamId
+    );
+    staff = mergedStaff.map((s) => supabaseStaffToSizingRow(s, fullCatalog));
   }
 
   return { players, staff, catalog: fullCatalog, customProducts: customFromDb };

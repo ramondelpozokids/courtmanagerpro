@@ -33,6 +33,7 @@ import { resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
 import { useAuth } from "@/contexts/AuthContext";
 import { canWriteClubData } from "@/lib/permissions";
 import { persistDemoDb } from "@/lib/demo-persistence";
+import { preferRmbStaffIfStale } from "@/lib/rmb-roster";
 
 interface StaffProfileProps {
   params: Promise<{ id: string }>;
@@ -106,7 +107,9 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
         });
         const json = await res.json().catch(() => ({}));
         let rows: Record<string, unknown>[] = Array.isArray(json.data) ? json.data : [];
-        if (rows.length === 0) {
+        if (branding.slug === "rmb") {
+          rows = preferRmbStaffIfStale(rows, teamId);
+        } else if (rows.length === 0) {
           rows = (getClubPack(branding.slug).coachingStaff || []) as Record<string, unknown>[];
         }
         if (!cancelled) {
@@ -114,10 +117,15 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
         }
       } catch {
         if (!cancelled) {
-          const packRow = (getClubPack(branding.slug).coachingStaff || []).find(
-            (s: { id?: string }) => String(s.id) === id
-          );
-          setRemoteStaff((packRow as Record<string, unknown>) || null);
+          if (branding.slug === "rmb") {
+            const rows = preferRmbStaffIfStale([], teamId);
+            setRemoteStaff(rows.find((s) => String(s.id) === id) || null);
+          } else {
+            const packRow = (getClubPack(branding.slug).coachingStaff || []).find(
+              (s: { id?: string }) => String(s.id) === id
+            );
+            setRemoteStaff((packRow as Record<string, unknown>) || null);
+          }
         }
       } finally {
         if (!cancelled) setLoadingRemote(false);

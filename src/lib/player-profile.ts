@@ -173,6 +173,15 @@ export function normalizeStaffProfile(
       (typeof meta.birth_date === 'string' ? meta.birth_date : null),
     birth_place: birthPlace,
     photo_url:
+      resolvePlayerPhotoUrl({
+        slug: official?.slug || slugCandidate,
+        photo_url:
+          (typeof staff.photo_url === 'string' ? staff.photo_url : null) ??
+          official?.photo_url ??
+          null,
+        fullName: String(official?.full_name ?? staff.full_name ?? ''),
+        isStaff: true,
+      }) ??
       official?.photo_url ??
       (typeof staff.photo_url === 'string' ? staff.photo_url : null),
     profile_url:
