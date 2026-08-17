@@ -20,38 +20,7 @@ export interface RmbProvisionalPlayer {
   trajectory?: string;
 }
 
-export const RMB_PROVISIONAL_PLAYERS: RmbProvisionalPlayer[] = [
-  {
-    slug: 'max-shulga',
-    full_name: 'Max Shulga',
-    photoPath: '/assets/players/max-shulga.webp',
-    note: 'Foto provisional hasta alta en plantilla oficial RMB (realmadrid.com)',
-    birth_date: '2002-06-25',
-    birth_place: 'Kiev, Ucrania',
-    nationality: 'Ucrania',
-    height: '1,96 m.',
-    weight: '95 kg.',
-    position: 'escolta',
-    dorsal: 5,
-    trajectory:
-      'Boston Celtics (NBA) · Maine Celtics (G League) · base/escolta · fichaje RMB 2026/27 (pendiente de oficialización en realmadrid.com)',
-  },
-  {
-    slug: 'olivier-sarr',
-    full_name: 'Olivier Sarr',
-    photoPath: '/assets/players/olivier-sarr.webp',
-    note: 'Foto provisional hasta alta en plantilla oficial RMB (realmadrid.com)',
-    birth_date: '1999-02-20',
-    birth_place: 'Niort, Francia',
-    nationality: 'Francia',
-    height: '2,08 m.',
-    weight: '109 kg.',
-    position: 'pivot',
-    dorsal: 17,
-    trajectory:
-      'Cleveland Cavaliers (NBA) · Cleveland Charge (G League) · pívot · hermano de Alexandre Sarr · fichaje RMB 2026/27 (pendiente de oficialización en realmadrid.com)',
-  },
-];
+export const RMB_PROVISIONAL_PLAYERS: RmbProvisionalPlayer[] = [];
 
 function normKey(s: string) {
   return s

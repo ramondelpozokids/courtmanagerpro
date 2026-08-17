@@ -36,6 +36,14 @@ export const DEFAULT_STAFF_SIZES: RmbStaffSizeOverride = {
 
 /** Tallas importadas — nota utilería LUNES R. MEDICO Y TINO (12-08-2026) */
 export const RMB_PLAYER_SIZE_OVERRIDES: Record<string, RmbPlayerSizeOverride> = {
+  'maksym-shulga': {
+    legacyId: 'p3',
+    jersey: 'XL',
+    shorts: 'XL',
+    shoes: '45',
+    socks: 'M',
+    warmupShirt: 'XL',
+  },
   'max-shulga': {
     legacyId: 'p3',
     jersey: 'XL',
@@ -164,11 +172,55 @@ export const RMB_PLAYER_SIZE_OVERRIDES: Record<string, RmbPlayerSizeOverride> = 
     socks: 'L',
     warmupShirt: 'XL',
   },
+  'eli-john-ndiaye': {
+    legacyId: 'p16',
+    jersey: 'XL',
+    shorts: 'XL',
+    shoes: '47',
+    socks: 'L',
+    warmupShirt: 'XL',
+  },
 };
 
 export const RMB_STAFF_SIZE_OVERRIDES: Record<string, RmbStaffSizeOverride> = {
   'pedro-martinez': {
     legacyId: 'c1',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+  },
+  'francisco-redondo': {
+    legacyId: 'c2',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+  },
+  'salva-camps': {
+    legacyId: 'c3',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+  },
+  'isidro-calin': {
+    legacyId: 'c4',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+  },
+  'david-jimeno': {
+    legacyId: 'c5',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+  },
+  'piti-hurtado': {
+    legacyId: 'c6',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+  },
+  'juan-trapero': {
+    legacyId: 'c7',
     shirt_size: 'L',
     shorts_size: 'L',
     shoe_size: 43,

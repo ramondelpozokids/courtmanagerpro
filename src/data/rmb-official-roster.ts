@@ -1,4 +1,4 @@
-// Auto-generated from realmadrid.com — 2026-07-25T18:07:12.502Z
+// Auto-generated from realmadrid.com — 2026-08-17T14:46:51.237Z
 // Source: https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla
 // Regenerar: npm run sync:rm-plantilla
 
@@ -72,7 +72,7 @@ export interface RmbOfficialStaffProfile {
 }
 
 export const RMB_OFFICIAL_SOURCE = "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla";
-export const RMB_OFFICIAL_SYNCED_AT = "2026-08-10T16:12:47.837Z";
+export const RMB_OFFICIAL_SYNCED_AT = "2026-08-17T14:46:51.237Z";
 
 export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
   {
@@ -149,7 +149,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.9,
           "apg": 4.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:31.089Z"
+          "updated_at": "2026-08-17T14:46:01.123Z"
         }
       },
       "euroliga": {
@@ -168,7 +168,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.9,
           "apg": 5.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:31.089Z"
+          "updated_at": "2026-08-17T14:46:01.123Z"
         }
       },
       "supercopa_endesa": {
@@ -187,7 +187,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0.5,
           "apg": 3.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:31.086Z"
+          "updated_at": "2026-08-17T14:46:01.121Z"
         }
       },
       "copa_del_rey": {
@@ -206,7 +206,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.7,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:31.089Z"
+          "updated_at": "2026-08-17T14:46:01.123Z"
         }
       }
     }
@@ -279,7 +279,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.4,
           "apg": 3.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:32.167Z"
+          "updated_at": "2026-08-17T14:46:04.449Z"
         }
       },
       "euroliga": {
@@ -298,7 +298,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.2,
           "apg": 2.9,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:32.167Z"
+          "updated_at": "2026-08-17T14:46:04.449Z"
         }
       },
       "supercopa_endesa": {
@@ -317,7 +317,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:32.167Z"
+          "updated_at": "2026-08-17T14:46:04.449Z"
         }
       },
       "copa_del_rey": {
@@ -336,7 +336,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.3,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:32.167Z"
+          "updated_at": "2026-08-17T14:46:04.449Z"
         }
       }
     }
@@ -398,7 +398,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.8,
           "apg": 2.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:35.570Z"
+          "updated_at": "2026-08-17T14:46:07.147Z"
         }
       },
       "euroliga": {
@@ -417,7 +417,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.5,
           "apg": 2,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:35.570Z"
+          "updated_at": "2026-08-17T14:46:07.147Z"
         }
       },
       "supercopa_endesa": {
@@ -436,7 +436,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.5,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:35.570Z"
+          "updated_at": "2026-08-17T14:46:07.147Z"
         }
       },
       "copa_del_rey": {
@@ -455,7 +455,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 5,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:35.570Z"
+          "updated_at": "2026-08-17T14:46:07.147Z"
         }
       }
     }
@@ -535,7 +535,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.3,
           "apg": 2.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:38.369Z"
+          "updated_at": "2026-08-17T14:46:10.008Z"
         }
       },
       "euroliga": {
@@ -554,7 +554,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0.8,
           "apg": 1.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:38.369Z"
+          "updated_at": "2026-08-17T14:46:10.008Z"
         }
       },
       "supercopa_endesa": {
@@ -573,7 +573,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:38.369Z"
+          "updated_at": "2026-08-17T14:46:10.008Z"
         }
       },
       "copa_del_rey": {
@@ -592,7 +592,103 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:38.369Z"
+          "updated_at": "2026-08-17T14:46:10.008Z"
+        }
+      }
+    }
+  },
+  {
+    "legacyId": "p3",
+    "slug": "maksym-shulga",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/maksym-shulga",
+    "firstName": "Maksym",
+    "lastName": "Shulga",
+    "full_name": "Maksym Shulga",
+    "nickname": "Shulga",
+    "dorsal": 2,
+    "position": "Escolta",
+    "position_demo": "escolta",
+    "opta_position": "shooting_guard",
+    "nationality": null,
+    "birth_date": "2002-06-25",
+    "birth_place": "Kiev (Ucrania)",
+    "weight": "94 kg",
+    "height": "1,95 m.",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SHULGA_SG10256_380x501-1?$Desktop$&fit=wrap&wid=288&hei=384",
+    "debut": null,
+    "trajectory": "Utah State NCAA (2020-2023), VCU Rams NCAA (2023-2025), Maine Celtics G-League (2025-2026), Boston Celtics (2025-2026), Real Madrid (2026- )",
+    "trajectory_items": [
+      "Utah State NCAA (2020-2023)",
+      "VCU Rams NCAA (2023-2025)",
+      "Maine Celtics G-League (2025-2026)",
+      "Boston Celtics (2025-2026)",
+      "Real Madrid (2026- )"
+    ],
+    "palmares": [],
+    "matches_played": 0,
+    "points": 0,
+    "rebounds": 0,
+    "assists": 0,
+    "minutes_played": 0,
+    "valuation": 0,
+    "ppg": 0,
+    "rpg": 0,
+    "apg": 0,
+    "competition_stats": {
+      "liga_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "euroliga": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "supercopa_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "copa_del_rey": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
         }
       }
     }
@@ -601,9 +697,9 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "legacyId": "p9",
     "slug": "timothe-luwawu-cabarrot",
     "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/timothe-luwawu-cabarrot",
-    "firstName": "Timothé ",
+    "firstName": "Timothé",
     "lastName": "Luwawu-Cabarrot",
-    "full_name": "Timothé  Luwawu-Cabarrot",
+    "full_name": "Timothé Luwawu-Cabarrot",
     "nickname": "Luwawu-Cabarrot",
     "dorsal": 3,
     "position": "Alero",
@@ -614,7 +710,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Cannes (Francia)",
     "weight": "95 kg",
     "height": "2,01 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Luwawu-Cabarrot_380x501  2?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Luwawu-Cabarrot_380x501%20%202?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Antibes (2012-2015), Mega Leks (2015-2016), Philadelphia 76ers (2016-2018), Oklahoma City Thunder (2018-2019), Chicago Bulls (2019), Brooklyn Nets (2019-2021), Atlanta Hawks (2021-2022), Olimpia Milán (2022-2023), ASVEL Villeurbanne (2023-2024), Baskonia (2024-2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -765,7 +861,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:43.838Z"
+          "updated_at": "2026-08-17T14:46:16.040Z"
         }
       },
       "euroliga": {
@@ -784,7 +880,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.6,
           "apg": 1.3,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:43.837Z"
+          "updated_at": "2026-08-17T14:46:16.040Z"
         }
       },
       "supercopa_endesa": {
@@ -803,7 +899,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.5,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:43.837Z"
+          "updated_at": "2026-08-17T14:46:16.040Z"
         }
       },
       "copa_del_rey": {
@@ -822,7 +918,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.3,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:43.837Z"
+          "updated_at": "2026-08-17T14:46:16.040Z"
         }
       }
     }
@@ -882,7 +978,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.6,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:46.499Z"
+          "updated_at": "2026-08-17T14:46:17.083Z"
         }
       },
       "euroliga": {
@@ -901,7 +997,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0.5,
           "apg": 0.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:46.499Z"
+          "updated_at": "2026-08-17T14:46:17.083Z"
         }
       },
       "supercopa_endesa": {
@@ -920,7 +1016,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:46.499Z"
+          "updated_at": "2026-08-17T14:46:17.083Z"
         }
       },
       "copa_del_rey": {
@@ -1011,7 +1107,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.4,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:52.857Z"
+          "updated_at": "2026-08-17T14:46:19.846Z"
         }
       },
       "euroliga": {
@@ -1030,7 +1126,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:52.857Z"
+          "updated_at": "2026-08-17T14:46:19.846Z"
         }
       },
       "supercopa_endesa": {
@@ -1049,7 +1145,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 4.5,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:52.857Z"
+          "updated_at": "2026-08-17T14:46:19.846Z"
         }
       },
       "copa_del_rey": {
@@ -1068,7 +1164,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.3,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:06:52.857Z"
+          "updated_at": "2026-08-17T14:46:19.846Z"
         }
       }
     }
@@ -1090,7 +1186,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Helsinki (Finlandia)",
     "weight": "104 kg.",
     "height": "2,05 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JANTUNEN_380x501 1?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JANTUNEN_380x501%201?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "HBA Märsky (2016-2019), Universidad de Utah (2019-2021), BC Oostende (2021-2022), Treviso Basket (2022-2023), Paris Basketball (2023-2025), Fenerbahce (2025-2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -1198,7 +1294,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Zaragoza (España)",
     "weight": "105 kg.",
     "height": "2,05 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PRADILLA_380x501 – 1?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PRADILLA_380x501%20%E2%80%93%201?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Casademont Zaragoza (2018-2019), Palencia Basket (2019-2020), Valencia Basket (2020-2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -1287,7 +1383,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "slug": "chukwuma-julian-okeke",
     "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/chukwuma-julian-okeke",
     "firstName": "Chukwuma Julian",
-    "lastName": "Okeke ",
+    "lastName": "Okeke",
     "full_name": "Chukwuma Julian Okeke",
     "nickname": "Okeke",
     "dorsal": 8,
@@ -1339,7 +1435,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.6,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:00.510Z"
+          "updated_at": "2026-08-17T14:46:27.428Z"
         }
       },
       "euroliga": {
@@ -1358,7 +1454,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.9,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:00.510Z"
+          "updated_at": "2026-08-17T14:46:27.428Z"
         }
       },
       "supercopa_endesa": {
@@ -1377,7 +1473,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:00.510Z"
+          "updated_at": "2026-08-17T14:46:27.428Z"
         }
       },
       "copa_del_rey": {
@@ -1458,7 +1554,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.3,
           "apg": 0.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:03.343Z"
+          "updated_at": "2026-08-17T14:46:30.708Z"
         }
       },
       "euroliga": {
@@ -1477,7 +1573,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:03.343Z"
+          "updated_at": "2026-08-17T14:46:30.708Z"
         }
       },
       "supercopa_endesa": {
@@ -1496,7 +1592,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:03.343Z"
+          "updated_at": "2026-08-17T14:46:30.708Z"
         }
       },
       "copa_del_rey": {
@@ -1580,7 +1676,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.2,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:06.177Z"
+          "updated_at": "2026-08-17T14:46:33.321Z"
         }
       },
       "euroliga": {
@@ -1599,7 +1695,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.8,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:06.177Z"
+          "updated_at": "2026-08-17T14:46:33.321Z"
         }
       },
       "supercopa_endesa": {
@@ -1618,7 +1714,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.5,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:06.177Z"
+          "updated_at": "2026-08-17T14:46:33.321Z"
         }
       },
       "copa_del_rey": {
@@ -1637,7 +1733,102 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 4.7,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:06.177Z"
+          "updated_at": "2026-08-17T14:46:33.321Z"
+        }
+      }
+    }
+  },
+  {
+    "legacyId": "p16",
+    "slug": "eli-john-ndiaye",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/eli-john-ndiaye",
+    "firstName": "Eli John",
+    "lastName": "Ndiaye Faye",
+    "full_name": "Eli John Ndiaye Faye",
+    "nickname": "Ndiaye",
+    "dorsal": 44,
+    "position": "Ala-pívot",
+    "position_demo": "ala-pivot",
+    "opta_position": "center_foreward",
+    "nationality": null,
+    "birth_date": "2004-06-26",
+    "birth_place": "Guediawaye (Senegal)",
+    "weight": null,
+    "height": null,
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/NDIAYE_380x501%20%E2%80%93%203%201?$Desktop$&fit=wrap&wid=288&hei=384",
+    "debut": null,
+    "trajectory": "",
+    "trajectory_items": [],
+    "palmares": [
+      "1 Copa de Europa",
+      "3 Ligas",
+      "1 Copa del Rey",
+      "3 Supercopas de España"
+    ],
+    "matches_played": 0,
+    "points": 0,
+    "rebounds": 0,
+    "assists": 0,
+    "minutes_played": 0,
+    "valuation": 0,
+    "ppg": 0,
+    "rpg": 0,
+    "apg": 0,
+    "competition_stats": {
+      "liga_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "euroliga": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "supercopa_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "copa_del_rey": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
         }
       }
     }
@@ -1716,7 +1907,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 6.4,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:09.802Z"
+          "updated_at": "2026-08-17T14:46:35.634Z"
         }
       },
       "euroliga": {
@@ -1735,7 +1926,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 6.6,
           "apg": 0.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:09.802Z"
+          "updated_at": "2026-08-17T14:46:35.634Z"
         }
       },
       "supercopa_endesa": {
@@ -1754,7 +1945,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:09.802Z"
+          "updated_at": "2026-08-17T14:46:35.634Z"
         }
       },
       "copa_del_rey": {
@@ -1773,7 +1964,108 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 6,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-07-25T18:07:09.802Z"
+          "updated_at": "2026-08-17T14:46:35.634Z"
+        }
+      }
+    }
+  },
+  {
+    "legacyId": "p19",
+    "slug": "olivier-sarr",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/olivier-sarr",
+    "firstName": "Olivier",
+    "lastName": "Sarr",
+    "full_name": "Olivier Sarr",
+    "nickname": "Sarr",
+    "dorsal": 33,
+    "position": "Pívot",
+    "position_demo": "pivot",
+    "opta_position": "center",
+    "nationality": null,
+    "birth_date": "1999-02-20",
+    "birth_place": "Niort (Francia)",
+    "weight": "110 kg.",
+    "height": "2,10 m.",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SARR_SG10303_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "debut": null,
+    "trajectory": "Wake Forest University (2017-2020), University of Kentucky (2020-2021), Oklahoma City Thunder (2021-2024), Oklahoma City Blue (2021-2024), Raptors 905 (2025-2026), Cleveland Charge (2026), Cleveland Cavaliers (2026), Real Madrid (2026- )",
+    "trajectory_items": [
+      "Wake Forest University (2017-2020)",
+      "University of Kentucky (2020-2021)",
+      "Oklahoma City Thunder (2021-2024)",
+      "Oklahoma City Blue (2021-2024)",
+      "Raptors 905 (2025-2026)",
+      "Cleveland Charge (2026)",
+      "Cleveland Cavaliers (2026)",
+      "Real Madrid (2026- )"
+    ],
+    "palmares": [
+      "1 NBA G-League"
+    ],
+    "matches_played": 0,
+    "points": 0,
+    "rebounds": 0,
+    "assists": 0,
+    "minutes_played": 0,
+    "valuation": 0,
+    "ppg": 0,
+    "rpg": 0,
+    "apg": 0,
+    "competition_stats": {
+      "liga_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "euroliga": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "supercopa_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "copa_del_rey": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
         }
       }
     }
@@ -1792,8 +2084,8 @@ export const RMB_OFFICIAL_STAFF: RmbOfficialStaffProfile[] = [
     "nationality": null,
     "birth_date": "1961-06-29",
     "birth_place": "Barcelona, España",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PEDRO MARTINEZ_380x501-1?$Desktop$&fit=wrap&wid=288&hei=384",
-    "trajectory": "Joventut categorías inferiores (1986-89), Joventut entrenador ayudante (1989-90), Joventut (1990), Manresa (1990-94), Joventut (1994-95), Salamanca (1995-96), Granada (1997-98), Menorca (1999-00), Ourense (2001), Tenerife (2001-02), Gran Canaria (2002-05), Baskonia (2005), Estudiantes (2006-07), Girona (2007-08), Cajasol (2008-09), Gran Canaria (2009-14), Manresa (2014-15), Valencia Basket (2015-17), Baskonia (2017-18), Gran Canaria (2019), Manresa (2019-24), Valencia Basket (2024-26), Real Madrid (2026- )",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PEDRO%20MARTINEZ_ENTRENADOR_BASKET_SG16034?$Desktop$&fit=wrap&wid=288&hei=384",
+    "trajectory": "Joventut categorías inferiores (1986-89), Joventut entrenador ayudante (1989-90), Joventut (1990), Manresa (1990-94), Joventut (1994-95), Salamanca (1995-96), Granada (1997-98), Menorca (1999-00), Ourense (2001), Tenerife (2001-02), Gran Canaria (2002-05), Baskonia (2005), Estudiantes (2006-07), Girona (2007-08), Cajasol (2008-09), Gran Canaria (2009-14), Manresa (2014-15), Valencia Basket (20015-17), Baskonia (2017-18), Gran Canaria (2019), Manresa (2019-24), Valencia Basket (2024-26), Real Madrid (2026- )",
     "trajectory_items": [
       "Joventut categorías inferiores (1986-89)",
       "Joventut entrenador ayudante (1989-90)",
@@ -1812,7 +2104,7 @@ export const RMB_OFFICIAL_STAFF: RmbOfficialStaffProfile[] = [
       "Cajasol (2008-09)",
       "Gran Canaria (2009-14)",
       "Manresa (2014-15)",
-      "Valencia Basket (2015-17)",
+      "Valencia Basket (20015-17)",
       "Baskonia (2017-18)",
       "Gran Canaria (2019)",
       "Manresa (2019-24)",
@@ -1824,6 +2116,102 @@ export const RMB_OFFICIAL_STAFF: RmbOfficialStaffProfile[] = [
       "2 Supercopas de España",
       "1 Copa Korac"
     ]
+  },
+  {
+    "legacyId": "c2",
+    "slug": "francisco-redondo",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/francisco-redondo",
+    "full_name": "Francisco Redondo",
+    "firstName": "Francisco",
+    "lastName": "Redondo",
+    "role": "Entrenador ayudante",
+    "nationality": null,
+    "birth_date": null,
+    "birth_place": null,
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Paco%20Redondo_CUERPO_TECNICO_BASKET?$Desktop$&fit=wrap&wid=288&hei=384",
+    "trajectory": "",
+    "trajectory_items": [],
+    "palmares": []
+  },
+  {
+    "legacyId": "c3",
+    "slug": "salva-camps",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/salva-camps",
+    "full_name": "Salva Camps",
+    "firstName": "Salva",
+    "lastName": "Camps",
+    "role": "Entrenador ayudante",
+    "nationality": null,
+    "birth_date": null,
+    "birth_place": null,
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Salva%20Camps_CUERPO_TECNICO_BASKET?$Desktop$&fit=wrap&wid=288&hei=384",
+    "trajectory": "",
+    "trajectory_items": [],
+    "palmares": []
+  },
+  {
+    "legacyId": "c4",
+    "slug": "isidro-calin",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/isidro-calin",
+    "full_name": "Isidoro Calín",
+    "firstName": "Isidoro",
+    "lastName": "Calín",
+    "role": "Entrenador ayudante",
+    "nationality": null,
+    "birth_date": null,
+    "birth_place": null,
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Isidoro%20Cal%C3%ADn%20_CUERPO_TECNICO_BASKET?$Desktop$&fit=wrap&wid=288&hei=384",
+    "trajectory": "",
+    "trajectory_items": [],
+    "palmares": []
+  },
+  {
+    "legacyId": "c5",
+    "slug": "david-jimeno",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/david-jimeno",
+    "full_name": "David Jimeno",
+    "firstName": "David",
+    "lastName": "Jimeno",
+    "role": "Entrenador ayudante",
+    "nationality": null,
+    "birth_date": null,
+    "birth_place": null,
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/David%20Jimeno%20_CUERPO_TECNICO_BASKET?$Desktop$&fit=wrap&wid=288&hei=384",
+    "trajectory": "",
+    "trajectory_items": [],
+    "palmares": []
+  },
+  {
+    "legacyId": "c6",
+    "slug": "piti-hurtado",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/piti-hurtado",
+    "full_name": "Piti Hurtado",
+    "firstName": "Piti",
+    "lastName": "Hurtado",
+    "role": "Entrenador ayudante",
+    "nationality": null,
+    "birth_date": null,
+    "birth_place": null,
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Piti%20Hurtado_CUERPO_TECNICO_BASKET?$Desktop$&fit=wrap&wid=288&hei=384",
+    "trajectory": "",
+    "trajectory_items": [],
+    "palmares": []
+  },
+  {
+    "legacyId": "c7",
+    "slug": "juan-trapero",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/juan-trapero",
+    "full_name": "Juan Trapero",
+    "firstName": "Juan",
+    "lastName": "Trapero",
+    "role": "Preparador físico",
+    "nationality": null,
+    "birth_date": null,
+    "birth_place": null,
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/juan%20trapero%20_CUERPO_TECNICO_BASKET?$Desktop$&fit=wrap&wid=288&hei=384",
+    "trajectory": "",
+    "trajectory_items": [],
+    "palmares": []
   }
 ];
 
@@ -1832,7 +2220,11 @@ export function getOfficialPlayerByLegacyId(legacyId: string): RmbOfficialPlayer
 }
 
 export function getOfficialPlayerBySlug(slug: string): RmbOfficialPlayerProfile | null {
-  return RMB_OFFICIAL_PLAYERS.find((p) => p.slug === slug) ?? null;
+  const key = slug.trim().toLowerCase();
+  if (key === 'max-shulga') {
+    return RMB_OFFICIAL_PLAYERS.find((p) => p.slug === 'maksym-shulga') ?? null;
+  }
+  return RMB_OFFICIAL_PLAYERS.find((p) => p.slug === key) ?? null;
 }
 
 export function getOfficialStaffByLegacyId(legacyId: string): RmbOfficialStaffProfile | null {

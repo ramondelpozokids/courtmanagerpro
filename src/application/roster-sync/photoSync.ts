@@ -17,18 +17,17 @@ export async function downloadPlayerPhoto(
   if (!remoteUrl || !slug) return null;
 
   try {
-    const res = await fetch(remoteUrl, { headers: HEADERS });
+    const encoded = encodeURI(remoteUrl);
+    const withFmt = encoded.includes('fmt=')
+      ? encoded
+      : `${encoded}${encoded.includes('?') ? '&' : '?'}fmt=webp`;
+    const res = await fetch(withFmt, { headers: HEADERS });
     if (!res.ok) {
       console.warn(`[roster-sync] photo HTTP ${res.status} for ${slug}`);
       return remoteUrl;
     }
 
-    const contentType = res.headers.get('content-type') || '';
-    let ext = 'jpg';
-    if (contentType.includes('png')) ext = 'png';
-    else if (contentType.includes('webp')) ext = 'webp';
-    else if (remoteUrl.includes('.png')) ext = 'png';
-    else if (remoteUrl.includes('.webp')) ext = 'webp';
+    const ext = 'webp';
 
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length < 100) return remoteUrl;

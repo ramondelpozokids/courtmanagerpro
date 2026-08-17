@@ -48,6 +48,12 @@ async function fetchHtml(url) {
   return res.text();
 }
 
+function clean(value) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function extractNgState(html) {
   const match = html.match(/<script id="ng-state" type="application\/json">([\s\S]*?)<\/script>/);
   if (!match) return null;
@@ -65,9 +71,13 @@ function findSquad(state) {
 function findPlayerPayload(state) {
   for (const value of Object.values(state || {})) {
     const items = value?.b?.data?.playerList?.items;
-    if (Array.isArray(items) && items[0]) return items[0];
+    if (Array.isArray(items) && items[0]?.slug) return { payload: items[0], kind: 'player' };
   }
-  return null;
+  for (const value of Object.values(state || {})) {
+    const items = value?.b?.data?.legendaryPlayerList?.items;
+    if (Array.isArray(items) && items[0]) return { payload: items[0], kind: 'legendary' };
+  }
+  return { payload: null, kind: null };
 }
 
 function findCoachPayload(state) {
@@ -82,10 +92,11 @@ function imageUrl(ref) {
   if (!ref) return null;
   const base = ref._dmS7Url || ref._publishUrl || null;
   if (!base) return null;
-  if (base.includes('assets.realmadrid.com')) {
-    return `${base}?$Desktop$&fit=wrap&wid=288&hei=384`;
+  const encoded = encodeURI(base);
+  if (encoded.includes('assets.realmadrid.com')) {
+    return `${encoded}?$Desktop$&fit=wrap&wid=288&hei=384`;
   }
-  return base;
+  return encoded;
 }
 
 function stripHtml(html = '') {
@@ -102,8 +113,15 @@ function stripHtml(html = '') {
     .filter(Boolean);
 }
 
+function historyHtml(history) {
+  if (!history) return '';
+  if (typeof history === 'string') return history;
+  if (typeof history === 'object' && typeof history.html === 'string') return history.html;
+  return '';
+}
+
 function parseHistory(history) {
-  const lines = stripHtml(history?.html || history || '');
+  const lines = stripHtml(historyHtml(history));
   let debut = null;
   const trajectoryLines = [];
   for (const line of lines) {
@@ -256,41 +274,71 @@ function assignLegacyIds(slugs, prefix, known) {
   return out;
 }
 
-async function syncPlayer(slug, legacyId) {
+async function syncPlayer(slug, legacyId, listItem = {}) {
   const profile_url = `${PLANTILLA_URL}/${slug}`;
-  const html = await fetchHtml(profile_url);
-  const state = extractNgState(html);
-  const payload = findPlayerPayload(state);
-  if (!payload) throw new Error('player payload not found');
+  let payload = null;
+  let kind = null;
+  try {
+    const html = await fetchHtml(profile_url);
+    const state = extractNgState(html);
+    const found = findPlayerPayload(state);
+    payload = found.payload;
+    kind = found.kind;
+  } catch (err) {
+    console.warn(`detail fetch failed for ${slug}:`, err.message);
+  }
 
-  const history = parseHistory(payload.history);
+  if (!payload) {
+    payload = listItem;
+    kind = 'list';
+  }
+
+  const history =
+    kind === 'legendary'
+      ? { trajectory: '', trajectory_items: [], debut: null }
+      : parseHistory(payload.history);
+  const palmares =
+    kind === 'legendary'
+      ? parseHistory(payload.history).trajectory_items
+      : mapTrophies(payload.trophyList);
+
   const seasonStats =
     payload.statistics?.find((s) => s.season === SEASON) || payload.statistics?.[0];
   const globalStats = mapGlobal(seasonStats?.aggregatedStatistic);
   const competition_stats = mapCompetitionStats(seasonStats?.competitionStatistics);
 
+  const firstName = clean(payload.name || listItem.name || '');
+  const lastName = clean(payload.surnames || payload.nickname || listItem.surnames || listItem.nickname || '');
+  const nickname = clean(payload.nickname || listItem.nickname || '') || null;
+  const position = payload.position || listItem.position || null;
+  const optaPosition = payload.optaPosition || listItem.optaPosition || null;
+
   return {
     legacyId,
     slug,
     profile_url,
-    firstName: payload.name || '',
-    lastName: payload.surnames || payload.nickname || '',
-    full_name: `${payload.name || ''} ${payload.surnames || ''}`.trim() || payload.nickname,
-    nickname: payload.nickname || null,
-    dorsal: num(payload.number),
-    position: payload.position || null,
-    position_demo: mapPosition(payload.position, payload.optaPosition),
-    opta_position: payload.optaPosition || null,
-    nationality: capitalizeNationality(payload.nationality),
-    birth_date: payload.birthDate || null,
-    birth_place: payload.birthPlace || null,
-    weight: payload.weight || null,
-    height: payload.height || null,
-    photo_url: imageUrl(payload.squadImage) || imageUrl(payload.image),
+    firstName,
+    lastName,
+    full_name: clean(`${firstName} ${lastName}`) || nickname || slug,
+    nickname,
+    dorsal: num(payload.number) || num(listItem.number),
+    position,
+    position_demo: mapPosition(position, optaPosition),
+    opta_position: optaPosition,
+    nationality: capitalizeNationality(payload.nationality || listItem.nationality),
+    birth_date: payload.birthDate || listItem.birthDate || null,
+    birth_place: payload.birthPlace || listItem.birthPlace || null,
+    weight: payload.weight || listItem.weight || null,
+    height: payload.height || listItem.height || null,
+    photo_url:
+      imageUrl(listItem.squadImage) ||
+      imageUrl(payload.squadImage) ||
+      imageUrl(payload.image) ||
+      imageUrl(listItem.image),
     debut: history.debut,
     trajectory: history.trajectory,
     trajectory_items: history.trajectory_items,
-    palmares: mapTrophies(payload.trophyList),
+    palmares,
     ...globalStats,
     competition_stats,
   };
@@ -302,10 +350,10 @@ async function syncCoach(slug, legacyId, listItem = {}) {
   const state = extractNgState(html);
   const payload = findCoachPayload(state) || {};
   const history = parseHistory(payload.history);
-  const name = payload.name || listItem.name || '';
-  const surnames = payload.surnames || listItem.surnames || '';
+  const name = clean(payload.name || listItem.name || '');
+  const surnames = clean(payload.surnames || listItem.surnames || '');
   const full_name =
-    `${name} ${surnames}`.trim() || payload.nickname || listItem.nickname || slug;
+    clean(`${name} ${surnames}`) || clean(payload.nickname || listItem.nickname || '') || slug;
 
   return {
     legacyId,
@@ -314,7 +362,7 @@ async function syncCoach(slug, legacyId, listItem = {}) {
     full_name,
     firstName: name,
     lastName: surnames,
-    role: payload.role || listItem.role || 'Cuerpo técnico',
+    role: clean(payload.role || listItem.role || 'Cuerpo técnico') || 'Cuerpo técnico',
     nationality: capitalizeNationality(payload.nationality),
     birth_date: payload.birthDate || null,
     birth_place: payload.birthPlace || null,
@@ -358,7 +406,7 @@ const statsByLegacy = {};
 for (const item of listPlayers) {
   try {
     const legacyId = playerIds[item.slug];
-    const record = await syncPlayer(item.slug, legacyId);
+    const record = await syncPlayer(item.slug, legacyId, item);
     // Prefer list image if detail lacks one
     if (!record.photo_url) record.photo_url = imageUrl(item.squadImage);
     if (!record.dorsal && item.number) record.dorsal = num(item.number);
@@ -499,11 +547,36 @@ export function getOfficialPlayerByLegacyId(legacyId: string): RmbOfficialPlayer
 }
 
 export function getOfficialPlayerBySlug(slug: string): RmbOfficialPlayerProfile | null {
-  return RMB_OFFICIAL_PLAYERS.find((p) => p.slug === slug) ?? null;
+  const key = slug.trim().toLowerCase();
+  if (key === 'max-shulga') {
+    return RMB_OFFICIAL_PLAYERS.find((p) => p.slug === 'maksym-shulga') ?? null;
+  }
+  return RMB_OFFICIAL_PLAYERS.find((p) => p.slug === key) ?? null;
 }
 
 export function getOfficialStaffByLegacyId(legacyId: string): RmbOfficialStaffProfile | null {
   return RMB_OFFICIAL_STAFF.find((s) => s.legacyId === legacyId) ?? null;
+}
+
+export function getOfficialStaffBySlug(slug: string): RmbOfficialStaffProfile | null {
+  const key = slug.trim().toLowerCase();
+  if (!key) return null;
+  return RMB_OFFICIAL_STAFF.find((s) => s.slug === key) ?? null;
+}
+
+function normStaffName(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\\u0300-\\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+export function getOfficialStaffByName(fullName: string): RmbOfficialStaffProfile | null {
+  const key = normStaffName(fullName);
+  if (!key) return null;
+  return RMB_OFFICIAL_STAFF.find((s) => normStaffName(s.full_name) === key) ?? null;
 }
 `;
 
@@ -558,6 +631,40 @@ console.log(
   `Written ${players.length} players + ${staff.length} staff → src/data/rmb-official-roster.ts`
 );
 console.log(`Written stats for ${Object.keys(statsByLegacy).length} players → src/data/rmb-official-stats.ts`);
+
+async function downloadOfficialPhoto(slug, remoteUrl) {
+  if (!remoteUrl || !slug) return false;
+  const dir = 'public/assets/players';
+  mkdirSync(dir, { recursive: true });
+  const withFmt = remoteUrl.includes('fmt=')
+    ? remoteUrl
+    : `${remoteUrl}${remoteUrl.includes('?') ? '&' : '?'}fmt=webp`;
+  try {
+    const res = await fetch(withFmt, { headers: HEADERS });
+    if (!res.ok) {
+      console.warn(`photo HTTP ${res.status} ${slug}`);
+      return false;
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length < 100) return false;
+    writeFileSync(`${dir}/${slug}.webp`, buf);
+    console.log(`photo ${slug}.webp (${Math.round(buf.length / 1024)} KB)`);
+    return true;
+  } catch (err) {
+    console.warn(`photo FAIL ${slug}:`, err.message);
+    return false;
+  }
+}
+
+console.log('Downloading official photos…');
+for (const p of players) {
+  await downloadOfficialPhoto(p.slug, p.photo_url);
+  await sleep(120);
+}
+for (const s of staff) {
+  await downloadOfficialPhoto(`staff-${s.slug}`, s.photo_url);
+  await sleep(120);
+}
 
 // Aviso si algún jugador provisional ya está en realmadrid.com
 try {

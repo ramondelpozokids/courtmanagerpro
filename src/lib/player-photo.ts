@@ -31,20 +31,22 @@ export function resolvePlayerPhotoUrl(opts: {
     opts.slug ||
     (opts.fullName ? slugifyName(opts.fullName) : null);
 
-  if (slug) {
-    if (opts.isStaff && LOCAL_STAFF_SLUGS.has(slug)) {
-      return `/assets/players/staff-${slug}.webp`;
+  const resolvedSlug = slug === 'max-shulga' ? 'maksym-shulga' : slug;
+
+  if (resolvedSlug) {
+    if (opts.isStaff && LOCAL_STAFF_SLUGS.has(resolvedSlug)) {
+      return `/assets/players/staff-${resolvedSlug}.webp`;
     }
-    if (!opts.isStaff && LOCAL_PLAYER_SLUGS.has(slug)) {
-      return `/assets/players/${slug}.webp`;
+    if (!opts.isStaff && LOCAL_PLAYER_SLUGS.has(resolvedSlug)) {
+      return `/assets/players/${resolvedSlug}.webp`;
     }
     if (!opts.isStaff) {
-      const provisional = getRmbProvisionalPlayer(slug);
+      const provisional = getRmbProvisionalPlayer(resolvedSlug);
       if (provisional) return provisional.photoPath;
     }
     // Nombre ya en formato slug coincidente con fichero local
-    if (!opts.isStaff && LOCAL_PLAYER_SLUGS.has(slugifyName(slug))) {
-      return `/assets/players/${slugifyName(slug)}.webp`;
+    if (!opts.isStaff && LOCAL_PLAYER_SLUGS.has(slugifyName(resolvedSlug))) {
+      return `/assets/players/${slugifyName(resolvedSlug)}.webp`;
     }
   }
 
