@@ -156,9 +156,11 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
     const handler = () => fetchPlayers();
     window.addEventListener('club-demo-changed', handler);
     window.addEventListener('demo-db-changed', handler);
+    window.addEventListener('roster-sync-complete', handler);
     return () => {
       window.removeEventListener('club-demo-changed', handler);
       window.removeEventListener('demo-db-changed', handler);
+      window.removeEventListener('roster-sync-complete', handler);
     };
   }, [fetchPlayers]);
 

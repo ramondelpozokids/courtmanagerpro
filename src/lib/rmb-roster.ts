@@ -77,32 +77,45 @@ function livePlayerMatchesPack(live: Player, pack: Player): boolean {
   return Boolean(a && b && (a === b || a.includes(b) || b.includes(a)));
 }
 
+function mergeLivePlayerOntoPack(packP: Player, liveP: Player): Player {
+  return {
+    ...packP,
+    id: liveP.id,
+    team_id: liveP.team_id || packP.team_id,
+    dorsal: liveP.dorsal || packP.dorsal,
+    full_name: liveP.full_name || packP.full_name,
+    position: liveP.position || packP.position,
+    photo_url: liveP.photo_url || packP.photo_url,
+    official_slug: liveP.official_slug || packP.official_slug,
+    source: liveP.source || packP.source,
+    shirt_size: liveP.shirt_size || packP.shirt_size,
+    shorts_size: liveP.shorts_size || packP.shorts_size,
+    shoe_size: liveP.shoe_size || packP.shoe_size,
+    jacket_size: liveP.jacket_size || packP.jacket_size,
+    sock_size: liveP.sock_size || packP.sock_size,
+    underwear_size: liveP.underwear_size || packP.underwear_size,
+    metadata: { ...packP.metadata, ...(liveP.metadata || {}) },
+  };
+}
+
 /**
- * La web oficial es la fuente de quién está en plantilla.
- * Si Supabase no tiene a Ndiaye o al cuerpo técnico nuevo, se completa desde el pack
- * y se conservan tallas/ids live cuando coinciden.
+ * Completa tallas/ids desde el pack embebido sin borrar altas oficiales
+ * (p. ej. Damian Jones) que aún no estén en el fichero generado.
+ * Si la lista live está vacía, se usa el pack.
  */
 export function preferRmbRosterIfStale(live: Player[], teamId: string): Player[] {
   if (teamId !== CLUB_TEAM_IDS.rmb) return live;
   const pack = rmbPackAsPlayers(teamId);
-  if (!live.length) return pack;
+  const liveActive = live.filter((p) => p.is_active !== false);
+  if (!liveActive.length) return pack;
 
-  return pack.map((packP) => {
-    const liveP = live.find((l) => livePlayerMatchesPack(l, packP));
+  const fromPack = pack.map((packP) => {
+    const liveP = liveActive.find((l) => livePlayerMatchesPack(l, packP));
     if (!liveP) return packP;
-    return {
-      ...packP,
-      id: liveP.id,
-      shirt_size: liveP.shirt_size || packP.shirt_size,
-      shorts_size: liveP.shorts_size || packP.shorts_size,
-      shoe_size: liveP.shoe_size || packP.shoe_size,
-      jacket_size: liveP.jacket_size || packP.jacket_size,
-      sock_size: liveP.sock_size || packP.sock_size,
-      underwear_size: liveP.underwear_size || packP.underwear_size,
-      photo_url: liveP.photo_url || packP.photo_url,
-      metadata: { ...packP.metadata, ...(liveP.metadata || {}) },
-    };
+    return mergeLivePlayerOntoPack(packP, liveP);
   });
+  const extras = liveActive.filter((l) => !pack.some((p) => livePlayerMatchesPack(l, p)));
+  return [...fromPack, ...extras];
 }
 
 function liveStaffMatchesPack(
@@ -125,8 +138,11 @@ export function preferRmbStaffIfStale(
   const pack = rmbPackAsStaff() as Record<string, unknown>[];
   if (!live.length) return pack;
 
-  return pack.map((packS) => {
-    const liveS = live.find((l) => liveStaffMatchesPack(l, packS));
+  const liveActive = live.filter((s) => s.is_active !== false);
+  if (!liveActive.length) return pack;
+
+  const fromPack = pack.map((packS) => {
+    const liveS = liveActive.find((l) => liveStaffMatchesPack(l, packS));
     if (!liveS) return packS;
     return {
       ...packS,
@@ -142,4 +158,6 @@ export function preferRmbStaffIfStale(
       shoe_size: liveS.shoe_size ?? packS.shoe_size,
     };
   });
+  const extras = liveActive.filter((l) => !pack.some((p) => liveStaffMatchesPack(l, p)));
+  return [...fromPack, ...extras];
 }

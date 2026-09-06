@@ -33,6 +33,7 @@ export function UpdateOfficialRosterButton({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        cache: 'no-store',
         body: JSON.stringify({ trigger: 'manual', team_id: teamId, force: true }),
       });
       const json = await res.json().catch(() => ({} as Record<string, unknown>));

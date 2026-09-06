@@ -9,6 +9,7 @@ import type { SyncTrigger } from '@/types';
 import { canModifyProject } from '@/lib/permissions';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 async function resolveTrigger(req: NextRequest, body: Record<string, unknown>): Promise<SyncTrigger> {
   const q = req.nextUrl.searchParams.get('trigger');
@@ -38,7 +39,11 @@ export async function POST(req: NextRequest) {
   }
 
   const trigger = await resolveTrigger(req, body);
-  const force = Boolean(body.force) || req.nextUrl.searchParams.get('force') === '1';
+  // Clic en «Actualizar plantilla oficial»: siempre scrape en vivo, sin skip ni caché.
+  const force =
+    trigger === 'manual' ||
+    Boolean(body.force) ||
+    req.nextUrl.searchParams.get('force') === '1';
   const teamId = resolveTeamId(
     (body.team_id as string) || req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID
   );
@@ -92,7 +97,7 @@ export async function POST(req: NextRequest) {
 /** Vercel Cron / manual GET */
 export async function GET(req: NextRequest) {
   const trigger = (req.nextUrl.searchParams.get('trigger') || 'cron') as SyncTrigger;
-  const force = req.nextUrl.searchParams.get('force') === '1';
+  const force = trigger === 'manual' || req.nextUrl.searchParams.get('force') === '1';
   const explicitTeam = req.nextUrl.searchParams.get('team_id');
 
   if (trigger === 'cron' && isServerProduction()) {

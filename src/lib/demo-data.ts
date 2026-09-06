@@ -84,7 +84,9 @@ export function mapDemoPlayers(teamId: string = DEFAULT_TEAM_ID): Player[] {
     jersey_name: p.lastName.toUpperCase(),
     contract_end: '2027-06-30',
     notes: null,
-    metadata: {},
+    official_slug: p.slug || p.official_slug || null,
+    source: p.source || 'realmadrid.com',
+    metadata: { official_slug: p.slug || p.official_slug || null },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }));

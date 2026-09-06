@@ -1,4 +1,4 @@
-// Auto-generated from realmadrid.com — 2026-08-17T14:46:51.237Z
+// Auto-generated from realmadrid.com — 2026-09-06T16:42:23.317Z
 // Regenerar: npm run sync:rm-plantilla  (o npm run sync:rm-stats)
 
 import type { PlayerCompetitionMap } from '@/lib/player-competitions';
@@ -66,7 +66,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.9,
           "apg": 4.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:01.123Z"
+          "updated_at": "2026-09-06T16:41:28.871Z"
         }
       },
       "euroliga": {
@@ -85,7 +85,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.9,
           "apg": 5.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:01.123Z"
+          "updated_at": "2026-09-06T16:41:28.871Z"
         }
       },
       "supercopa_endesa": {
@@ -104,7 +104,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0.5,
           "apg": 3.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:01.121Z"
+          "updated_at": "2026-09-06T16:41:28.869Z"
         }
       },
       "copa_del_rey": {
@@ -123,7 +123,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.7,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:01.123Z"
+          "updated_at": "2026-09-06T16:41:28.871Z"
         }
       }
     }
@@ -166,7 +166,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.4,
           "apg": 3.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:04.449Z"
+          "updated_at": "2026-09-06T16:41:30.021Z"
         }
       },
       "euroliga": {
@@ -185,7 +185,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.2,
           "apg": 2.9,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:04.449Z"
+          "updated_at": "2026-09-06T16:41:30.021Z"
         }
       },
       "supercopa_endesa": {
@@ -204,7 +204,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:04.449Z"
+          "updated_at": "2026-09-06T16:41:30.021Z"
         }
       },
       "copa_del_rey": {
@@ -223,7 +223,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.3,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:04.449Z"
+          "updated_at": "2026-09-06T16:41:30.021Z"
         }
       }
     }
@@ -266,7 +266,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.8,
           "apg": 2.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:07.147Z"
+          "updated_at": "2026-09-06T16:41:32.696Z"
         }
       },
       "euroliga": {
@@ -285,7 +285,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.5,
           "apg": 2,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:07.147Z"
+          "updated_at": "2026-09-06T16:41:32.697Z"
         }
       },
       "supercopa_endesa": {
@@ -304,7 +304,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.5,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:07.147Z"
+          "updated_at": "2026-09-06T16:41:32.696Z"
         }
       },
       "copa_del_rey": {
@@ -323,7 +323,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 5,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:07.147Z"
+          "updated_at": "2026-09-06T16:41:32.696Z"
         }
       }
     }
@@ -366,7 +366,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.3,
           "apg": 2.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:10.008Z"
+          "updated_at": "2026-09-06T16:41:35.433Z"
         }
       },
       "euroliga": {
@@ -385,7 +385,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0.8,
           "apg": 1.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:10.008Z"
+          "updated_at": "2026-09-06T16:41:35.433Z"
         }
       },
       "supercopa_endesa": {
@@ -404,7 +404,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:10.008Z"
+          "updated_at": "2026-09-06T16:41:35.433Z"
         }
       },
       "copa_del_rey": {
@@ -423,7 +423,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:10.008Z"
+          "updated_at": "2026-09-06T16:41:35.433Z"
         }
       }
     }
@@ -626,7 +626,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:16.040Z"
+          "updated_at": "2026-09-06T16:41:44.288Z"
         }
       },
       "euroliga": {
@@ -645,7 +645,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.6,
           "apg": 1.3,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:16.040Z"
+          "updated_at": "2026-09-06T16:41:44.288Z"
         }
       },
       "supercopa_endesa": {
@@ -664,7 +664,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.5,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:16.040Z"
+          "updated_at": "2026-09-06T16:41:44.288Z"
         }
       },
       "copa_del_rey": {
@@ -683,7 +683,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.3,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:16.040Z"
+          "updated_at": "2026-09-06T16:41:44.288Z"
         }
       }
     }
@@ -726,7 +726,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.6,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:17.083Z"
+          "updated_at": "2026-09-06T16:41:45.378Z"
         }
       },
       "euroliga": {
@@ -745,7 +745,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0.5,
           "apg": 0.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:17.083Z"
+          "updated_at": "2026-09-06T16:41:45.378Z"
         }
       },
       "supercopa_endesa": {
@@ -764,7 +764,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:17.083Z"
+          "updated_at": "2026-09-06T16:41:45.378Z"
         }
       },
       "copa_del_rey": {
@@ -821,7 +821,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.4,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:19.846Z"
+          "updated_at": "2026-09-06T16:41:47.902Z"
         }
       },
       "euroliga": {
@@ -840,7 +840,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:19.846Z"
+          "updated_at": "2026-09-06T16:41:47.902Z"
         }
       },
       "supercopa_endesa": {
@@ -859,7 +859,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 4.5,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:19.846Z"
+          "updated_at": "2026-09-06T16:41:47.902Z"
         }
       },
       "copa_del_rey": {
@@ -878,7 +878,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.3,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:19.846Z"
+          "updated_at": "2026-09-06T16:41:47.902Z"
         }
       }
     }
@@ -1081,7 +1081,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.6,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:27.428Z"
+          "updated_at": "2026-09-06T16:41:53.793Z"
         }
       },
       "euroliga": {
@@ -1100,7 +1100,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.9,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:27.428Z"
+          "updated_at": "2026-09-06T16:41:53.793Z"
         }
       },
       "supercopa_endesa": {
@@ -1119,102 +1119,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:27.428Z"
-        }
-      },
-      "copa_del_rey": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
-        }
-      }
-    }
-  },
-  "p14": {
-    "slug": "izan-almansa",
-    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/izan-almansa",
-    "full_name": "Izan Almansa",
-    "dorsal": 13,
-    "position": "Ala-pívot",
-    "nationality": null,
-    "birth_date": "2005-06-07",
-    "birth_place": "Murcia (España)",
-    "weight": "105 kg.",
-    "height": "2,07 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/ALMANSA_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
-    "matches_played": 22,
-    "points": 99,
-    "rebounds": 44,
-    "assists": 7,
-    "minutes_played": 209,
-    "valuation": 108,
-    "ppg": 4.5,
-    "rpg": 2,
-    "apg": 0.3,
-    "competition_stats": {
-      "liga_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "phase": "Temporada regular",
-          "matches_played": 19,
-          "points": 97,
-          "rebounds": 44,
-          "assists": 7,
-          "minutes_played": 199,
-          "valuation": 110,
-          "steals": 4,
-          "blocks": 5,
-          "ppg": 5.1,
-          "rpg": 2.3,
-          "apg": 0.4,
-          "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:30.708Z"
-        }
-      },
-      "euroliga": {
-        "stats": {
-          "season": "2026-2027",
-          "phase": "Temporada regular",
-          "matches_played": 3,
-          "points": 2,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 10,
-          "valuation": -2,
-          "steals": 0,
-          "blocks": 0,
-          "ppg": 0.7,
-          "rpg": 0,
-          "apg": 0,
-          "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:30.708Z"
-        }
-      },
-      "supercopa_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "phase": "Temporada regular",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "steals": 0,
-          "blocks": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0,
-          "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:30.708Z"
+          "updated_at": "2026-09-06T16:41:53.793Z"
         }
       },
       "copa_del_rey": {
@@ -1271,7 +1176,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.2,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:33.321Z"
+          "updated_at": "2026-09-06T16:41:57.686Z"
         }
       },
       "euroliga": {
@@ -1290,7 +1195,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.8,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:33.321Z"
+          "updated_at": "2026-09-06T16:41:57.686Z"
         }
       },
       "supercopa_endesa": {
@@ -1309,7 +1214,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.5,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:33.321Z"
+          "updated_at": "2026-09-06T16:41:57.686Z"
         }
       },
       "copa_del_rey": {
@@ -1328,7 +1233,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 4.7,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:33.321Z"
+          "updated_at": "2026-09-06T16:41:57.686Z"
         }
       }
     }
@@ -1344,7 +1249,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Guediawaye (Senegal)",
     "weight": null,
     "height": null,
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/NDIAYE_380x501%20%E2%80%93%203%201?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/NDIAYE_380x501%20%E2%80%93%203%201%201?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 0,
     "points": 0,
     "rebounds": 0,
@@ -1451,7 +1356,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 6.4,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:35.634Z"
+          "updated_at": "2026-09-06T16:42:02.708Z"
         }
       },
       "euroliga": {
@@ -1470,7 +1375,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 6.6,
           "apg": 0.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:35.634Z"
+          "updated_at": "2026-09-06T16:42:02.708Z"
         }
       },
       "supercopa_endesa": {
@@ -1489,7 +1394,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:35.634Z"
+          "updated_at": "2026-09-06T16:42:02.708Z"
         }
       },
       "copa_del_rey": {
@@ -1508,7 +1413,87 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 6,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-08-17T14:46:35.634Z"
+          "updated_at": "2026-09-06T16:42:02.708Z"
+        }
+      }
+    }
+  },
+  "p15": {
+    "slug": "damian-jones",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/damian-jones",
+    "full_name": "Damian Jones",
+    "dorsal": 30,
+    "position": "Pívot",
+    "nationality": null,
+    "birth_date": "1995-06-30",
+    "birth_place": "Baton Rouge (Estados Unidos)",
+    "weight": "109 kg.",
+    "height": "2,10 m.",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JONES_380x501%203?$Desktop$&fit=wrap&wid=288&hei=384",
+    "matches_played": 0,
+    "points": 0,
+    "rebounds": 0,
+    "assists": 0,
+    "minutes_played": 0,
+    "valuation": 0,
+    "ppg": 0,
+    "rpg": 0,
+    "apg": 0,
+    "competition_stats": {
+      "liga_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "euroliga": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "supercopa_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "copa_del_rey": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
         }
       }
     }
