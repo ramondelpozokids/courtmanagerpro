@@ -6,7 +6,7 @@ import { useActiveTeamId, useClubBranding } from "@/contexts/ClubDemoContext";
 import PlayerCard from "@/components/players/PlayerCard";
 import PlayerForm from "@/components/players/PlayerForm";
 import StaffForm, { type StaffFormData } from "@/components/players/StaffForm";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
@@ -44,6 +44,14 @@ type StaffMember = StaffFormData & {
 const OFFICIAL_PLANTILLA_URL = RMB_OFFICIAL_SOURCE;
 
 export default function PlayersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-slate-400">Cargando plantilla…</div>}>
+      <PlayersPageContent />
+    </Suspense>
+  );
+}
+
+function PlayersPageContent() {
   const { user, userEmail, hasOperationalAccess } = useAuth();
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
