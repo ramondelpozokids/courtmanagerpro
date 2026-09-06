@@ -10,6 +10,7 @@ import {
   RMB_PLAYER_SIZE_OVERRIDES,
   RMB_STAFF_SIZE_OVERRIDES,
 } from '@/data/rmb-sizing-overrides';
+import { inferNationality } from '@/lib/nationality';
 import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 
 /** Demo player shape used by InMemoryDB / club packs. */
@@ -37,7 +38,7 @@ function mapOfficialPlayerToDemo(p: RmbOfficialPlayerProfile) {
       socks: sizes.socks,
       warmupShirt: sizes.warmupShirt,
     },
-    nationality: p.nationality || 'España',
+    nationality: inferNationality(p.nationality, p.birth_place),
     birthDate: p.birth_date || undefined,
     imageUrl: resolvePlayerPhotoUrl({
       slug: p.slug,
@@ -60,16 +61,6 @@ function mapOfficialPlayerToDemo(p: RmbOfficialPlayerProfile) {
     slug: p.slug,
     source: 'realmadrid.com' as const,
   };
-}
-
-function nationalityFromBirthPlace(birthPlace?: string | null, nationality?: string | null) {
-  if (nationality) return nationality;
-  if (!birthPlace) return 'España';
-  const lower = birthPlace.toLowerCase();
-  if (lower.includes('españa') || lower.includes('spain') || lower.includes('barcelona') || lower.includes('madrid')) {
-    return 'España';
-  }
-  return 'España';
 }
 
 function mapOfficialStaffToDemo(s: RmbOfficialStaffProfile) {
@@ -95,7 +86,7 @@ function mapOfficialStaffToDemo(s: RmbOfficialStaffProfile) {
       fullName: s.full_name,
       isStaff: true,
     }),
-    nationality: nationalityFromBirthPlace(s.birth_place, s.nationality),
+    nationality: inferNationality(s.nationality, s.birth_place),
     profile_url: s.profile_url,
     birth_place: s.birth_place || undefined,
     birth_date: s.birth_date || undefined,

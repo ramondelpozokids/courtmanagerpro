@@ -1,5 +1,6 @@
 import {
   getOfficialPlayerByLegacyId,
+  getOfficialPlayerBySlug,
   getOfficialStaffByLegacyId,
   getOfficialStaffByName,
   getOfficialStaffBySlug,
@@ -7,28 +8,45 @@ import {
 import { getOfficialStatsByLegacyId } from '@/data/rmb-official-stats';
 import { getPlayerCompetitionStats } from '@/lib/player-competitions';
 import { getRmbProvisionalPlayer } from '@/data/rmb-provisional-players';
+import { inferNationality } from '@/lib/nationality';
 import { resolvePlayerPhotoUrl } from '@/lib/player-photo';
 
 export function normalizePlayerProfile(player: Record<string, unknown> | null) {
   if (!player) return null;
 
   const legacyId = resolveLegacyId(player);
-  const official = legacyId ? getOfficialPlayerByLegacyId(legacyId) : null;
-  const officialStats = legacyId ? getOfficialStatsByLegacyId(legacyId) : null;
   const meta = (player.metadata || {}) as Record<string, unknown>;
+  const slug =
+    (typeof player.official_slug === 'string' && player.official_slug) ||
+    (typeof meta.official_slug === 'string' && meta.official_slug) ||
+    null;
+  const official =
+    (legacyId ? getOfficialPlayerByLegacyId(legacyId) : null) ||
+    (slug ? getOfficialPlayerBySlug(slug) : null);
+  const officialStats = legacyId ? getOfficialStatsByLegacyId(legacyId) : null;
   const competition_stats = getPlayerCompetitionStats(player);
 
   const provisional = getRmbProvisionalPlayer(
     (meta.official_slug as string) || official?.slug || String(player.full_name || '')
   );
 
+  const birth_place =
+    official?.birth_place ??
+    provisional?.birth_place ??
+    player.birth_place ??
+    meta.birth_place ??
+    officialStats?.birth_place;
+
   return {
     ...player,
     full_name: official?.full_name ?? player.full_name ?? officialStats?.full_name ?? player.full_name,
     dorsal: official?.dorsal ?? player.dorsal ?? officialStats?.dorsal,
-    nationality: official?.nationality ?? provisional?.nationality ?? player.nationality,
+    nationality: inferNationality(
+      official?.nationality ?? provisional?.nationality ?? (player.nationality as string | null),
+      typeof birth_place === 'string' ? birth_place : null
+    ),
     birth_date: official?.birth_date ?? provisional?.birth_date ?? player.birth_date ?? meta.birth_date,
-    birth_place: official?.birth_place ?? provisional?.birth_place ?? player.birth_place ?? meta.birth_place ?? officialStats?.birth_place,
+    birth_place,
     weight: official?.weight ?? provisional?.weight ?? player.weight ?? meta.weight ?? officialStats?.weight,
     height: official?.height ?? provisional?.height ?? player.height ?? meta.height ?? officialStats?.height,
     matches_played: official?.matches_played ?? player.matches_played ?? meta.matches_played ?? officialStats?.matches_played,

@@ -6,7 +6,7 @@ import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { runRosterSync } from '@/application/roster-sync/runSync';
 import type { SyncTrigger } from '@/types';
-import { canModifyProject } from '@/lib/permissions';
+import { hasOperationalAccess } from '@/lib/permissions';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -55,14 +55,14 @@ export async function POST(req: NextRequest) {
   } else if (isServerProduction()) {
     const authCtx = await authenticate();
     if (authCtx.response || !authCtx.user) return authCtx.response!;
-    // Force (incluye siempre el clic manual): solo superadmin (Ramón).
+    // Force (incluye siempre el clic manual): Ramón y Carlos (admin operativo).
     if (force) {
       const authorized = await authorize(authCtx);
       const email = authorized.access.email;
       const role = authorized.profileRow?.role || authorized.access.role;
-      if (!canModifyProject(role, email)) {
+      if (!hasOperationalAccess(role, email)) {
         return NextResponse.json(
-          { error: 'Solo el superadmin puede sincronizar la plantilla oficial del programa.' },
+          { error: 'Solo el superadmin o el admin del club pueden sincronizar la plantilla oficial.' },
           { status: 403 }
         );
       }
@@ -111,9 +111,9 @@ export async function GET(req: NextRequest) {
       const authorized = await authorize(authCtx);
       const email = authorized.access.email;
       const role = authorized.profileRow?.role || authorized.access.role;
-      if (!canModifyProject(role, email)) {
+      if (!hasOperationalAccess(role, email)) {
         return NextResponse.json(
-          { error: 'Solo el superadmin puede sincronizar la plantilla oficial del programa.' },
+          { error: 'Solo el superadmin o el admin del club pueden sincronizar la plantilla oficial.' },
           { status: 403 }
         );
       }

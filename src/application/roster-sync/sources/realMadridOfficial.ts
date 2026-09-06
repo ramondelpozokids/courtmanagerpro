@@ -18,6 +18,7 @@ import {
   num,
   parseSquadFromHtmlFallback,
 } from '../parser';
+import { inferNationality } from '@/lib/nationality';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { createAtleticoRosterSource } from './atleticoOfficial';
 
@@ -65,7 +66,10 @@ function listItemToPlayer(item: Record<string, unknown>, plantillaUrl: string): 
     position: (item.position as string) || null,
     position_demo: mapPosition(item.position, item.optaPosition),
     photo_url: imageUrl(item.squadImage as Record<string, unknown>) || imageUrl(item.image as Record<string, unknown>),
-    nationality: capitalizeNationality(item.nationality),
+    nationality: inferNationality(
+      capitalizeNationality(item.nationality),
+      (item.birthPlace as string) || null
+    ),
     birth_date: (item.birthDate as string) || null,
     profile_url: `${plantillaUrl}/${slug}`,
   };
@@ -87,7 +91,10 @@ function listItemToStaff(item: Record<string, unknown>, plantillaUrl: string): O
     photo_url:
       imageUrl(item.squadImage as Record<string, unknown>) ||
       imageUrl(item.image as Record<string, unknown>),
-    nationality: capitalizeNationality(item.nationality),
+    nationality: inferNationality(
+      capitalizeNationality(item.nationality),
+      (item.birthPlace as string) || null
+    ),
     profile_url: `${plantillaUrl}/${slug}`,
   };
 }
