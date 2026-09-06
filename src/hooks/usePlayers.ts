@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
-import { isMockMode, mapDemoPlayers, shouldUseDemoFallback } from '@/lib/demo-data';
+import { isMockMode, mapDemoPlayers } from '@/lib/demo-data';
 import { usesDemoClubData, usesProductionClubData } from '@/lib/club-preview';
 import { persistDemoDb } from '@/lib/demo-persistence';
 import {
@@ -103,33 +103,24 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
         return;
       }
 
-      const { data, error } = await supabase
-        .from('players')
-        .select('*')
-        .eq('team_id', teamId)
-        .eq('is_active', true)
-        .order('dorsal');
-
-      if (error) {
-        setError(error.message);
+      const res = await fetch(`/api/players?team_id=${encodeURIComponent(teamId)}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(json.error || 'Error al cargar jugadores');
         if (usesProductionClubData()) {
           setUsingDemoData(false);
-          setPlayers(
-            enrichPlayerPhotos(preferOfficialRosterIfStale([], teamId), teamId)
-          );
+          setPlayers(enrichPlayerPhotos(preferOfficialRosterIfStale([], teamId), teamId));
         } else {
           setUsingDemoData(true);
           setPlayers(enrichPlayerPhotos(mapDemoPlayers(teamId), teamId));
         }
-      } else if (shouldUseDemoFallback(data)) {
-        setUsingDemoData(true);
-        setPlayers(
-          enrichPlayerPhotos(preferOfficialRosterIfStale(mapDemoPlayers(teamId), teamId), teamId)
-        );
       } else {
         setUsingDemoData(false);
         setPlayers(
-          enrichPlayerPhotos(preferOfficialRosterIfStale(data as Player[], teamId), teamId)
+          enrichPlayerPhotos(preferOfficialRosterIfStale((json.data || []) as Player[], teamId), teamId)
         );
       }
     } catch (err: any) {
@@ -244,16 +235,18 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
       return mapDemoPlayers(teamId).find((p) => p.id === newP.id) as Player;
     }
 
-    const { data, error } = await supabase
-      .from('players')
-      .insert({ ...form, team_id: teamId })
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    setPlayers((prev) => [...prev, data as Player].sort((a, b) => a.dorsal - b.dorsal));
-    return data as Player;
-  }, [teamId, demoActive, fetchPlayers, supabase]);
+    const res = await fetch('/api/players', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ ...form, team_id: teamId }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || 'No se pudo crear el jugador');
+    const data = json.data as Player;
+    setPlayers((prev) => [...prev, data].sort((a, b) => a.dorsal - b.dorsal));
+    return data;
+  }, [teamId, demoActive, fetchPlayers]);
 
   const createPlayerFromForm = useCallback(
     async (form: PlayerFormData): Promise<Player> => {
@@ -281,12 +274,19 @@ export function usePlayers(teamId: string = DEFAULT_TEAM_ID, options: UsePlayers
         return mapDemoPlayers(teamId).find((p) => p.id === id) as Player;
       }
 
-      const { data, error } = await supabase.from('players').update(updates).eq('id', id).select().single();
-      if (error) throw new Error(error.message);
-      setPlayers((prev) => prev.map((p) => (p.id === id ? (data as Player) : p)));
-      return data as Player;
+      const res = await fetch(`/api/players/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updates),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || 'No se pudo guardar el jugador');
+      const data = json as Player;
+      setPlayers((prev) => prev.map((p) => (p.id === id ? data : p)));
+      return data;
     },
-    [demoActive, fetchPlayers, supabase, teamId]
+    [demoActive, fetchPlayers, teamId]
   );
 
   const updatePlayerFromForm = useCallback(

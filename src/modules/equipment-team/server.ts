@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { authenticate, assertUserBelongsToTeam, isServerProduction } from '@/lib/security/auth';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 
 export function teamIdFrom(req: NextRequest, body?: { team_id?: string }): string {
@@ -56,7 +57,8 @@ export async function withEquipmentAuth(
   if (!access.ok) {
     return { supabase: null, user: null, response: access.response, teamId };
   }
-  return { supabase, user, response: null as NextResponse | null, teamId };
+  const write = await getClubDataWriteClient();
+  return { supabase: write, user, response: null as NextResponse | null, teamId };
 }
 
 export async function insertHistory(

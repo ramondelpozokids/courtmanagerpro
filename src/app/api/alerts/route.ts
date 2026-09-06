@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = (await createSupabaseServerClient()) as any;
@@ -15,7 +16,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
   if (!access.ok) return access.response;
 
-  let query = supabase
+  const db = (await getClubDataWriteClient()) as any;
+  let query = db
     .from('alerts')
     .select('*')
     .eq('team_id', teamId)
@@ -41,7 +43,8 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'id requerido' }, { status: 400 });
   }
 
-  const { data: existing } = await supabase
+  const db = (await getClubDataWriteClient()) as any;
+  const { data: existing } = await db
     .from('alerts')
     .select('team_id')
     .eq('id', id)
@@ -58,7 +61,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     ? { is_dismissed: true }
     : { is_read: true, read_at: new Date().toISOString(), read_by: user.id };
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('alerts')
     .update(updates)
     .eq('id', id)
@@ -81,8 +84,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
   if (!access.ok) return access.response;
 
+  const db = (await getClubDataWriteClient()) as any;
+
   if (body.allRead) {
-    const { error } = await supabase
+    const { error } = await db
       .from('alerts')
       .update({ is_read: true, read_at: new Date().toISOString(), read_by: user.id })
       .eq('team_id', teamId)
@@ -93,7 +98,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   if (body.alertId) {
-    const { error } = await supabase
+    const { error } = await db
       .from('alerts')
       .update({ is_read: true, read_at: new Date().toISOString(), read_by: user.id })
       .eq('id', body.alertId)
@@ -105,4 +110,3 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
 }
-

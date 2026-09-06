@@ -5,6 +5,7 @@ import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { isRealMadridTeamId } from '@/lib/club-team-ids';
 import { medicalRowToUi, medicalUiToDb } from '@/lib/medical-mapper';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 export async function GET(req: NextRequest) {
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
       })));
     }
 
-    const pg = supabase as any;
+    const pg = (await getClubDataWriteClient()) as any;
     const { data, error } = await pg
       .from('medical_items')
       .select('*')
@@ -114,10 +115,10 @@ export async function POST(request: NextRequest) {
 
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
-    const pg = supabase as any;
 
-    const access = await assertUserBelongsToTeam(pg, user.id, teamId);
+    const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
     if (!access.ok) return access.response;
+    const pg = (await getClubDataWriteClient()) as any;
 
     if (body.itemId && typeof body.quantity === 'number') {
       const { data, error } = await pg
@@ -171,7 +172,7 @@ export async function DELETE(request: NextRequest) {
     const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
     if (!access.ok) return access.response;
 
-    const { error } = await (supabase as any)
+    const { error } = await (await getClubDataWriteClient() as any)
       .from('medical_items')
       .update({ is_active: false, updated_at: new Date().toISOString() })
       .eq('id', id)

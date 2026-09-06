@@ -4,6 +4,7 @@ import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import { parseStaffNotes } from '@/lib/player-profile';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 export async function GET(req: NextRequest) {
   if (!isServerProduction()) {
@@ -17,7 +18,8 @@ export async function GET(req: NextRequest) {
   const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
   if (!access.ok) return access.response;
 
-  const { data, error } = await (supabase as any)
+  const write = (await getClubDataWriteClient()) as any;
+  const { data, error } = await write
     .from('coaching_staff')
     .select('*')
     .eq('team_id', teamId)
@@ -61,7 +63,8 @@ export async function POST(req: NextRequest) {
       ? { profile_url: body.profile_url.trim() }
       : {}),
   };
-  const { data, error } = await (supabase as any)
+  const write = (await getClubDataWriteClient()) as any;
+  const { data, error } = await write
     .from('coaching_staff')
     .insert({
       team_id: teamId,

@@ -2,7 +2,7 @@ import type { ClubSlug } from '@/data/clubs/types';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { DEMO_CLUB_STORAGE_KEY } from '@/lib/club-team-ids';
 import { isDemoMode } from '@/lib/app-mode';
-import { usesDemoClubData } from '@/lib/club-preview';
+import { isPreviewDemoClub, readActiveClubPreviewSlug, usesDemoClubData } from '@/lib/club-preview';
 
 const STORAGE_PREFIX = 'cm-demo-state';
 
@@ -48,9 +48,11 @@ export function savePersistedDemoState(slug: ClubSlug, state: PersistedDemoState
 
 /** Guarda plantilla, staff y catálogo de tallas del club demo activo en localStorage. */
 export function persistDemoDb(slug?: ClubSlug | null): void {
+  if (typeof window === 'undefined') return;
   if (!isDemoMode() && !usesDemoClubData()) return;
-  const activeSlug = slug ?? readActiveDemoSlug();
-  if (!activeSlug || typeof window === 'undefined') return;
+  const activeSlug = slug ?? readActiveDemoSlug() ?? readActiveClubPreviewSlug();
+  if (!activeSlug) return;
+  if (!isDemoMode() && !isPreviewDemoClub(activeSlug)) return;
 
   savePersistedDemoState(activeSlug, {
     players: [...db.players],

@@ -81,34 +81,66 @@ export async function applyRosterDiff(params: {
       }
     }
 
-    const payload = {
-      team_id: teamId,
-      dorsal,
-      full_name: op.full_name,
-      position: op.position_demo,
-      photo_url: photo,
-      nationality: op.nationality,
-      birth_date: op.birth_date,
-      is_active: true,
-      source: entitySource,
-      official_slug: op.slug,
-      activated_at: now,
-      deactivated_at: null,
-      updated_at: now,
-      jersey_name: op.last_name?.toUpperCase() || null,
-      metadata: {
-        slug: op.slug,
-        profile_url: op.profile_url,
-        first_name: op.first_name,
-        last_name: op.last_name,
-        official_position: op.position,
-      },
-    };
-
     if (targetId) {
+      const { data: existing } = await supabase
+        .from('players')
+        .select('metadata')
+        .eq('id', targetId)
+        .maybeSingle();
+      const existingMeta =
+        existing?.metadata && typeof existing.metadata === 'object' && !Array.isArray(existing.metadata)
+          ? (existing.metadata as Record<string, unknown>)
+          : {};
+      const payload = {
+        team_id: teamId,
+        dorsal,
+        full_name: op.full_name,
+        position: op.position_demo,
+        photo_url: photo,
+        nationality: op.nationality,
+        birth_date: op.birth_date,
+        is_active: true,
+        source: entitySource,
+        official_slug: op.slug,
+        activated_at: now,
+        deactivated_at: null,
+        updated_at: now,
+        jersey_name: op.last_name?.toUpperCase() || null,
+        metadata: {
+          ...existingMeta,
+          slug: op.slug,
+          profile_url: op.profile_url,
+          first_name: op.first_name,
+          last_name: op.last_name,
+          official_position: op.position,
+        },
+      };
       const { error } = await supabase.from('players').update(payload).eq('id', targetId);
       if (error) throw new Error(`update player ${op.slug}: ${error.message}`);
     } else {
+      const payload = {
+        team_id: teamId,
+        dorsal,
+        full_name: op.full_name,
+        position: op.position_demo,
+        photo_url: photo,
+        nationality: op.nationality,
+        birth_date: op.birth_date,
+        is_active: true,
+        source: entitySource,
+        official_slug: op.slug,
+        activated_at: now,
+        deactivated_at: null,
+        updated_at: now,
+        jersey_name: op.last_name?.toUpperCase() || null,
+        metadata: {
+          slug: op.slug,
+          profile_url: op.profile_url,
+          first_name: op.first_name,
+          last_name: op.last_name,
+          official_position: op.position,
+        },
+      };
       const { error } = await supabase.from('players').insert({ ...payload, created_at: now });
       if (error) throw new Error(`insert player ${op.slug}: ${error.message}`);
     }

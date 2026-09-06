@@ -58,21 +58,27 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
           return;
         }
 
-        const supabase = getSupabaseClient() as any;
-        const { data, error } = await supabase
-          .from('players')
-          .select('*')
-          .eq('id', id)
-          .single();
+        const res = await fetch(`/api/players/${id}`, { credentials: 'include', cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          setPlayer(normalizePlayerProfile(data));
+        } else {
+          const supabase = getSupabaseClient() as any;
+          const { data, error } = await supabase
+            .from('players')
+            .select('*')
+            .eq('id', id)
+            .single();
 
-        if (error || shouldUseDemoFallback(data ? [data] : null)) {
-          const demoId = uuidToDemoPlayerId(id) ?? id;
-          setPlayer(normalizePlayerProfile(mapDemoPlayerDetail(demoId)));
-          setRequests(mapDemoPlayerRequests(demoId));
-          return;
+          if (error || shouldUseDemoFallback(data ? [data] : null)) {
+            const demoId = uuidToDemoPlayerId(id) ?? id;
+            setPlayer(normalizePlayerProfile(mapDemoPlayerDetail(demoId)));
+            setRequests(mapDemoPlayerRequests(demoId));
+            return;
+          }
+
+          setPlayer(normalizePlayerProfile(data));
         }
-
-        setPlayer(normalizePlayerProfile(data));
 
         const requestsRes = await fetch('/api/requests');
         if (requestsRes.ok) {

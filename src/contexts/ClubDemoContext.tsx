@@ -65,15 +65,16 @@ export function ClubDemoProvider({ children }: { children: ReactNode }) {
         const team = loadClubBySlug(slug);
         persistDemoClubSlug(slug);
         setCurrentTeam(team);
-      } else if (isSuperadmin && isPreviewDemoClub(slug)) {
-        // FCB / VBC: pack → InMemoryDB
+      } else if (isPreviewDemoClub(slug)) {
+        // FCB / VBC: solo superadmin (demos comerciales, no el club live)
+        if (!isSuperadmin) return;
         const team = loadClubBySlug(slug);
         setCurrentTeam(team);
         if (typeof window !== 'undefined') {
           localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);
         }
-      } else if (isSuperadmin && isRealMadridClubSlug(slug)) {
-        // RMB / RMF: branding del pack + team UUID; datos en Supabase
+      } else if (isRealMadridClubSlug(slug)) {
+        // ATM / RMB / RMF: misma fila en Supabase para Carlos (admin) y Ramón (superadmin)
         setCurrentTeam(packToTeam(pack));
         if (typeof window !== 'undefined') {
           localStorage.setItem('currentTeamId', CLUB_TEAM_IDS[slug]);

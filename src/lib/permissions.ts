@@ -93,8 +93,12 @@ export function resolveUserAccess(role?: string | null, email?: string | null) {
   };
 }
 
-/** Acceso operativo total: todos los módulos y escritura de datos del club.
- *  La cuenta demo ATM NO hereda privilegios de Carlos/superadmin. */
+/**
+ * Superadmin (Ramón): cambia el programa y también edita el club.
+ * Admin (Carlos): edita el mismo club (tallas, plantilla, inventario…), no el código.
+ * Un solo dato en Supabase: lo que guarda uno lo ve el otro.
+ * La cuenta demo ATM no hereda estos privilegios.
+ */
 export function hasFullClubAccess(role?: string | null, email?: string | null): boolean {
   if (isAtmDemoEmail(email)) return false;
   if (isSuperadminUser(role, email)) return true;

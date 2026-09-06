@@ -5,6 +5,7 @@ import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { isRealMadridTeamId } from '@/lib/club-team-ids';
 import { mapPackTripsForTeam } from '@/lib/club-trips';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 function uiStatusToDb(status: string): string {
   if (status === 'READY') return 'en_curso';
@@ -65,7 +66,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(db.trips);
     }
 
-    const pg = supabase as any;
+    const pg = (await getClubDataWriteClient()) as any;
 
     const { data: trips, error } = await pg
       .from('trips')
@@ -160,10 +161,10 @@ export async function POST(request: NextRequest) {
     // ——— Real Madrid Supabase ———
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
-    const pg = supabase as any;
 
-    const access = await assertUserBelongsToTeam(pg, user.id, teamId);
+    const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
     if (!access.ok) return access.response;
+    const pg = (await getClubDataWriteClient()) as any;
 
     if (body.tripId && body.action === 'addItem') {
       const { error } = await pg.from('trip_items').insert({

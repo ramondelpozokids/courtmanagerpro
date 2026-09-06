@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = (await createSupabaseServerClient()) as any;
@@ -16,7 +17,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
   if (!access.ok) return access.response;
 
-  let query = supabase
+  const db = (await getClubDataWriteClient()) as any;
+  let query = db
     .from('requests')
     .select(`
       *,
@@ -46,6 +48,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const access = await assertUserBelongsToTeam(supabase, user.id, teamId);
   if (!access.ok) return access.response;
 
+  const db = (await getClubDataWriteClient()) as any;
+
   if (body.requestId && body.action) {
     const allowed = ['APPROVE', 'REJECT', 'DELIVER'] as const;
     if (!allowed.includes(body.action)) {
@@ -63,7 +67,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       updates.completed_at = new Date().toISOString();
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('requests')
       .update(updates)
       .eq('id', body.requestId)
@@ -80,7 +84,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Título requerido' }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('requests')
     .insert({
       title,

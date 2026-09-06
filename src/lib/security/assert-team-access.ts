@@ -1,5 +1,5 @@
-import { isSuperadminUser } from '@/lib/permissions';
-import { isUuid } from '@/lib/club-team-ids';
+import { isCarlosUser, isSuperadminUser } from '@/lib/permissions';
+import { CLUB_TEAM_IDS, isUuid } from '@/lib/club-team-ids';
 import { badRequest, forbidden } from '@/lib/security/api-error';
 
 type SupabaseLike = {
@@ -60,6 +60,11 @@ export async function getAccessibleTeamIds(
   const teamIds = (rows || [])
     .map((r: { team_id?: string }) => r.team_id)
     .filter((id: string | undefined): id is string => Boolean(id));
+
+  if (isCarlosUser(profile?.email)) {
+    const live = [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf, CLUB_TEAM_IDS.atm];
+    return { superadmin: false, teamIds: [...new Set([...teamIds, ...live])] };
+  }
 
   return { superadmin: false, teamIds };
 }

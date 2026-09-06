@@ -3,6 +3,7 @@ import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { parseStaffNotes } from '@/lib/player-profile';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -43,7 +44,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const { supabase, user, response } = await requireApiUser();
   if (response || !user) return response!;
 
-  const { data: existing, error: fetchErr } = await (supabase as any)
+  const write = (await getClubDataWriteClient()) as any;
+  const { data: existing, error: fetchErr } = await write
     .from('coaching_staff')
     .select('notes, team_id')
     .eq('id', id)
@@ -56,7 +58,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const payload = staffUpdateFromBody(body, existing.notes);
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await write
     .from('coaching_staff')
     .update({
       ...payload,
@@ -87,7 +89,8 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const { supabase, user, response } = await requireApiUser();
   if (response || !user) return response!;
 
-  const { data: existing } = await (supabase as any)
+  const write = (await getClubDataWriteClient()) as any;
+  const { data: existing } = await write
     .from('coaching_staff')
     .select('team_id')
     .eq('id', id)
@@ -99,7 +102,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const access = await assertUserBelongsToTeam(supabase as any, user.id, existing.team_id);
   if (!access.ok) return access.response;
 
-  const { error } = await (supabase as any)
+  const { error } = await write
     .from('coaching_staff')
     .update({ is_active: false, updated_at: new Date().toISOString() })
     .eq('id', id)

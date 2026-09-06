@@ -5,6 +5,7 @@ import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { laundryRowToUi, laundryStatusToDb, laundryUiToDb } from '@/lib/laundry-mapper';
 import type { LaundryBatch } from '@/domain/entities/LaundryBatch';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 export async function GET(req: NextRequest) {
   const teamId = resolveTeamId(req.nextUrl.searchParams.get('team_id') || DEFAULT_TEAM_ID);
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
   const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
   if (!access.ok) return access.response;
 
-  const pg = supabase as any;
+  const pg = (await getClubDataWriteClient()) as any;
 
   const { data, error } = await pg
     .from('laundry_batches')
@@ -67,10 +68,11 @@ export async function POST(request: NextRequest) {
 
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
-    const pg = supabase as any;
 
-    const access = await assertUserBelongsToTeam(pg, user.id, teamId);
+    const access = await assertUserBelongsToTeam(supabase as any, user.id, teamId);
     if (!access.ok) return access.response;
+
+    const pg = (await getClubDataWriteClient()) as any;
 
     if (body.batchId && body.status) {
       const { data, error } = await pg
@@ -116,9 +118,8 @@ export async function DELETE(request: NextRequest) {
 
     const { supabase, user, response } = await requireApiUser();
     if (response || !user) return response!;
-    const pg = supabase as any;
 
-    const { data: existing } = await pg
+    const { data: existing } = await (await getClubDataWriteClient() as any)
       .from('laundry_batches')
       .select('team_id')
       .eq('id', batchId)
@@ -126,9 +127,10 @@ export async function DELETE(request: NextRequest) {
     if (!existing?.team_id) {
       return NextResponse.json({ error: 'Batch not found' }, { status: 404 });
     }
-    const access = await assertUserBelongsToTeam(pg, user.id, existing.team_id);
+    const access = await assertUserBelongsToTeam(supabase as any, user.id, existing.team_id);
     if (!access.ok) return access.response;
 
+    const pg = (await getClubDataWriteClient()) as any;
     const { error } = await pg
       .from('laundry_batches')
       .delete()

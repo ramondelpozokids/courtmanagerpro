@@ -200,13 +200,21 @@ export async function loadProductionSizing(
   const catalog = mergeSizingCatalog(customProducts);
   const supabase = getSupabaseClient() as any;
 
-  const [{ data: playerRows, error: pErr }, staffRes, { data: customRows }] = await Promise.all([
-    supabase.from('players').select('*').eq('team_id', teamId).eq('is_active', true).order('dorsal'),
+  const [{ data: playerJson, error: pErr }, staffRes, { data: customRows }] = await Promise.all([
+    fetch(`/api/players?team_id=${encodeURIComponent(teamId)}`, {
+      credentials: 'include',
+      cache: 'no-store',
+    }).then(async (res) => {
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) return { data: null, error: { message: json.error || 'Error al cargar jugadores' } };
+      return { data: json.data || [], error: null };
+    }),
     fetch(`/api/coaching-staff?team_id=${teamId}`, { credentials: 'include' }),
     supabase.from('sizing_products').select('*').eq('team_id', teamId).eq('is_active', true),
   ]);
 
   if (pErr) throw new Error(pErr.message);
+  const playerRows = playerJson as Player[];
   const staffJson = await staffRes.json();
   const staffRows = staffJson.data ?? [];
 
@@ -256,10 +264,15 @@ export async function saveProductionPlayerSizes(
   sizes: Record<string, string>,
   catalog: SizingProduct[]
 ) {
-  const supabase = getSupabaseClient() as any;
   const payload = sizesToPlayerPayload(sizes, catalog);
-  const { error } = await supabase.from('players').update(payload).eq('id', playerId);
-  if (error) throw new Error(error.message);
+  const res = await fetch(`/api/players/${playerId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || 'No se pudieron guardar las tallas');
 }
 
 export async function saveProductionStaffSizes(
