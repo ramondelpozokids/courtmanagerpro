@@ -67,14 +67,31 @@ export function rmbPackAsStaff() {
   }));
 }
 
+function canonicalPlayerSlug(slug: string): string {
+  const s = slug.trim().toLowerCase();
+  if (s === 'max-shulga') return 'maksym-shulga';
+  return s;
+}
+
 function livePlayerMatchesPack(live: Player, pack: Player): boolean {
-  const liveSlug = String(live.official_slug || live.metadata?.official_slug || '').toLowerCase();
-  const packSlug = String(pack.official_slug || '').toLowerCase();
+  const liveSlug = canonicalPlayerSlug(String(live.official_slug || live.metadata?.official_slug || ''));
+  const packSlug = canonicalPlayerSlug(String(pack.official_slug || ''));
   if (liveSlug && packSlug && liveSlug === packSlug) return true;
-  if (live.dorsal && pack.dorsal && live.dorsal === pack.dorsal) return true;
-  const a = normKey(live.full_name || '');
-  const b = normKey(pack.full_name || '');
-  return Boolean(a && b && (a === b || a.includes(b) || b.includes(a)));
+  const a = normKey(live.full_name || '').replace(/^max /, 'maksym ');
+  const b = normKey(pack.full_name || '').replace(/^max /, 'maksym ');
+  return Boolean(a && b && a === b);
+}
+
+function pickLiveForPack(packP: Player, liveActive: Player[]): Player | undefined {
+  const matches = liveActive.filter((l) => livePlayerMatchesPack(l, packP));
+  if (!matches.length) return undefined;
+  const packSlug = canonicalPlayerSlug(String(packP.official_slug || ''));
+  return (
+    matches.find((l) => canonicalPlayerSlug(String(l.official_slug || l.metadata?.official_slug || '')) === packSlug &&
+      String(l.official_slug || '') !== 'max-shulga') ||
+    matches.find((l) => l.dorsal === packP.dorsal) ||
+    matches[0]
+  );
 }
 
 function mergeLivePlayerOntoPack(packP: Player, liveP: Player): Player {
@@ -82,11 +99,7 @@ function mergeLivePlayerOntoPack(packP: Player, liveP: Player): Player {
     ...packP,
     id: liveP.id,
     team_id: liveP.team_id || packP.team_id,
-    dorsal: liveP.dorsal || packP.dorsal,
-    full_name: liveP.full_name || packP.full_name,
-    position: liveP.position || packP.position,
     photo_url: liveP.photo_url || packP.photo_url,
-    official_slug: liveP.official_slug || packP.official_slug,
     source: liveP.source || packP.source,
     shirt_size: liveP.shirt_size || packP.shirt_size,
     shorts_size: liveP.shorts_size || packP.shorts_size,
@@ -94,14 +107,14 @@ function mergeLivePlayerOntoPack(packP: Player, liveP: Player): Player {
     jacket_size: liveP.jacket_size || packP.jacket_size,
     sock_size: liveP.sock_size || packP.sock_size,
     underwear_size: liveP.underwear_size || packP.underwear_size,
-    metadata: { ...packP.metadata, ...(liveP.metadata || {}) },
+    metadata: { ...packP.metadata, ...(liveP.metadata || {}), official_slug: packP.official_slug },
   };
 }
 
 /**
- * Completa tallas/ids desde el pack embebido sin borrar altas oficiales
- * (p. ej. Damian Jones) que aún no estén en el fichero generado.
- * Si la lista live está vacía, se usa el pack.
+ * La web oficial (pack embebido) decide quién está en plantilla: 17 jugadores.
+ * Se conservan tallas e ids de Supabase en las coincidencias.
+ * No se añaden bajas/duplicados que sigan activos en base de datos (Almansa, Max Shulga).
  */
 export function preferRmbRosterIfStale(live: Player[], teamId: string): Player[] {
   if (teamId !== CLUB_TEAM_IDS.rmb) return live;
@@ -109,13 +122,11 @@ export function preferRmbRosterIfStale(live: Player[], teamId: string): Player[]
   const liveActive = live.filter((p) => p.is_active !== false);
   if (!liveActive.length) return pack;
 
-  const fromPack = pack.map((packP) => {
-    const liveP = liveActive.find((l) => livePlayerMatchesPack(l, packP));
+  return pack.map((packP) => {
+    const liveP = pickLiveForPack(packP, liveActive);
     if (!liveP) return packP;
     return mergeLivePlayerOntoPack(packP, liveP);
   });
-  const extras = liveActive.filter((l) => !pack.some((p) => livePlayerMatchesPack(l, p)));
-  return [...fromPack, ...extras];
 }
 
 function liveStaffMatchesPack(
@@ -141,7 +152,7 @@ export function preferRmbStaffIfStale(
   const liveActive = live.filter((s) => s.is_active !== false);
   if (!liveActive.length) return pack;
 
-  const fromPack = pack.map((packS) => {
+  return pack.map((packS) => {
     const liveS = liveActive.find((l) => liveStaffMatchesPack(l, packS));
     if (!liveS) return packS;
     return {
@@ -158,6 +169,4 @@ export function preferRmbStaffIfStale(
       shoe_size: liveS.shoe_size ?? packS.shoe_size,
     };
   });
-  const extras = liveActive.filter((l) => !pack.some((p) => liveStaffMatchesPack(l, p)));
-  return [...fromPack, ...extras];
 }
