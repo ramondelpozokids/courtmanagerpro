@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Package, ClipboardList,
   BriefcaseMedical, BarChart3, Bell, ChevronLeft,
-  ChevronRight, LogOut, Calendar, Table, KeyRound, HardHat, Warehouse, ClipboardCheck, History,
+  ChevronRight, LogOut, Calendar, Table, KeyRound, HardHat, Warehouse, ClipboardCheck, History, Cake,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { canAccessMedical, canAccessReports, isCarlosUser } from '@/lib/permissions';
@@ -33,6 +33,7 @@ const NAV_ITEMS = [
   { href: '/medical',    label: 'Material Médico', icon: BriefcaseMedical, roles: [] },
   { href: '/reports',    label: 'Informes',      icon: BarChart3,       roles: [] },
   { href: '/alerts',     label: 'Alertas',       icon: Bell,            roles: [] },
+  { href: '/birthdays',  label: 'Cumpleaños',    icon: Cake,            roles: [] },
   { href: '/almacen',    label: 'Almacén general', icon: Warehouse,     roles: [] },
   { href: '/movimientos', label: 'Movimientos', icon: History, roles: [] },
   { href: '/prepartido', label: 'Checklist pre-partido', icon: ClipboardCheck, roles: [] },

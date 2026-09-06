@@ -34,7 +34,7 @@ function linksForSport(sport: ClubBranding['sport']): HeroLink[] {
       { href: '/calendario', label: 'LaLiga', sub: 'Copa del Rey', icon: Trophy },
       { href: '/calendario', label: 'Champions', sub: 'Europa', icon: Globe2 },
       { href: '/blog/noticias', label: 'Noticias', sub: 'Blog', icon: Newspaper },
-      { href: '/', label: 'Cumpleaños', sub: 'Avisos', icon: Cake },
+      { href: '/birthdays', label: 'Cumpleaños', sub: 'Avisos', icon: Cake },
       { href: '/', label: 'Chat', sub: 'Asistente', icon: MessageCircle },
       { href: '/cuenta', label: 'Soporte', sub: 'Técnico', icon: Headset },
     ];
@@ -47,7 +47,7 @@ function linksForSport(sport: ClubBranding['sport']): HeroLink[] {
     { href: '/calendario', label: 'ACB', sub: 'Copa del Rey', icon: Trophy },
     { href: '/calendario', label: 'Euroliga', sub: 'Liga', icon: Globe2 },
     { href: '/blog/noticias', label: 'Noticias', sub: 'Blog', icon: Newspaper },
-    { href: '/', label: 'Cumpleaños', sub: 'Avisos', icon: Cake },
+    { href: '/birthdays', label: 'Cumpleaños', sub: 'Avisos', icon: Cake },
     { href: '/', label: 'Chat', sub: 'Asistente', icon: MessageCircle },
     { href: '/cuenta', label: 'Soporte', sub: 'Técnico', icon: Headset },
   ];

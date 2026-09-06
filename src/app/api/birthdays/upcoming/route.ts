@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import {
   getBirthdayDashboardData,
   getDemoBirthdayNotifications,
 } from '@/application/birthday-alerts/runJob';
+import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
 export const runtime = 'nodejs';
 
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     if (response || !user) return response!;
   }
 
-  const supabase = isServerProduction() ? await createSupabaseServerClient() : null;
+  const supabase = isServerProduction() ? await getClubDataWriteClient() : null;
 
   try {
     const data = await getBirthdayDashboardData({

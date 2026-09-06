@@ -40,7 +40,7 @@ export function ChatAssistant() {
     const q = query.toLowerCase();
 
     if (q.includes('cumple') || q.includes('cumpleaños')) {
-      return `Consulta los cumpleaños del mes en el dashboard de **${clubLabel}** (tarjeta de próximos cumpleaños).`;
+      return `Consulta los cumpleaños en **Cumpleaños** (/birthdays) o en el dashboard de **${clubLabel}**.`;
     }
 
     if (q.includes('talla') || q.includes('tallas')) {

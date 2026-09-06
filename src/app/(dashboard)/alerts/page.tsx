@@ -41,7 +41,7 @@ export default function AlertsPage() {
     if (t.includes('viaje') || e.includes('trip')) return '/trips';
     if (t.includes('calendario') || e.includes('match')) return '/calendario';
     if (t.includes('lavander') || e.includes('laundry')) return '/laundry';
-    if (t.includes('cumple')) return '/players';
+    if (t.includes('cumple')) return '/birthdays';
     return null;
   }
 
