@@ -402,7 +402,7 @@ export async function applyDemoRosterSync(params: {
   const source = params.source || createRosterSourceForTeam(params.teamId);
   const plantillaUrl = plantillaUrlForTeam(params.teamId);
 
-  if (!params.force && params.trigger !== 'manual' && params.trigger === 'startup') {
+  if (!params.force && params.trigger === 'startup') {
     const last = getDemoSyncStatus(params.teamId).lastSync as DemoSyncLog | null;
     if (last?.started_at) {
       const ageH = (Date.now() - new Date(last.started_at).getTime()) / 3_600_000;

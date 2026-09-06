@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
   } else if (isServerProduction()) {
     const authCtx = await authenticate();
     if (authCtx.response || !authCtx.user) return authCtx.response!;
-    // Force/manual sync de plantilla oficial: solo superadmin (Ramón).
-    if (force || trigger === 'manual') {
+    // Force (incluye siempre el clic manual): solo superadmin (Ramón).
+    if (force) {
       const authorized = await authorize(authCtx);
       const email = authorized.access.email;
       const role = authorized.profileRow?.role || authorized.access.role;
@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
   } else if (trigger !== 'cron' && isServerProduction()) {
     const authCtx = await authenticate();
     if (authCtx.response || !authCtx.user) return authCtx.response!;
-    if (force || trigger === 'manual') {
+    if (force) {
       const authorized = await authorize(authCtx);
       const email = authorized.access.email;
       const role = authorized.profileRow?.role || authorized.access.role;

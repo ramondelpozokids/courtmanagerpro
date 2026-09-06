@@ -165,8 +165,8 @@ export async function runRosterSync(params: {
 
   const supabase = params.supabase;
 
-  // Idempotent startup skip — nunca en clic manual (force o trigger=manual)
-  if (!options.force && options.trigger !== 'manual' && options.trigger === 'startup') {
+  // Idempotent startup skip — el clic manual siempre lleva force
+  if (!options.force && options.trigger === 'startup') {
     const { data: last } = await supabase
       .from('sync_log')
       .select('started_at, status')
