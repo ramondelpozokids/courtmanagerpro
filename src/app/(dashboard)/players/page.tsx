@@ -8,6 +8,7 @@ import PlayerForm from "@/components/players/PlayerForm";
 import StaffForm, { type StaffFormData } from "@/components/players/StaffForm";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { db } from "@/infrastructure/supabase/repositories/InMemoryDB";
 import { persistDemoDb } from "@/lib/demo-persistence";
 import { apiPlayerToFormValues } from "@/lib/player-form-mapper";
@@ -46,6 +47,7 @@ export default function PlayersPage() {
   const { user, userEmail, hasOperationalAccess } = useAuth();
   const branding = useClubBranding();
   const teamId = useActiveTeamId();
+  const searchParams = useSearchParams();
   const {
     players,
     loading,
@@ -57,7 +59,9 @@ export default function PlayersPage() {
   const [showPlayerForm, setShowPlayerForm] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<FormPlayer | null>(null);
 
-  const [activeTab, setActiveTab] = useState<"players" | "staff">("players");
+  const [activeTab, setActiveTab] = useState<"players" | "staff">(
+    searchParams.get("tab") === "staff" ? "staff" : "players"
+  );
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [showStaffForm, setShowStaffForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
@@ -69,6 +73,10 @@ export default function PlayersPage() {
   const canWrite = hasOperationalAccess || canWriteClubData(user?.profile?.role, userEmail);
   const productionClub = usesProductionClubData();
   const applyOfficialRoster = branding.slug === "rmb";
+
+  useEffect(() => {
+    if (searchParams.get("tab") === "staff") setActiveTab("staff");
+  }, [searchParams]);
 
   const mapStaffRows = useCallback(
     (rows: Record<string, unknown>[]) =>

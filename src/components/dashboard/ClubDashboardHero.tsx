@@ -28,7 +28,7 @@ function linksForSport(sport: ClubBranding['sport']): HeroLink[] {
   if (sport === 'football') {
     return [
       { href: '/players', label: 'Jugadores', sub: 'Tallas & Fichas', icon: Users },
-      { href: '/players', label: 'Cuerpo técnico', sub: 'Staff', icon: ClipboardList },
+      { href: '/players?tab=staff', label: 'Cuerpo técnico', sub: 'Staff', icon: ClipboardList },
       { href: '/inventory', label: 'Equipaciones', sub: 'Material', icon: Shirt },
       { href: '/calendario', label: 'Calendario', sub: 'Viajes & Eventos', icon: Calendar },
       { href: '/calendario', label: 'LaLiga', sub: 'Copa del Rey', icon: Trophy },
@@ -41,7 +41,7 @@ function linksForSport(sport: ClubBranding['sport']): HeroLink[] {
   }
   return [
     { href: '/players', label: 'Jugadores', sub: 'Tallas & Fichas', icon: Users },
-    { href: '/players', label: 'Cuerpo técnico', sub: 'Staff', icon: ClipboardList },
+    { href: '/players?tab=staff', label: 'Cuerpo técnico', sub: 'Staff', icon: ClipboardList },
     { href: '/inventory', label: 'Equipaciones', sub: 'Material', icon: Shirt },
     { href: '/calendario', label: 'Calendario', sub: 'Viajes & Eventos', icon: Calendar },
     { href: '/calendario', label: 'ACB', sub: 'Copa del Rey', icon: Trophy },

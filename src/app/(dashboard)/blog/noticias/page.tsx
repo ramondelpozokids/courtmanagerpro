@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Newspaper, ShieldCheck } from "lucide-react";
 import { useClubNews, useClubBranding } from "@/contexts/ClubDemoContext";
 import { ATM_NEWS_URL } from "@/data/clubs/atm-data";
+import { RMB_OFFICIAL_NEWS_PAGE } from "@/application/news/rmbOfficialNews";
+import type { ClubNewsItem } from "@/data/clubs/types";
 
 function newsSourceForClub(slug: string, sport: string, name: string, shortName: string) {
   if (slug === "atm") {
@@ -12,6 +14,13 @@ function newsSourceForClub(slug: string, sport: string, name: string, shortName:
       caption: "Fuente oficial: atleticodemadrid.com/noticias-primer-equipo",
       label: "atleticodemadrid.com",
       fallbackHref: ATM_NEWS_URL,
+    };
+  }
+  if (slug === "rmb") {
+    return {
+      caption: "Fuente oficial: realmadrid.com/es-ES/baloncesto/primer-equipo/inicio",
+      label: "realmadrid.com",
+      fallbackHref: RMB_OFFICIAL_NEWS_PAGE,
     };
   }
   if (sport === "football") {
@@ -29,7 +38,7 @@ function newsSourceForClub(slug: string, sport: string, name: string, shortName:
 }
 
 export default function BlogNoticiasPage() {
-  const newsList = useClubNews();
+  const packNews = useClubNews();
   const branding = useClubBranding();
   const source = newsSourceForClub(
     branding.slug,
@@ -37,6 +46,29 @@ export default function BlogNoticiasPage() {
     branding.name,
     branding.shortName
   );
+  const [liveNews, setLiveNews] = useState<ClubNewsItem[] | null>(null);
+
+  useEffect(() => {
+    if (branding.slug !== "rmb") {
+      setLiveNews(null);
+      return;
+    }
+    let cancelled = false;
+    void fetch(`/api/news/official?club=rmb`, { credentials: "include" })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        const rows = Array.isArray(json.data) ? (json.data as ClubNewsItem[]) : [];
+        if (!cancelled && rows.length) setLiveNews(rows);
+      })
+      .catch(() => {
+        /* se mantiene el pack */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [branding.slug]);
+
+  const newsList = liveNews?.length ? liveNews : packNews;
 
   return (
     <div className="space-y-6 text-left max-w-6xl mx-auto">
