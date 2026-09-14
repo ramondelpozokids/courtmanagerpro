@@ -583,7 +583,6 @@ const atmPack: ClubDemoPack = {
       title: 'Patrocinadores y proveedores oficiales',
       tag: 'Club',
       image: '/clubs/atm/news/patrocinadores-oficiales.png',
-      description:
       description: `Oficiales: ${ATM_SPONSORS_OFFICIAL.join(', ')}. Proveedores: ${ATM_SPONSORS_SUPPLIERS.join(', ')}.`,
       date: '2026-07-27',
       url: ATM_SPONSORS_URL,
