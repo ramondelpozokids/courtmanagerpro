@@ -147,7 +147,12 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
         <div className="flex flex-col md:flex-row items-center gap-5 text-center md:text-left w-full md:w-auto">
           <div className="h-28 w-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center shadow-sm">
             {player.photo_url ? (
-              <img src={player.photo_url} alt={player.full_name} className="h-full w-full object-cover" />
+              <img
+                src={player.photo_url}
+                alt={player.full_name}
+                className="h-full w-full object-cover object-top"
+                referrerPolicy="no-referrer"
+              />
             ) : (
               <span className="text-3xl font-extrabold text-orange-600">{player.full_name[0]}</span>
             )}

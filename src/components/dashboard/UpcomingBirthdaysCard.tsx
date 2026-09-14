@@ -91,7 +91,12 @@ export function UpcomingBirthdaysCard({ className }: { className?: string }) {
             <div className="h-12 w-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
               {p.photo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.photo_url} alt={p.full_name} className="h-full w-full object-cover" />
+                <img
+                  src={p.photo_url}
+                  alt={p.full_name}
+                  className="h-full w-full object-cover object-top"
+                  referrerPolicy="no-referrer"
+                />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-[10px] text-slate-400">
                   N/A

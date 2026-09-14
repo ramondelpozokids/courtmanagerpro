@@ -68,7 +68,7 @@ export function preferAtmRosterIfStale(live: Player[], teamId: string): Player[]
       jacket_size: liveP.jacket_size ?? packP.jacket_size,
       sock_size: liveP.sock_size ?? packP.sock_size,
       underwear_size: liveP.underwear_size ?? packP.underwear_size,
-      photo_url: liveP.photo_url || packP.photo_url,
+      photo_url: packP.photo_url || liveP.photo_url,
       metadata: liveP.metadata,
     };
   });

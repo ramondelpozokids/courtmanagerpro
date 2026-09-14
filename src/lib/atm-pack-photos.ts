@@ -1,7 +1,7 @@
 import { atmPlayers, atmCoachingStaff } from '@/data/clubs/atm-data';
 
 const PLACEHOLDER_RE =
-  /\/clubs\/atm\/logo\.png|\/clubs\/rm[bf]\/logo|\/logo\.png|default-player|default\.jpg|placeholder|realmadrid\.com/i;
+  /\/clubs\/atm\/logo\.png|\/clubs\/rm[bf]\/logo|\/logo\.png|default-player|default\.jpg|placeholder|realmadrid\.com|laliga\.com|foto_listados/i;
 
 function norm(s: string) {
   return s

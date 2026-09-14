@@ -15,6 +15,7 @@ import type { BirthdayPerson } from './types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { isDemoMode } from '@/lib/app-mode';
 import { isPreviewDemoClub } from '@/lib/club-preview';
+import { resolveAtmPackPlayerPhoto } from '@/lib/atm-pack-photos';
 
 function fromOfficialBundled(todayIso: string): BirthdayPerson[] {
   const people: BirthdayPerson[] = [];
@@ -69,7 +70,15 @@ function pushPlayerLike(people: BirthdayPerson[], p: any, todayIso: string) {
     role: String(p.position || 'Jugador'),
     person_type: 'player',
     birth_date: String(birth).slice(0, 10),
-    photo_url: p.photo_url || p.imageUrl || null,
+    photo_url:
+      resolveAtmPackPlayerPhoto({
+        dorsal: p.dorsal ?? p.number,
+        fullName: p.full_name || `${p.firstName || ''} ${p.lastName || ''}`.trim(),
+        photo_url: p.photo_url || p.imageUrl || null,
+      }) ||
+      p.photo_url ||
+      p.imageUrl ||
+      null,
     next_birthday: next.nextIso,
     days_until: next.daysUntil,
     turning_age: next.turningAge,
@@ -120,7 +129,7 @@ async function fromSupabase(supabase: SupabaseClient, teamId: string, todayIso: 
   const [{ data: players }, { data: staff }] = await Promise.all([
     supabase
       .from('players')
-      .select('id, full_name, position, birth_date, photo_url, official_slug, is_active')
+      .select('id, full_name, position, birth_date, photo_url, official_slug, is_active, dorsal')
       .eq('team_id', teamId)
       .eq('is_active', true),
     supabase
@@ -140,7 +149,12 @@ async function fromSupabase(supabase: SupabaseClient, teamId: string, todayIso: 
       role: p.position || 'Jugador',
       person_type: 'player',
       birth_date: String(p.birth_date).slice(0, 10),
-      photo_url: p.photo_url,
+      photo_url:
+        resolveAtmPackPlayerPhoto({
+          dorsal: p.dorsal,
+          fullName: p.full_name,
+          photo_url: p.photo_url,
+        }) || p.photo_url,
       next_birthday: next.nextIso,
       days_until: next.daysUntil,
       turning_age: next.turningAge,

@@ -129,34 +129,35 @@ function playerUrl(slug: string) {
   return `https://www.atleticodemadrid.com/jugadores/${slug}`;
 }
 
-const officialListPhoto = (id: string, file: string) =>
-  `https://img-estaticos.atleticodemadrid.com/system/foto_listados/${id}/thumb_300x400/${file}`;
+/** Retrato de ficha oficial (cara), no el listado de cuerpo entero con el dorsal. */
+const officialFichaPhoto = (id: string, file: string) =>
+  `https://img-estaticos.atleticodemadrid.com/system/fotos/${id}/destacado_600x600/${encodeURIComponent(file)}`;
 
 const ATM_PLAYER_PHOTOS: Record<string, string> = {
-  'juan-agustin-musso-2026-2027': officialListPhoto('19596', '01.jpg'),
-  'jan-oblak-2026-2027': officialListPhoto('19582', '13.jpg'),
-  'salvador-esquivel-gamez-2026-2027-2': officialListPhoto('20941', '25.jpg'),
-  'david-hancko-2026-2027': officialListPhoto('19600', '17.jpg'),
-  'marc-pubill-pages-2026-2027': officialListPhoto('19599', '18.jpg'),
-  'cristian-gabriel-romero-2026-2027': officialListPhoto('20938', '21.jpg'),
-  'alejandro-grimaldo-garcia-2026-2027': officialListPhoto('20932', '22.jpg'),
-  'robin-aime-robert-le-normand-2026-2027': officialListPhoto('19591', '24.jpg'),
-  'daniel-martinez-moreno-2026-2027-2': officialListPhoto('20943', '30.jpg'),
-  'obed-gomez-vargas-2026-2027': officialListPhoto('19607', '03.jpg'),
-  'rodrigo-mendoza-martinez-moya-2026-2027': officialListPhoto('19606', '04.jpg'),
-  'jo-o-lucas-de-souza-cardoso-2026-2027': officialListPhoto('19602', '05.jpg'),
-  'jorge-resurreccion-merodio-2026-2027': officialListPhoto('19581', '06.jpg'),
-  'kang-in-lee-2026-2027': officialListPhoto('20936', '07.jpg'),
-  'pablo-barrios-rivas-2026-2027': officialListPhoto('19588', '08.jpg'),
-  'alejandro-baena-rodriguez-2026-2027': officialListPhoto('19597', '10.jpg'),
-  'marcos-llorente-moreno-2026-2027': officialListPhoto('19585', '14.jpg'),
-  'arnau-ortiz-sanchez-2026-2027': officialListPhoto('19709', '16.jpg'),
-  'giuliano-simeone-baldini-2026-2027': officialListPhoto('19590', '20.jpg'),
-  'morten-hjulmand-2026-2027': officialListPhoto('20934', '23.jpg'),
-  'alexander-s-rloth-2026-2027': officialListPhoto('19592', '09.jpg'),
-  'ademola-olajade-alade-aylola-lookman-2026-2027': officialListPhoto('19605', '11.jpg'),
-  'jonathan-david-2026-2027-2': officialListPhoto('20961', '15.jpg'),
-  'julian-alvarez-2026-2027': officialListPhoto('19593', 'FICHA-WEB.jpg'),
+  'juan-agustin-musso-2026-2027': officialFichaPhoto('19596', 'musso-ficha.png'),
+  'jan-oblak-2026-2027': officialFichaPhoto('19582', 'oblak-ficha.png'),
+  'salvador-esquivel-gamez-2026-2027-2': officialFichaPhoto('20941', 'esquivel(1).png'),
+  'david-hancko-2026-2027': officialFichaPhoto('19600', 'hancko-ficha.png'),
+  'marc-pubill-pages-2026-2027': officialFichaPhoto('19599', 'pubill-ficha.png'),
+  'cristian-gabriel-romero-2026-2027': officialFichaPhoto('20938', 'cuti romero-ficha.png'),
+  'alejandro-grimaldo-garcia-2026-2027': officialFichaPhoto('20932', 'grimaldo-ficha.png'),
+  'robin-aime-robert-le-normand-2026-2027': officialFichaPhoto('19591', 'le normand-ficha.png'),
+  'daniel-martinez-moreno-2026-2027-2': officialFichaPhoto('20943', 'dani-martinez.png'),
+  'obed-gomez-vargas-2026-2027': officialFichaPhoto('19607', 'vargas-ficha.png'),
+  'rodrigo-mendoza-martinez-moya-2026-2027': officialFichaPhoto('19606', 'mendoza-ficha.png'),
+  'jo-o-lucas-de-souza-cardoso-2026-2027': officialFichaPhoto('19602', 'cardoso-ficha.png'),
+  'jorge-resurreccion-merodio-2026-2027': officialFichaPhoto('19581', 'koke-ficha.png'),
+  'kang-in-lee-2026-2027': officialFichaPhoto('20936', 'kang in lee-ficha.png'),
+  'pablo-barrios-rivas-2026-2027': officialFichaPhoto('19588', 'barrios-ficha.png'),
+  'alejandro-baena-rodriguez-2026-2027': officialFichaPhoto('19597', 'baena-ficha.png'),
+  'marcos-llorente-moreno-2026-2027': officialFichaPhoto('19585', 'llorente-ficha.png'),
+  'arnau-ortiz-sanchez-2026-2027': officialFichaPhoto('19709', 'arnau ortiz-ficha.png'),
+  'giuliano-simeone-baldini-2026-2027': officialFichaPhoto('19590', 'giuliano-ficha.png'),
+  'morten-hjulmand-2026-2027': officialFichaPhoto('20934', 'hjulmand-ficha.png'),
+  'alexander-s-rloth-2026-2027': officialFichaPhoto('19592', 'sorloth-ficha.png'),
+  'ademola-olajade-alade-aylola-lookman-2026-2027': officialFichaPhoto('19605', 'lookman-ficha.png'),
+  'jonathan-david-2026-2027-2': officialFichaPhoto('20961', 'jonathan(1).png'),
+  'julian-alvarez-2026-2027': officialFichaPhoto('19593', 'julian-ficha.png'),
 };
 
 function resolvePlayerPhoto(profileUrl: string, fallback: string) {
