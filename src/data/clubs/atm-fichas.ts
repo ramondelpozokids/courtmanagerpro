@@ -1,0 +1,30 @@
+/** Fichas oficiales 2026-2027 — atleticodemadrid.com/jugadores/... */
+export const ATM_OFFICIAL_FICHAS: Record<
+  string,
+  { nationality: string; birthDate: string; height: string; weight: string; quote: string | null }
+> = {
+  'juan-agustin-musso-2026-2027': { nationality: 'Argentina', birthDate: '1994-05-06', height: '191', weight: '93', quote: 'Cuando surgió la posibilidad de venir al Atlético fue un «sí» con todo el corazón' },
+  'jan-oblak-2026-2027': { nationality: 'Eslovenia', birthDate: '1993-01-07', height: '188', weight: '87', quote: 'Siempre nos ponemos objetivos altos' },
+  'salvador-esquivel-gamez-2026-2027-2': { nationality: 'España', birthDate: '2005-09-30', height: '190', weight: '93', quote: null },
+  'david-hancko-2026-2027': { nationality: 'Eslovaquia', birthDate: '1997-12-13', height: '188', weight: '82', quote: 'Voy a dar lo mejor de mí por el club' },
+  'marc-pubill-pages-2026-2027': { nationality: 'España', birthDate: '2003-06-20', height: '190', weight: '86', quote: 'Quiero disfrutar y ganar títulos aquí' },
+  'cristian-gabriel-romero-2026-2027': { nationality: 'Argentina', birthDate: '1998-04-27', height: '185', weight: '80', quote: 'Quiero dejar mi nombre escrito en la historia de este hermoso club' },
+  'alejandro-grimaldo-garcia-2026-2027': { nationality: 'España', birthDate: '1995-09-20', height: '171', weight: '67', quote: 'Llevo muchos años persiguiendo esto y estoy muy feliz' },
+  'robin-aime-robert-le-normand-2026-2027': { nationality: 'España', birthDate: '1996-11-11', height: '187', weight: '80', quote: 'Estar aquí es un paso muy importante en mi vida y en mi carrera' },
+  'daniel-martinez-moreno-2026-2027-2': { nationality: 'España', birthDate: '2004-05-05', height: '183', weight: '71', quote: null },
+  'obed-gomez-vargas-2026-2027': { nationality: 'México', birthDate: '2005-08-05', height: '175', weight: '68', quote: 'Venir al Atlético de Madrid es un sueño hecho realidad' },
+  'rodrigo-mendoza-martinez-moya-2026-2027': { nationality: 'España', birthDate: '2005-03-15', height: '182', weight: '72', quote: 'Es un momento muy ilusionante para mí' },
+  'jo-o-lucas-de-souza-cardoso-2026-2027': { nationality: 'Italoestadounidense', birthDate: '2001-09-20', height: '182', weight: '78', quote: 'Afronto cada partido como si fuera el último e intento disfrutarlo al máximo' },
+  'jorge-resurreccion-merodio-2026-2027': { nationality: 'España', birthDate: '1992-01-08', height: '176', weight: '75', quote: 'Mi sentimiento es el Atlético de Madrid' },
+  'kang-in-lee-2026-2027': { nationality: 'Corea del Sur', birthDate: '2001-02-19', height: '174', weight: '66', quote: 'Soy un jugador y una persona con mentalidad ganadora' },
+  'pablo-barrios-rivas-2026-2027': { nationality: 'España', birthDate: '2003-06-15', height: '181', weight: '75', quote: 'Desde que empiezas a jugar al fútbol, sueñas con llegar al primer equipo' },
+  'alejandro-baena-rodriguez-2026-2027': { nationality: 'España', birthDate: '2001-07-20', height: '174', weight: '70', quote: 'El Atlético de Madrid me representa por sus valores, su carácter y su sentimiento' },
+  'marcos-llorente-moreno-2026-2027': { nationality: 'España', birthDate: '1995-01-30', height: '184', weight: '74', quote: 'Estoy muy feliz, muy contento e ilusionado' },
+  'arnau-ortiz-sanchez-2026-2027': { nationality: 'España', birthDate: '2001-10-29', height: '175', weight: '71', quote: 'Es una sensación que no se puede describir con palabras, me ha costado mucho llegar hasta aquí y me siento un afortunado' },
+  'giuliano-simeone-baldini-2026-2027': { nationality: 'Hispano-argentina', birthDate: '2002-12-18', height: '173', weight: '75', quote: 'Ahora más que nunca toca seguir trabajando, creciendo y seguir apuntando hacia arriba' },
+  'morten-hjulmand-2026-2027': { nationality: 'Dinamarca', birthDate: '1999-06-25', height: '185', weight: '73', quote: 'Es un sueño hecho realidad' },
+  'alexander-s-rloth-2026-2027': { nationality: 'Noruega', birthDate: '1995-12-05', height: '195', weight: '94', quote: 'Si había un club en España en el que quería jugar, ese era el Atlético de Madrid' },
+  'ademola-olajade-alade-aylola-lookman-2026-2027': { nationality: 'Nigeria', birthDate: '1997-10-20', height: '174', weight: '71', quote: 'El Atlético de Madrid es un club increíble y enorme' },
+  'jonathan-david-2026-2027-2': { nationality: 'Canadá', birthDate: '2000-01-14', height: '178', weight: '81', quote: null },
+  'julian-alvarez-2026-2027': { nationality: 'Argentina', birthDate: '2000-01-31', height: '170', weight: '71', quote: 'Siempre voy a dar el máximo dentro de la cancha' },
+};

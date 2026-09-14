@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>CourtManager Pro — Auditoría de seguridad para TI</title>
+  <style>
+    @page { size: A4; margin: 14mm 14mm 16mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: #111827;
+      font-size: 10pt;
+      line-height: 1.45;
+      margin: 0;
+      background: #fff;
+    }
+    .hero {
+      background: #0f172a;
+      color: #fff;
+      padding: 22px 18px 18px;
+      margin: 0 0 16px;
+    }
+    .hero .eyebrow {
+      font-size: 8.5pt; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; opacity: 0.85; margin: 0 0 8px;
+    }
+    .hero h1 { margin: 0; font-size: 20pt; letter-spacing: -0.02em; }
+    .hero .sub { margin: 6px 0 0; font-size: 11pt; opacity: 0.92; }
+    .hero .meta { margin: 10px 0 0; font-size: 8.5pt; opacity: 0.75; }
+    h2 {
+      font-size: 12.5pt; margin: 16px 0 8px; color: #0f172a;
+      border-bottom: 2px solid #cbd5e1; padding-bottom: 4px;
+    }
+    h3 { font-size: 10.5pt; margin: 12px 0 6px; color: #1e293b; }
+    p { margin: 0 0 8px; }
+    ul, ol { margin: 6px 0 10px; padding-left: 18px; }
+    li { margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 8.5pt; }
+    th, td { border: 1px solid #e5e7eb; padding: 6px 7px; text-align: left; vertical-align: top; }
+    th { background: #0f172a; color: #fff; font-weight: 700; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    code { font-size: 8pt; background: #f1f5f9; padding: 1px 4px; }
+    .box {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      padding: 10px 12px; margin: 8px 0 12px;
+    }
+    .good {
+      background: #f0fdf4; border-left: 4px solid #16a34a;
+      padding: 8px 10px; font-size: 9pt; color: #166534; margin: 0 0 12px;
+    }
+    .warn {
+      background: #fff7ed; border-left: 4px solid #ea580c;
+      padding: 8px 10px; font-size: 9pt; color: #9a3412; margin: 0 0 12px;
+    }
+    .neutral {
+      background: #f8fafc; border-left: 4px solid #64748b;
+      padding: 8px 10px; font-size: 9pt; color: #334155; margin: 0 0 12px;
+    }
+    .badge {
+      display: inline-block; font-size: 7.5pt; font-weight: 800;
+      padding: 2px 6px; letter-spacing: 0.04em;
+    }
+    .badge-ok { background: #dcfce7; color: #166534; }
+    .badge-partial { background: #fef3c7; color: #92400e; }
+    .badge-info { background: #e0e7ff; color: #3730a3; }
+    .footer { margin-top: 14px; font-size: 8pt; color: #94a3b8; }
+    .page-break { page-break-before: always; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media print {
+      .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      th, .badge-ok, .badge-partial, .badge-info, .good, .warn { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <p class="eyebrow">CourtManager Pro · Confidencial · Destinatario: TI</p>
+    <h1>Auditoría de seguridad</h1>
+    <p class="sub">Estado técnico, controles implementados y residuales opcionales</p>
+    <p class="meta">
+      3 de agosto de 2026 · Revisión de código y configuración ·
+      Commit <code style="background:#1e293b;color:#e2e8f0">0121a987</code> ·
+      Producción: courtmanagerpro-umber.vercel.app
+    </p>
+  </div>
+
+  <div class="good">
+    <strong>Veredicto para TI:</strong> el sistema alcanza un nivel
+    <strong>profesional / muy bueno</strong> para un SaaS de gestión de utilería deportiva.
+    Es <strong>adecuado para piloto controlado y uso diario en producción</strong> con datos reales.
+    Está <strong>preparado para una primera ronda de pentest</strong>.
+    No sustituye una certificación ISO&nbsp;27001 / SOC&nbsp;2 ni un informe de pentest externo firmado.
+  </div>
+
+  <h2>1. Alcance y metodología</h2>
+  <div class="box">
+    <ul style="margin-bottom:0">
+      <li><strong>Incluye:</strong> aplicación Next.js (CourtManager Pro), APIs, autenticación, autorización por equipo, RLS Supabase, cabeceras HTTP, rate limiting, configuración Vercel Production.</li>
+      <li><strong>No incluye:</strong> auditoría física, cuentas personales de operadores, red corporativa del club, laboratorio de pentest de terceros, procesos ISO.</li>
+      <li><strong>Método:</strong> revisión de código en <code>main</code>, migraciones RLS, configuración de entorno y despliegue Production (agosto 2026).</li>
+    </ul>
+  </div>
+
+  <h2>2. Resumen ejecutivo</h2>
+  <table>
+    <tr><th>Indicador</th><th>Valor</th></tr>
+    <tr><td>Capas de defensa en profundidad</td><td><strong>4</strong> (HTTP + sesión + APIs + RLS)</td></tr>
+    <tr><td>Controles clave implementados</td><td><strong>12 / 12</strong> del núcleo operativo</td></tr>
+    <tr><td>Hallazgos críticos abiertos</td><td><strong>0</strong></td></tr>
+    <tr><td>Residuales opcionales (enterprise)</td><td><strong>6</strong> — no bloquean piloto</td></tr>
+    <tr><td>Demo mode en Production</td><td><span class="badge badge-ok">DESACTIVADO</span> (<code>false</code>)</td></tr>
+    <tr><td>Rate limit login</td><td><span class="badge badge-ok">DISTRIBUIDO</span> (Upstash Redis)</td></tr>
+  </table>
+
+  <h2>3. Arquitectura de seguridad</h2>
+  <table>
+    <tr><th>Capa</th><th>Función</th><th>Evidencia</th></tr>
+    <tr>
+      <td><strong>1. Perímetro HTTP</strong></td>
+      <td>CSP, HSTS, X-Frame-Options DENY, nosniff, COOP, CORP, Permissions-Policy</td>
+      <td><code>next.config.js</code></td>
+    </tr>
+    <tr>
+      <td><strong>2. Acceso / sesión</strong></td>
+      <td>Sin sesión → redirect <code>/login</code> o <strong>401</strong> en APIs; registro cerrado; crons con <code>Bearer CRON_SECRET</code></td>
+      <td><code>src/middleware.ts</code></td>
+    </tr>
+    <tr>
+      <td><strong>3. APIs</strong></td>
+      <td>Flujo <code>authenticate → authorize → assertUserBelongsToTeam</code>; anti-IDOR en APIs críticas</td>
+      <td><code>src/lib/security/*</code></td>
+    </tr>
+    <tr>
+      <td><strong>4. Datos (RLS)</strong></td>
+      <td>PostgreSQL aísla filas por equipo; la anon key no salta RLS</td>
+      <td>Migraciones Supabase (002+)</td>
+    </tr>
+  </table>
+
+  <div class="neutral">
+    <strong>Declaración honesta:</strong> el script que bloquea clic derecho / F12
+    (<code>src/lib/securityLayers.ts</code>) es <em>disuasión cosmética</em> y
+    <strong>no</strong> debe contarse como control de seguridad.
+  </div>
+
+  <h2>4. Controles implementados</h2>
+  <table>
+    <tr><th>Control</th><th>Estado</th><th>Evidencia / nota</th></tr>
+    <tr><td>Middleware de sesión (páginas + APIs)</td><td><span class="badge badge-ok">HECHO</span></td><td><code>src/middleware.ts</code></td></tr>
+    <tr><td>Auth unificada (<code>authenticate</code> / <code>authorize</code>)</td><td><span class="badge badge-ok">HECHO</span></td><td><code>src/lib/security/auth.ts</code></td></tr>
+    <tr><td>Anti-IDOR por pertenencia a equipo</td><td><span class="badge badge-ok">HECHO</span></td><td>players, inventory, requests, alerts, medical, trips, laundry, warehouse, stock-movements, equipment-team, coaching-staff</td></tr>
+    <tr><td>RLS por equipo (PostgreSQL / Supabase)</td><td><span class="badge badge-ok">HECHO</span></td><td>Migraciones desde <code>002_rls_policies.sql</code> (+ simplificación 020)</td></tr>
+    <tr><td>Rate limit login IP + email (Redis/Upstash)</td><td><span class="badge badge-ok">HECHO</span></td><td>Contador compartido entre instancias serverless</td></tr>
+    <tr><td>Sesión en cookies httpOnly (sin JWT en JSON)</td><td><span class="badge badge-ok">HECHO</span></td><td><code>POST /api/auth/login</code></td></tr>
+    <tr><td>Passkeys / WebAuthn</td><td><span class="badge badge-ok">HECHO</span></td><td>Cuentas biométricas configuradas</td></tr>
+    <tr><td>Política de contraseña (≥10, letras y números)</td><td><span class="badge badge-ok">HECHO</span></td><td><code>password-policy.ts</code></td></tr>
+    <tr><td>Anti open-redirect</td><td><span class="badge badge-ok">HECHO</span></td><td><code>safe-redirect.ts</code></td></tr>
+    <tr><td>Validación Zod (anti mass-assignment)</td><td><span class="badge badge-ok">HECHO</span></td><td>POST inventario</td></tr>
+    <tr><td>Cabeceras HTTP endurecidas</td><td><span class="badge badge-ok">HECHO</span></td><td>CSP, HSTS, XFO, COOP/CORP…</td></tr>
+    <tr><td>Fail-fast variables críticas en Production</td><td><span class="badge badge-ok">HECHO</span></td><td><code>instrumentation.ts</code> + <code>env.ts</code></td></tr>
+    <tr><td><code>isProductionApp</code> no se relaja en Vercel Production</td><td><span class="badge badge-ok">HECHO</span></td><td>Evita DEMO_MODE accidental</td></tr>
+    <tr><td>Cron protegido</td><td><span class="badge badge-ok">HECHO</span></td><td><code>Authorization: Bearer CRON_SECRET</code></td></tr>
+    <tr><td>Audit log / triggers sensibles</td><td><span class="badge badge-ok">HECHO</span></td><td>Tabla <code>audit_log</code></td></tr>
+  </table>
+
+  <div class="page-break"></div>
+
+  <h2>5. Hallazgos residuales (opcionales / fase 2)</h2>
+  <p>No hay hallazgos críticos abiertos. Lo siguiente es mejora enterprise o evidencia contractual:</p>
+  <table>
+    <tr><th>Ítem</th><th>Riesgo</th><th>Nota para TI</th></tr>
+    <tr>
+      <td>SSO corporativo (Microsoft Entra ID / Azure AD)</td>
+      <td><span class="badge badge-partial">MEDIO</span></td>
+      <td>Exigencia habitual de TI de club grande; no bloquea piloto con cuentas Supabase.</td>
+    </tr>
+    <tr>
+      <td>WAF perimetral (Cloudflare / Vercel Firewall)</td>
+      <td><span class="badge badge-partial">BAJO–MEDIO</span></td>
+      <td>Capa extra ante bots; el rate limit de login ya mitiga fuerza bruta.</td>
+    </tr>
+    <tr>
+      <td>CSP sin <code>unsafe-eval</code></td>
+      <td><span class="badge badge-info">BAJO</span></td>
+      <td>Nota típica en informes; ligado al runtime de Next.js.</td>
+    </tr>
+    <tr>
+      <td>Checklists en <code>localStorage</code> → base de datos</td>
+      <td><span class="badge badge-info">BAJO</span></td>
+      <td>Integridad multi-dispositivo; no es bypass de autenticación.</td>
+    </tr>
+    <tr>
+      <td>Pentest externo formal + informe firmado</td>
+      <td><span class="badge badge-info">PROCESO</span></td>
+      <td>Evidencia contractual; el producto ya está preparado para la prueba.</td>
+    </tr>
+    <tr>
+      <td>ISO 27001 / SOC 2</td>
+      <td><span class="badge badge-info">FUERA DE ALCANCE</span></td>
+      <td>Programa de compliance aparte (meses + auditor externo).</td>
+    </tr>
+  </table>
+
+  <h2>6. Checklist de validación recomendada</h2>
+  <table>
+    <tr><th>Prueba</th><th>Resultado esperado</th></tr>
+    <tr><td>Acceso a API de datos sin cookie de sesión</td><td><strong>401</strong></td></tr>
+    <tr><td>Sesión válida + <code>team_id</code> de otro club</td><td><strong>403</strong> (app) y/o vacío por RLS</td></tr>
+    <tr><td>Fuerza bruta en login (más del límite)</td><td><strong>429</strong>; contador compartido vía Redis</td></tr>
+    <tr><td>Cuerpo JSON del login</td><td>Sin <code>access_token</code> / <code>refresh_token</code></td></tr>
+    <tr><td><code>?redirect=//evil.com</code> tras login</td><td>Solo rutas internas permitidas</td></tr>
+    <tr><td>Clickjacking (iframe)</td><td>Bloqueado (XFO + CSP <code>frame-ancestors</code>)</td></tr>
+    <tr><td><code>/api/ai/ping?secret=</code> en query</td><td><strong>401</strong> (solo cabecera secreta)</td></tr>
+    <tr><td>Passwords mock en bundle de producción</td><td>No deben aparecer</td></tr>
+  </table>
+
+  <h2>7. Configuración operativa (Production)</h2>
+  <div class="grid-2">
+    <div class="box">
+      <strong>Entorno Production</strong>
+      <ul style="margin-bottom:0">
+        <li><code>NEXT_PUBLIC_DEMO_MODE=false</code></li>
+        <li><code>UPSTASH_REDIS_REST_URL</code> / <code>TOKEN</code></li>
+        <li><code>CRON_SECRET</code> obligatorio</li>
+        <li>Supabase URL + anon + service role reales</li>
+      </ul>
+    </div>
+    <div class="box">
+      <strong>Preview / Development</strong>
+      <ul style="margin-bottom:0">
+        <li><code>NEXT_PUBLIC_DEMO_MODE=true</code> (demos comerciales)</li>
+        <li>No usar como fuente de verdad de datos reales</li>
+        <li>Staging recomendado para pentest (no prod sensible)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>8. Recomendaciones a TI</h2>
+  <ol>
+    <li><strong>Aceptar el nivel actual</strong> para piloto / operación controlada del club.</li>
+    <li>Si se exige política corporativa de identidad: planificar <strong>SSO Entra ID</strong> (fase 2).</li>
+    <li>Para evidencia contractual: encargar <strong>pentest externo en staging</strong> (caja gris) y adjuntar este informe.</li>
+    <li>Opcional: activar <strong>WAF</strong> en el edge (Cloudflare o Vercel Firewall).</li>
+    <li>Mantener <strong>DEMO_MODE=false</strong> y secretos rotados fuera del control de código.</li>
+  </ol>
+
+  <div class="warn">
+    <strong>Premisa:</strong> la seguridad al 100&nbsp;% no existe en ningún sistema conectado a Internet.
+    Este documento describe controles reales verificables y residuales conscientes, no una garantía de impenetrabilidad.
+  </div>
+
+  <p class="footer">
+    CourtManager Pro · Auditoría de seguridad para TI · 3 agosto 2026 · Uso interno / evaluación ·
+    Complementa <code>PENTEST-READINESS-ATM.md</code> y <code>03-seguridad-rls.md</code>
+  </p>
+
+</body>
+</html>

@@ -23,10 +23,10 @@ import { cn } from '@/lib/utils';
 
 type ViewMode = 'month' | 'week' | 'timeline';
 
-/** RMF: julio vacío → abrir septiembre de la temporada (amistosos/liga). */
+/** Fútbol: julio/agosto vacíos o temporada nueva → abrir septiembre. */
 function initialCalendarCursor(slug: string, sport: CalendarSport): Date {
   const now = new Date();
-  if (slug === 'rmf' && sport === 'football') {
+  if ((slug === 'rmf' || slug === 'atm') && sport === 'football') {
     const seasonStartYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
     const september = new Date(seasonStartYear, 8, 1);
     if (now < september) return september;

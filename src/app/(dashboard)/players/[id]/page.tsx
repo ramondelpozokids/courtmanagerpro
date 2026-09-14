@@ -19,6 +19,7 @@ import { normalizePlayerProfile } from "@/lib/player-profile";
 import { useAuth } from "@/contexts/AuthContext";
 import { canModifyProject } from "@/lib/permissions";
 import { uuidToDemoPlayerId } from "@/lib/team-constants";
+import { useClubBranding } from "@/contexts/ClubDemoContext";
 import { formatApparelSize } from "@/content/sizing-products";
 
 interface PlayerProfileProps {
@@ -28,6 +29,7 @@ interface PlayerProfileProps {
 export default function PlayerProfilePage({ params }: PlayerProfileProps) {
   const { id } = use(params);
   const { user, userEmail, isSuperadmin } = useAuth();
+  const branding = useClubBranding();
   const canEditStats = isSuperadmin || canModifyProject(user?.profile?.role, userEmail);
   const [player, setPlayer] = useState<any | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
@@ -195,7 +197,7 @@ export default function PlayerProfilePage({ params }: PlayerProfileProps) {
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-extrabold shadow-sm transition-all hover:scale-105"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Ver Ficha Oficial Real Madrid
+                Ver ficha oficial {branding.slug === 'atm' ? 'Atlético de Madrid' : 'Real Madrid'}
               </a>
             )}
           </div>

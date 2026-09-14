@@ -573,8 +573,12 @@ function PlayersPageContent() {
                     <img
                       src={member.photo_url}
                       alt={member.full_name}
-                      className={`h-full w-full object-cover${
-                        /bonvicini/i.test(member.photo_url || "") ? " object-[32%_40%]" : ""
+                      className={`h-full w-full object-cover ${
+                        /atleticodemadrid\.com/.test(member.photo_url || "")
+                          ? "object-top"
+                          : /bonvicini/i.test(member.photo_url || "")
+                            ? "object-[32%_40%]"
+                            : ""
                       }`}
                     />
                   ) : (

@@ -14,7 +14,7 @@ export const REAL_MADRID_SOURCE_LABEL = 'Real Madrid Oficial';
 
 /** Plantilla oficial — Atlético de Madrid Fútbol */
 export const ATLETICO_FOOTBALL_PLANTILLA_URL =
-  'https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026';
+  'https://www.atleticodemadrid.com/jugadores-primer-equipo/';
 
 export const ATLETICO_SOURCE_ID = 'atletico_madrid_official';
 export const ATLETICO_SOURCE_LABEL = 'Atlético de Madrid Oficial';

@@ -14,6 +14,7 @@ import AlertsWidget from "@/components/dashboard/AlertsWidget";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import QuickActions from "@/components/dashboard/QuickActions";
 import { OfficialStoreCard } from "@/modules/official-store";
+import { AtmSponsorsCard } from "@/components/clubs/AtmSponsorsCard";
 import { EquipmentTeamCard } from "@/modules/equipment-team";
 import { UpcomingBirthdaysCard } from "@/components/dashboard/UpcomingBirthdaysCard";
 import { ClubDashboardHero } from "@/components/dashboard/ClubDashboardHero";
@@ -142,10 +143,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="p-5 md:p-6 space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-1 gap-4 ${branding.slug === 'atm' ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-emerald-500/30 transition-colors">
               <OfficialStoreCard />
             </div>
+            {branding.slug === 'atm' && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-red-500/30 transition-colors">
+                <AtmSponsorsCard />
+              </div>
+            )}
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-orange-500/30 transition-colors">
               <EquipmentTeamCard teamId={teamId || undefined} />
             </div>
@@ -235,7 +241,7 @@ export default function DashboardPage() {
               <strong className="text-orange-600 font-bold block text-sm mb-1">{blog.equipacionTitle}</strong>
               {blog.equipacionDescription}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <div className={`grid gap-4 grid-cols-2 ${blog.equipacionItems.length > 6 ? 'sm:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-5'}`}>
               {blog.equipacionItems.map((item) => (
               <div key={item.name} className="border border-slate-100 dark:border-slate-800/80 rounded-xl p-3 bg-slate-50/30 dark:bg-slate-900/30 space-y-2 text-center">
                 <div className="aspect-square rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">

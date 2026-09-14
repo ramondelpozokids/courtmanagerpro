@@ -12,6 +12,7 @@ import {
   Cake,
   MessageCircle,
   Headset,
+  Award,
   type LucideIcon,
 } from 'lucide-react';
 import type { ClubBranding } from '@/data/clubs/types';
@@ -31,11 +32,11 @@ function linksForSport(sport: ClubBranding['sport']): HeroLink[] {
       { href: '/players?tab=staff', label: 'Cuerpo técnico', sub: 'Staff', icon: ClipboardList },
       { href: '/inventory', label: 'Equipaciones', sub: 'Material', icon: Shirt },
       { href: '/calendario', label: 'Calendario', sub: 'Viajes & Eventos', icon: Calendar },
-      { href: '/calendario', label: 'LaLiga', sub: 'Copa del Rey', icon: Trophy },
+      { href: '/calendario', label: 'LaLiga', sub: 'Liga', icon: Trophy },
       { href: '/calendario', label: 'Champions', sub: 'Europa', icon: Globe2 },
+      { href: '/calendario', label: 'Copa del Rey', sub: 'Nacional', icon: Award },
       { href: '/blog/noticias', label: 'Noticias', sub: 'Blog', icon: Newspaper },
       { href: '/birthdays', label: 'Cumpleaños', sub: 'Avisos', icon: Cake },
-      { href: '/', label: 'Chat', sub: 'Asistente', icon: MessageCircle },
       { href: '/cuenta', label: 'Soporte', sub: 'Técnico', icon: Headset },
     ];
   }
@@ -62,7 +63,11 @@ export function ClubDashboardHero({
 }) {
   const isFootball = branding.sport === 'football';
   const links = linksForSport(branding.sport);
-  const leagueLine = isFootball ? 'LaLiga · Champions League' : 'ACB · Euroliga';
+  const leagueLine = isFootball
+    ? 'LaLiga · Champions League · Copa del Rey'
+    : 'ACB · Euroliga';
+  const heroLogo =
+    branding.slug === 'atm' ? '/clubs/atm/cmp-logo.png' : branding.logoUrl;
   const fieldWord = isFootball ? 'campo' : 'cancha';
 
   return (
@@ -101,9 +106,13 @@ export function ClubDashboardHero({
 
         <div className="flex flex-col items-center text-center gap-3 py-2 sm:py-4">
           <img
-            src={branding.logoUrl}
-            alt={branding.name}
-            className="h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-xl"
+            src={heroLogo}
+            alt="CourtManager Pro"
+            className={
+              branding.slug === 'atm'
+                ? 'h-20 w-20 sm:h-28 sm:w-28 object-contain drop-shadow-xl'
+                : 'h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-xl'
+            }
           />
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white drop-shadow">
             COURTMANAGER PRO

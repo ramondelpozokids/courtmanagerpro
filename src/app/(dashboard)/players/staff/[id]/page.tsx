@@ -293,7 +293,11 @@ export default function StaffProfilePage({ params }: StaffProfileProps) {
             <img
               src={staff.photo_url}
               alt={staff.full_name}
-              className="h-full w-full object-cover object-top"
+              className={
+                /atleticodemadrid\.com/.test(staff.photo_url || "")
+                  ? "h-full w-full object-contain bg-white"
+                  : "h-full w-full object-cover object-top"
+              }
             />
           ) : (
             <User className="h-12 w-12 text-orange-400" />

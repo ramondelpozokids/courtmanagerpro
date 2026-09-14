@@ -1,21 +1,27 @@
 /** Pack producción — Atlético de Madrid · Primer Equipo de Fútbol
  * Fuentes oficiales:
- * - https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026
+ * - https://www.atleticodemadrid.com/jugadores-primer-equipo/
+ * - https://www.atleticodemadrid.com/jugadores/juan-agustin-musso-2026-2027
  * - https://www.atleticodemadrid.com/calendario-completo-primer-equipo/
  * - shop.atleticodemadrid.com (hombre: 1ª / 2ª IR1435-011 · II2031-010 / 3ª / entrenamiento)
  * - https://www.atleticodemadrid.com/patrocinadores
  * - https://www.atleticodemadrid.com/noticias-nuevo-estadio
- * Fotos jugadores (ref.): https://www.laliga.com/clubes/atletico-de-madrid/plantilla
- * Actualizado: 2026-07-27
+ * Actualizado: 2026-09-14
  */
 
+import { ATM_OFFICIAL_FICHAS } from './atm-fichas';
+
 export const ATM_OFFICIAL_PLANTILLA_URL =
-  'https://www.atleticodemadrid.com/equipos/atletico-de-madrid-2025-2026';
+  'https://www.atleticodemadrid.com/jugadores-primer-equipo/';
 export const ATM_OFFICIAL_CALENDAR_URL =
   'https://www.atleticodemadrid.com/calendario-completo-primer-equipo/';
 export const ATM_OFFICIAL_STORE_URL = 'https://www.atleticodemadrid.com/atm/atleti-store';
 export const ATM_STORE_HOME_URL =
-  'https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion?srule=Novedades&start=0&sz=11';
+  'https://shop.atleticodemadrid.com/es/equipaciones/primera-equipacion';
+export const ATM_STORE_HOME_MATCH_URL =
+  'https://shop.atleticodemadrid.com/es/camiseta-match-hombre-1-equipacion-26-27/II2740-101.html';
+export const ATM_STORE_HOME_SHORT_URL =
+  'https://shop.atleticodemadrid.com/es/pantalon-corto-1-equipacion-26-27/II1977-455.html';
 export const ATM_STORE_HOME_LS_URL =
   'https://shop.atleticodemadrid.com/es/camiseta-manga-larga-hombre-1-equipacion-26-27/IQ6643-101.html';
 export const ATM_STORE_AWAY_MEN_URL =
@@ -26,8 +32,16 @@ export const ATM_STORE_AWAY_SHORT_URL =
   'https://shop.atleticodemadrid.com/es/pantalon-corto-2-equipacion-26-27/II2031-010.html';
 export const ATM_STORE_THIRD_MEN_URL =
   'https://shop.atleticodemadrid.com/es/equipaciones/tercera-equipacion/hombre';
+export const ATM_STORE_THIRD_MATCH_URL =
+  'https://shop.atleticodemadrid.com/es/camiseta-match-hombre-3-equipacion-26-27/II6637-087.html';
+export const ATM_STORE_THIRD_SHORT_URL =
+  'https://shop.atleticodemadrid.com/es/pantalon-corto-3-equipacion-26-27/II6656-086.html';
 export const ATM_STORE_GK_MEN_URL =
-  'https://shop.atleticodemadrid.com/es/equipaciones/equipacion-de-portero/hombre';
+  'https://shop.atleticodemadrid.com/es/equipaciones/equipacion-de-portero';
+export const ATM_STORE_GK_BLACK_URL =
+  'https://shop.atleticodemadrid.com/es/camiseta-portero-manga-corta-negra-26-27/IR1251-011.html';
+export const ATM_STORE_GK_YELLOW_URL =
+  'https://shop.atleticodemadrid.com/es/camiseta-portero-manga-corta-amarilla-26-27/IR1251-719.html';
 export const ATM_STORE_TRAINING_URL = 'https://shop.atleticodemadrid.com/es/entrenamiento';
 export const ATM_SPONSORS_URL = 'https://www.atleticodemadrid.com/patrocinadores';
 export const ATM_STADIUM_NEWS_URL = 'https://www.atleticodemadrid.com/noticias-nuevo-estadio';
@@ -38,41 +52,56 @@ export const ATM_KANG_IN_LEE_NEWS_URL =
 /** Fotos producto tienda oficial (Demandware catalog) — hombre */
 const CAT = 'https://shop.atleticodemadrid.com/dw/image/v2/BKQJ_PRD/on/demandware.static/-/Sites-atm-master-catalog/default';
 export const ATM_SHOP_IMAGES = {
-  homeMatch: `${CAT}/dw59595213/II2740-101.jpg`,
+  homeMatch: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dw59595213/II2740-101.jpg`,
   homeReplica: `${CAT}/dw6a9d0b45/II1893-101_jugador.jpg`,
   homeLongSleeve: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dwb4038a4f/New%20Folder/IQ6643-101_1.jpg`,
-  homeShort: `${CAT}/dwfbd93d53/II1977-455_6.jpg`,
+  homeShort: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dw488ee889/II1977-455_6_F_DKV.jpg`,
   homeSock: `${CAT}/dw82fb8356/IQ6645-455_1.jpg`,
   awayMatch: `${CAT}/dwc5b5bad6/IR1435-011_CENTERED.jpg`,
   awayReplica: `${CAT}/dw2fde1d06/II1932-011_CENTERED.jpg`,
   awayShort: `${CAT}/dwf8a4510b/II2031-010_SIN.jpg`,
   awaySock: `${CAT}/dw19ade56f/New%20Folder/IQ6648-010.jpg`,
-  thirdMatch: `${CAT}/dw60d3e5ba/HM3200-407_.jpg`,
+  thirdMatch: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dwf81baa09/II6637-087_DELANTERA.jpg`,
   thirdReplica: `${CAT}/dw45340fbb/HM3192-407_.jpg`,
-  thirdShort: `${CAT}/dw5f0e8aac/IF1452-407_01.jpg`,
+  thirdShort: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dwfda26025/II6656-086_8_DKV.jpg`,
   thirdSock: `${CAT}/dwf38a98ea/HM3220-406_zoom.jpg`,
-  gkJersey: `${CAT}/dw2eef5d35/HQ9235-084.jpg`,
+  gkJersey: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dw52a18a35/IR1251-011.jpg`,
+  gkJerseyYellow: `https://shop.atleticodemadrid.com/on/demandware.static/-/Sites-atm-master-catalog/default/dw58c05d13/IR1251-719.jpg`,
   trainingTee: `${CAT}/dw2c70d141/II2770-702_.jpg`,
   trainingShort: `${CAT}/dw6e1f0b8e/II2299-702.jpg`,
   drillTop: `${CAT}/dwa77c1ae6/II2666-702.jpg`,
 } as const;
 /** Principales + camiseta (oficial atleticodemadrid.com/patrocinadores) */
-export const ATM_SPONSORS_MAIN = [
-  'Riyadh Air',
-  'Nike',
-  'Visit Rwanda',
-  'Kraken',
-] as const;
-export const ATM_SPONSORS_PREMIUM = [
-  'Mahou',
+export const ATM_SPONSORS_MAIN = ['Riyadh Air', 'Nike'] as const;
+export const ATM_SPONSORS_PREMIUM = ['Visit Rwanda', 'Kraken', 'ERGO DKV', 'Mahou'] as const;
+export const ATM_SPONSORS_OFFICIAL = [
   'Hyundai',
   'EA Sports',
+  'Red Bull',
   'Movistar',
+  'Socios.com',
+  'Cabify',
+  'LG',
   'CaixaBank',
+  'Google Cloud',
   'Coca-Cola',
+  'Fever',
+  'AlphaTauri',
+  'Zumub',
+  'HPE',
+  'Grupo UAX',
+  'Cívitas',
 ] as const;
+export const ATM_SPONSORS_SUPPLIERS = [
+  'Solán de Cabras',
+  'Marca',
+  'Vithas',
+  'Veritran',
+  'Halcón Viajes',
+] as const;
+
 export const ATM_TEAM_ID = '00000000-0000-4000-8000-000acb423458';
-export const ATM_OFFICIAL_SYNCED_AT = '2026-07-28T09:00:00.000Z';
+export const ATM_OFFICIAL_SYNCED_AT = '2026-09-14T10:00:00.000Z';
 
 const PLANTILLA_URL = ATM_OFFICIAL_PLANTILLA_URL;
 
@@ -100,45 +129,34 @@ function playerUrl(slug: string) {
   return `https://www.atleticodemadrid.com/jugadores/${slug}`;
 }
 
-/** Ref. fotos LALIGA EA SPORTS 26/27 (solo assets, no sync de plantilla)
- * https://www.laliga.com/clubes/atletico-de-madrid/plantilla
- * Patrón: assets.laliga.com/squad/2026/t175/{optaId}/512x556/{optaId}_t175_2026_0_001_000.png
- */
-const laligaPhoto = (optaId: string) =>
-  `https://assets.laliga.com/squad/2026/t175/${optaId}/512x556/${optaId}_t175_2026_0_001_000.png`;
-
-/** Fallback club (jugadores no listados en plantilla LALIGA 26/27) */
-const clubPhoto = (path: string) =>
-  `https://img-estaticos.atleticodemadrid.com/system/foto_listados/${path}`;
+const officialListPhoto = (id: string, file: string) =>
+  `https://img-estaticos.atleticodemadrid.com/system/foto_listados/${id}/thumb_300x400/${file}`;
 
 const ATM_PLAYER_PHOTOS: Record<string, string> = {
-  'juan-agustin-musso-2025-2026': laligaPhoto('p121537'),
-  'jan-oblak-2025-2026': laligaPhoto('p81352'),
-  'jose-maria-gimenez-de-vargas-2025-2026': laligaPhoto('p151883'),
-  'matteo-ruggeri-2025-2026': laligaPhoto('p487992'),
-  'clement-nicolas-laurent-lenglet-2025-2026': '/clubs/atm/players/lenglet.png',
-  'nahuel-molina-lucero-2025-2026': laligaPhoto('p221586'),
-  'david-hancko-2025-2026': laligaPhoto('p235093'),
-  'marc-pubill-pages-2025-2026': laligaPhoto('p562720'),
-  'robin-aime-robert-le-normand-2025-2026': laligaPhoto('p224919'),
-  'rodrigo-mendoza-martinez-moya-2025-2026': laligaPhoto('p578538'),
-  'jo-o-lucas-de-souza-cardoso-2025-2026': laligaPhoto('p488662'),
-  'jorge-resurreccion-merodio-2025-2026': '/clubs/atm/players/koke.png',
-  'pablo-barrios-rivas-2025-2026': laligaPhoto('p503523'),
-  'alejandro-baena-rodriguez-2025-2026': laligaPhoto('p248501'),
-  'marcos-llorente-moreno-2025-2026': laligaPhoto('p192364'),
-  'giuliano-simeone-baldini-2025-2026': laligaPhoto('p482652'),
-  'obed-gomez-vargas-2025-2026': laligaPhoto('p502868'),
-  'nicolas-ivan-gonzalez-2025-2026': '/clubs/atm/players/nico-gonzalez.png',
-  'alexander-s-rloth-2025-2026': laligaPhoto('p143877'),
-  'thiago-ezequiel-almada-2025-2026': laligaPhoto('p461360'),
-  'julian-alvarez-2025-2026': laligaPhoto('p461358'),
-  'ademola-olajade-alade-aylola-lookman-2025-2026': laligaPhoto('p219352'),
-  'morten-hjulmand-2025-2026': '/clubs/atm/players/hjulmand.png',
-  'kang-in-lee-ficha-por-el-atletico-de-madrid': '/clubs/atm/players/kang-in-lee.png',
-  'alejandro-grimaldo-2025-2026': '/clubs/atm/players/grimaldo.png',
-  'thomas-lemar-2025-2026': '/clubs/atm/players/lemar.png',
-  'carlos-martin-dominguez-2025-2026': '/clubs/atm/players/carlos-martin.png',
+  'juan-agustin-musso-2026-2027': officialListPhoto('19596', '01.jpg'),
+  'jan-oblak-2026-2027': officialListPhoto('19582', '13.jpg'),
+  'salvador-esquivel-gamez-2026-2027-2': officialListPhoto('20941', '25.jpg'),
+  'david-hancko-2026-2027': officialListPhoto('19600', '17.jpg'),
+  'marc-pubill-pages-2026-2027': officialListPhoto('19599', '18.jpg'),
+  'cristian-gabriel-romero-2026-2027': officialListPhoto('20938', '21.jpg'),
+  'alejandro-grimaldo-garcia-2026-2027': officialListPhoto('20932', '22.jpg'),
+  'robin-aime-robert-le-normand-2026-2027': officialListPhoto('19591', '24.jpg'),
+  'daniel-martinez-moreno-2026-2027-2': officialListPhoto('20943', '30.jpg'),
+  'obed-gomez-vargas-2026-2027': officialListPhoto('19607', '03.jpg'),
+  'rodrigo-mendoza-martinez-moya-2026-2027': officialListPhoto('19606', '04.jpg'),
+  'jo-o-lucas-de-souza-cardoso-2026-2027': officialListPhoto('19602', '05.jpg'),
+  'jorge-resurreccion-merodio-2026-2027': officialListPhoto('19581', '06.jpg'),
+  'kang-in-lee-2026-2027': officialListPhoto('20936', '07.jpg'),
+  'pablo-barrios-rivas-2026-2027': officialListPhoto('19588', '08.jpg'),
+  'alejandro-baena-rodriguez-2026-2027': officialListPhoto('19597', '10.jpg'),
+  'marcos-llorente-moreno-2026-2027': officialListPhoto('19585', '14.jpg'),
+  'arnau-ortiz-sanchez-2026-2027': officialListPhoto('19709', '16.jpg'),
+  'giuliano-simeone-baldini-2026-2027': officialListPhoto('19590', '20.jpg'),
+  'morten-hjulmand-2026-2027': officialListPhoto('20934', '23.jpg'),
+  'alexander-s-rloth-2026-2027': officialListPhoto('19592', '09.jpg'),
+  'ademola-olajade-alade-aylola-lookman-2026-2027': officialListPhoto('19605', '11.jpg'),
+  'jonathan-david-2026-2027-2': officialListPhoto('20961', '15.jpg'),
+  'julian-alvarez-2026-2027': officialListPhoto('19593', 'FICHA-WEB.jpg'),
 };
 
 function resolvePlayerPhoto(profileUrl: string, fallback: string) {
@@ -147,28 +165,28 @@ function resolvePlayerPhoto(profileUrl: string, fallback: string) {
 }
 
 function mk(p: DemoPlayer) {
+  const slug = p.profile_url.split('/').pop() || '';
+  const ficha = ATM_OFFICIAL_FICHAS[slug];
   return {
     ...p,
+    nationality: ficha?.nationality || p.nationality,
+    birthDate: ficha?.birthDate || p.birthDate,
     imageUrl: resolvePlayerPhoto(p.profile_url, p.imageUrl),
     status: 'ACTIVE' as const,
     birth_place: '—',
+    height: ficha?.height ? `${ficha.height} cm` : undefined,
+    weight: ficha?.weight ? `${ficha.weight} kg` : undefined,
+    trajectory: ficha?.quote || undefined,
     matches_played: 0,
     points: 0,
     rebounds: 0,
     assists: 0,
-    palmares: ['Atlético de Madrid — Primer Equipo 25/26'],
+    palmares: ['Atlético de Madrid — Primer Equipo 26/27'],
   };
 }
 
-/** Plantilla oficial 2025-2026 — atleticodemadrid.com */
-/**
- * Plantilla ATM 2026/27 — fuente: LALIGA + Marca.
- * Sin Horațiu Moldovan (fuera / cedido).
- * Dorsales sin asignar oficial: Grimaldo #25, Lemar #27 (Marca marca #11 duplicado con Almada),
- * Hjulmand #28 (Marca #23 choca con Nico González en LALIGA).
- */
+/** Plantilla oficial 2026-2027 — atleticodemadrid.com/jugadores-primer-equipo */
 export const atmPlayers = [
-  // Porteros (2) — Moldovan fuera
   mk({
     id: 'p1',
     firstName: 'Juan Agustín',
@@ -178,7 +196,7 @@ export const atmPlayers = [
     nationality: 'Argentina',
     birthDate: '1994-05-06',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('juan-agustin-musso-2025-2026'),
+    profile_url: playerUrl('juan-agustin-musso-2026-2027'),
     sizes: defaultSizes.XL,
   }),
   mk({
@@ -190,68 +208,19 @@ export const atmPlayers = [
     nationality: 'Eslovenia',
     birthDate: '1993-01-07',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('jan-oblak-2025-2026'),
+    profile_url: playerUrl('jan-oblak-2026-2027'),
     sizes: defaultSizes.XL,
   }),
-  // Defensas
   mk({
-    id: 'p3',
-    firstName: 'José María',
-    lastName: 'Giménez',
-    number: 2,
-    position: 'defensa',
-    nationality: 'Uruguay',
-    birthDate: '1995-01-20',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('jose-maria-gimenez-de-vargas-2025-2026'),
-    sizes: defaultSizes.L,
-  }),
-  mk({
-    id: 'p4',
-    firstName: 'Matteo',
-    lastName: 'Ruggeri',
-    number: 3,
-    position: 'defensa',
-    nationality: 'Italia',
-    birthDate: '2002-07-11',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('matteo-ruggeri-2025-2026'),
-    sizes: defaultSizes.L,
-  }),
-  mk({
-    id: 'p25',
-    firstName: 'Alejandro',
-    lastName: 'Grimaldo',
+    id: 'p28',
+    firstName: 'Salvador',
+    lastName: 'Esquivel',
     number: 25,
-    position: 'defensa',
+    position: 'portero',
     nationality: 'España',
-    birthDate: '1995-09-20',
-    imageUrl: '/clubs/atm/players/grimaldo.png',
-    profile_url: playerUrl('alejandro-grimaldo-2025-2026'),
-    sizes: defaultSizes.L,
-  }),
-  mk({
-    id: 'p5',
-    firstName: 'Clément',
-    lastName: 'Lenglet',
-    number: 15,
-    position: 'defensa',
-    nationality: 'Francia',
-    birthDate: '1995-06-17',
-    imageUrl: '/clubs/atm/players/lenglet.png',
-    profile_url: playerUrl('clement-nicolas-laurent-lenglet-2025-2026'),
-    sizes: defaultSizes.XL,
-  }),
-  mk({
-    id: 'p6',
-    firstName: 'Nahuel',
-    lastName: 'Molina',
-    number: 16,
-    position: 'defensa',
-    nationality: 'Argentina',
-    birthDate: '1998-04-06',
+    birthDate: '2005-09-30',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('nahuel-molina-lucero-2025-2026'),
+    profile_url: playerUrl('salvador-esquivel-gamez-2026-2027-2'),
     sizes: defaultSizes.L,
   }),
   mk({
@@ -263,7 +232,7 @@ export const atmPlayers = [
     nationality: 'Eslovaquia',
     birthDate: '1997-12-13',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('david-hancko-2025-2026'),
+    profile_url: playerUrl('david-hancko-2026-2027'),
     sizes: defaultSizes.XL,
   }),
   mk({
@@ -275,7 +244,31 @@ export const atmPlayers = [
     nationality: 'España',
     birthDate: '2003-06-21',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('marc-pubill-pages-2025-2026'),
+    profile_url: playerUrl('marc-pubill-pages-2026-2027'),
+    sizes: defaultSizes.L,
+  }),
+  mk({
+    id: 'p30',
+    firstName: 'Cristian',
+    lastName: 'Romero',
+    number: 21,
+    position: 'defensa',
+    nationality: 'Argentina',
+    birthDate: '1998-04-27',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('cristian-gabriel-romero-2026-2027'),
+    sizes: defaultSizes.L,
+  }),
+  mk({
+    id: 'p25',
+    firstName: 'Alejandro',
+    lastName: 'Grimaldo',
+    number: 22,
+    position: 'defensa',
+    nationality: 'España',
+    birthDate: '1995-09-20',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('alejandro-grimaldo-garcia-2026-2027'),
     sizes: defaultSizes.L,
   }),
   mk({
@@ -287,10 +280,33 @@ export const atmPlayers = [
     nationality: 'España',
     birthDate: '1996-11-11',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('robin-aime-robert-le-normand-2025-2026'),
+    profile_url: playerUrl('robin-aime-robert-le-normand-2026-2027'),
     sizes: defaultSizes.XL,
   }),
-  // Centrocampistas
+  mk({
+    id: 'p31',
+    firstName: 'Daniel',
+    lastName: 'Martínez',
+    number: 30,
+    position: 'defensa',
+    nationality: 'España',
+    birthDate: '2004-05-05',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('daniel-martinez-moreno-2026-2027-2'),
+    sizes: defaultSizes.L,
+  }),
+  mk({
+    id: 'p17',
+    firstName: 'Obed',
+    lastName: 'Vargas',
+    number: 3,
+    position: 'centrocampista',
+    nationality: 'México',
+    birthDate: '2005-08-01',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('obed-gomez-vargas-2026-2027'),
+    sizes: defaultSizes.M,
+  }),
   mk({
     id: 'p10',
     firstName: 'Rodrigo',
@@ -300,7 +316,7 @@ export const atmPlayers = [
     nationality: 'España',
     birthDate: '2005-01-01',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('rodrigo-mendoza-martinez-moya-2025-2026'),
+    profile_url: playerUrl('rodrigo-mendoza-martinez-moya-2026-2027'),
     sizes: defaultSizes.M,
   }),
   mk({
@@ -312,7 +328,7 @@ export const atmPlayers = [
     nationality: 'Brasil',
     birthDate: '2001-09-20',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('jo-o-lucas-de-souza-cardoso-2025-2026'),
+    profile_url: playerUrl('jo-o-lucas-de-souza-cardoso-2026-2027'),
     sizes: defaultSizes.L,
   }),
   mk({
@@ -323,8 +339,8 @@ export const atmPlayers = [
     position: 'centrocampista',
     nationality: 'España',
     birthDate: '1992-01-08',
-    imageUrl: '/clubs/atm/players/koke.png',
-    profile_url: playerUrl('jorge-resurreccion-merodio-2025-2026'),
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('jorge-resurreccion-merodio-2026-2027'),
     sizes: defaultSizes.L,
   }),
   mk({
@@ -335,8 +351,8 @@ export const atmPlayers = [
     position: 'centrocampista',
     nationality: 'Corea del Sur',
     birthDate: '2001-02-19',
-    imageUrl: '/clubs/atm/players/kang-in-lee.png',
-    profile_url: 'https://www.atleticodemadrid.com/noticias/kang-in-lee-ficha-por-el-atletico-de-madrid',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('kang-in-lee-2026-2027'),
     sizes: defaultSizes.M,
   }),
   mk({
@@ -348,7 +364,7 @@ export const atmPlayers = [
     nationality: 'España',
     birthDate: '2003-06-15',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('pablo-barrios-rivas-2025-2026'),
+    profile_url: playerUrl('pablo-barrios-rivas-2026-2027'),
     sizes: defaultSizes.M,
   }),
   mk({
@@ -360,31 +376,7 @@ export const atmPlayers = [
     nationality: 'España',
     birthDate: '2001-07-20',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('alejandro-baena-rodriguez-2025-2026'),
-    sizes: defaultSizes.M,
-  }),
-  mk({
-    id: 'p21',
-    firstName: 'Thiago',
-    lastName: 'Almada',
-    number: 11,
-    position: 'centrocampista',
-    nationality: 'Argentina',
-    birthDate: '2001-04-26',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('thiago-ezequiel-almada-2025-2026'),
-    sizes: defaultSizes.M,
-  }),
-  mk({
-    id: 'p26',
-    firstName: 'Thomas',
-    lastName: 'Lemar',
-    number: 27,
-    position: 'centrocampista',
-    nationality: 'Francia',
-    birthDate: '1995-11-12',
-    imageUrl: '/clubs/atm/players/lemar.png',
-    profile_url: playerUrl('thomas-lemar-2025-2026'),
+    profile_url: playerUrl('alejandro-baena-rodriguez-2026-2027'),
     sizes: defaultSizes.M,
   }),
   mk({
@@ -396,46 +388,45 @@ export const atmPlayers = [
     nationality: 'España',
     birthDate: '1995-01-30',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('marcos-llorente-moreno-2025-2026'),
+    profile_url: playerUrl('marcos-llorente-moreno-2026-2027'),
     sizes: defaultSizes.L,
   }),
   mk({
-    id: 'p17',
-    firstName: 'Obed',
-    lastName: 'Vargas',
-    number: 21,
+    id: 'p32',
+    firstName: 'Arnau',
+    lastName: 'Ortiz',
+    number: 16,
     position: 'centrocampista',
-    nationality: 'México',
-    birthDate: '2005-08-01',
+    nationality: 'España',
+    birthDate: '2001-10-29',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('obed-gomez-vargas-2025-2026'),
+    profile_url: playerUrl('arnau-ortiz-sanchez-2026-2027'),
     sizes: defaultSizes.M,
   }),
   mk({
-    id: 'p24',
-    firstName: 'Nicolás',
-    lastName: 'González',
-    number: 23,
+    id: 'p16',
+    firstName: 'Giuliano',
+    lastName: 'Simeone',
+    number: 20,
     position: 'centrocampista',
     nationality: 'Argentina',
-    birthDate: '1998-04-06',
-    imageUrl: '/clubs/atm/players/nico-gonzalez.png',
-    profile_url: playerUrl('nicolas-ivan-gonzalez-2025-2026'),
-    sizes: defaultSizes.L,
+    birthDate: '2002-12-18',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('giuliano-simeone-baldini-2026-2027'),
+    sizes: defaultSizes.M,
   }),
   mk({
     id: 'p18',
     firstName: 'Morten',
     lastName: 'Hjulmand',
-    number: 28,
+    number: 23,
     position: 'centrocampista',
     nationality: 'Dinamarca',
     birthDate: '1999-06-25',
-    imageUrl: '/clubs/atm/players/hjulmand.png',
-    profile_url: playerUrl('morten-hjulmand-2025-2026'),
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('morten-hjulmand-2026-2027'),
     sizes: defaultSizes.L,
   }),
-  // Delanteros
   mk({
     id: 'p20',
     firstName: 'Alexander',
@@ -445,19 +436,31 @@ export const atmPlayers = [
     nationality: 'Noruega',
     birthDate: '1995-12-05',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('alexander-s-rloth-2025-2026'),
+    profile_url: playerUrl('alexander-s-rloth-2026-2027'),
     sizes: defaultSizes.XXL,
   }),
   mk({
-    id: 'p27',
-    firstName: 'Carlos',
-    lastName: 'Martín Domínguez',
-    number: 12,
+    id: 'p23',
+    firstName: 'Ademola',
+    lastName: 'Lookman',
+    number: 11,
     position: 'delantero',
-    nationality: 'España',
-    birthDate: '2002-04-22',
-    imageUrl: '/clubs/atm/players/carlos-martin.png',
-    profile_url: playerUrl('carlos-martin-dominguez-2025-2026'),
+    nationality: 'Nigeria',
+    birthDate: '1997-10-20',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('ademola-olajade-alade-aylola-lookman-2026-2027'),
+    sizes: defaultSizes.M,
+  }),
+  mk({
+    id: 'p33',
+    firstName: 'Jonathan',
+    lastName: 'David',
+    number: 15,
+    position: 'delantero',
+    nationality: 'Canadá',
+    birthDate: '2000-01-14',
+    imageUrl: '/clubs/atm/logo.png',
+    profile_url: playerUrl('jonathan-david-2026-2027-2'),
     sizes: defaultSizes.M,
   }),
   mk({
@@ -469,41 +472,14 @@ export const atmPlayers = [
     nationality: 'Argentina',
     birthDate: '2000-01-31',
     imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('julian-alvarez-2025-2026'),
-    sizes: defaultSizes.M,
-  }),
-  mk({
-    id: 'p16',
-    firstName: 'Giuliano',
-    lastName: 'Simeone',
-    number: 20,
-    position: 'delantero',
-    nationality: 'Argentina',
-    birthDate: '2002-12-18',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('giuliano-simeone-baldini-2025-2026'),
-    sizes: defaultSizes.M,
-  }),
-  mk({
-    id: 'p23',
-    firstName: 'Ademola',
-    lastName: 'Lookman',
-    number: 22,
-    position: 'delantero',
-    nationality: 'Nigeria',
-    birthDate: '1997-10-20',
-    imageUrl: '/clubs/atm/logo.png',
-    profile_url: playerUrl('ademola-olajade-alade-aylola-lookman-2025-2026'),
+    profile_url: playerUrl('julian-alvarez-2026-2027'),
     sizes: defaultSizes.M,
   }),
 ];
 
-/** Cuerpo técnico primer equipo masculino — Cholo + asistentes + PF + porteros
- * Fuentes: club / Wikipedia / Transfermarkt
- * Asistentes: Bonvicini + Gabi. PF: Óscar Pitillas. Porteros: Vercellone.
+/** Cuerpo técnico primer equipo masculino — plantilla oficial 2026-2027
+ * https://www.atleticodemadrid.com/jugadores-primer-equipo/
  */
-const TM_STAFF =
-  'https://img.a.transfermarkt.technology/portrait/header';
 
 /** Perfil oficial del cuerpo técnico: plantilla ATM (no hay ficha individual en la web del club). */
 export function resolveAtmStaffProfileUrl(
@@ -528,58 +504,10 @@ export const atmCoachingStaff = [
     nationality: 'Argentina',
     birth_date: '1970-04-28',
     birth_place: 'Buenos Aires, Argentina',
-    photo_url: '/clubs/atm/staff/simeone.png?v=oficial-2526',
+    photo_url: 'https://img-estaticos.atleticodemadrid.com/system/fotos/19579/destacado_600x600/simeone.jpg',
     profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
-      'Dirige al Atlético de Madrid desde el 23 de diciembre de 2011. Exfutbolista argentino nacionalizado español; consolidó al club en la élite europea.',
-  },
-  {
-    id: 'c2',
-    full_name: 'Hernán Bonvicini',
-    role: 'Asistente de entrenador',
-    email: 'hbonvicini@atleticodemadrid.com',
-    shirt_size: 'L',
-    shorts_size: 'L',
-    shoe_size: 43,
-    nationality: 'Argentina',
-    birth_date: '1979-05-17',
-    birth_place: 'La Plata, Argentina',
-    photo_url: '/clubs/atm/staff/bonvicini.png?v=oficial-2526',
-    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
-    trajectory:
-      'Hernán Alejandro Bonvicini — entrenador asistente del primer equipo del Club Atlético de Madrid S.A.D. Nacido en La Plata el 17/05/1979.',
-  },
-  {
-    id: 'c3',
-    full_name: 'Gabi Fernández',
-    role: 'Entrenador asistente',
-    email: 'gabi@atleticodemadrid.com',
-    shirt_size: 'L',
-    shorts_size: 'L',
-    shoe_size: 43,
-    nationality: 'España',
-    birth_date: '1983-07-10',
-    birth_place: 'Madrid, España',
-    photo_url: `${TM_STAFF}/97091-1732139341.JPG?lm=1`,
-    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
-    trajectory:
-      'Gabriel Luis Fernández Arenas, conocido como Gabi. Excentrocampista (nº 14 Atlético de Madrid / Al-Sadd). Entrenador asistente del Atlético desde la temporada 2026-27; antes director técnico del Real Zaragoza (2025). Nacido en Madrid el 10/07/1983. Estatura 1,80 m.',
-  },
-  {
-    id: 'c4',
-    full_name: 'Óscar Pitillas',
-    role: 'Preparador físico',
-    email: 'opitillas@atleticodemadrid.com',
-    shirt_size: 'L',
-    shorts_size: 'L',
-    shoe_size: 43,
-    nationality: 'España',
-    birth_date: '1971-01-16',
-    birth_place: 'Valencia, España',
-    photo_url: '/clubs/atm/staff/pitillas.png',
-    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
-    trajectory:
-      'Óscar Miguel Pitillas Torra — preparador físico del Atlético de Madrid (temporada 2025/26). Nacido en Valencia el 16/01/1971. En el club desde 2016 (antes 2003–2014 y NYCFC 2014–2016). Exatleta olímpico (400 m vallas).',
+      'Dirige al Atlético de Madrid desde el 23 de diciembre de 2011. Plantilla oficial 2026-2027.',
   },
   {
     id: 'c5',
@@ -592,10 +520,74 @@ export const atmCoachingStaff = [
     nationality: 'Argentina',
     birth_date: '1968-04-24',
     birth_place: 'Buenos Aires, Argentina',
-    photo_url: '/clubs/atm/staff/vercellone.png?v=oficial-2526',
+    photo_url: 'https://img-estaticos.atleticodemadrid.com/system/fotos/19580/destacado_600x600/busto__0000s_0000s_0001__V4A4742.jpg',
     profile_url: ATM_OFFICIAL_PLANTILLA_URL,
     trajectory:
-      'Pablo Ignacio Vercellone — preparador de porteros del Atlético de Madrid. Nacido en Buenos Aires el 24/04/1968. Contrato hasta 30/06/2027.',
+      'Pablo Ignacio Vercellone — preparador de porteros del primer equipo (plantilla oficial 2026-2027).',
+  },
+  {
+    id: 'c4',
+    full_name: 'Luis Piñedo Betrián',
+    role: 'Preparador físico',
+    email: 'lpinedo@atleticodemadrid.com',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+    nationality: 'España',
+    birth_date: '',
+    birth_place: '—',
+    photo_url: 'https://img-estaticos.atleticodemadrid.com/system/fotos/19589/destacado_600x600/busto__0000s_0000s_0005__V4A4700.jpg',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
+    trajectory:
+      'Preparador físico del primer equipo del Atlético de Madrid según la plantilla oficial 2026-2027.',
+  },
+  {
+    id: 'c6',
+    full_name: 'Gustavo López',
+    role: 'Asistente de entrenador',
+    email: 'glopez@atleticodemadrid.com',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+    nationality: 'Argentina',
+    birth_date: '1973-04-13',
+    birth_place: 'Jesús María, Argentina',
+    photo_url: 'https://img-estaticos.atleticodemadrid.com/system/fotos/19594/destacado_600x600/busto__0000s_0000s_0000_magnific_4RZqNdR9Aa.jpg',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
+    trajectory:
+      'Asistente de entrenador del primer equipo (plantilla oficial 2026-2027).',
+  },
+  {
+    id: 'c2',
+    full_name: 'Hernán Bonvicini',
+    role: 'Asistente de entrenador',
+    email: 'hbonvicini@atleticodemadrid.com',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+    nationality: 'Argentina',
+    birth_date: '1979-05-17',
+    birth_place: 'La Plata, Argentina',
+    photo_url: 'https://img-estaticos.atleticodemadrid.com/system/fotos/19603/destacado_600x600/busto__0000s_0000s_0002__V4A4739.jpg',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
+    trajectory:
+      'Hernán Alejandro Bonvicini — entrenador asistente del primer equipo. Nacido en La Plata el 17/05/1979.',
+  },
+  {
+    id: 'c3',
+    full_name: 'Gabriel Fernández Arenas',
+    role: 'Asistente de entrenador',
+    email: 'gabi@atleticodemadrid.com',
+    shirt_size: 'L',
+    shorts_size: 'L',
+    shoe_size: 43,
+    nationality: 'España',
+    birth_date: '1983-07-10',
+    birth_place: 'Madrid, España',
+    photo_url: 'https://img-estaticos.atleticodemadrid.com/system/fotos/20930/destacado_600x600/busto__0000s_0000s_0006_Gabi_%20Fernandez_busto.jpg',
+    profile_url: ATM_OFFICIAL_PLANTILLA_URL,
+    trajectory:
+      'Gabriel Luis Fernández Arenas (Gabi). Asistente de entrenador del primer equipo, plantilla oficial 2026-2027.',
   },
 ];
 
@@ -1032,7 +1024,7 @@ export const atmInventory = [
       category: 'camiseta_juego',
       price: 159.95,
       image_url: ATM_SHOP_IMAGES.homeMatch,
-      product_url: ATM_STORE_HOME_URL,
+      product_url: ATM_STORE_HOME_MATCH_URL,
       location: LOC_EST1,
     },
     SZ.kit54,
@@ -1083,7 +1075,7 @@ export const atmInventory = [
         category: 'pantalon_juego',
         price: 54.95,
         image_url: ATM_SHOP_IMAGES.homeShort,
-        product_url: ATM_STORE_HOME_URL,
+        product_url: ATM_STORE_HOME_SHORT_URL,
         location: LOC_EST1,
       },
       SZ.kit60,
@@ -1187,11 +1179,11 @@ export const atmInventory = [
       {
         idPrefix: 'third-match',
         name: 'Camiseta Match Hombre 3ª Equipación 26/27',
-        skuBase: 'HM3200-407',
+        skuBase: 'II6637-087',
         category: 'camiseta_juego',
-        price: 149.95,
+        price: 159.95,
         image_url: ATM_SHOP_IMAGES.thirdMatch,
-        product_url: ATM_STORE_THIRD_MEN_URL,
+        product_url: ATM_STORE_THIRD_MATCH_URL,
         location: LOC_EST1_THIRD,
       },
       [
@@ -1233,11 +1225,11 @@ export const atmInventory = [
       {
         idPrefix: 'third-short',
         name: 'Pantalón Corto 3ª Equipación 26/27',
-        skuBase: 'IF1452-407',
+        skuBase: 'II6656-086',
         category: 'pantalon_juego',
-        price: 49.95,
+        price: 54.95,
         image_url: ATM_SHOP_IMAGES.thirdShort,
-        product_url: ATM_STORE_THIRD_MEN_URL,
+        product_url: ATM_STORE_THIRD_SHORT_URL,
         location: LOC_EST1_THIRD,
       },
       [
@@ -1276,12 +1268,12 @@ export const atmInventory = [
     return expandBySize(
       {
         idPrefix: 'gk',
-        name: 'Camiseta Portero Hombre 26/27',
-        skuBase: 'HQ9235-084',
+        name: 'Camiseta Portero Manga Corta Negra 26/27',
+        skuBase: 'IR1251-011',
         category: 'camiseta_juego',
-        price: 109.95,
+        price: 159.95,
         image_url: ATM_SHOP_IMAGES.gkJersey,
-        product_url: ATM_STORE_GK_MEN_URL,
+        product_url: ATM_STORE_GK_BLACK_URL,
         location: LOC_GK,
       },
       [

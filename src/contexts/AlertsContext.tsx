@@ -14,7 +14,7 @@ import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { scanBirthdayAlerts } from '@/lib/birthday-alerts';
 import { countUnreadAlerts } from '@/lib/alerts-state';
-import { useActiveTeamId } from '@/contexts/ClubDemoContext';
+import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { Alert } from '@/types';
 
@@ -43,8 +43,19 @@ function isMockMode() {
  * Una sola fuente de verdad para bandeja + badge (Sidebar/TopBar/página).
  * Evita el bug de vaciar alertas y seguir viendo 32 en el menú.
  */
+function isForeignSportCalendarAlert(message: string, sport: string): boolean {
+  const text = message.toLowerCase();
+  if (sport === 'football') {
+    return /unicaja|la laguna|tenerife|gran canaria|baskonia|joventut|endesa|euroliga|acb\b|bàsquet|basquet|baloncesto|obradoiro|manresa|breog|bilbao basket/.test(
+      text
+    );
+  }
+  return false;
+}
+
 export function AlertsProvider({ children }: { children: ReactNode }) {
   const teamId = useActiveTeamId() || DEFAULT_TEAM_ID;
+  const branding = useClubBranding();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = getSupabaseClient() as any;
@@ -58,7 +69,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         scanBirthdayAlerts(teamId);
         const mapped = db.alerts
           .filter((a: any) => !a.is_dismissed)
-          .filter((a: any) => !a.team_id || a.team_id === teamId || a.team_id === 'team-acb-123')
+          .filter((a: any) => !a.team_id || a.team_id === teamId)
           .map(
             (a: any) =>
               ({
@@ -78,7 +89,8 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
                 metadata: a.metadata || {},
                 created_at: a.created_at,
               }) as Alert
-          );
+          )
+          .filter((a: Alert) => !isForeignSportCalendarAlert(`${a.title} ${a.message}`, branding.sport));
         setAlerts(mapped);
         return;
       }
@@ -92,13 +104,17 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         .limit(100);
 
       if (error) throw error;
-      setAlerts((data || []) as Alert[]);
+      setAlerts(
+        ((data || []) as Alert[]).filter(
+          (a) => !isForeignSportCalendarAlert(`${a.title} ${a.message}`, branding.sport)
+        )
+      );
     } catch (err) {
       console.error('[AlertsProvider] load failed:', err);
     } finally {
       setLoading(false);
     }
-  }, [teamId, mock, supabase]);
+  }, [teamId, mock, supabase, branding.sport]);
 
   useEffect(() => {
     void fetchAlerts();
@@ -170,7 +186,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
   const dismissAll = useCallback(async () => {
     if (mock) {
       db.alerts = db.alerts.filter(
-        (a: any) => a.team_id && a.team_id !== teamId && a.team_id !== 'team-acb-123'
+        (a: any) => a.team_id && a.team_id !== teamId
       );
       await fetchAlerts();
       return;

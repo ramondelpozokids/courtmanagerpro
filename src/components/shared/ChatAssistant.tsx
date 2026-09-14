@@ -13,7 +13,8 @@ interface Message {
 export function ChatAssistant() {
   const branding = useClubBranding();
   const clubLabel = branding.shortName || branding.name;
-  const logoSrc = branding.logoUrl || '/images/botiquin.svg';
+  const logoSrc =
+    branding.slug === 'atm' ? '/clubs/atm/cmp-logo.png' : branding.logoUrl || '/images/botiquin.svg';
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);

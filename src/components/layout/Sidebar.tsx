@@ -138,7 +138,7 @@ export function Sidebar() {
           <div className="flex items-center gap-2 text-left">
             <div className="w-8 h-8 shrink-0 flex items-center justify-center">
               <img
-                src="/logo.png"
+                src={branding.slug === 'atm' ? '/clubs/atm/cmp-logo.png' : '/logo.png'}
                 alt="CourtManager Pro"
                 className="w-full h-full object-contain"
               />

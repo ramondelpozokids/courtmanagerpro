@@ -35,6 +35,8 @@ import {
   ATM_KANG_IN_LEE_NEWS_URL,
   ATM_SPONSORS_MAIN,
   ATM_SPONSORS_PREMIUM,
+  ATM_SPONSORS_OFFICIAL,
+  ATM_SPONSORS_SUPPLIERS,
   ATM_SHOP_IMAGES,
 } from '@/data/clubs/atm-data';
 import { vbcPlayers, vbcInventory, vbcRequests, vbcTrips, vbcAlerts, vbcLaundry, vbcCoachingStaff } from '@/data/clubs/vbc-data';
@@ -483,13 +485,13 @@ const atmPack: ClubDemoPack = {
     historySubtitle: 'Club Atlético de Madrid — Riyadh Air Metropolitano · Territorio Atleti.',
     historyIntro: [
       'El Atlético de Madrid es uno de los clubes de referencia del fútbol español y europeo, con identidad rojiblanca y sede en el **Riyadh Air Metropolitano**.',
-      'En la temporada **2025-26**, el primer equipo compite en **LaLiga** y competiciones europeas bajo la dirección de **Diego Pablo Simeone**.',
+      'En la temporada **2026-27**, el primer equipo compite en **LaLiga**, **UEFA Champions League** y **Copa del Rey** bajo la dirección de **Diego Pablo Simeone**.',
     ],
     milestones: [
       { year: '2014', title: 'La Décima… a un paso', description: 'Final de Champions en Lisboa.' },
       { year: '2018', title: 'Europa League', description: 'Título europeo en Lyon.' },
       { year: '2021', title: 'Liga', description: 'Campeones de LaLiga.' },
-      { year: '2026', title: 'Proyecto 25/26', description: 'Plantilla renovada y Metropolitano como sede.' },
+      { year: '2026', title: 'Temporada 26/27', description: 'Plantilla oficial del primer equipo y Metropolitano como sede.' },
     ],
     timeline: [
       { title: '2017 — Metropolitano', description: 'Inauguración del estadio propiedad del club.' },
@@ -503,20 +505,20 @@ const atmPack: ClubDemoPack = {
       { label: 'Supercopas de Europa', count: 3, detail: 'Palmarés histórico' },
     ],
     equipacionTitle: 'Equipaciones Oficiales Hombre 26/27',
-    equipacionDescription: `Solo masculino — 1ª, 2ª, 3ª, portero y entrenamiento desde ${ATM_OFFICIAL_STORE_URL}`,
+    equipacionDescription: `1ª, 2ª y 3ª: camiseta y pantalón. Porteros 26/27. Tienda: ${ATM_OFFICIAL_STORE_URL}`,
     equipacionItems: [
       {
-        name: 'Camiseta Match Hombre 1ª Equipación 26/27',
+        name: 'Camiseta Match 1ª Equipación 26/27',
         price: '€159.95',
         image: ATM_SHOP_IMAGES.homeMatch,
       },
       {
-        name: 'Camiseta Manga Larga Hombre 1ª 26/27',
-        price: '€119.95',
-        image: ATM_SHOP_IMAGES.homeLongSleeve,
+        name: 'Pantalón Corto 1ª Equipación 26/27',
+        price: '€54.95',
+        image: ATM_SHOP_IMAGES.homeShort,
       },
       {
-        name: 'Camiseta Match Hombre 2ª Equipación 26/27',
+        name: 'Camiseta Match 2ª Equipación 26/27',
         price: '€159.95',
         image: ATM_SHOP_IMAGES.awayMatch,
       },
@@ -526,24 +528,24 @@ const atmPack: ClubDemoPack = {
         image: ATM_SHOP_IMAGES.awayShort,
       },
       {
-        name: 'Camiseta Match Hombre 3ª Equipación 25/26',
-        price: '€149.95',
+        name: 'Camiseta Match 3ª Equipación 26/27',
+        price: '€159.95',
         image: ATM_SHOP_IMAGES.thirdMatch,
       },
       {
-        name: 'Camiseta Portero Hombre 25/26',
-        price: '€109.95',
+        name: 'Pantalón Corto 3ª Equipación 26/27',
+        price: '€54.95',
+        image: ATM_SHOP_IMAGES.thirdShort,
+      },
+      {
+        name: 'Camiseta Portero Negra 26/27',
+        price: '€159.95',
         image: ATM_SHOP_IMAGES.gkJersey,
       },
       {
-        name: 'Camiseta Entrenamiento Nike Hombre 26/27',
-        price: '€54.95',
-        image: ATM_SHOP_IMAGES.trainingTee,
-      },
-      {
-        name: 'Pantalón Corto 1ª Equipación 26/27',
-        price: '€54.95',
-        image: ATM_SHOP_IMAGES.homeShort,
+        name: 'Camiseta Portero Amarilla 26/27',
+        price: '€159.95',
+        image: ATM_SHOP_IMAGES.gkJerseyYellow,
       },
     ],
   },
@@ -582,7 +584,7 @@ const atmPack: ClubDemoPack = {
       tag: 'Club',
       image: '/clubs/atm/news/patrocinadores-oficiales.png',
       description:
-        'Hyundai, EA Sports FC, Red Bull, Movistar, CaixaBank, Google Cloud, Coca-Cola y proveedores oficiales del club.',
+      description: `Oficiales: ${ATM_SPONSORS_OFFICIAL.join(', ')}. Proveedores: ${ATM_SPONSORS_SUPPLIERS.join(', ')}.`,
       date: '2026-07-27',
       url: ATM_SPONSORS_URL,
     },

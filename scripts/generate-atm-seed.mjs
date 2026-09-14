@@ -65,7 +65,7 @@ VALUES (
   '${TEAM}'::uuid,
   'Atlético de Madrid',
   'ATM',
-  '2025-2026',
+  '2026-2027',
   'LaLiga',
   '#FFFFFF',
   '#E8151E',

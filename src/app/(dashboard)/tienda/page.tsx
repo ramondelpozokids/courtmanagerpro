@@ -1,6 +1,7 @@
 'use client';
 
 import { OfficialStoreCard } from '@/modules/official-store';
+import { AtmSponsorsCard } from '@/components/clubs/AtmSponsorsCard';
 import { useClubBranding } from '@/contexts/ClubDemoContext';
 import { getOfficialStoreForSlug } from '@/config/store';
 
@@ -20,6 +21,11 @@ export default function TiendaPage() {
         </p>
       </div>
       <OfficialStoreCard />
+      {branding.slug === 'atm' && (
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <AtmSponsorsCard />
+        </div>
+      )}
     </div>
   );
 }

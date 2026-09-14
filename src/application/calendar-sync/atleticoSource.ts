@@ -39,7 +39,18 @@ function decode(s: string): string {
 }
 
 function parseSpanishDate(fragment: string, yearHint: number): { date: string; time: string | null } | null {
-  // "Sábado 1 de agosto - 15:00" | "Miércoles 19 de agosto - 21:00"
+  const range = fragment.match(
+    /(\d{1,2})\s+o\s+(?:domingo\s+)?(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i
+  );
+  if (range) {
+    const day = Number(range[1]);
+    const month = MONTHS[range[3].toLowerCase()];
+    if (!month) return null;
+    let year = yearHint;
+    if (month <= 6) year = yearHint + 1;
+    const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return { date, time: null };
+  }
   const m = fragment.match(
     /(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s*-\s*(\d{1,2}:\d{2}))?/i
   );
@@ -48,10 +59,76 @@ function parseSpanishDate(fragment: string, yearHint: number): { date: string; t
   const month = MONTHS[m[2].toLowerCase()];
   if (!month) return null;
   let year = yearHint;
-  // Jul-Dec → yearHint; Jan-Jun → yearHint+1 if we're mid season from Jul
   if (month <= 6) year = yearHint + 1;
   const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   return { date, time: m[3] || null };
+}
+
+function isAtleti(name: string): boolean {
+  return /atl[eé]tico/i.test(name);
+}
+
+function parseFixturesFromHtml(html: string): OfficialFixture[] {
+  const blocks = html.split(/class="header-calendar/);
+  const fixtures: OfficialFixture[] = [];
+  for (let i = 1; i < blocks.length; i++) {
+    const block = blocks[i];
+    const local = decode((block.match(/<li class="local">[\s\S]*?<dt>([^<]+)<\/dt>/i) || [])[1] || '');
+    const visitante = decode((block.match(/<li class="visitante">[\s\S]*?<dt>([^<]+)<\/dt>/i) || [])[1] || '');
+    if (!local || !visitante) continue;
+    const home = isAtleti(local);
+    const rival = home ? visitante : local;
+    const info = decode((block.match(/class="info-calendario"[\s\S]*?<\/div>/i) || [])[0] || '');
+    const parsed = parseSpanishDate(info, 2026);
+    if (!parsed) continue;
+    const timeMatch = info.match(/(\d{1,2}:\d{2})/);
+    const time = timeMatch ? timeMatch[1] : parsed.time;
+    const venueMatch = info.match(
+      /(Riyadh Air Metropolitano|Anfield|Estadio[^-\n]{2,60}|Strawberry Arena|Seoul World Cup Stadium|CEPAC Vélodrome|MHPArena|Philips Stadion|Aspmyra Stadion|Camp Nou|El Sadar|La Rosaleda|El Sardinero|Mestalla|RCDE Stadium)/i
+    );
+    const venue = venueMatch ? venueMatch[1].replace(/<i>.*$/, '').trim() : '';
+    let competition = 'LaLiga';
+    if (/Amistoso/i.test(info) || /competicion-amis/i.test(block)) competition = 'Amistoso';
+    else if (/Copa del Rey|competicion-copa/i.test(info + block)) competition = 'Copa del Rey';
+    else if (/Coupang/i.test(info) || /competicion-coupang/i.test(block)) competition = 'Coupang Play Series';
+    else if (/Champions|UEFA|jornada 1[\s\S]{0,80}Anfield|MHPArena|Philips|Aspmyra|Bayern|Liverpool|Stuttgart|Fenerbah|Bodo|PSV|Manchester Utd/i.test(block + info + rival)) {
+      if (/Anfield|MHPArena|Philips|Aspmyra|Bayern|Liverpool|Stuttgart|Fenerbah|Bodo|PSV|Manchester Utd|Viking/i.test(block + rival + venue)) {
+        competition = 'UEFA Champions League';
+      }
+    }
+    if (/competicion-ucl|champions/i.test(block)) competition = 'UEFA Champions League';
+    const jornadaMatch = info.match(/Jornada\s+(\d+)/i);
+    const jornada = jornadaMatch ? jornadaMatch[1] : undefined;
+    const scoreLocal = (block.match(/<li class="local">[\s\S]*?class="marcador">(\d+)</i) || [])[1];
+    const scoreVisit = (block.match(/<li class="visitante">[\s\S]*?class="marcador">(\d+)</i) || [])[1];
+    const played = scoreLocal != null && scoreVisit != null;
+    const timeNorm = time || '00:00';
+    const match_datetime = `${parsed.date}T${timeNorm.length === 5 ? timeNorm + ':00' : timeNorm}.000Z`;
+    const slug = `atm-${parsed.date}-${rival.toLowerCase().replace(/\s+/g, '-')}`;
+    fixtures.push({
+      official_id: `atm-${i}`,
+      official_slug: slug,
+      match_datetime,
+      match_date: parsed.date,
+      match_time: time,
+      rival,
+      home_away: home ? 'local' : 'visitante',
+      competition,
+      competition_slug: competition.toLowerCase().replace(/\s+/g, '-'),
+      jornada: jornada || null,
+      venue,
+      city: null,
+      country: 'España',
+      status: played ? 'finalizado' : 'pendiente',
+      score_home: played ? Number(scoreLocal) : null,
+      score_away: played ? Number(scoreVisit) : null,
+      score_text: played ? `${scoreLocal}-${scoreVisit}` : null,
+      partial_score: null,
+      result: null,
+      official_url: ATLETICO_CALENDAR_PAGE_URL,
+    });
+  }
+  return fixtures;
 }
 
 /** Seed mínimo alineado con calendario oficial 25/26 (si el scrape falla). */
@@ -146,12 +223,10 @@ export async function fetchAtleticoOfficialCalendar(): Promise<OfficialCalendarS
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
-    const text = decode(html);
-    // Heurística: bloques "Rival - Atlético" / "Atlético - Rival" + fecha
-    const fixtures = seedFixtures();
-    // If page mentions many rivals, keep seed (stable) — full HTML DOM parse is brittle.
-    if (!/Manchester United/i.test(text) && !/Riyadh Air Metropolitano/i.test(text)) {
-      console.warn('[calendar-sync] ATM page unexpected — using seed fixtures');
+    const parsed = parseFixturesFromHtml(html);
+    const fixtures = parsed.length >= 8 ? parsed : seedFixtures();
+    if (parsed.length < 8) {
+      console.warn(`[calendar-sync] ATM HTML parse ${parsed.length} — using seed fixtures`);
     }
     return {
       source_id: 'atletico_madrid_official_calendar',
