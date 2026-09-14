@@ -3,7 +3,7 @@ import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { isServerProduction, requireApiUser } from '@/lib/supabase-route-auth';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { isRealMadridTeamId } from '@/lib/club-team-ids';
-import { mapPackTripsForTeam } from '@/lib/club-trips';
+import { isUpcomingTrip, mapPackTripsForTeam } from '@/lib/club-trips';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 import { getClubDataWriteClient } from '@/lib/security/production-write-client';
 
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!isRealMadridTeamId(teamId)) {
-      return NextResponse.json(db.trips);
+      return NextResponse.json((db.trips || []).filter(isUpcomingTrip));
     }
 
     const pg = (await getClubDataWriteClient()) as any;
@@ -91,10 +91,17 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    return NextResponse.json((trips || []).map((t: any) => rowToUiTrip(t, itemsByTrip[t.id] || [])));
+    const mapped = (trips || [])
+      .map((t: any) => rowToUiTrip(t, itemsByTrip[t.id] || []))
+      .filter(isUpcomingTrip);
+    if (mapped.length === 0) {
+      const pack = mapPackTripsForTeam(teamId);
+      if (pack.length) return NextResponse.json(pack);
+    }
+    return NextResponse.json(mapped);
   }
 
-  return NextResponse.json(db.trips);
+  return NextResponse.json((db.trips || []).filter(isUpcomingTrip));
 }
 
 export async function POST(request: NextRequest) {

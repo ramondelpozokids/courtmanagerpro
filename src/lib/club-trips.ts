@@ -22,8 +22,25 @@ type PackTrip = {
   }>;
 };
 
+function todayIsoLocal(): string {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+}
+
+/** Oculta amistosos / desplazamientos ya jugados. */
+export function isUpcomingTrip(t: {
+  returnDate?: string;
+  departureDate?: string;
+  return_date?: string;
+  departure_date?: string;
+}): boolean {
+  const end = String(t.returnDate || t.return_date || t.departureDate || t.departure_date || '').slice(0, 10);
+  if (!end) return true;
+  return end >= todayIsoLocal();
+}
+
 function mapPackTrips(trips: PackTrip[]): Trip[] {
-  return trips.map((t) => ({
+  return trips.filter(isUpcomingTrip).map((t) => ({
     id: t.id,
     destination: t.destination,
     opponent: t.opponent,

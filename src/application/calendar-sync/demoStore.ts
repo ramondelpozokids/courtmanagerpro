@@ -12,6 +12,7 @@ import {
 } from './types';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
+import { isPastAtleticoFriendly } from './atleticoSource';
 
 interface DemoMatchSyncLog {
   id: string;
@@ -64,7 +65,11 @@ function ensureStore(): OfficialMatch[] {
 }
 
 export function getDemoOfficialMatches(teamId: string): OfficialMatch[] {
-  return ensureStore().filter((m) => m.team_id === teamId && m.is_active !== false);
+  return ensureStore().filter((m) => {
+    if (m.team_id !== teamId || m.is_active === false) return false;
+    if (teamId === CLUB_TEAM_IDS.atm && isPastAtleticoFriendly(m)) return false;
+    return true;
+  });
 }
 
 export function getDemoMatchHistory(teamId: string, limit = 50) {

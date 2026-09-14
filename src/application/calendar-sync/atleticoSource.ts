@@ -52,7 +52,7 @@ function parseSpanishDate(fragment: string, yearHint: number): { date: string; t
     return { date, time: null };
   }
   const m = fragment.match(
-    /(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s*-\s*(\d{1,2}:\d{2}))?/i
+    /(\d{1,2})\s+(?:de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s*-\s*(\d{1,2}:\d{2}))?/i
   );
   if (!m) return null;
   const day = Number(m[1]);
@@ -84,7 +84,7 @@ function parseFixturesFromHtml(html: string): OfficialFixture[] {
     const timeMatch = info.match(/(\d{1,2}:\d{2})/);
     const time = timeMatch ? timeMatch[1] : parsed.time;
     const venueMatch = info.match(
-      /(Riyadh Air Metropolitano|Anfield|Estadio[^-\n]{2,60}|Strawberry Arena|Seoul World Cup Stadium|CEPAC Vélodrome|MHPArena|Philips Stadion|Aspmyra Stadion|Camp Nou|El Sadar|La Rosaleda|El Sardinero|Mestalla|RCDE Stadium)/i
+      /(Riyadh Air Metropolitano|Anfield|Estadio[^-\n]{2,60}|Mendizorroza|Strawberry Arena|Seoul World Cup Stadium|CEPAC Vélodrome|MHPArena|Philips Stadion|Aspmyra Stadion|Camp Nou|El Sadar|La Rosaleda|El Sardinero|Mestalla|RCDE Stadium)/i
     );
     const venue = venueMatch ? venueMatch[1].replace(/<i>.*$/, '').trim() : '';
     let competition = 'LaLiga';
@@ -131,7 +131,23 @@ function parseFixturesFromHtml(html: string): OfficialFixture[] {
   return fixtures;
 }
 
-/** Seed mínimo alineado con calendario oficial 25/26 (si el scrape falla). */
+function todayIsoLocal(): string {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+}
+
+/** Amistosos / Coupang ya jugados (julio-agosto) no deben ocupar el calendario actual. */
+export function isPastAtleticoFriendly(m: {
+  match_date?: string | null;
+  competition?: string | null;
+}): boolean {
+  const preseason = /amistoso|coupang/i.test(m.competition || '');
+  const date = String(m.match_date || '').slice(0, 10);
+  if (!preseason || !date) return false;
+  return date < todayIsoLocal();
+}
+
+/** Seed mínimo alineado con calendario oficial 26/27 (si el scrape falla). */
 function seedFixtures(): OfficialFixture[] {
   const rows: Array<{
     rival: string;
@@ -143,46 +159,49 @@ function seedFixtures(): OfficialFixture[] {
     jornada?: string;
   }> = [
     {
-      rival: 'Manchester United',
-      home: false,
-      date: '2026-08-01',
-      time: '15:00',
-      competition: 'Amistoso',
-      venue: 'Strawberry Arena',
-    },
-    {
-      rival: 'Manchester City',
-      home: false,
-      date: '2026-08-09',
-      time: null,
-      competition: 'Coupang Play Series',
-      venue: 'Seoul World Cup Stadium',
-    },
-    {
-      rival: 'Olympique de Marsella',
-      home: false,
-      date: '2026-08-14',
-      time: '17:30',
-      competition: 'Amistoso',
-      venue: 'CEPAC Vélodrome',
-    },
-    {
-      rival: 'Málaga',
+      rival: 'Osasuna',
       home: true,
-      date: '2026-08-19',
-      time: '21:00',
+      date: '2026-09-16',
+      time: '19:00',
       competition: 'LaLiga',
       venue: 'Riyadh Air Metropolitano',
-      jornada: '1',
+      jornada: '6',
     },
     {
-      rival: 'Villarreal CF',
+      rival: 'Real Madrid',
       home: true,
-      date: '2026-08-23',
-      time: '17:00',
+      date: '2026-09-20',
+      time: '16:15',
       competition: 'LaLiga',
+      venue: 'Riyadh Air Metropolitano',
+      jornada: '7',
+    },
+    {
+      rival: 'Alavés',
+      home: false,
+      date: '2026-10-10',
+      time: '16:15',
+      competition: 'LaLiga',
+      venue: 'Estadio de Mendizorroza',
+      jornada: '8',
+    },
+    {
+      rival: 'Manchester Utd',
+      home: true,
+      date: '2026-10-13',
+      time: '21:00',
+      competition: 'UEFA Champions League',
       venue: 'Riyadh Air Metropolitano',
       jornada: '2',
+    },
+    {
+      rival: 'Espanyol',
+      home: false,
+      date: '2026-10-18',
+      time: null,
+      competition: 'LaLiga',
+      venue: 'RCDE Stadium',
+      jornada: '9',
     },
   ];
 
@@ -224,9 +243,10 @@ export async function fetchAtleticoOfficialCalendar(): Promise<OfficialCalendarS
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
     const parsed = parseFixturesFromHtml(html);
-    const fixtures = parsed.length >= 8 ? parsed : seedFixtures();
-    if (parsed.length < 8) {
-      console.warn(`[calendar-sync] ATM HTML parse ${parsed.length} — using seed fixtures`);
+    const current = parsed.filter((f) => !isPastAtleticoFriendly(f));
+    const fixtures = current.length >= 5 ? current : seedFixtures();
+    if (current.length < 5) {
+      console.warn(`[calendar-sync] ATM HTML parse ${parsed.length} (${current.length} vigentes) — using seed fixtures`);
     }
     return {
       source_id: 'atletico_madrid_official_calendar',

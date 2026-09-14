@@ -5,10 +5,12 @@ import { usesDemoClubData } from "@/lib/club-preview";
 import { isMockMode } from "@/lib/demo-data";
 import { useActiveTeamId } from "@/contexts/ClubDemoContext";
 import { isUuid } from "@/lib/club-team-ids";
-import { mapPackTripsForTeam } from "@/lib/club-trips";
+import { isUpcomingTrip, mapPackTripsForTeam } from "@/lib/club-trips";
 
 function mapDbTrips(): Trip[] {
-  return (db.trips || []).map((t: any) => ({
+  return (db.trips || [])
+    .filter(isUpcomingTrip)
+    .map((t: any) => ({
     ...t,
     packingList: (t.packingList || []).map((pi: any) => ({ ...pi })),
   })) as Trip[];
@@ -37,7 +39,7 @@ export function useTrips() {
       });
       if (!res.ok) throw new Error("Error fetching trips");
       const data = await res.json();
-      const rows = Array.isArray(data) ? data : [];
+      const rows = (Array.isArray(data) ? data : []).filter(isUpcomingTrip);
       if (rows.length === 0) {
         const pack = mapPackTripsForTeam(teamId);
         if (pack.length) {

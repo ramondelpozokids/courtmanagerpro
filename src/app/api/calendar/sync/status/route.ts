@@ -6,6 +6,8 @@ import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
 import { getCalendarSyncStatus } from '@/application/calendar-sync/runSync';
 import { getDemoOfficialMatches } from '@/application/calendar-sync/demoStore';
 import { getOfficialCalendarMetaForTeam } from '@/application/calendar-sync/types';
+import { isPastAtleticoFriendly } from '@/application/calendar-sync/atleticoSource';
+import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import type { OfficialMatch } from '@/types';
 
 export const runtime = 'nodejs';
@@ -43,7 +45,9 @@ export async function GET(req: NextRequest) {
         .eq('team_id', teamId)
         .eq('is_active', true)
         .order('match_datetime', { ascending: true });
-      matches = (data || []) as OfficialMatch[];
+      matches = ((data || []) as OfficialMatch[]).filter(
+        (m) => !(teamId === CLUB_TEAM_IDS.atm && isPastAtleticoFriendly(m))
+      );
     } else {
       matches = getDemoOfficialMatches(teamId);
     }
