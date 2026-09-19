@@ -18,6 +18,7 @@ import {
   num,
   parseSquadFromHtmlFallback,
 } from '../parser';
+import { RMB_OFFICIAL_PLAYERS, RMB_OFFICIAL_STAFF } from '@/data/rmb-official-roster';
 import { inferNationality } from '@/lib/nationality';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
 import { createAtleticoRosterSource } from './atleticoOfficial';
@@ -52,16 +53,19 @@ async function fetchHtmlWithRetry(url: string, attempts = 3): Promise<string> {
 
 function listItemToPlayer(item: Record<string, unknown>, plantillaUrl: string): OfficialPlayer {
   const slug = String(item.slug || '');
-  const name = String(item.name || '');
-  const surnames = String(item.surnames || item.nickname || '');
-  const full_name =
-    `${name} ${surnames}`.trim() || String(item.nickname || slug.replace(/-/g, ' '));
+  const name = String(item.name || item.firstName || '');
+  const surnames = String(item.surnames || item.lastName || '');
+  const nickname = String(item.nickname || '');
+  const fromParts = `${name} ${surnames}`.replace(/\s+/g, ' ').trim();
+  const isBasket = /baloncesto/.test(plantillaUrl);
+  const known = isBasket ? RMB_OFFICIAL_PLAYERS.find((p) => p.slug === slug) : undefined;
+  const full_name = known?.full_name || fromParts || nickname || slug.replace(/-/g, ' ');
 
   return {
     slug,
     full_name,
-    first_name: name || full_name.split(' ')[0] || '',
-    last_name: surnames || full_name.split(' ').slice(1).join(' ') || '',
+    first_name: known?.firstName || name || full_name.split(' ')[0] || '',
+    last_name: known?.lastName || surnames || full_name.split(' ').slice(1).join(' ') || '',
     dorsal: num(item.number),
     position: (item.position as string) || null,
     position_demo: mapPosition(item.position, item.optaPosition),
@@ -70,24 +74,27 @@ function listItemToPlayer(item: Record<string, unknown>, plantillaUrl: string): 
       capitalizeNationality(item.nationality),
       (item.birthPlace as string) || null
     ),
-    birth_date: (item.birthDate as string) || null,
+    birth_date: (item.birthDate as string) || known?.birth_date || null,
     profile_url: `${plantillaUrl}/${slug}`,
   };
 }
 
 function listItemToStaff(item: Record<string, unknown>, plantillaUrl: string): OfficialStaff {
   const slug = String(item.slug || '');
-  const name = String(item.name || '');
-  const surnames = String(item.surnames || item.nickname || '');
-  const full_name =
-    `${name} ${surnames}`.trim() || String(item.nickname || slug.replace(/-/g, ' '));
+  const name = String(item.name || item.firstName || '');
+  const surnames = String(item.surnames || item.lastName || '');
+  const nickname = String(item.nickname || '');
+  const fromParts = `${name} ${surnames}`.replace(/\s+/g, ' ').trim();
+  const isBasket = /baloncesto/.test(plantillaUrl);
+  const known = isBasket ? RMB_OFFICIAL_STAFF.find((s) => s.slug === slug) : undefined;
+  const full_name = known?.full_name || fromParts || nickname || slug.replace(/-/g, ' ');
 
   return {
     slug,
     full_name,
-    first_name: name || full_name.split(' ')[0] || '',
-    last_name: surnames || full_name.split(' ').slice(1).join(' ') || '',
-    role: String(item.role || 'Cuerpo técnico'),
+    first_name: known?.firstName || name || full_name.split(' ')[0] || '',
+    last_name: known?.lastName || surnames || full_name.split(' ').slice(1).join(' ') || '',
+    role: known?.role || String(item.role || 'Cuerpo técnico'),
     photo_url:
       imageUrl(item.squadImage as Record<string, unknown>) ||
       imageUrl(item.image as Record<string, unknown>),

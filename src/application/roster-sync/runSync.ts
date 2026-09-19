@@ -48,16 +48,14 @@ function emptyResult(
 }
 
 async function loadDbRows(supabase: SupabaseClient, teamId: string) {
-  const [{ data: players }, { data: staff }] = await Promise.all([
-    supabase
-      .from('players')
-      .select('id, team_id, dorsal, full_name, position, photo_url, is_active, official_slug, source')
-      .eq('team_id', teamId),
-    supabase
-      .from('coaching_staff')
-      .select('id, team_id, full_name, role, photo_url, is_active, official_slug, source')
-      .eq('team_id', teamId),
-  ]);
+  const [{ data: players, error: playersError }, { data: staff, error: staffError }] =
+    await Promise.all([
+      supabase.from('players').select('*').eq('team_id', teamId),
+      supabase.from('coaching_staff').select('*').eq('team_id', teamId),
+    ]);
+
+  if (playersError) throw new Error(`load players: ${playersError.message}`);
+  if (staffError) throw new Error(`load staff: ${staffError.message}`);
 
   return {
     players: (players || []) as DbPlayerRow[],

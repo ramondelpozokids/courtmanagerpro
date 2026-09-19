@@ -1,15 +1,49 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { OfficialRosterSnapshot, RosterDiff } from './sources/types';
+import { matchPlayer, matchStaff } from './diffEngine';
+import type {
+  DbPlayerRow,
+  DbStaffRow,
+  OfficialRosterSnapshot,
+  RosterDiff,
+} from './sources/types';
 import { REAL_MADRID_SOURCE_ID } from './sources/types';
+import { writeIgnoringUnknownColumns } from '@/lib/postgrest-schema';
 
 function officialEntitySource(snapshot: OfficialRosterSnapshot): string {
   if (snapshot.source_id?.includes('atletico')) return 'atleticodemadrid.com';
   return 'realmadrid.com';
 }
 
+function asMeta(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
+}
+
+function nextParkedDorsal(rows: Array<{ dorsal?: number | null }>): number {
+  const used = new Set(rows.map((r) => Number(r.dorsal || 0)));
+  let dorsal = 9000;
+  while (used.has(dorsal)) dorsal += 1;
+  return dorsal;
+}
+
+async function loadTeamPlayers(supabase: SupabaseClient, teamId: string): Promise<DbPlayerRow[]> {
+  const { data, error } = await supabase.from('players').select('*').eq('team_id', teamId);
+  if (error) throw new Error(`load players: ${error.message}`);
+  return (data || []) as DbPlayerRow[];
+}
+
+async function loadTeamStaff(supabase: SupabaseClient, teamId: string): Promise<DbStaffRow[]> {
+  const { data, error } = await supabase.from('coaching_staff').select('*').eq('team_id', teamId);
+  if (error) throw new Error(`load staff: ${error.message}`);
+  return (data || []) as DbStaffRow[];
+}
+
 /**
  * Apply roster diff atomically (best-effort sequential ops with soft-delete).
  * Never hard-deletes players or staff.
+ * Writes omit columns that PostgREST says are missing (prod sin migración 008).
  */
 export async function applyRosterDiff(params: {
   supabase: SupabaseClient;
@@ -25,178 +59,119 @@ export async function applyRosterDiff(params: {
   const now = params.nowIso || new Date().toISOString();
   const entitySource = officialEntitySource(snapshot);
 
+  let players = await loadTeamPlayers(supabase, teamId);
+  let staff = await loadTeamStaff(supabase, teamId);
+
   for (const change of diff.changes) {
     if (change.change_type === 'baja' && change.entity_id) {
-      const parked = 9000 + Math.floor(Math.random() * 800);
-      const full = {
-        is_active: false,
-        deactivated_at: now,
-        dorsal: parked,
-        updated_at: now,
-      };
-      let { error } = await supabase.from('players').update(full).eq('id', change.entity_id);
-      if (error) {
-        ({ error } = await supabase
-          .from('players')
-          .update({ is_active: false, dorsal: parked, updated_at: now })
-          .eq('id', change.entity_id));
-      }
-      if (error) throw new Error(`baja player: ${error.message}`);
+      const parked = nextParkedDorsal(players);
+      await writeIgnoringUnknownColumns(
+        (row) => supabase.from('players').update(row).eq('id', change.entity_id!),
+        {
+          is_active: false,
+          deactivated_at: now,
+          dorsal: parked,
+          updated_at: now,
+        }
+      );
+      players = players.map((p) =>
+        p.id === change.entity_id ? { ...p, is_active: false, dorsal: parked } : p
+      );
     }
     if (change.change_type === 'staff_baja' && change.entity_id) {
-      const { error } = await supabase
-        .from('coaching_staff')
-        .update({ is_active: false, deactivated_at: now, updated_at: now })
-        .eq('id', change.entity_id);
-      if (error) throw new Error(`baja staff: ${error.message}`);
+      await writeIgnoringUnknownColumns(
+        (row) => supabase.from('coaching_staff').update(row).eq('id', change.entity_id!),
+        {
+          is_active: false,
+          deactivated_at: now,
+          updated_at: now,
+        }
+      );
     }
   }
+
+  players = await loadTeamPlayers(supabase, teamId);
 
   for (const op of snapshot.players) {
     const photo = playerPhotos[op.slug] || op.photo_url;
     const dorsal = op.dorsal > 0 ? op.dorsal : 99;
+    const existing = matchPlayer(players, op);
+    const targetId = existing?.id;
 
-    const { data: bySlug } = await supabase
-      .from('players')
-      .select('id')
-      .eq('team_id', teamId)
-      .eq('official_slug', op.slug)
-      .maybeSingle();
-
-    let targetId = bySlug?.id as string | undefined;
-
-    if (!targetId) {
-      const { data: byName } = await supabase
-        .from('players')
-        .select('id')
-        .eq('team_id', teamId)
-        .ilike('full_name', op.full_name)
-        .maybeSingle();
-      targetId = byName?.id;
-    }
-
-    // Free dorsal on other rows to avoid UNIQUE(team_id, dorsal)
     if (dorsal > 0 && dorsal < 9000) {
-      const { data: conflicts } = await supabase
-        .from('players')
-        .select('id')
-        .eq('team_id', teamId)
-        .eq('dorsal', dorsal);
-      for (const row of conflicts || []) {
+      for (const row of players) {
         if (targetId && row.id === targetId) continue;
-        await supabase
-          .from('players')
-          .update({ dorsal: 9000 + Math.floor(Math.random() * 800), updated_at: now })
-          .eq('id', row.id);
+        if (row.dorsal !== dorsal) continue;
+        await writeIgnoringUnknownColumns(
+          (payload) => supabase.from('players').update(payload).eq('id', row.id),
+          { dorsal: nextParkedDorsal(players), updated_at: now }
+        );
+        players = await loadTeamPlayers(supabase, teamId);
       }
     }
 
+    const existingMeta = asMeta(existing?.metadata);
+    const payload: Record<string, unknown> = {
+      team_id: teamId,
+      dorsal,
+      full_name: op.full_name,
+      position: op.position_demo,
+      photo_url: photo,
+      nationality: op.nationality,
+      birth_date: op.birth_date || null,
+      is_active: true,
+      source: entitySource,
+      official_slug: op.slug,
+      activated_at: now,
+      deactivated_at: null,
+      updated_at: now,
+      jersey_name: op.last_name?.toUpperCase() || null,
+      metadata: {
+        ...existingMeta,
+        slug: op.slug,
+        official_slug: op.slug,
+        profile_url: op.profile_url,
+        first_name: op.first_name,
+        last_name: op.last_name,
+        official_position: op.position,
+      },
+    };
+
     if (targetId) {
-      const { data: existing } = await supabase
-        .from('players')
-        .select('metadata')
-        .eq('id', targetId)
-        .maybeSingle();
-      const existingMeta =
-        existing?.metadata && typeof existing.metadata === 'object' && !Array.isArray(existing.metadata)
-          ? (existing.metadata as Record<string, unknown>)
-          : {};
-      const payload = {
-        team_id: teamId,
-        dorsal,
-        full_name: op.full_name,
-        position: op.position_demo,
-        photo_url: photo,
-        nationality: op.nationality,
-        birth_date: op.birth_date,
-        is_active: true,
-        source: entitySource,
-        official_slug: op.slug,
-        activated_at: now,
-        deactivated_at: null,
-        updated_at: now,
-        jersey_name: op.last_name?.toUpperCase() || null,
-        metadata: {
-          ...existingMeta,
-          slug: op.slug,
-          profile_url: op.profile_url,
-          first_name: op.first_name,
-          last_name: op.last_name,
-          official_position: op.position,
-        },
-      };
-      const { error } = await supabase.from('players').update(payload).eq('id', targetId);
-      if (error) throw new Error(`update player ${op.slug}: ${error.message}`);
+      await writeIgnoringUnknownColumns(
+        (row) => supabase.from('players').update(row).eq('id', targetId),
+        payload
+      );
     } else {
-      const payload = {
-        team_id: teamId,
-        dorsal,
-        full_name: op.full_name,
-        position: op.position_demo,
-        photo_url: photo,
-        nationality: op.nationality,
-        birth_date: op.birth_date,
-        is_active: true,
-        source: entitySource,
-        official_slug: op.slug,
-        activated_at: now,
-        deactivated_at: null,
-        updated_at: now,
-        jersey_name: op.last_name?.toUpperCase() || null,
-        metadata: {
-          slug: op.slug,
-          profile_url: op.profile_url,
-          first_name: op.first_name,
-          last_name: op.last_name,
-          official_position: op.position,
-        },
-      };
-      const { error } = await supabase.from('players').insert({ ...payload, created_at: now });
-      if (error) throw new Error(`insert player ${op.slug}: ${error.message}`);
+      await writeIgnoringUnknownColumns(
+        (row) => supabase.from('players').insert(row),
+        { ...payload, created_at: now }
+      );
     }
+
+    players = await loadTeamPlayers(supabase, teamId);
   }
+
+  staff = await loadTeamStaff(supabase, teamId);
 
   for (const os of snapshot.staff) {
     const photo = staffPhotos[os.slug] || os.photo_url;
-
-    const { data: bySlug } = await supabase
-      .from('coaching_staff')
-      .select('id')
-      .eq('team_id', teamId)
-      .eq('official_slug', os.slug)
-      .maybeSingle();
-
-    let targetId = bySlug?.id as string | undefined;
-    if (!targetId) {
-      const { data: byName } = await supabase
-        .from('coaching_staff')
-        .select('id')
-        .eq('team_id', teamId)
-        .ilike('full_name', os.full_name)
-        .maybeSingle();
-      targetId = byName?.id;
-    }
+    const existing = matchStaff(staff, os);
+    const targetId = existing?.id;
 
     let existingNotes: Record<string, unknown> = {};
-    if (targetId) {
-      const { data: existing } = await supabase
-        .from('coaching_staff')
-        .select('notes')
-        .eq('id', targetId)
-        .maybeSingle();
-      const raw = existing?.notes;
-      if (typeof raw === 'string' && raw.trim().startsWith('{')) {
-        try {
-          existingNotes = JSON.parse(raw) as Record<string, unknown>;
-        } catch {
-          existingNotes = {};
-        }
-      } else if (raw && typeof raw === 'object') {
-        existingNotes = raw as Record<string, unknown>;
+    const raw = existing?.notes;
+    if (typeof raw === 'string' && raw.trim().startsWith('{')) {
+      try {
+        existingNotes = JSON.parse(raw) as Record<string, unknown>;
+      } catch {
+        existingNotes = {};
       }
+    } else if (raw && typeof raw === 'object') {
+      existingNotes = raw as Record<string, unknown>;
     }
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       team_id: teamId,
       full_name: os.full_name,
       role: os.role,
@@ -216,12 +191,18 @@ export async function applyRosterDiff(params: {
     };
 
     if (targetId) {
-      const { error } = await supabase.from('coaching_staff').update(payload).eq('id', targetId);
-      if (error) throw new Error(`update staff ${os.slug}: ${error.message}`);
+      await writeIgnoringUnknownColumns(
+        (row) => supabase.from('coaching_staff').update(row).eq('id', targetId),
+        payload
+      );
     } else {
-      const { error } = await supabase.from('coaching_staff').insert({ ...payload, created_at: now });
-      if (error) throw new Error(`insert staff ${os.slug}: ${error.message}`);
+      await writeIgnoringUnknownColumns(
+        (row) => supabase.from('coaching_staff').insert(row),
+        { ...payload, created_at: now }
+      );
     }
+
+    staff = await loadTeamStaff(supabase, teamId);
   }
 
   if (diff.changes.length > 0) {

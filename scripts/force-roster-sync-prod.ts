@@ -51,14 +51,14 @@ async function main() {
 
   const { data: players, error: pErr } = await supabase
     .from('players')
-    .select('full_name, dorsal, is_active, official_slug')
+    .select('full_name, dorsal, is_active, metadata')
     .eq('team_id', DEFAULT_TEAM_ID)
     .eq('is_active', true)
     .order('dorsal');
 
   const { data: staff, error: sErr } = await supabase
     .from('coaching_staff')
-    .select('full_name, role, is_active, official_slug')
+    .select('full_name, role, is_active, notes')
     .eq('team_id', DEFAULT_TEAM_ID)
     .eq('is_active', true);
 
@@ -67,11 +67,12 @@ async function main() {
 
   console.log('\nJugadores activos:', players?.length ?? 0);
   for (const p of players || []) {
-    console.log(`  #${p.dorsal ?? '-'} ${p.full_name} (${p.official_slug || 'sin slug'})`);
+    const meta = p.metadata && typeof p.metadata === 'object' ? (p.metadata as { slug?: string }) : {};
+    console.log(`  #${p.dorsal ?? '-'} ${p.full_name} (${meta.slug || 'sin slug'})`);
   }
   console.log('\nCuerpo técnico activo:', staff?.length ?? 0);
   for (const s of staff || []) {
-    console.log(`  ${s.role}: ${s.full_name} (${s.official_slug || 'sin slug'})`);
+    console.log(`  ${s.role}: ${s.full_name}`);
   }
 }
 

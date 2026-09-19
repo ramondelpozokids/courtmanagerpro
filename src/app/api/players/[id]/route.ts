@@ -132,11 +132,19 @@ export async function DELETE(_req: NextRequest, { params }: Params): Promise<Nex
   const access = await assertUserBelongsToTeam(supabase, user.id, existing.team_id);
   if (!access.ok) return access.response;
 
-  const { error } = await db
+  const now = new Date().toISOString();
+  let { error } = await db
     .from('players')
-    .update({ is_active: false, deactivated_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .update({ is_active: false, deactivated_at: now, updated_at: now })
     .eq('id', id)
     .eq('team_id', existing.team_id);
+  if (error && /activated_at|deactivated_at|schema cache/i.test(error.message)) {
+    ({ error } = await db
+      .from('players')
+      .update({ is_active: false, updated_at: now })
+      .eq('id', id)
+      .eq('team_id', existing.team_id));
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

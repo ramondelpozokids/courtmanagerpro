@@ -73,8 +73,9 @@ export interface DbPlayerRow {
   position: string;
   photo_url: string | null;
   is_active: boolean;
-  official_slug: string | null;
+  official_slug?: string | null;
   source?: string | null;
+  metadata?: Record<string, unknown> | null;
 }
 
 export interface DbStaffRow {
@@ -84,8 +85,9 @@ export interface DbStaffRow {
   role: string;
   photo_url: string | null;
   is_active: boolean;
-  official_slug: string | null;
+  official_slug?: string | null;
   source?: string | null;
+  notes?: unknown;
 }
 
 export type RosterDiffChangeType =

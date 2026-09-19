@@ -9,7 +9,7 @@ import type {
   RosterDiffChange,
 } from './sources/types';
 
-function canonicalSlug(slug: string | null | undefined): string {
+export function canonicalSlug(slug: string | null | undefined): string {
   const s = String(slug || '')
     .trim()
     .toLowerCase();
@@ -21,32 +21,53 @@ function canonicalPersonName(name: string): string {
   return normalizeName(name).replace(/^max shulga\b/, 'maksym shulga');
 }
 
-function matchPlayer(db: DbPlayerRow[], official: OfficialPlayer): DbPlayerRow | undefined {
+function slugFromPlayerRow(p: DbPlayerRow): string {
+  if (p.official_slug) return canonicalSlug(p.official_slug);
+  const meta = p.metadata && typeof p.metadata === 'object' ? p.metadata : {};
+  return canonicalSlug(String(meta.slug || meta.official_slug || ''));
+}
+
+function slugFromStaffRow(s: DbStaffRow): string {
+  if (s.official_slug) return canonicalSlug(s.official_slug);
+  const raw = s.notes;
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    const n = raw as Record<string, unknown>;
+    return canonicalSlug(String(n.official_slug || n.slug || ''));
+  }
+  if (typeof raw === 'string' && raw.trim().startsWith('{')) {
+    try {
+      const n = JSON.parse(raw) as Record<string, unknown>;
+      return canonicalSlug(String(n.official_slug || n.slug || ''));
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
+export function matchPlayer(db: DbPlayerRow[], official: OfficialPlayer): DbPlayerRow | undefined {
   const wantSlug = canonicalSlug(official.slug);
   if (wantSlug) {
-    const bySlug = db.find((p) => canonicalSlug(p.official_slug) === wantSlug);
+    const bySlug = db.find((p) => slugFromPlayerRow(p) === wantSlug);
     if (bySlug) return bySlug;
   }
   const officialName = canonicalPersonName(official.full_name);
   const byDorsalName = db.find(
-    (p) =>
-      p.is_active &&
-      p.dorsal === official.dorsal &&
-      canonicalPersonName(p.full_name) === officialName
+    (p) => p.dorsal === official.dorsal && canonicalPersonName(p.full_name) === officialName
   );
   if (byDorsalName) return byDorsalName;
 
-  return db.find((p) => p.is_active && canonicalPersonName(p.full_name) === officialName);
+  return db.find((p) => canonicalPersonName(p.full_name) === officialName);
 }
 
-function matchStaff(db: DbStaffRow[], official: OfficialStaff): DbStaffRow | undefined {
-  if (official.slug) {
-    const bySlug = db.find((s) => s.official_slug === official.slug);
+export function matchStaff(db: DbStaffRow[], official: OfficialStaff): DbStaffRow | undefined {
+  const wantSlug = canonicalSlug(official.slug);
+  if (wantSlug) {
+    const bySlug = db.find((s) => slugFromStaffRow(s) === wantSlug);
     if (bySlug) return bySlug;
   }
-  return db.find(
-    (s) => s.is_active && normalizeName(s.full_name) === normalizeName(official.full_name)
-  );
+  const wantName = normalizeName(official.full_name);
+  return db.find((s) => normalizeName(s.full_name) === wantName);
 }
 
 function photoChanged(oldUrl: string | null, newUrl: string | null): boolean {
