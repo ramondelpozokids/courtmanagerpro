@@ -70,7 +70,7 @@ async function createSyncLog(
   teamId: string,
   trigger: RunSyncOptions['trigger'],
   startedAt: string
-): Promise<string> {
+): Promise<string | null> {
   const { data, error } = await supabase
     .from('sync_log')
     .insert({
@@ -83,15 +83,19 @@ async function createSyncLog(
     .select('id')
     .single();
 
-  if (error || !data) throw new Error(error?.message || 'No se pudo crear sync_log');
+  if (error || !data) {
+    console.warn('[roster-sync] sync_log unavailable:', error?.message);
+    return null;
+  }
   return data.id as string;
 }
 
 async function finishSyncLog(
   supabase: SupabaseClient,
-  syncLogId: string,
+  syncLogId: string | null,
   fields: Record<string, unknown>
 ) {
+  if (!syncLogId) return;
   await supabase.from('sync_log').update(fields).eq('id', syncLogId);
 }
 
@@ -118,13 +122,24 @@ export async function getRosterSyncStatus(
     };
   }
 
-  const { data: last } = await supabase
+  const { data: last, error: logErr } = await supabase
     .from('sync_log')
     .select('*')
     .eq('team_id', teamId)
     .order('started_at', { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  if (logErr) {
+    return {
+      lastSync: null,
+      sourceLabel: sourceLabelForTeam(teamId),
+      hasPendingChanges: false,
+      syncedOk: true,
+      usedCache: false,
+      lastUpdatedAt: null,
+    };
+  }
 
   const status = (last?.status as string) || null;
   const changes = Number(last?.changes_count || 0);
@@ -167,7 +182,7 @@ export async function runRosterSync(params: {
 
   // Idempotent startup skip — el clic manual siempre lleva force
   if (!options.force && options.trigger === 'startup') {
-    const { data: last } = await supabase
+    const { data: last, error: skipErr } = await supabase
       .from('sync_log')
       .select('started_at, status')
       .eq('team_id', options.teamId)
@@ -176,7 +191,7 @@ export async function runRosterSync(params: {
       .limit(1)
       .maybeSingle();
 
-    if (last?.started_at) {
+    if (!skipErr && last?.started_at) {
       const ageH = (Date.now() - new Date(last.started_at).getTime()) / 3_600_000;
       if (ageH < skipHours) {
         const syncLogId = await createSyncLog(supabase, options.teamId, options.trigger, startedAt);
@@ -284,10 +299,6 @@ export async function runRosterSync(params: {
       } catch (photoErr) {
         console.warn('[roster-sync] photo sync partial failure:', photoErr);
       }
-    }
-
-    if (!syncLogId) {
-      syncLogId = await createSyncLog(supabase, options.teamId, options.trigger, startedAt);
     }
 
     await applyRosterDiff({

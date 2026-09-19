@@ -18,9 +18,9 @@ export async function applyRosterDiff(params: {
   snapshot: OfficialRosterSnapshot;
   playerPhotos: Record<string, string>;
   staffPhotos: Record<string, string>;
-  syncLogId: string;
+  syncLogId: string | null;
   nowIso?: string;
-}): Promise<{ syncLogId: string }> {
+}): Promise<{ syncLogId: string | null }> {
   const { supabase, teamId, diff, snapshot, playerPhotos, staffPhotos, syncLogId } = params;
   const now = params.nowIso || new Date().toISOString();
   const entitySource = officialEntitySource(snapshot);
@@ -235,7 +235,7 @@ export async function applyRosterDiff(params: {
       old_value: c.old_value,
       new_value: c.new_value,
       source: snapshot.source_url,
-      sync_log_id: syncLogId,
+      sync_log_id: syncLogId || null,
       created_at: now,
     }));
     const { error: histError } = await supabase.from('roster_history').insert(historyRows);

@@ -14,6 +14,7 @@ import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { scanBirthdayAlerts } from '@/lib/birthday-alerts';
 import { countUnreadAlerts, isPastCalendarAlert } from '@/lib/alerts-state';
+import { mapPackTripsForTeam } from '@/lib/club-trips';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { Alert } from '@/types';
@@ -99,35 +100,41 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
             ids.has(a.id) ? { ...a, is_dismissed: true, is_read: true } : a
           );
         }
-        setAlerts(mapped.filter((a) => !isPastCalendarAlert(a)));
+        const kept = mapped.filter((a) => !isPastCalendarAlert(a));
+        if (!kept.some((a) => a.type === 'viaje_proximo')) {
+          const extras = mapPackTripsForTeam(teamId).slice(0, 8).map((t, i) => ({
+            id: `viaje-pack-${t.departureDate}-${i}`,
+            team_id: teamId,
+            type: 'viaje_proximo' as const,
+            severity: 'info' as const,
+            title: 'Partido próximo',
+            message: `${t.departureDate} · ${t.opponent} · ${t.destination}`,
+            entity_type: 'official_match',
+            entity_id: null,
+            is_read: false,
+            is_dismissed: false,
+            read_by: null,
+            read_at: null,
+            auto_generated: true,
+            metadata: { match_date: t.departureDate, rival: t.opponent, source: 'upcoming_fixture' },
+            created_at: new Date().toISOString(),
+          }));
+          setAlerts([...extras, ...kept] as Alert[]);
+          return;
+        }
+        setAlerts(kept);
         return;
       }
 
-      const { data, error } = await supabase
-        .from('alerts')
-        .select('*')
-        .eq('team_id', teamId)
-        .eq('is_dismissed', false)
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-      const incoming = ((data || []) as Alert[]).filter(
-        (a) => !isForeignSportCalendarAlert(`${a.title} ${a.message}`, branding.sport)
-      );
-      const past = incoming.filter((a) => isPastCalendarAlert(a));
-      if (past.length) {
-        const ids = past.map((a) => a.id);
-        await supabase
-          .from('alerts')
-          .update({
-            is_dismissed: true,
-            is_read: true,
-            read_at: new Date().toISOString(),
-          })
-          .eq('team_id', teamId)
-          .in('id', ids);
+      const res = await fetch(`/api/alerts?team_id=${encodeURIComponent(teamId)}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error((payload && payload.error) || `HTTP ${res.status}`);
       }
+      const incoming = (Array.isArray(payload) ? payload : []) as Alert[];
       setAlerts(incoming.filter((a) => !isPastCalendarAlert(a)));
     } catch (err) {
       console.error('[AlertsProvider] load failed:', err);

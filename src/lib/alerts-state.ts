@@ -28,27 +28,33 @@ function isoDatesInText(value: string): string[] {
   return [...value.matchAll(/\d{4}-\d{2}-\d{2}/g)].map((m) => m[0]);
 }
 
-/** Alertas de calendario de partidos ya jugados (resultados, marcador, fecha pasada). */
+/** Alertas de calendario/viaje de partidos ya jugados (resultados, marcador, fecha pasada). */
 export function isPastCalendarAlert(alert: AlertLike): boolean {
   const type = String(alert.type || '').toLowerCase();
-  if (!type.includes('calendario')) return false;
-
   const meta = alert.metadata && typeof alert.metadata === 'object' ? alert.metadata : {};
   const change = String(meta.change_type || '').toLowerCase();
   const blob = `${alert.title || ''} ${alert.message || ''}`;
-
-  if (type === 'calendario_resultado' || change === 'resultado' || change === 'marcador') {
-    return true;
-  }
-  if (change === 'estado' && /finalizado/.test(blob.toLowerCase())) return true;
 
   const metaDate = String(
     meta.match_date || (meta.fixture as { match_date?: string } | undefined)?.match_date || ''
   ).slice(0, 10);
   const dates = [metaDate, ...isoDatesInText(blob)].filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d));
-  if (!dates.length) return false;
-  const eventDate = dates.sort()[dates.length - 1];
-  return eventDate < madridTodayIso();
+  if (dates.length) {
+    const eventDate = dates.sort()[dates.length - 1];
+    if (
+      (type === 'viaje_proximo' || type.includes('calendario')) &&
+      eventDate < madridTodayIso()
+    ) {
+      return true;
+    }
+  }
+
+  if (!type.includes('calendario')) return false;
+  if (type === 'calendario_resultado' || change === 'resultado' || change === 'marcador') {
+    return true;
+  }
+  if (change === 'estado' && /finalizado/.test(blob.toLowerCase())) return true;
+  return false;
 }
 
 /** Alertas visibles en bandeja (no descartadas ni de partidos ya jugados). */

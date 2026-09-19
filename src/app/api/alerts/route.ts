@@ -1,3 +1,5 @@
+import { isPastCalendarAlert } from '@/lib/alerts-state';
+import { ensureUpcomingEventAlerts } from '@/lib/upcoming-event-alerts';
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { DEFAULT_TEAM_ID, resolveTeamId } from '@/lib/team-constants';
@@ -30,7 +32,27 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json(data);
+  const incoming = data || [];
+  const pastIds = incoming.filter((a: { id: string }) => isPastCalendarAlert(a)).map((a: { id: string }) => a.id);
+  if (pastIds.length) {
+    await db
+      .from('alerts')
+      .update({
+        is_dismissed: true,
+        is_read: true,
+        read_at: new Date().toISOString(),
+      })
+      .eq('team_id', teamId)
+      .in('id', pastIds);
+  }
+
+  await ensureUpcomingEventAlerts(db, teamId);
+
+  let refreshed = db.from('alerts').select('*').eq('team_id', teamId).eq('is_dismissed', false).order('created_at', { ascending: false }).limit(100);
+  if (unreadOnly) refreshed = refreshed.eq('is_read', false);
+  const { data: fresh, error: freshErr } = await refreshed;
+  if (freshErr) return NextResponse.json(incoming.filter((a: object) => !isPastCalendarAlert(a)));
+  return NextResponse.json((fresh || []).filter((a: object) => !isPastCalendarAlert(a)));
 }
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
