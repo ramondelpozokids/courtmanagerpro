@@ -147,6 +147,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
   }
+
+  if (body.alertId) {
     const { error } = await db
       .from('alerts')
       .update({ is_read: true, read_at: new Date().toISOString(), read_by: user.id })
