@@ -8,13 +8,15 @@ export function columnMissingFromMessage(message: string): string | null {
  * Reintenta un insert/update quitando columnas que producción aún no tiene.
  * Evita que una migración 008 no aplicada tumbe la sync entera.
  */
+type WriteResult = { error: { message: string } | null };
+
 export async function writeIgnoringUnknownColumns(
-  write: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>,
+  write: (row: Record<string, unknown>) => unknown,
   row: Record<string, unknown>
 ): Promise<void> {
   let current: Record<string, unknown> = { ...row };
   for (let attempt = 0; attempt < 16; attempt += 1) {
-    const { error } = await write(current);
+    const { error } = (await Promise.resolve(write(current))) as WriteResult;
     if (!error) return;
     const col = columnMissingFromMessage(error.message);
     if (!col || !Object.prototype.hasOwnProperty.call(current, col)) {
