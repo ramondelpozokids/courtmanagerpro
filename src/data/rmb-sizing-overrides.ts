@@ -180,6 +180,22 @@ export const RMB_PLAYER_SIZE_OVERRIDES: Record<string, RmbPlayerSizeOverride> = 
     socks: 'L',
     warmupShirt: 'XL',
   },
+  'damian-jones': {
+    legacyId: 'p15',
+    jersey: '2XL',
+    shorts: '2XL',
+    shoes: '50',
+    socks: 'XL',
+    warmupShirt: '2XL',
+  },
+  'nick-smith': {
+    legacyId: 'p20',
+    jersey: 'L',
+    shorts: 'L',
+    shoes: '45',
+    socks: 'M',
+    warmupShirt: 'L',
+  },
 };
 
 export const RMB_STAFF_SIZE_OVERRIDES: Record<string, RmbStaffSizeOverride> = {

@@ -247,6 +247,17 @@ function mapGlobal(aggregated = {}) {
 
 function loadKnownLegacyIds() {
   const known = {};
+  const rosterPath = 'src/data/rmb-official-roster.ts';
+  if (existsSync(rosterPath)) {
+    const text = readFileSync(rosterPath, 'utf8');
+    const re = /"slug":\s*"([^"]+)"[\s\S]*?"legacyId":\s*"(p\d+|c\d+)"|"legacyId":\s*"(p\d+|c\d+)"[\s\S]*?"slug":\s*"([^"]+)"/g;
+    let m;
+    while ((m = re.exec(text))) {
+      const slug = m[1] || m[4];
+      const id = m[2] || m[3];
+      if (slug && id) known[slug] = id;
+    }
+  }
   const path = 'src/data/rmb-sizing-overrides.ts';
   if (!existsSync(path)) return known;
   const text = readFileSync(path, 'utf8');

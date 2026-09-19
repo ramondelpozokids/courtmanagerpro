@@ -1,4 +1,4 @@
-// Auto-generated from realmadrid.com — 2026-09-06T16:42:23.317Z
+// Auto-generated from realmadrid.com — 2026-09-19T12:12:18.536Z
 // Regenerar: npm run sync:rm-plantilla  (o npm run sync:rm-stats)
 
 import type { PlayerCompetitionMap } from '@/lib/player-competitions';
@@ -39,7 +39,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Ciudad de Córdoba (Argentina)",
     "weight": "84 kg.",
     "height": "1,81 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/CAMPAZZO_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/CAMPAZZO_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 80,
     "points": 878,
     "rebounds": 148,
@@ -66,7 +66,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.9,
           "apg": 4.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.871Z"
+          "updated_at": "2026-09-19T12:11:07.211Z"
         }
       },
       "euroliga": {
@@ -85,7 +85,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.9,
           "apg": 5.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.871Z"
+          "updated_at": "2026-09-19T12:11:07.211Z"
         }
       },
       "supercopa_endesa": {
@@ -104,7 +104,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0.5,
           "apg": 3.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.869Z"
+          "updated_at": "2026-09-19T12:11:07.210Z"
         }
       },
       "copa_del_rey": {
@@ -123,7 +123,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.7,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.871Z"
+          "updated_at": "2026-09-19T12:11:07.211Z"
         }
       }
     }
@@ -139,7 +139,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Ruan (Francia)",
     "weight": "87 kg.",
     "height": "1,95 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/MALEDON_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/MALEDON_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 73,
     "points": 689,
     "rebounds": 165,
@@ -166,7 +166,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.4,
           "apg": 3.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       },
       "euroliga": {
@@ -185,7 +185,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.2,
           "apg": 2.9,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       },
       "supercopa_endesa": {
@@ -204,7 +204,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       },
       "copa_del_rey": {
@@ -223,7 +223,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.3,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       }
     }
@@ -239,7 +239,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Santo Domingo (República Dominicana)",
     "weight": "94 kg.",
     "height": "1,86 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/FELIZ_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/FELIZ_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 75,
     "points": 559,
     "rebounds": 207,
@@ -266,7 +266,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.8,
           "apg": 2.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.696Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       },
       "euroliga": {
@@ -285,7 +285,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.5,
           "apg": 2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.697Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       },
       "supercopa_endesa": {
@@ -304,7 +304,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.5,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.696Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       },
       "copa_del_rey": {
@@ -323,7 +323,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 5,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.696Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       }
     }
@@ -339,7 +339,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Mahón (Menorca)",
     "weight": "100 kg.",
     "height": "1,90 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/LLULL_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/LLULL_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 81,
     "points": 410,
     "rebounds": 85,
@@ -366,7 +366,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.3,
           "apg": 2.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
         }
       },
       "euroliga": {
@@ -385,7 +385,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0.8,
           "apg": 1.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
         }
       },
       "supercopa_endesa": {
@@ -404,7 +404,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
         }
       },
       "copa_del_rey": {
@@ -423,7 +423,87 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
+        }
+      }
+    }
+  },
+  "p20": {
+    "slug": "nick-smith",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/nick-smith",
+    "full_name": "Nick Smith",
+    "dorsal": 1,
+    "position": "Escolta",
+    "nationality": null,
+    "birth_date": "2004-04-18",
+    "birth_place": "Jacksonville, Arkansas (Estados Unidos)",
+    "weight": "84 kg.",
+    "height": "1,89 m.",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/NICK_SMITH_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
+    "matches_played": 0,
+    "points": 0,
+    "rebounds": 0,
+    "assists": 0,
+    "minutes_played": 0,
+    "valuation": 0,
+    "ppg": 0,
+    "rpg": 0,
+    "apg": 0,
+    "competition_stats": {
+      "liga_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "euroliga": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "supercopa_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "copa_del_rey": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
         }
       }
     }
@@ -439,7 +519,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Kiev (Ucrania)",
     "weight": "94 kg",
     "height": "1,95 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SHULGA_SG10256_380x501-1?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SHULGA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 0,
     "points": 0,
     "rebounds": 0,
@@ -519,7 +599,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Cannes (Francia)",
     "weight": "95 kg",
     "height": "2,01 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Luwawu-Cabarrot_380x501%20%202?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/CABARROT_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 0,
     "points": 0,
     "rebounds": 0,
@@ -599,7 +679,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Ferrol",
     "weight": "92 kg.",
     "height": "2,02 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/ABALDE_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/ABALDE_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 79,
     "points": 379,
     "rebounds": 122,
@@ -626,7 +706,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       },
       "euroliga": {
@@ -645,7 +725,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.6,
           "apg": 1.3,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       },
       "supercopa_endesa": {
@@ -664,7 +744,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.5,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       },
       "copa_del_rey": {
@@ -683,7 +763,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.3,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       }
     }
@@ -699,7 +779,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Como (Italia)",
     "weight": "91 kg.",
     "height": "2,01 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PROCIDA_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PROCIDA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 38,
     "points": 203,
     "rebounds": 53,
@@ -726,7 +806,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 1.6,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:45.378Z"
+          "updated_at": "2026-09-19T12:11:31.354Z"
         }
       },
       "euroliga": {
@@ -745,7 +825,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 0.5,
           "apg": 0.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:45.378Z"
+          "updated_at": "2026-09-19T12:11:31.354Z"
         }
       },
       "supercopa_endesa": {
@@ -764,7 +844,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:45.378Z"
+          "updated_at": "2026-09-19T12:11:31.354Z"
         }
       },
       "copa_del_rey": {
@@ -794,7 +874,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Colonia Dora (Argentina)",
     "weight": "101 kg.",
     "height": "1,98 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/DECK_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/DECK_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 66,
     "points": 489,
     "rebounds": 231,
@@ -821,7 +901,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.4,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       },
       "euroliga": {
@@ -840,7 +920,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       },
       "supercopa_endesa": {
@@ -859,7 +939,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 4.5,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       },
       "copa_del_rey": {
@@ -878,7 +958,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.3,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       }
     }
@@ -894,7 +974,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Helsinki (Finlandia)",
     "weight": "104 kg.",
     "height": "2,05 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JANTUNEN_380x501%201?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JANTUNEN_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 0,
     "points": 0,
     "rebounds": 0,
@@ -974,7 +1054,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Zaragoza (España)",
     "weight": "105 kg.",
     "height": "2,05 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PRADILLA_380x501%20%E2%80%93%201?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PRADILLA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 0,
     "points": 0,
     "rebounds": 0,
@@ -1054,7 +1134,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Atlanta (Estados Unidos)",
     "weight": "109 kg.",
     "height": "2,01 m. ",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/OKEKE_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/OKEKE_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 69,
     "points": 411,
     "rebounds": 264,
@@ -1081,7 +1161,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.6,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:53.793Z"
+          "updated_at": "2026-09-19T12:11:45.318Z"
         }
       },
       "euroliga": {
@@ -1100,7 +1180,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.9,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:53.793Z"
+          "updated_at": "2026-09-19T12:11:45.318Z"
         }
       },
       "supercopa_endesa": {
@@ -1119,7 +1199,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:53.793Z"
+          "updated_at": "2026-09-19T12:11:45.318Z"
         }
       },
       "copa_del_rey": {
@@ -1149,7 +1229,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Madrid",
     "weight": "116 kg.",
     "height": "2,03 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/GARUBA_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/GARUBA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 71,
     "points": 377,
     "rebounds": 213,
@@ -1176,7 +1256,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.2,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       },
       "euroliga": {
@@ -1195,7 +1275,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 2.8,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       },
       "supercopa_endesa": {
@@ -1214,7 +1294,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 3.5,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       },
       "copa_del_rey": {
@@ -1233,87 +1313,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 4.7,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
-        }
-      }
-    }
-  },
-  "p16": {
-    "slug": "eli-john-ndiaye",
-    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/eli-john-ndiaye",
-    "full_name": "Eli John Ndiaye Faye",
-    "dorsal": 44,
-    "position": "Ala-pívot",
-    "nationality": null,
-    "birth_date": "2004-06-26",
-    "birth_place": "Guediawaye (Senegal)",
-    "weight": null,
-    "height": null,
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/NDIAYE_380x501%20%E2%80%93%203%201%201?$Desktop$&fit=wrap&wid=288&hei=384",
-    "matches_played": 0,
-    "points": 0,
-    "rebounds": 0,
-    "assists": 0,
-    "minutes_played": 0,
-    "valuation": 0,
-    "ppg": 0,
-    "rpg": 0,
-    "apg": 0,
-    "competition_stats": {
-      "liga_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
-        }
-      },
-      "euroliga": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
-        }
-      },
-      "supercopa_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
-        }
-      },
-      "copa_del_rey": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       }
     }
@@ -1329,7 +1329,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Maio (Cabo Verde)",
     "weight": "125 kg.",
     "height": "2,20 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/TAVARES_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/TAVARES_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 65,
     "points": 615,
     "rebounds": 424,
@@ -1356,7 +1356,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 6.4,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       },
       "euroliga": {
@@ -1375,7 +1375,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 6.6,
           "apg": 0.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       },
       "supercopa_endesa": {
@@ -1394,7 +1394,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       },
       "copa_del_rey": {
@@ -1413,7 +1413,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
           "rpg": 6,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       }
     }
@@ -1429,7 +1429,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Baton Rouge (Estados Unidos)",
     "weight": "109 kg.",
     "height": "2,10 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JONES_380x501%203?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JONES_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 0,
     "points": 0,
     "rebounds": 0,
@@ -1509,7 +1509,7 @@ export const RMB_OFFICIAL_STATS: Record<string, RmbOfficialPlayerRecord> = {
     "birth_place": "Niort (Francia)",
     "weight": "110 kg.",
     "height": "2,10 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SARR_SG10303_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SARR_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "matches_played": 0,
     "points": 0,
     "rebounds": 0,

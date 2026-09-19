@@ -1,4 +1,4 @@
-// Auto-generated from realmadrid.com — 2026-09-06T16:42:23.317Z
+// Auto-generated from realmadrid.com — 2026-09-19T12:12:18.536Z
 // Source: https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla
 // Regenerar: npm run sync:rm-plantilla
 
@@ -72,7 +72,7 @@ export interface RmbOfficialStaffProfile {
 }
 
 export const RMB_OFFICIAL_SOURCE = "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla";
-export const RMB_OFFICIAL_SYNCED_AT = "2026-09-06T16:42:23.317Z";
+export const RMB_OFFICIAL_SYNCED_AT = "2026-09-19T12:12:18.536Z";
 
 export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
   {
@@ -92,7 +92,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Ciudad de Córdoba (Argentina)",
     "weight": "84 kg.",
     "height": "1,81 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/CAMPAZZO_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/CAMPAZZO_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": "26/09/2014 Real Madrid 89-76 Valencia Basket",
     "trajectory": "Peñarol (2008-2014), Real Madrid (2014-2015), UCAM Murcia (2015-2017), Real Madrid (2017-2020), Denver Nuggets (2020-2022), Dallas Mavericks (2022), Estrella Roja (2022-2023), Real Madrid (2023- )",
     "trajectory_items": [
@@ -149,7 +149,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.9,
           "apg": 4.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.871Z"
+          "updated_at": "2026-09-19T12:11:07.211Z"
         }
       },
       "euroliga": {
@@ -168,7 +168,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.9,
           "apg": 5.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.871Z"
+          "updated_at": "2026-09-19T12:11:07.211Z"
         }
       },
       "supercopa_endesa": {
@@ -187,7 +187,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0.5,
           "apg": 3.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.869Z"
+          "updated_at": "2026-09-19T12:11:07.210Z"
         }
       },
       "copa_del_rey": {
@@ -206,7 +206,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.7,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:28.871Z"
+          "updated_at": "2026-09-19T12:11:07.211Z"
         }
       }
     }
@@ -228,7 +228,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Ruan (Francia)",
     "weight": "87 kg.",
     "height": "1,95 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/MALEDON_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/MALEDON_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Cantera del SPO Rouen, Centre Federal du Basket-ball (2015-17), LDLC ASVEL Villeurbanne (2017-20), Oklahoma City Thunder (2020-21), Oklahoma City Blue (G-League) (2021-22), Charlotte Hornets (2022-23), Greensboro Swarm (G-League) (2022-23), Charlotte Hornets (2023-24), Phoenix Suns (2023-24), Sioux Fall Skyforce (G-League) (2024), LDLC ASVEL Villeurbanne (2024-25), Real Madrid (2025- )",
     "trajectory_items": [
@@ -279,7 +279,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.4,
           "apg": 3.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       },
       "euroliga": {
@@ -298,7 +298,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.2,
           "apg": 2.9,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       },
       "supercopa_endesa": {
@@ -317,7 +317,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       },
       "copa_del_rey": {
@@ -336,7 +336,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.3,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:30.021Z"
+          "updated_at": "2026-09-19T12:11:10.441Z"
         }
       }
     }
@@ -358,7 +358,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Santo Domingo (República Dominicana)",
     "weight": "94 kg.",
     "height": "1,86 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/FELIZ_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/FELIZ_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Northwest Florida State College (2016-2018), University of Illinois (2018-2020), C. B. Prat LEB Oro (2020-2021), Joventut (2021-2024), Real Madrid (2024- )",
     "trajectory_items": [
@@ -398,7 +398,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.8,
           "apg": 2.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.696Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       },
       "euroliga": {
@@ -417,7 +417,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.5,
           "apg": 2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.697Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       },
       "supercopa_endesa": {
@@ -436,7 +436,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.5,
           "apg": 4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.696Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       },
       "copa_del_rey": {
@@ -455,7 +455,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 5,
           "apg": 3,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:32.696Z"
+          "updated_at": "2026-09-19T12:11:13.609Z"
         }
       }
     }
@@ -477,7 +477,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Mahón (Menorca)",
     "weight": "100 kg.",
     "height": "1,90 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/LLULL_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/LLULL_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": "17/05/2007  Real Madrid 84-81 Valencia Basket",
     "trajectory": "La Salle Mahón (2002-2003), CB i Unió Manresana (2003-2005), Finques Olesa (2005-2006), Ricoh Manresa (2006-2007), Real Madrid (2007- )",
     "trajectory_items": [
@@ -535,7 +535,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.3,
           "apg": 2.4,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
         }
       },
       "euroliga": {
@@ -554,7 +554,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0.8,
           "apg": 1.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
         }
       },
       "supercopa_endesa": {
@@ -573,7 +573,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
         }
       },
       "copa_del_rey": {
@@ -592,7 +592,104 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:35.433Z"
+          "updated_at": "2026-09-19T12:11:17.706Z"
+        }
+      }
+    }
+  },
+  {
+    "legacyId": "p20",
+    "slug": "nick-smith",
+    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/nick-smith",
+    "firstName": "Nick",
+    "lastName": "Smith",
+    "full_name": "Nick Smith",
+    "nickname": "Smith Jr.",
+    "dorsal": 1,
+    "position": "Escolta",
+    "position_demo": "escolta",
+    "opta_position": "shooting_guard",
+    "nationality": null,
+    "birth_date": "2004-04-18",
+    "birth_place": "Jacksonville, Arkansas (Estados Unidos)",
+    "weight": "84 kg.",
+    "height": "1,89 m.",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/NICK_SMITH_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
+    "debut": null,
+    "trajectory": "University of Arkansas (2022-23), Charlotte Hornets (2023-25), Greensboro Swarm (2023-25), Los Ángeles Lakers (2025-26), South Bay Lakers (2025-26), Real Madrid (2026- )",
+    "trajectory_items": [
+      "University of Arkansas (2022-23)",
+      "Charlotte Hornets (2023-25)",
+      "Greensboro Swarm (2023-25)",
+      "Los Ángeles Lakers (2025-26)",
+      "South Bay Lakers (2025-26)",
+      "Real Madrid (2026- )"
+    ],
+    "palmares": [],
+    "matches_played": 0,
+    "points": 0,
+    "rebounds": 0,
+    "assists": 0,
+    "minutes_played": 0,
+    "valuation": 0,
+    "ppg": 0,
+    "rpg": 0,
+    "apg": 0,
+    "competition_stats": {
+      "liga_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "euroliga": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "supercopa_endesa": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
+        }
+      },
+      "copa_del_rey": {
+        "stats": {
+          "season": "2026-2027",
+          "matches_played": 0,
+          "points": 0,
+          "rebounds": 0,
+          "assists": 0,
+          "minutes_played": 0,
+          "valuation": 0,
+          "ppg": 0,
+          "rpg": 0,
+          "apg": 0
         }
       }
     }
@@ -614,7 +711,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Kiev (Ucrania)",
     "weight": "94 kg",
     "height": "1,95 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SHULGA_SG10256_380x501-1?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SHULGA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Utah State NCAA (2020-2023), VCU Rams NCAA (2023-2025), Maine Celtics G-League (2025-2026), Boston Celtics (2025-2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -710,7 +807,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Cannes (Francia)",
     "weight": "95 kg",
     "height": "2,01 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/Luwawu-Cabarrot_380x501%20%202?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/CABARROT_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Antibes (2012-2015), Mega Leks (2015-2016), Philadelphia 76ers (2016-2018), Oklahoma City Thunder (2018-2019), Chicago Bulls (2019), Brooklyn Nets (2019-2021), Atlanta Hawks (2021-2022), Olimpia Milán (2022-2023), ASVEL Villeurbanne (2023-2024), Baskonia (2024-2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -819,7 +916,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Ferrol",
     "weight": "92 kg.",
     "height": "2,02 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/ABALDE_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/ABALDE_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": "12/09/2020 Tenerife 79-92 Real Madrid",
     "trajectory": "Joventut (2013-2017), Valencia Basket (2017-2020), Real Madrid (2020- )",
     "trajectory_items": [
@@ -861,7 +958,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       },
       "euroliga": {
@@ -880,7 +977,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.6,
           "apg": 1.3,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       },
       "supercopa_endesa": {
@@ -899,7 +996,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.5,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       },
       "copa_del_rey": {
@@ -918,7 +1015,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.3,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:44.288Z"
+          "updated_at": "2026-09-19T12:11:26.158Z"
         }
       }
     }
@@ -940,7 +1037,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Como (Italia)",
     "weight": "91 kg.",
     "height": "2,01 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PROCIDA_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PROCIDA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Pallacanestro Cantú (2019-2021), Fortitudo Bologna (2021-2022), Alba Berlín (2022-2025), Real Madrid (2025- )",
     "trajectory_items": [
@@ -978,7 +1075,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 1.6,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:45.378Z"
+          "updated_at": "2026-09-19T12:11:31.354Z"
         }
       },
       "euroliga": {
@@ -997,7 +1094,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 0.5,
           "apg": 0.1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:45.378Z"
+          "updated_at": "2026-09-19T12:11:31.354Z"
         }
       },
       "supercopa_endesa": {
@@ -1016,7 +1113,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2,
           "apg": 0,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:45.378Z"
+          "updated_at": "2026-09-19T12:11:31.354Z"
         }
       },
       "copa_del_rey": {
@@ -1052,7 +1149,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Colonia Dora (Argentina)",
     "weight": "101 kg.",
     "height": "1,98 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/DECK_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/DECK_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": "21/09/2018 Obradoiro 61-81 Real Madrid",
     "trajectory": "Quimsa (2009-2016), San Lorenzo de Almagro (2016-2018), Real Madrid (2018-2021), Oklahoma City Thunders (2021), Real Madrid (2022-)",
     "trajectory_items": [
@@ -1107,7 +1204,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.4,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       },
       "euroliga": {
@@ -1126,7 +1223,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.5,
           "apg": 1.2,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       },
       "supercopa_endesa": {
@@ -1145,7 +1242,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 4.5,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       },
       "copa_del_rey": {
@@ -1164,7 +1261,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.3,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:47.902Z"
+          "updated_at": "2026-09-19T12:11:35.461Z"
         }
       }
     }
@@ -1186,7 +1283,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Helsinki (Finlandia)",
     "weight": "104 kg.",
     "height": "2,05 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JANTUNEN_380x501%201?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JANTUNEN_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "HBA Märsky (2016-2019), Universidad de Utah (2019-2021), BC Oostende (2021-2022), Treviso Basket (2022-2023), Paris Basketball (2023-2025), Fenerbahce (2025-2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -1294,7 +1391,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Zaragoza (España)",
     "weight": "105 kg.",
     "height": "2,05 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PRADILLA_380x501%20%E2%80%93%201?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PRADILLA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Casademont Zaragoza (2018-2019), Palencia Basket (2019-2020), Valencia Basket (2020-2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -1395,7 +1492,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Atlanta (Estados Unidos)",
     "weight": "109 kg.",
     "height": "2,01 m. ",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/OKEKE_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/OKEKE_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Westlake High School de Atlanta, Universidad de Auburn (2017-19), Orlando Magic (2020-24), Lakeland Magic (2022-23), Westchester Knicks (2024-25), Philadelphia 76ers (2025), Cleveland Cavaliers (2025), Real Madrid (2025-)",
     "trajectory_items": [
@@ -1435,7 +1532,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.6,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:53.793Z"
+          "updated_at": "2026-09-19T12:11:45.318Z"
         }
       },
       "euroliga": {
@@ -1454,7 +1551,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.9,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:53.793Z"
+          "updated_at": "2026-09-19T12:11:45.318Z"
         }
       },
       "supercopa_endesa": {
@@ -1473,7 +1570,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:53.793Z"
+          "updated_at": "2026-09-19T12:11:45.318Z"
         }
       },
       "copa_del_rey": {
@@ -1509,7 +1606,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Madrid",
     "weight": "116 kg.",
     "height": "2,03 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/GARUBA_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/GARUBA_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": "28/10/2018 Real Madrid 90-77 San Pablo Burgos",
     "trajectory": "-Azuqueca C.B. (2012-2013), -Categorías inferiores del Real Madrid (2013-2019), -Real Madrid (2019-2021), -Houston Rockets (2021-2023), -Rio Grande Valley Vipers G-League (2021-2022), -Golden State Warriors (2023-2024), -Santa Cruz Warriors G-League (2023-2024), -Real Madrid (2024- )",
     "trajectory_items": [
@@ -1557,7 +1654,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.2,
           "apg": 0.8,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       },
       "euroliga": {
@@ -1576,7 +1673,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 2.8,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       },
       "supercopa_endesa": {
@@ -1595,7 +1692,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 3.5,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       },
       "copa_del_rey": {
@@ -1614,102 +1711,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 4.7,
           "apg": 0.7,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:41:57.686Z"
-        }
-      }
-    }
-  },
-  {
-    "legacyId": "p16",
-    "slug": "eli-john-ndiaye",
-    "profile_url": "https://www.realmadrid.com/es-ES/baloncesto/primer-equipo/plantilla/eli-john-ndiaye",
-    "firstName": "Eli John",
-    "lastName": "Ndiaye Faye",
-    "full_name": "Eli John Ndiaye Faye",
-    "nickname": "Ndiaye",
-    "dorsal": 44,
-    "position": "Ala-pívot",
-    "position_demo": "ala-pivot",
-    "opta_position": "center_foreward",
-    "nationality": null,
-    "birth_date": "2004-06-26",
-    "birth_place": "Guediawaye (Senegal)",
-    "weight": null,
-    "height": null,
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/NDIAYE_380x501%20%E2%80%93%203%201%201?$Desktop$&fit=wrap&wid=288&hei=384",
-    "debut": null,
-    "trajectory": "",
-    "trajectory_items": [],
-    "palmares": [
-      "1 Copa de Europa",
-      "3 Ligas",
-      "1 Copa del Rey",
-      "3 Supercopas de España"
-    ],
-    "matches_played": 0,
-    "points": 0,
-    "rebounds": 0,
-    "assists": 0,
-    "minutes_played": 0,
-    "valuation": 0,
-    "ppg": 0,
-    "rpg": 0,
-    "apg": 0,
-    "competition_stats": {
-      "liga_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
-        }
-      },
-      "euroliga": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
-        }
-      },
-      "supercopa_endesa": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
-        }
-      },
-      "copa_del_rey": {
-        "stats": {
-          "season": "2026-2027",
-          "matches_played": 0,
-          "points": 0,
-          "rebounds": 0,
-          "assists": 0,
-          "minutes_played": 0,
-          "valuation": 0,
-          "ppg": 0,
-          "rpg": 0,
-          "apg": 0
+          "updated_at": "2026-09-19T12:11:50.246Z"
         }
       }
     }
@@ -1731,7 +1733,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Maio (Cabo Verde)",
     "weight": "125 kg.",
     "height": "2,20 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/TAVARES_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/TAVARES_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": "12/11/2017 Real Madrid 80-84 Barcelona",
     "trajectory": "UB La Palma. LEB Oro. (2011-2012), Herbalife Gran Canaria (2012-2015), Atlanta Hawks (2015-2016), Austin Spurs G-League (2015-2016), Canton Charge G-League (2015-2016), Bakersfield Jam G-League (2015-2016), Raptors 905 G-League (2016-2017), Cleveland Cavaliers (2016-2017), Raptors 905 G-League (2017), Real Madrid (2017- )",
     "trajectory_items": [
@@ -1788,7 +1790,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 6.4,
           "apg": 0.5,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       },
       "euroliga": {
@@ -1807,7 +1809,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 6.6,
           "apg": 0.6,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       },
       "supercopa_endesa": {
@@ -1826,7 +1828,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 7,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       },
       "copa_del_rey": {
@@ -1845,7 +1847,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
           "rpg": 6,
           "apg": 1,
           "source": "realmadrid.com",
-          "updated_at": "2026-09-06T16:42:02.708Z"
+          "updated_at": "2026-09-19T12:11:51.527Z"
         }
       }
     }
@@ -1867,9 +1869,9 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Baton Rouge (Estados Unidos)",
     "weight": "109 kg.",
     "height": "2,10 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JONES_380x501%203?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/JONES_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
-    "trajectory": "Universidad de Vanderbilt (2013-2016), Golden State Warriors (2016-2019), Atlanta Hawks (2019-2020), Phoenix Suns (2020-2021), Los Ángeles Lakers (2021), Sacramento Kings (2021-2022), Los Ángeles Lakers (2022-2023), Utah Jazz (2023), Cleveland Cavaliers (2023-2024), Zhejiang Golden Bulls (2024-2026), Vaqueros de Bayamón (2026)",
+    "trajectory": "Universidad de Vanderbilt (2013-2016), Golden State Warriors (2016-2019), Atlanta Hawks (2019-2020), Phoenix Suns (2020-2021), Los Ángeles Lakers (2021), Sacramento Kings (2021-2022), Los Ángeles Lakers (2022-2023), Utah Jazz (2023), Cleveland Cavaliers (2023-2024), Zhejiang Golden Bulls (2024-2026), Vaqueros de Bayamón (2026), Real Madrid (2026- )",
     "trajectory_items": [
       "Universidad de Vanderbilt (2013-2016)",
       "Golden State Warriors (2016-2019)",
@@ -1881,7 +1883,8 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
       "Utah Jazz (2023)",
       "Cleveland Cavaliers (2023-2024)",
       "Zhejiang Golden Bulls (2024-2026)",
-      "Vaqueros de Bayamón (2026)"
+      "Vaqueros de Bayamón (2026)",
+      "Real Madrid (2026- )"
     ],
     "palmares": [
       "2 NBA",
@@ -1972,7 +1975,7 @@ export const RMB_OFFICIAL_PLAYERS: RmbOfficialPlayerProfile[] = [
     "birth_place": "Niort (Francia)",
     "weight": "110 kg.",
     "height": "2,10 m.",
-    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SARR_SG10303_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
+    "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/SARR_CARITA_1500X2000?$Desktop$&fit=wrap&wid=288&hei=384",
     "debut": null,
     "trajectory": "Wake Forest University (2017-2020), University of Kentucky (2020-2021), Oklahoma City Thunder (2021-2024), Oklahoma City Blue (2021-2024), Raptors 905 (2025-2026), Cleveland Charge (2026), Cleveland Cavaliers (2026), Real Madrid (2026- )",
     "trajectory_items": [
@@ -2071,7 +2074,7 @@ export const RMB_OFFICIAL_STAFF: RmbOfficialStaffProfile[] = [
     "birth_date": "1961-06-29",
     "birth_place": "Barcelona, España",
     "photo_url": "https://assets.realmadrid.com/is/image/realmadrid/PEDRO%20MARTINEZ_ENTRENADOR_BASKET_SG16034?$Desktop$&fit=wrap&wid=288&hei=384",
-    "trajectory": "Joventut categorías inferiores (1986-89), Joventut entrenador ayudante (1989-90), Joventut (1990), Manresa (1990-94), Joventut (1994-95), Salamanca (1995-96), Granada (1997-98), Menorca (1999-00), Ourense (2001), Tenerife (2001-02), Gran Canaria (2002-05), Baskonia (2005), Estudiantes (2006-07), Girona (2007-08), Cajasol (2008-09), Gran Canaria (2009-14), Manresa (2014-15), Valencia Basket (20015-17), Baskonia (2017-18), Gran Canaria (2019), Manresa (2019-24), Valencia Basket (2024-26), Real Madrid (2026- )",
+    "trajectory": "Joventut categorías inferiores (1986-89), Joventut entrenador ayudante (1989-90), Joventut (1990), Manresa (1990-94), Joventut (1994-95), Salamanca (1995-96), Granada (1997-98), Menorca (1999-00), Ourense (2001), Tenerife (2001-02), Gran Canaria (2002-05), Baskonia (2005), Estudiantes (2006-07), Girona (2007-08), Cajasol (2008-09), Gran Canaria (2009-14), Manresa (2014-15), Valencia Basket (2015-17), Baskonia (2017-18), Gran Canaria (2019), Manresa (2019-24), Valencia Basket (2024-26), Real Madrid (2026- )",
     "trajectory_items": [
       "Joventut categorías inferiores (1986-89)",
       "Joventut entrenador ayudante (1989-90)",
@@ -2090,7 +2093,7 @@ export const RMB_OFFICIAL_STAFF: RmbOfficialStaffProfile[] = [
       "Cajasol (2008-09)",
       "Gran Canaria (2009-14)",
       "Manresa (2014-15)",
-      "Valencia Basket (20015-17)",
+      "Valencia Basket (2015-17)",
       "Baskonia (2017-18)",
       "Gran Canaria (2019)",
       "Manresa (2019-24)",
