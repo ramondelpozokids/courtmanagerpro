@@ -62,8 +62,7 @@ export async function getAccessibleTeamIds(
     .filter((id: string | undefined): id is string => Boolean(id));
 
   if (isCarlosUser(profile?.email)) {
-    const live = [CLUB_TEAM_IDS.rmb, CLUB_TEAM_IDS.rmf, CLUB_TEAM_IDS.atm];
-    return { superadmin: false, teamIds: [...new Set([...teamIds, ...live])] };
+    return { superadmin: false, teamIds: [CLUB_TEAM_IDS.rmb] };
   }
 
   return { superadmin: false, teamIds };

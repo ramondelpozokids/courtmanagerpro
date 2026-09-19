@@ -40,14 +40,17 @@ export function useTrips() {
       if (!res.ok) throw new Error("Error fetching trips");
       const data = await res.json();
       const rows = (Array.isArray(data) ? data : []).filter(isUpcomingTrip);
-      if (rows.length === 0) {
+      const ordered = [...rows].sort((a, b) =>
+        String(a.departureDate || "").localeCompare(String(b.departureDate || ""))
+      );
+      if (ordered.length === 0) {
         const pack = mapPackTripsForTeam(teamId);
         if (pack.length) {
           setTrips(pack);
           return;
         }
       }
-      setTrips(rows);
+      setTrips(ordered);
     } catch (err: any) {
       setError(err.message);
       if (isMockMode() || usesDemoClubData()) {

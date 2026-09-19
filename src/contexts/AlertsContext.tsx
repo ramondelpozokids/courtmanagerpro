@@ -13,7 +13,7 @@ import {
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { scanBirthdayAlerts } from '@/lib/birthday-alerts';
-import { countUnreadAlerts, isPastCalendarAlert } from '@/lib/alerts-state';
+import { countUnreadAlerts, isPastCalendarAlert, sortAlertsByEventDate } from '@/lib/alerts-state';
 import { mapPackTripsForTeam } from '@/lib/club-trips';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
@@ -119,10 +119,10 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
             metadata: { match_date: t.departureDate, rival: t.opponent, source: 'upcoming_fixture' },
             created_at: new Date().toISOString(),
           }));
-          setAlerts([...extras, ...kept] as Alert[]);
+          setAlerts(sortAlertsByEventDate([...extras, ...kept] as Alert[], 'asc'));
           return;
         }
-        setAlerts(kept);
+        setAlerts(sortAlertsByEventDate(kept, 'asc'));
         return;
       }
 
@@ -135,7 +135,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         throw new Error((payload && payload.error) || `HTTP ${res.status}`);
       }
       const incoming = (Array.isArray(payload) ? payload : []) as Alert[];
-      setAlerts(incoming.filter((a) => !isPastCalendarAlert(a)));
+      setAlerts(sortAlertsByEventDate(incoming.filter((a) => !isPastCalendarAlert(a)), 'asc'));
     } catch (err) {
       console.error('[AlertsProvider] load failed:', err);
     } finally {
@@ -177,15 +177,19 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         await fetchAlerts();
         return;
       }
-      const { error } = await supabase
-        .from('alerts')
-        .update({ is_read: true, read_at: new Date().toISOString() })
-        .eq('id', alertId)
-        .eq('team_id', teamId);
-      if (error) throw new Error(error.message);
+      const res = await fetch('/api/alerts', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: alertId, action: 'read' }),
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error((payload && payload.error) || `HTTP ${res.status}`);
+      }
       await fetchAlerts();
     },
-    [mock, fetchAlerts, supabase, teamId]
+    [mock, fetchAlerts]
   );
 
   const dismissAlert = useCallback(
@@ -195,19 +199,19 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         await fetchAlerts();
         return;
       }
-      const { error } = await supabase
-        .from('alerts')
-        .update({
-          is_dismissed: true,
-          is_read: true,
-          read_at: new Date().toISOString(),
-        })
-        .eq('id', alertId)
-        .eq('team_id', teamId);
-      if (error) throw new Error(error.message);
+      const res = await fetch('/api/alerts', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: alertId, action: 'dismiss' }),
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error((payload && payload.error) || `HTTP ${res.status}`);
+      }
       await fetchAlerts();
     },
-    [mock, fetchAlerts, supabase, teamId]
+    [mock, fetchAlerts]
   );
 
   const dismissMany = useCallback(
@@ -219,19 +223,19 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         await fetchAlerts();
         return;
       }
-      const { error } = await supabase
-        .from('alerts')
-        .update({
-          is_dismissed: true,
-          is_read: true,
-          read_at: new Date().toISOString(),
-        })
-        .eq('team_id', teamId)
-        .in('id', ids);
-      if (error) throw new Error(error.message);
+      const res = await fetch('/api/alerts', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ team_id: teamId, dismissIds: ids }),
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error((payload && payload.error) || `HTTP ${res.status}`);
+      }
       await fetchAlerts();
     },
-    [mock, fetchAlerts, supabase, teamId]
+    [mock, fetchAlerts, teamId]
   );
 
   const dismissAll = useCallback(async () => {
@@ -242,18 +246,18 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       await fetchAlerts();
       return;
     }
-    const { error } = await supabase
-      .from('alerts')
-      .update({
-        is_dismissed: true,
-        is_read: true,
-        read_at: new Date().toISOString(),
-      })
-      .eq('team_id', teamId)
-      .eq('is_dismissed', false);
-    if (error) throw new Error(error.message);
+    const res = await fetch('/api/alerts', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ team_id: teamId, dismissAll: true }),
+    });
+    if (!res.ok) {
+      const payload = await res.json().catch(() => null);
+      throw new Error((payload && payload.error) || `HTTP ${res.status}`);
+    }
     await fetchAlerts();
-  }, [mock, fetchAlerts, supabase, teamId]);
+  }, [mock, fetchAlerts, teamId]);
 
   const markAllAsRead = useCallback(async () => {
     if (mock) {
@@ -263,15 +267,18 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       await fetchAlerts();
       return;
     }
-    const { error } = await supabase
-      .from('alerts')
-      .update({ is_read: true, read_at: new Date().toISOString() })
-      .eq('team_id', teamId)
-      .eq('is_read', false)
-      .eq('is_dismissed', false);
-    if (error) throw new Error(error.message);
+    const res = await fetch('/api/alerts', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ team_id: teamId, allRead: true }),
+    });
+    if (!res.ok) {
+      const payload = await res.json().catch(() => null);
+      throw new Error((payload && payload.error) || `HTTP ${res.status}`);
+    }
     await fetchAlerts();
-  }, [mock, fetchAlerts, supabase, teamId]);
+  }, [mock, fetchAlerts, teamId]);
 
   const unreadCount = countUnreadAlerts(alerts);
 

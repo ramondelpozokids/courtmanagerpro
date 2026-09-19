@@ -1,4 +1,4 @@
-import { isPastCalendarAlert } from '@/lib/alerts-state';
+import { isPastCalendarAlert, sortAlertsByEventDate } from '@/lib/alerts-state';
 import { ensureUpcomingEventAlerts } from '@/lib/upcoming-event-alerts';
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
@@ -51,8 +51,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   let refreshed = db.from('alerts').select('*').eq('team_id', teamId).eq('is_dismissed', false).order('created_at', { ascending: false }).limit(100);
   if (unreadOnly) refreshed = refreshed.eq('is_read', false);
   const { data: fresh, error: freshErr } = await refreshed;
-  if (freshErr) return NextResponse.json(incoming.filter((a: object) => !isPastCalendarAlert(a)));
-  return NextResponse.json((fresh || []).filter((a: object) => !isPastCalendarAlert(a)));
+  if (freshErr) return NextResponse.json(sortAlertsByEventDate(incoming.filter((a: object) => !isPastCalendarAlert(a))));
+  return NextResponse.json(sortAlertsByEventDate((fresh || []).filter((a: object) => !isPastCalendarAlert(a))));
 }
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
@@ -119,7 +119,34 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ success: true });
   }
 
-  if (body.alertId) {
+  if (body.dismissAll) {
+    const { error } = await db
+      .from('alerts')
+      .update({
+        is_dismissed: true,
+        is_read: true,
+        read_at: new Date().toISOString(),
+      })
+      .eq('team_id', teamId)
+      .eq('is_dismissed', false);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true });
+  }
+
+  if (Array.isArray(body.dismissIds) && body.dismissIds.length) {
+    const ids = body.dismissIds.filter((id: unknown) => typeof id === 'string');
+    const { error } = await db
+      .from('alerts')
+      .update({
+        is_dismissed: true,
+        is_read: true,
+        read_at: new Date().toISOString(),
+      })
+      .eq('team_id', teamId)
+      .in('id', ids);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true });
+  }
     const { error } = await db
       .from('alerts')
       .update({ is_read: true, read_at: new Date().toISOString(), read_by: user.id })

@@ -6,6 +6,7 @@ import { isRealMadridTeamId } from '@/lib/club-team-ids';
 import { isUpcomingTrip, mapPackTripsForTeam } from '@/lib/club-trips';
 import { assertUserBelongsToTeam } from '@/lib/security/assert-team-access';
 import { getClubDataWriteClient } from '@/lib/security/production-write-client';
+import { ensureRmbSharedTrips } from '@/lib/ensure-rmb-shared-trips';
 
 function uiStatusToDb(status: string): string {
   if (status === 'READY') return 'en_curso';
@@ -67,6 +68,7 @@ export async function GET(req: NextRequest) {
     }
 
     const pg = (await getClubDataWriteClient()) as any;
+    await ensureRmbSharedTrips(pg, teamId, user.id);
 
     const { data: trips, error } = await pg
       .from('trips')

@@ -4,7 +4,7 @@
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { badgeMatchesInbox, countUnreadAlerts, isPastCalendarAlert, visibleAlerts } from './alerts-state';
+import { badgeMatchesInbox, countUnreadAlerts, isPastCalendarAlert, sortAlertsByEventDate, visibleAlerts } from './alerts-state';
 
 describe('alerts-state', () => {
   it('cuenta solo no leídas y no dismissadas', () => {
@@ -67,5 +67,15 @@ describe('alerts-state', () => {
     assert.equal(isPastCalendarAlert(pastDate), true);
     assert.equal(isPastCalendarAlert(future), false);
     assert.equal(visibleAlerts([pastResult, pastDate, future]).map((a) => a.id).join(), 'n1');
+  });
+
+  it('ordena partidos por fecha del evento, no por created_at', () => {
+    const rows = [
+      { id: 'c', message: '11/10/2026 vs Manresa', metadata: { match_date: '2026-10-11' }, created_at: '2026-09-19T15:04:50' },
+      { id: 'a', message: '24/9/2026 vs Dubai', metadata: { match_date: '2026-09-24' }, created_at: '2026-09-19T14:40:04' },
+      { id: 'b', message: '29/9/2026 vs Efes', metadata: { match_date: '2026-09-29' }, created_at: '2026-09-19T14:40:04' },
+    ];
+    assert.equal(sortAlertsByEventDate(rows, 'asc').map((a) => a.id).join(), 'a,b,c');
+    assert.equal(sortAlertsByEventDate(rows, 'desc').map((a) => a.id).join(), 'c,b,a');
   });
 });

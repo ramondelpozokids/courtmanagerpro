@@ -28,6 +28,50 @@ function isoDatesInText(value: string): string[] {
   return [...value.matchAll(/\d{4}-\d{2}-\d{2}/g)].map((m) => m[0]);
 }
 
+function esDatesInText(value: string): string[] {
+  const out: string[] = [];
+  for (const m of value.matchAll(/(\d{1,2})\/(\d{1,2})\/(\d{4})/g)) {
+    const d = m[1].padStart(2, '0');
+    const mo = m[2].padStart(2, '0');
+    out.push(`${m[3]}-${mo}-${d}`);
+  }
+  return out;
+}
+
+export type AlertDateSort = 'asc' | 'desc';
+
+/** Fecha del partido/evento (metadata, ISO o 24/9/2026 en el texto). Si no hay, created_at. */
+export function alertEventDateIso(alert: AlertLike & { created_at?: string | null }): string {
+  const meta = alert.metadata && typeof alert.metadata === 'object' ? alert.metadata : {};
+  const metaDate = String(
+    meta.match_date ||
+      meta.event_date ||
+      (meta.fixture as { match_date?: string } | undefined)?.match_date ||
+      ''
+  ).slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(metaDate)) return metaDate;
+
+  const blob = `${alert.title || ''} ${alert.message || ''}`;
+  const fromText = [...isoDatesInText(blob), ...esDatesInText(blob)].sort();
+  if (fromText.length) return fromText[0];
+
+  const created = String(alert.created_at || '').slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(created) ? created : '9999-12-31';
+}
+
+export function sortAlertsByEventDate<T extends AlertLike & { created_at?: string | null }>(
+  alerts: T[],
+  direction: AlertDateSort = 'asc'
+): T[] {
+  const sign = direction === 'desc' ? -1 : 1;
+  return [...alerts].sort((a, b) => {
+    const da = alertEventDateIso(a);
+    const db = alertEventDateIso(b);
+    if (da !== db) return da < db ? -sign : sign;
+    return String(a.created_at || '').localeCompare(String(b.created_at || '')) * sign;
+  });
+}
+
 /** Alertas de calendario/viaje de partidos ya jugados (resultados, marcador, fecha pasada). */
 export function isPastCalendarAlert(alert: AlertLike): boolean {
   const type = String(alert.type || '').toLowerCase();
@@ -38,7 +82,9 @@ export function isPastCalendarAlert(alert: AlertLike): boolean {
   const metaDate = String(
     meta.match_date || (meta.fixture as { match_date?: string } | undefined)?.match_date || ''
   ).slice(0, 10);
-  const dates = [metaDate, ...isoDatesInText(blob)].filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  const dates = [metaDate, ...isoDatesInText(blob), ...esDatesInText(blob)].filter((d) =>
+    /^\d{4}-\d{2}-\d{2}$/.test(d)
+  );
   if (dates.length) {
     const eventDate = dates.sort()[dates.length - 1];
     if (

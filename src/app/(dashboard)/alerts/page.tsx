@@ -6,8 +6,9 @@ import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActiveTeamId } from "@/contexts/ClubDemoContext";
 import { canManageAlerts, canViewAlerts } from "@/lib/permissions";
-import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw, ExternalLink } from "lucide-react";
+import { Bell, Check, Trash2, ShieldAlert, CheckCircle, RefreshCw, ExternalLink, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
+import { sortAlertsByEventDate, type AlertDateSort } from "@/lib/alerts-state";
 
 export default function AlertsPage() {
   const { user, userEmail, hasOperationalAccess } = useAuth();
@@ -24,6 +25,18 @@ export default function AlertsPage() {
   } = useAlerts(teamId);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
+  const [dateOrder, setDateOrder] = useState<AlertDateSort>("asc");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("cmAlertsDateOrder");
+      if (stored === "asc" || stored === "desc") setDateOrder(stored);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const listed = useMemo(() => sortAlertsByEventDate(alerts, dateOrder), [alerts, dateOrder]);
 
   const userRole = user?.profile?.role;
   const hasAccess = hasOperationalAccess || canViewAlerts(userRole, userEmail);
@@ -37,8 +50,8 @@ export default function AlertsPage() {
     });
   }, [alerts]);
 
-  const allSelected = alerts.length > 0 && selected.size === alerts.length;
-  const readIds = useMemo(() => alerts.filter((a) => a.is_read).map((a) => a.id), [alerts]);
+  const allSelected = listed.length > 0 && selected.size === listed.length;
+  const readIds = useMemo(() => listed.filter((a) => a.is_read).map((a) => a.id), [listed]);
 
   if (!hasAccess) {
     return (
@@ -110,12 +123,29 @@ export default function AlertsPage() {
             <button
               type="button"
               onClick={() => {
+                const next = dateOrder === "asc" ? "desc" : "asc";
+                setDateOrder(next);
+                try {
+                  localStorage.setItem("cmAlertsDateOrder", next);
+                } catch {
+                  /* ignore */
+                }
+              }}
+              className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
+              title="Ordenar por fecha del partido"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+              {dateOrder === "asc" ? "Fecha ↑ (próximos primero)" : "Fecha ↓ (lejanos primero)"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
                 if (allSelected) setSelected(new Set());
-                else setSelected(new Set(alerts.map((a) => a.id)));
+                else setSelected(new Set(listed.map((a) => a.id)));
               }}
               className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
             >
-              {allSelected ? 'Quitar selección' : `Seleccionar todas (${alerts.length})`}
+              {allSelected ? 'Quitar selección' : `Seleccionar todas (${listed.length})`}
             </button>
             {readIds.length > 0 && (
               <button
@@ -191,7 +221,7 @@ export default function AlertsPage() {
         </div>
       ) : (
         <div className="space-y-4 max-w-4xl">
-          {alerts.map((alert) => {
+          {listed.map((alert) => {
             const isCritical = alert.severity === "critical";
             const isWarning = alert.severity === "warning";
 

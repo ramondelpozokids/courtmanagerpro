@@ -95,9 +95,8 @@ export function resolveUserAccess(role?: string | null, email?: string | null) {
 
 /**
  * Superadmin (Ramón): cambia el programa y también edita el club.
- * Admin (Carlos): edita el mismo club (tallas, plantilla, inventario…), no el código.
- * Un solo dato en Supabase: lo que guarda uno lo ve el otro.
- * La cuenta demo ATM no hereda estos privilegios.
+ * Admin (Carlos): misma plantilla/alertas/viajes de RMB en Supabase.
+ * ATM y RMF del switcher de Ramón no se copian a la cuenta de Carlos.
  */
 export function hasFullClubAccess(role?: string | null, email?: string | null): boolean {
   if (isAtmDemoEmail(email)) return false;

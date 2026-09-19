@@ -40,7 +40,10 @@ export function isUpcomingTrip(t: {
 }
 
 function mapPackTrips(trips: PackTrip[]): Trip[] {
-  return trips.filter(isUpcomingTrip).map((t) => ({
+  return trips
+    .filter(isUpcomingTrip)
+    .sort((a, b) => String(a.departureDate).localeCompare(String(b.departureDate)))
+    .map((t) => ({
     id: t.id,
     destination: t.destination,
     opponent: t.opponent,
