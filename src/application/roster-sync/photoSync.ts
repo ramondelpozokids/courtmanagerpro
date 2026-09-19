@@ -32,6 +32,9 @@ export async function downloadPlayerPhoto(
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length < 100) return remoteUrl;
 
+    // En Vercel el filesystem es de solo lectura: no fingir una ruta local que luego 404.
+    if (process.env.VERCEL) return remoteUrl;
+
     const dir = path.join(process.cwd(), 'public', 'assets', 'players');
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 

@@ -156,34 +156,88 @@ export const initialRequests: any[] = [
 export const initialTrips: any[] = [
   {
     id: "t1",
-    destination: "Málaga",
-    opponent: "Unicaja",
-    departureDate: "2026-06-20",
-    returnDate: "2026-06-22",
+    destination: "Coca-Cola Arena",
+    opponent: "Dubai Basketball",
+    departureDate: "2026-09-23",
+    returnDate: "2026-09-25",
     status: "planificado",
     packingList: [
-      { id: "tp1", itemName: "Equipación Local Blanca (Camisetas + Shorts)", quantityRequired: 15, quantityPacked: 15, category: "camiseta_juego", isPacked: true },
-      { id: "tp2", itemName: "Equipación Visitante Morada", quantityRequired: 15, quantityPacked: 5, category: "camiseta_juego", isPacked: false },
-      { id: "tp3", itemName: "Camisetas de Calentamiento", quantityRequired: 15, quantityPacked: 15, category: "camiseta_entrenamiento", isPacked: true },
-      { id: "tp4", itemName: "Toallas Oficiales RMB", quantityRequired: 30, quantityPacked: 10, category: "accesorios", isPacked: false },
-      { id: "tp5", itemName: "Botiquín Médico Principal", quantityRequired: 2, quantityPacked: 2, category: "medico", isPacked: true }
+      { id: "tp1a", itemName: "Equipación Visitante Morada", quantityRequired: 17, quantityPacked: 0, category: "camiseta_juego", isPacked: false },
+      { id: "tp1b", itemName: "Camisetas de Calentamiento", quantityRequired: 17, quantityPacked: 0, category: "camiseta_entrenamiento", isPacked: false },
+      { id: "tp1c", itemName: "Botiquín de Viaje Euroliga", quantityRequired: 2, quantityPacked: 0, category: "medico", isPacked: false },
     ],
-    notes: "Partido crítico Liga Endesa. Asegurar doble petate de balones oficiales."
+    notes: "Euroliga J1 · 24 sep 18:00 · visitante · calendario oficial realmadrid.com",
   },
   {
     id: "t2",
-    destination: "Atenas",
-    opponent: "Panathinaikos",
-    departureDate: "2026-06-26",
-    returnDate: "2026-06-28",
+    destination: "Movistar Arena",
+    opponent: "Unicaja",
+    departureDate: "2026-09-27",
+    returnDate: "2026-09-27",
     status: "planificado",
     packingList: [
-      { id: "tp10", itemName: "Equipación Visitante Morada", quantityRequired: 15, quantityPacked: 0, category: "camiseta_juego", isPacked: false },
-      { id: "tp11", itemName: "Camisetas de Calentamiento", quantityRequired: 15, quantityPacked: 0, category: "camiseta_entrenamiento", isPacked: false },
-      { id: "tp12", itemName: "Botiquín Sanitario", quantityRequired: 2, quantityPacked: 0, category: "medico", isPacked: false }
+      { id: "tp2a", itemName: "Equipación Local Blanca (Camisetas + Shorts)", quantityRequired: 17, quantityPacked: 0, category: "camiseta_juego", isPacked: false },
+      { id: "tp2b", itemName: "Camisetas de Calentamiento", quantityRequired: 17, quantityPacked: 0, category: "camiseta_entrenamiento", isPacked: false },
+      { id: "tp2c", itemName: "Botiquín Médico Principal", quantityRequired: 2, quantityPacked: 0, category: "medico", isPacked: false },
     ],
-    notes: "Vuelo chárter Iberia. Restricción de 32kg por petate de utilería."
-  }
+    notes: "Liga Endesa J1 · 27 sep 19:00 · local · calendario oficial realmadrid.com",
+  },
+  {
+    id: "t3",
+    destination: "Turkcell Basketball Development Center",
+    opponent: "Anadolu Efes",
+    departureDate: "2026-09-28",
+    returnDate: "2026-09-30",
+    status: "planificado",
+    packingList: [
+      { id: "tp3a", itemName: "Equipación Visitante Morada", quantityRequired: 17, quantityPacked: 0, category: "camiseta_juego", isPacked: false },
+      { id: "tp3b", itemName: "Camisetas de Calentamiento", quantityRequired: 17, quantityPacked: 0, category: "camiseta_entrenamiento", isPacked: false },
+      { id: "tp3c", itemName: "Botiquín de Viaje Euroliga", quantityRequired: 2, quantityPacked: 0, category: "medico", isPacked: false },
+    ],
+    notes: "Euroliga J2 · 29 sep 19:00 · visitante · Estambul · calendario oficial realmadrid.com",
+  },
+  {
+    id: "t4",
+    destination: "Arena Sofia",
+    opponent: "Hapoel IBI Tel Aviv",
+    departureDate: "2026-09-30",
+    returnDate: "2026-10-02",
+    status: "planificado",
+    packingList: [
+      { id: "tp4a", itemName: "Equipación Visitante Morada", quantityRequired: 17, quantityPacked: 0, category: "camiseta_juego", isPacked: false },
+      { id: "tp4b", itemName: "Camisetas de Calentamiento", quantityRequired: 17, quantityPacked: 0, category: "camiseta_entrenamiento", isPacked: false },
+      { id: "tp4c", itemName: "Botiquín de Viaje Euroliga", quantityRequired: 2, quantityPacked: 0, category: "medico", isPacked: false },
+    ],
+    notes: "Euroliga J3 · 1 oct 19:00 · visitante · Sofía · calendario oficial realmadrid.com",
+  },
+  {
+    id: "t5",
+    destination: "Multiusos Fontes do Sar",
+    opponent: "Monbus Obradoiro",
+    departureDate: "2026-10-03",
+    returnDate: "2026-10-05",
+    status: "planificado",
+    packingList: [
+      { id: "tp5a", itemName: "Equipación Visitante Morada", quantityRequired: 17, quantityPacked: 0, category: "camiseta_juego", isPacked: false },
+      { id: "tp5b", itemName: "Camisetas de Calentamiento", quantityRequired: 17, quantityPacked: 0, category: "camiseta_entrenamiento", isPacked: false },
+      { id: "tp5c", itemName: "Botiquín Médico Principal", quantityRequired: 2, quantityPacked: 0, category: "medico", isPacked: false },
+    ],
+    notes: "Liga Endesa J2 · 4 oct 12:30 · visitante · Santiago · calendario oficial realmadrid.com",
+  },
+  {
+    id: "t6",
+    destination: "Movistar Arena",
+    opponent: "Partizán de Belgrado",
+    departureDate: "2026-10-08",
+    returnDate: "2026-10-08",
+    status: "planificado",
+    packingList: [
+      { id: "tp6a", itemName: "Equipación Local Blanca (Camisetas + Shorts)", quantityRequired: 17, quantityPacked: 0, category: "camiseta_juego", isPacked: false },
+      { id: "tp6b", itemName: "Camisetas de Calentamiento", quantityRequired: 17, quantityPacked: 0, category: "camiseta_entrenamiento", isPacked: false },
+      { id: "tp6c", itemName: "Botiquín Médico Principal", quantityRequired: 2, quantityPacked: 0, category: "medico", isPacked: false },
+    ],
+    notes: "Euroliga J4 · 8 oct 20:45 · local · calendario oficial realmadrid.com",
+  },
 ];
 
 export const initialLaundry: any[] = [

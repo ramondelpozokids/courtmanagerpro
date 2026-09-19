@@ -4,7 +4,7 @@
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { badgeMatchesInbox, countUnreadAlerts, visibleAlerts } from './alerts-state';
+import { badgeMatchesInbox, countUnreadAlerts, isPastCalendarAlert, visibleAlerts } from './alerts-state';
 
 describe('alerts-state', () => {
   it('cuenta solo no leídas y no dismissadas', () => {
@@ -37,5 +37,35 @@ describe('alerts-state', () => {
     assert.equal(visibleAlerts(after).length, 0);
     assert.equal(countUnreadAlerts(after), 0);
     assert.ok(badgeMatchesInbox(after, 0));
+  });
+
+  it('oculta resultados y partidos ya jugados; deja los futuros', () => {
+    const pastResult = {
+      id: 'r1',
+      type: 'calendario_resultado',
+      is_read: false,
+      is_dismissed: false,
+      message: 'Partido contra Unicaja: resultado — victoria',
+    };
+    const pastDate = {
+      id: 'c1',
+      type: 'calendario_cambio',
+      is_read: false,
+      is_dismissed: false,
+      message: 'Partido contra Unicaja: fecha 2026-06-14 → 2026-06-20',
+      metadata: { change_type: 'fecha', match_date: '2026-06-20' },
+    };
+    const future = {
+      id: 'n1',
+      type: 'calendario_nuevo',
+      is_read: false,
+      is_dismissed: false,
+      message: 'vs Dubai Basketball: 2027-10-01 18:00 · Euroliga',
+      metadata: { change_type: 'nuevo', match_date: '2027-10-01' },
+    };
+    assert.equal(isPastCalendarAlert(pastResult), true);
+    assert.equal(isPastCalendarAlert(pastDate), true);
+    assert.equal(isPastCalendarAlert(future), false);
+    assert.equal(visibleAlerts([pastResult, pastDate, future]).map((a) => a.id).join(), 'n1');
   });
 });

@@ -1,7 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { BIRTHDAY_ALERT_RECIPIENT_EMAILS } from '@/config/birthday-alerts';
 import { CLUB_TEAM_IDS } from '@/lib/club-team-ids';
-import type { MatchDiff, OfficialCalendarSnapshot } from './types';
+import { madridTodayIso } from '@/lib/alerts-state';
+import type { MatchDiff, MatchDiffChange, OfficialCalendarSnapshot } from './types';
 
 function matchEntitySource(teamId: string, snapshot: OfficialCalendarSnapshot): string {
   if (teamId === CLUB_TEAM_IDS.atm || snapshot.source_id?.includes('atletico')) {
@@ -146,14 +147,32 @@ export type CalendarAlertRow = {
   metadata: Record<string, unknown>;
 };
 
+function changeMatchDate(c: MatchDiffChange): string {
+  const fromFixture = String(c.fixture?.match_date || '').slice(0, 10);
+  if (fromFixture) return fromFixture;
+  if (c.change_type === 'fecha') return String(c.new_value || '').slice(0, 10);
+  const fromMsg = String(c.new_value || '').match(/\d{4}-\d{2}-\d{2}/);
+  return fromMsg ? fromMsg[0] : '';
+}
+
+function isUpcomingCalendarChange(c: MatchDiffChange): boolean {
+  if (c.change_type === 'resultado' || c.change_type === 'marcador') return false;
+  if (c.change_type === 'estado' && /finalizado/i.test(String(c.new_value || ''))) return false;
+  const date = changeMatchDate(c);
+  if (!date) return true;
+  return date >= madridTodayIso();
+}
+
 /** Construye alertas de calendario (misma regla en prod y demo). */
 export function buildCalendarAlertRows(teamId: string, diff: MatchDiff): CalendarAlertRow[] {
   if (diff.changes.length === 0) return [];
 
   const source = calendarAlertSource(teamId);
   const rows: CalendarAlertRow[] = [];
-  const nuevos = diff.changes.filter((c) => c.change_type === 'nuevo');
-  const actionable = diff.changes.filter((c) => ACTIONABLE_CALENDAR_CHANGES.has(c.change_type));
+  const nuevos = diff.changes.filter((c) => c.change_type === 'nuevo' && isUpcomingCalendarChange(c));
+  const actionable = diff.changes.filter(
+    (c) => ACTIONABLE_CALENDAR_CHANGES.has(c.change_type) && isUpcomingCalendarChange(c)
+  );
 
   if (nuevos.length > BULK_NUEVO_THRESHOLD) {
     rows.push({
@@ -192,6 +211,7 @@ export function buildCalendarAlertRows(teamId: string, diff: MatchDiff): Calenda
           change_type: 'nuevo',
           source,
           slug: c.slug,
+          match_date: changeMatchDate(c) || null,
           notify: [...OPERATIONAL_NOTIFY],
         },
       });
@@ -232,6 +252,7 @@ export function buildCalendarAlertRows(teamId: string, diff: MatchDiff): Calenda
         change_type: c.change_type,
         source,
         slug: c.slug,
+        match_date: changeMatchDate(c) || null,
         notify: [...OPERATIONAL_NOTIFY],
       },
     });

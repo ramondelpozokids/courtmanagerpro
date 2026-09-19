@@ -27,10 +27,20 @@ export async function applyRosterDiff(params: {
 
   for (const change of diff.changes) {
     if (change.change_type === 'baja' && change.entity_id) {
-      const { error } = await supabase
-        .from('players')
-        .update({ is_active: false, deactivated_at: now, updated_at: now })
-        .eq('id', change.entity_id);
+      const parked = 9000 + Math.floor(Math.random() * 800);
+      const full = {
+        is_active: false,
+        deactivated_at: now,
+        dorsal: parked,
+        updated_at: now,
+      };
+      let { error } = await supabase.from('players').update(full).eq('id', change.entity_id);
+      if (error) {
+        ({ error } = await supabase
+          .from('players')
+          .update({ is_active: false, dorsal: parked, updated_at: now })
+          .eq('id', change.entity_id));
+      }
       if (error) throw new Error(`baja player: ${error.message}`);
     }
     if (change.change_type === 'staff_baja' && change.entity_id) {
@@ -229,7 +239,9 @@ export async function applyRosterDiff(params: {
       created_at: now,
     }));
     const { error: histError } = await supabase.from('roster_history').insert(historyRows);
-    if (histError) throw new Error(`roster_history: ${histError.message}`);
+    if (histError) {
+      console.warn('[roster-sync] roster_history insert skipped:', histError.message);
+    }
   }
 
   const { error: cacheError } = await supabase.from('roster_sync_cache').upsert({

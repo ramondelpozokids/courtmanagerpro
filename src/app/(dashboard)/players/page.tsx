@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { normalizeStaffProfile } from "@/lib/player-profile";
 import { resolveAtmPackStaffPhoto } from "@/lib/atm-pack-photos";
-import { RMB_OFFICIAL_SOURCE, RMB_OFFICIAL_SYNCED_AT } from "@/data/rmb-official-roster";
+import { RMB_OFFICIAL_SOURCE } from "@/data/rmb-official-roster";
 import { formatApparelSize } from "@/content/sizing-products";
 import { RMF_OFFICIAL_PLANTILLA_URL } from "@/data/clubs/rmf-data";
 import { ATM_OFFICIAL_PLANTILLA_URL, resolveAtmStaffProfileUrl } from "@/data/clubs/atm-data";
@@ -351,7 +351,7 @@ function PlayersPageContent() {
           </h2>
           <p className="text-xs text-slate-400 mt-1">
             {branding.slug === 'rmb'
-              ? `Datos oficiales realmadrid.com · ${branding.venue}${RMB_OFFICIAL_SYNCED_AT ? ` · sync ${new Date(RMB_OFFICIAL_SYNCED_AT).toLocaleDateString('es-ES')}` : ''}`
+              ? `Datos oficiales realmadrid.com · ${branding.venue} · el botón actualiza esta plantilla desde la web`
               : `${branding.name} · ${branding.venue} · ${branding.league}`}
           </p>
           <p className="text-xs font-bold text-orange-600 mt-1">
@@ -363,7 +363,6 @@ function PlayersPageContent() {
             <UpdateOfficialRosterButton
               onDone={() => {
                 void loadStaff();
-                window.location.reload();
               }}
             />
           )}
@@ -396,11 +395,11 @@ function PlayersPageContent() {
 
       {branding.slug === 'rmb' && (
       <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 rounded-xl p-4 text-sm text-slate-700 dark:text-slate-300">
-        Jugadores y cuerpo técnico se sincronizan automáticamente al iniciar la app (y cada 24 h) desde la{' '}
+        Jugadores y cuerpo técnico se leen de la{' '}
         <a href={OFFICIAL_PLANTILLA_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-orange-700 dark:text-orange-400 underline-offset-2 hover:underline">
           plantilla oficial del Real Madrid Baloncesto
         </a>
-        . También puedes forzar una actualización con el botón «Actualizar plantilla oficial».
+        . Pulsa «Actualizar plantilla oficial» para bajar altas, bajas y fotos a CourtManager (no basta con recargar).
       </div>
       )}
       {branding.slug === 'rmf' && (

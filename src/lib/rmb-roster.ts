@@ -117,9 +117,9 @@ function mergeLivePlayerOntoPack(packP: Player, liveP: Player): Player {
 }
 
 /**
- * La web oficial (pack embebido) decide quién está en plantilla: 17 jugadores.
- * Se conservan tallas e ids de Supabase en las coincidencias.
- * No se añaden bajas/duplicados que sigan activos en base de datos (Almansa, Max Shulga).
+ * Plantilla RMB: la base del club (tras «Actualizar plantilla oficial») manda.
+ * El pack embebido rellena huecos y sirve si Supabase viene vacío.
+ * Las altas de un scrape (p. ej. Smith) se ven aunque el deploy aún no las lleve.
  */
 export function preferRmbRosterIfStale(live: Player[], teamId: string): Player[] {
   if (teamId !== CLUB_TEAM_IDS.rmb) return live;
@@ -127,11 +127,30 @@ export function preferRmbRosterIfStale(live: Player[], teamId: string): Player[]
   const liveActive = live.filter((p) => p.is_active !== false);
   if (!liveActive.length) return pack;
 
-  return pack.map((packP) => {
+  const usedLiveIds = new Set<string>();
+  const fromPack = pack.map((packP) => {
     const liveP = pickLiveForPack(packP, liveActive);
     if (!liveP) return packP;
+    usedLiveIds.add(liveP.id);
     return mergeLivePlayerOntoPack(packP, liveP);
   });
+
+  const leftoverSlugs = new Set(
+    ['izan-almansa', 'eli-john-ndiaye', 'max-shulga', 'mady-sissoko', 'omer-yurtseven'].map(
+      canonicalPlayerSlug
+    )
+  );
+
+  const altasFromSync = liveActive.filter((liveP) => {
+    if (usedLiveIds.has(liveP.id)) return false;
+    const slug = canonicalPlayerSlug(String(liveP.official_slug || liveP.metadata?.official_slug || ''));
+    const fromOfficial = Boolean(slug) || String(liveP.source || '') === 'realmadrid.com';
+    if (!fromOfficial) return false;
+    if (slug && leftoverSlugs.has(slug)) return false;
+    return !fromPack.some((packP) => livePlayerMatchesPack(liveP, packP));
+  });
+
+  return [...fromPack, ...altasFromSync];
 }
 
 function liveStaffMatchesPack(

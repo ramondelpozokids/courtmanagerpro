@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { scanBirthdayAlerts, getUpcomingBirthdays } from "@/lib/birthday-alerts";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,12 +12,33 @@ import Link from "next/link";
 export default function AlertsPage() {
   const { user, userEmail, hasOperationalAccess } = useAuth();
   const teamId = useActiveTeamId();
-  const { alerts, loading, markAsRead, dismissAlert, dismissAll, markAllAsRead, refresh } =
-    useAlerts(teamId);
+  const {
+    alerts,
+    loading,
+    markAsRead,
+    dismissAlert,
+    dismissMany,
+    dismissAll,
+    markAllAsRead,
+    refresh,
+  } = useAlerts(teamId);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState(false);
 
   const userRole = user?.profile?.role;
   const hasAccess = hasOperationalAccess || canViewAlerts(userRole, userEmail);
   const canEdit = hasOperationalAccess || canManageAlerts(userRole, userEmail);
+
+  useEffect(() => {
+    const visible = new Set(alerts.map((a) => a.id));
+    setSelected((prev) => {
+      const next = new Set([...prev].filter((id) => visible.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [alerts]);
+
+  const allSelected = alerts.length > 0 && selected.size === alerts.length;
+  const readIds = useMemo(() => alerts.filter((a) => a.is_read).map((a) => a.id), [alerts]);
 
   if (!hasAccess) {
     return (
@@ -84,17 +106,71 @@ export default function AlertsPage() {
             </button>
           )}
           {alerts.length > 0 && (
+            <>
+            <button
+              type="button"
+              onClick={() => {
+                if (allSelected) setSelected(new Set());
+                else setSelected(new Set(alerts.map((a) => a.id)));
+              }}
+              className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all"
+            >
+              {allSelected ? 'Quitar selección' : `Seleccionar todas (${alerts.length})`}
+            </button>
+            {readIds.length > 0 && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  if (!confirm(`¿Eliminar las ${readIds.length} alerta(s) ya leídas?`)) return;
+                  setBusy(true);
+                  try {
+                    await dismissMany(readIds);
+                    setSelected(new Set());
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar leídas
+              </button>
+            )}
+            {selected.size > 0 && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  const ids = [...selected];
+                  if (!confirm(`¿Eliminar ${ids.length} alerta(s) seleccionadas?`)) return;
+                  setBusy(true);
+                  try {
+                    await dismissMany(ids);
+                    setSelected(new Set());
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar seleccionadas ({selected.size})
+              </button>
+            )}
             <button
               type="button"
               onClick={async () => {
                 if (!confirm(`¿Eliminar las ${alerts.length} alerta(s) de la bandeja?`)) return;
                 await dismissAll();
+                setSelected(new Set());
               }}
               className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs font-bold text-red-600 transition-all"
             >
               <Trash2 className="h-4 w-4" />
               Vaciar bandeja
             </button>
+            </>
           )}
           </>
           )}
@@ -123,6 +199,10 @@ export default function AlertsPage() {
               <div
                 key={alert.id}
                 className={`p-4 rounded-xl border transition-all flex items-start gap-4 ${
+                  selected.has(alert.id)
+                    ? "ring-2 ring-orange-400 border-orange-300"
+                    : ""
+                } ${
                   alert.is_read
                     ? "bg-slate-50/50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800/60 opacity-60"
                     : isCritical
@@ -132,6 +212,24 @@ export default function AlertsPage() {
                     : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
                 }`}
               >
+                {canEdit && (
+                  <label className="shrink-0 self-center pt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(alert.id)}
+                      onChange={() => {
+                        setSelected((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(alert.id)) next.delete(alert.id);
+                          else next.add(alert.id);
+                          return next;
+                        });
+                      }}
+                      className="h-4 w-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
+                      aria-label={`Seleccionar alerta ${alert.title || alert.message}`}
+                    />
+                  </label>
+                )}
                 {/* Alert Severity Indicator Node */}
                 <div className={`p-2.5 rounded-lg shrink-0 ${
                   alert.is_read

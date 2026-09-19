@@ -13,7 +13,7 @@ import {
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 import { db } from '@/infrastructure/supabase/repositories/InMemoryDB';
 import { scanBirthdayAlerts } from '@/lib/birthday-alerts';
-import { countUnreadAlerts } from '@/lib/alerts-state';
+import { countUnreadAlerts, isPastCalendarAlert } from '@/lib/alerts-state';
 import { useActiveTeamId, useClubBranding } from '@/contexts/ClubDemoContext';
 import { DEFAULT_TEAM_ID } from '@/lib/team-constants';
 import type { Alert } from '@/types';
@@ -25,6 +25,7 @@ export type AlertsContextValue = {
   loading: boolean;
   markAsRead: (alertId: string) => Promise<void>;
   dismissAlert: (alertId: string) => Promise<void>;
+  dismissMany: (alertIds: string[]) => Promise<void>;
   dismissAll: () => Promise<void>;
   markAllAsRead: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -91,7 +92,14 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
               }) as Alert
           )
           .filter((a: Alert) => !isForeignSportCalendarAlert(`${a.title} ${a.message}`, branding.sport));
-        setAlerts(mapped);
+        const past = mapped.filter((a) => isPastCalendarAlert(a));
+        if (past.length) {
+          const ids = new Set(past.map((a) => a.id));
+          db.alerts = db.alerts.map((a: any) =>
+            ids.has(a.id) ? { ...a, is_dismissed: true, is_read: true } : a
+          );
+        }
+        setAlerts(mapped.filter((a) => !isPastCalendarAlert(a)));
         return;
       }
 
@@ -104,11 +112,23 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         .limit(100);
 
       if (error) throw error;
-      setAlerts(
-        ((data || []) as Alert[]).filter(
-          (a) => !isForeignSportCalendarAlert(`${a.title} ${a.message}`, branding.sport)
-        )
+      const incoming = ((data || []) as Alert[]).filter(
+        (a) => !isForeignSportCalendarAlert(`${a.title} ${a.message}`, branding.sport)
       );
+      const past = incoming.filter((a) => isPastCalendarAlert(a));
+      if (past.length) {
+        const ids = past.map((a) => a.id);
+        await supabase
+          .from('alerts')
+          .update({
+            is_dismissed: true,
+            is_read: true,
+            read_at: new Date().toISOString(),
+          })
+          .eq('team_id', teamId)
+          .in('id', ids);
+      }
+      setAlerts(incoming.filter((a) => !isPastCalendarAlert(a)));
     } catch (err) {
       console.error('[AlertsProvider] load failed:', err);
     } finally {
@@ -183,6 +203,30 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
     [mock, fetchAlerts, supabase, teamId]
   );
 
+  const dismissMany = useCallback(
+    async (alertIds: string[]) => {
+      const ids = [...new Set(alertIds.filter(Boolean))];
+      if (!ids.length) return;
+      if (mock) {
+        db.alerts = db.alerts.filter((a) => !ids.includes(a.id));
+        await fetchAlerts();
+        return;
+      }
+      const { error } = await supabase
+        .from('alerts')
+        .update({
+          is_dismissed: true,
+          is_read: true,
+          read_at: new Date().toISOString(),
+        })
+        .eq('team_id', teamId)
+        .in('id', ids);
+      if (error) throw new Error(error.message);
+      await fetchAlerts();
+    },
+    [mock, fetchAlerts, supabase, teamId]
+  );
+
   const dismissAll = useCallback(async () => {
     if (mock) {
       db.alerts = db.alerts.filter(
@@ -232,6 +276,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       loading,
       markAsRead,
       dismissAlert,
+      dismissMany,
       dismissAll,
       markAllAsRead,
       refresh: fetchAlerts,
@@ -243,6 +288,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       loading,
       markAsRead,
       dismissAlert,
+      dismissMany,
       dismissAll,
       markAllAsRead,
       fetchAlerts,

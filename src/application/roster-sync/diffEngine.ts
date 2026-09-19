@@ -9,22 +9,34 @@ import type {
   RosterDiffChange,
 } from './sources/types';
 
+function canonicalSlug(slug: string | null | undefined): string {
+  const s = String(slug || '')
+    .trim()
+    .toLowerCase();
+  if (s === 'max-shulga') return 'maksym-shulga';
+  return s;
+}
+
+function canonicalPersonName(name: string): string {
+  return normalizeName(name).replace(/^max shulga\b/, 'maksym shulga');
+}
+
 function matchPlayer(db: DbPlayerRow[], official: OfficialPlayer): DbPlayerRow | undefined {
-  if (official.slug) {
-    const bySlug = db.find((p) => p.official_slug === official.slug);
+  const wantSlug = canonicalSlug(official.slug);
+  if (wantSlug) {
+    const bySlug = db.find((p) => canonicalSlug(p.official_slug) === wantSlug);
     if (bySlug) return bySlug;
   }
+  const officialName = canonicalPersonName(official.full_name);
   const byDorsalName = db.find(
     (p) =>
       p.is_active &&
       p.dorsal === official.dorsal &&
-      normalizeName(p.full_name) === normalizeName(official.full_name)
+      canonicalPersonName(p.full_name) === officialName
   );
   if (byDorsalName) return byDorsalName;
 
-  return db.find(
-    (p) => p.is_active && normalizeName(p.full_name) === normalizeName(official.full_name)
-  );
+  return db.find((p) => p.is_active && canonicalPersonName(p.full_name) === officialName);
 }
 
 function matchStaff(db: DbStaffRow[], official: OfficialStaff): DbStaffRow | undefined {
@@ -156,17 +168,6 @@ export function computeRosterDiff(
   for (const dp of dbPlayers) {
     if (!dp.is_active) continue;
     if (matchedPlayerIds.has(dp.id)) continue;
-    // Only soft-remove players previously synced from official source (or with slug)
-    if (
-      dp.source &&
-      dp.source !== 'realmadrid.com' &&
-      dp.source !== 'real_madrid_official' &&
-      dp.source !== 'atleticodemadrid.com' &&
-      dp.source !== 'atletico_madrid_official' &&
-      !dp.official_slug
-    ) {
-      continue;
-    }
     players_removed += 1;
     changes.push({
       change_type: 'baja',
