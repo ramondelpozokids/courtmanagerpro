@@ -50,6 +50,25 @@ const KIT_OPTIONS: { id: KitId; label: string; hint: string }[] = [
   { id: 'portero', label: 'Portero', hint: 'GK match + training' },
 ];
 
+/** RMB 26/27 shop.realmadrid.com — no hay 3ª de juego ni portero. */
+const RMB_KIT_OPTIONS: { id: KitId; label: string; hint: string }[] = [
+  {
+    id: 'primera',
+    label: '1ª blanca',
+    hint: 'Local · camiseta KT9672 + pantalón KU1387',
+  },
+  {
+    id: 'segunda',
+    label: '2ª verde',
+    hint: 'Visitante · camiseta KT9674 + pantalón KT8981',
+  },
+  {
+    id: 'entrenamiento',
+    label: 'Entrenamiento',
+    hint: 'Reversible KU1395/96 + calentamiento',
+  },
+];
+
 const PACK_TEMPLATE: Omit<PackItem, 'done'>[] = [
   // Equipación / prendas
   { id: 'kit_shirts', label: 'Camisetas de juego (plantel + staff técnico)', category: 'Equipación' },
@@ -97,6 +116,13 @@ const PACK_TEMPLATE: Omit<PackItem, 'done'>[] = [
   { id: 'med_massage', label: 'Camilla / material de fisioterapia portátil', category: 'Médico' },
 ];
 
+const FOOTBALL_ONLY_PACK_IDS = new Set(['kit_gk', 'goals_mini']);
+
+function packTemplateForClub(slug: string): Omit<PackItem, 'done'>[] {
+  if (slug === 'rmb') return PACK_TEMPLATE.filter((t) => !FOOTBALL_ONLY_PACK_IDS.has(t.id));
+  return PACK_TEMPLATE;
+}
+
 type StoredPack = {
   kits: KitId[];
   items: Record<string, boolean>;
@@ -143,11 +169,12 @@ export default function PrematchChecklistPage() {
   const packKey = `${STORAGE_PACK_PREFIX}${teamId}:${matchKey}`;
 
   const isFootball = branding.sport === 'football' || branding.slug === 'atm' || branding.slug === 'rmf';
+  const isRmb = branding.slug === 'rmb';
 
-  const kitOptions = useMemo(
-    () => (isFootball ? KIT_OPTIONS : KIT_OPTIONS.filter((k) => k.id !== 'portero')),
-    [isFootball]
-  );
+  const kitOptions = useMemo(() => {
+    if (isRmb) return RMB_KIT_OPTIONS;
+    return isFootball ? KIT_OPTIONS : KIT_OPTIONS.filter((k) => k.id !== 'portero');
+  }, [isFootball, isRmb]);
 
   const buildChecks = useCallback(
     (match: OfficialMatch | null, saved: Record<string, boolean> = {}): CheckItem[] => [
@@ -159,7 +186,9 @@ export default function PrematchChecklistPage() {
       },
       {
         id: 'kits',
-        label: 'Definir equipación(es) que llevan (1ª / 2ª / 3ª / entrenamiento)',
+        label: isRmb
+          ? 'Definir equipación: 1ª blanca, 2ª verde o entrenamiento'
+          : 'Definir equipación(es) que llevan (1ª / 2ª / 3ª / entrenamiento)',
         href: '#equipacion',
         done: Boolean(saved.kits),
       },
@@ -202,7 +231,7 @@ export default function PrematchChecklistPage() {
         done: Boolean(saved.requests),
       },
     ],
-    []
+    [isRmb]
   );
 
   const savePack = useCallback(
@@ -213,7 +242,9 @@ export default function PrematchChecklistPage() {
         extra: nextItems
           .filter((i) => !TEMPLATE_IDS.has(i.id))
           .map(({ id, label, category }) => ({ id, label, category })),
-        removed: PACK_TEMPLATE.filter((t) => !nextItems.some((i) => i.id === t.id)).map((t) => t.id),
+        removed: packTemplateForClub(branding.slug)
+          .filter((t) => !nextItems.some((i) => i.id === t.id))
+          .map((t) => t.id),
       };
       try {
         localStorage.setItem(packKey, JSON.stringify(payload));
@@ -221,7 +252,7 @@ export default function PrematchChecklistPage() {
         /* ignore */
       }
     },
-    [packKey]
+    [packKey, branding.slug]
   );
 
   const syncAutoChecks = useCallback(
@@ -276,10 +307,13 @@ export default function PrematchChecklistPage() {
         /* ignore */
       }
 
-      const nextKits = storedPack?.kits || [];
+      const allowedKits = new Set(kitOptions.map((k) => k.id));
+      const nextKits = ((storedPack?.kits || []) as KitId[]).filter((id) => allowedKits.has(id));
       const removed = new Set(storedPack?.removed || []);
       const nextItems: PackItem[] = [
-        ...PACK_TEMPLATE.filter((t) => !removed.has(t.id)).map((t) => ({
+        ...packTemplateForClub(branding.slug)
+          .filter((t) => !removed.has(t.id))
+          .map((t) => ({
           ...t,
           done: Boolean(storedPack?.items?.[t.id]),
         })),
@@ -304,7 +338,7 @@ export default function PrematchChecklistPage() {
     } finally {
       setLoading(false);
     }
-  }, [teamId, buildChecks]);
+  }, [teamId, buildChecks, branding.slug, kitOptions]);
 
   useEffect(() => {
     void load();
@@ -631,8 +665,9 @@ export default function PrematchChecklistPage() {
               </h3>
             </div>
             <p className="text-[11px] text-slate-500">
-              Marca una o varias: 1ª, 2ª, 3ª, entrenamiento
-              {isFootball ? ' y portero' : ''}.
+              {isRmb
+                ? 'RMB 26/27: 1ª blanca (local), 2ª verde (visitante) o entrenamiento. No hay 3ª de juego.'
+                : `Marca una o varias: 1ª, 2ª, 3ª, entrenamiento${isFootball ? ' y portero' : ''}.`}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {kitOptions.map((k) => {
