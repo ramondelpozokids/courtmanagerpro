@@ -19,10 +19,14 @@ import {
   Dumbbell,
   Trophy,
   FileDown,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import type { OfficialMatch } from '@/types';
 import { exportPreMatchPdf } from '@/lib/pdf-export';
 import type { ClubSlug } from '@/data/clubs/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { canWriteClubData } from '@/lib/permissions';
 
 type CheckItem = { id: string; label: string; href: string; done: boolean };
 
@@ -85,6 +89,8 @@ const PACK_TEMPLATE: Omit<PackItem, 'done'>[] = [
   { id: 'sewing', label: 'Kit costura / dorsales de emergencia', category: 'Logística' },
   { id: 'tape', label: 'Cinta americana, velcro, tijeras, rotuladores', category: 'Logística' },
   { id: 'laundry_bag', label: 'Sacos de ropa sucia post-partido', category: 'Logística' },
+  { id: 'slides', label: 'Chanclas / slides vestuario', category: 'Logística' },
+  { id: 'towels', label: 'Toallas (ducha / banquillo)', category: 'Logística' },
   { id: 'keys_pass', label: 'Pases / acreditaciones / llaves vestuario', category: 'Logística' },
   // Médico (resumen; detalle en /medical)
   { id: 'med_kit', label: 'Botiquín partido / viaje cargado', category: 'Médico' },
@@ -94,11 +100,33 @@ const PACK_TEMPLATE: Omit<PackItem, 'done'>[] = [
 type StoredPack = {
   kits: KitId[];
   items: Record<string, boolean>;
+  extra?: Omit<PackItem, 'done'>[];
+  removed?: string[];
 };
+
+const TEMPLATE_IDS = new Set(PACK_TEMPLATE.map((t) => t.id));
+const QUICK_ADD = [
+  { label: 'Chanclas', category: 'Logística' },
+  { label: 'Toallas', category: 'Logística' },
+  { label: 'Chanclas + toallas extra', category: 'Logística' },
+];
+
+function packItemId(label: string): string {
+  const slug = label
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 32);
+  return `custom_${slug || 'item'}_${Date.now().toString(36)}`;
+}
 
 export default function PrematchChecklistPage() {
   const teamId = useActiveTeamId();
   const branding = useClubBranding();
+  const { user, userEmail, isSuperadmin } = useAuth();
+  const canWrite = isSuperadmin || canWriteClubData(user?.profile?.role, userEmail);
   const [nextMatch, setNextMatch] = useState<OfficialMatch | null>(null);
   const [loading, setLoading] = useState(true);
   const [checks, setChecks] = useState<CheckItem[]>([]);
@@ -106,6 +134,9 @@ export default function PrematchChecklistPage() {
   const [packItems, setPackItems] = useState<PackItem[]>([]);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [newItemLabel, setNewItemLabel] = useState('');
+  const [newItemCategory, setNewItemCategory] = useState('Logística');
 
   const matchKey = nextMatch?.id || nextMatch?.official_slug || 'none';
   const persistKey = `${STORAGE_PREFIX}${teamId}:${matchKey}`;
@@ -179,6 +210,10 @@ export default function PrematchChecklistPage() {
       const payload: StoredPack = {
         kits: nextKits,
         items: Object.fromEntries(nextItems.map((i) => [i.id, i.done])),
+        extra: nextItems
+          .filter((i) => !TEMPLATE_IDS.has(i.id))
+          .map(({ id, label, category }) => ({ id, label, category })),
+        removed: PACK_TEMPLATE.filter((t) => !nextItems.some((i) => i.id === t.id)).map((t) => t.id),
       };
       try {
         localStorage.setItem(packKey, JSON.stringify(payload));
@@ -242,10 +277,19 @@ export default function PrematchChecklistPage() {
       }
 
       const nextKits = storedPack?.kits || [];
-      const nextItems: PackItem[] = PACK_TEMPLATE.map((t) => ({
-        ...t,
-        done: Boolean(storedPack?.items?.[t.id]),
-      }));
+      const removed = new Set(storedPack?.removed || []);
+      const nextItems: PackItem[] = [
+        ...PACK_TEMPLATE.filter((t) => !removed.has(t.id)).map((t) => ({
+          ...t,
+          done: Boolean(storedPack?.items?.[t.id]),
+        })),
+        ...(storedPack?.extra || []).map((t) => ({
+          id: t.id,
+          label: t.label,
+          category: t.category || 'Logística',
+          done: Boolean(storedPack?.items?.[t.id]),
+        })),
+      ];
 
       setKits(nextKits);
       setPackItems(nextItems);
@@ -309,6 +353,35 @@ export default function PrematchChecklistPage() {
     });
   };
 
+  const addPackItem = (label: string, category: string) => {
+    const name = label.trim();
+    const cat = category.trim() || 'Logística';
+    if (!name) return;
+    const already = packItems.some(
+      (i) => i.label.toLowerCase() === name.toLowerCase() && i.category.toLowerCase() === cat.toLowerCase()
+    );
+    if (already) return;
+    const next = [
+      ...packItems,
+      { id: packItemId(name), label: name, category: cat, done: false },
+    ];
+    setPackItems(next);
+    savePack(kits, next);
+    syncAutoChecks(kits, next);
+    setNewItemLabel('');
+    setShowAddItem(false);
+  };
+
+  const removePackItem = (id: string) => {
+    const item = packItems.find((i) => i.id === id);
+    if (!item) return;
+    if (!confirm(`¿Quitar «${item.label}» del packing?`)) return;
+    const next = packItems.filter((i) => i.id !== id);
+    setPackItems(next);
+    savePack(kits, next);
+    syncAutoChecks(kits, next);
+  };
+
   const doneCount = checks.filter((c) => c.done).length;
   const progress = checks.length ? Math.round((doneCount / checks.length) * 100) : 0;
   const packDone = packItems.filter((i) => i.done).length;
@@ -323,6 +396,17 @@ export default function PrematchChecklistPage() {
     }
     return order;
   }, [packItems]);
+
+  const categoryChoices = useMemo(() => {
+    const order: string[] = [];
+    for (const t of PACK_TEMPLATE) {
+      if (!order.includes(t.category)) order.push(t.category);
+    }
+    for (const c of categories) {
+      if (!order.includes(c)) order.push(c);
+    }
+    return order;
+  }, [categories]);
 
   const handleExportPdf = async () => {
     setExportingPdf(true);
@@ -601,8 +685,99 @@ export default function PrematchChecklistPage() {
             </div>
             <p className="text-[11px] text-slate-500">
               Todo lo que lleva un equipo de primera: balones, neveras, entrenamiento,
-              trajes / chándal de representación, logística y botiquín.
+              trajes / chándal de representación, logística y botiquín. Añade o quita
+              lo que haga falta (chanclas, toallas, extras…).
             </p>
+            {canWrite && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {QUICK_ADD.filter(
+                  (q) =>
+                    !packItems.some((i) => i.label.toLowerCase() === q.label.toLowerCase())
+                ).map((q) => (
+                  <button
+                    key={q.label}
+                    type="button"
+                    onClick={() => addPackItem(q.label, q.category)}
+                    className="px-2.5 py-1 rounded-lg border border-orange-200 bg-orange-50 text-[10px] font-bold text-orange-700 hover:bg-orange-100"
+                  >
+                    + {q.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setShowAddItem((v) => !v)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-600 hover:border-orange-400 hover:text-orange-600"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Añadir ítem
+                </button>
+              </div>
+            )}
+            {canWrite && showAddItem && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  addPackItem(newItemLabel, newItemCategory);
+                }}
+                className="p-3 rounded-xl border border-orange-200 bg-orange-50/40 dark:bg-orange-950/10 space-y-2"
+              >
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  placeholder="Ej. Chanclas, toallas, gorras…"
+                  value={newItemLabel}
+                  onChange={(e) => setNewItemLabel(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <select
+                    value={
+                      categoryChoices.includes(newItemCategory) ? newItemCategory : '__other__'
+                    }
+                    onChange={(e) => {
+                      if (e.target.value === '__other__') {
+                        setNewItemCategory('');
+                        return;
+                      }
+                      setNewItemCategory(e.target.value);
+                    }}
+                    className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  >
+                    {categoryChoices.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                    <option value="__other__">Otra categoría…</option>
+                  </select>
+                  {!categoryChoices.includes(newItemCategory) && (
+                    <input
+                      type="text"
+                      placeholder="Nombre de categoría"
+                      value={newItemCategory}
+                      onChange={(e) => setNewItemCategory(e.target.value)}
+                      className="flex-1 min-w-[8rem] px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    />
+                  )}
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddItem(false)}
+                    className="px-3 py-1.5 text-xs font-bold text-slate-500"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-3 py-1.5 text-xs font-bold bg-orange-500 text-white rounded-lg"
+                  >
+                    Añadir
+                  </button>
+                </div>
+              </form>
+            )}
             <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
               <div
                 className="h-full bg-orange-500 transition-all"
@@ -651,29 +826,44 @@ export default function PrematchChecklistPage() {
                     </div>
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
                       {items.map((item) => (
-                        <button
+                        <div
                           key={item.id}
-                          type="button"
-                          onClick={() => togglePackItem(item.id)}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                          className={`flex items-center gap-2 px-2 py-1 ${
                             item.done ? 'bg-emerald-50/40 dark:bg-emerald-950/10' : ''
                           }`}
                         >
-                          {item.done ? (
-                            <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-                          ) : (
-                            <Circle className="h-4.5 w-4.5 text-slate-300 shrink-0" />
-                          )}
-                          <span
-                            className={`text-xs font-semibold ${
-                              item.done
-                                ? 'text-slate-500 line-through'
-                                : 'text-slate-700 dark:text-slate-200'
-                            }`}
+                          <button
+                            type="button"
+                            onClick={() => togglePackItem(item.id)}
+                            className="flex-1 min-w-0 flex items-center gap-3 px-2 py-1.5 text-left transition-colors"
                           >
-                            {item.label}
-                          </span>
-                        </button>
+                            {item.done ? (
+                              <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
+                            ) : (
+                              <Circle className="h-4.5 w-4.5 text-slate-300 shrink-0" />
+                            )}
+                            <span
+                              className={`text-xs font-semibold ${
+                                item.done
+                                  ? 'text-slate-500 line-through'
+                                  : 'text-slate-700 dark:text-slate-200'
+                              }`}
+                            >
+                              {item.label}
+                            </span>
+                          </button>
+                          {canWrite && (
+                            <button
+                              type="button"
+                              onClick={() => removePackItem(item.id)}
+                              className="p-1.5 text-slate-300 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 shrink-0"
+                              title={`Quitar ${item.label}`}
+                              aria-label={`Quitar ${item.label}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
