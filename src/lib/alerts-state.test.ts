@@ -39,6 +39,27 @@ describe('alerts-state', () => {
     assert.ok(badgeMatchesInbox(after, 0));
   });
 
+  it('descarta viaje_proximo de un partido ya jugado y deja stock', () => {
+    const pastTrip = {
+      id: 't1',
+      type: 'viaje_proximo',
+      is_read: false,
+      is_dismissed: false,
+      message: '24/9/2026 · visitante vs Dubai',
+      metadata: { match_date: '2026-09-24', rival: 'Dubai' },
+    };
+    const stock = {
+      id: 's1',
+      type: 'stock_bajo',
+      is_read: false,
+      is_dismissed: false,
+      message: 'Calcetines por debajo del mínimo',
+    };
+    assert.equal(isPastCalendarAlert(pastTrip), true);
+    assert.equal(isPastCalendarAlert(stock), false);
+    assert.equal(visibleAlerts([pastTrip, stock]).map((a) => a.id).join(), 's1');
+  });
+
   it('oculta resultados y partidos ya jugados; deja los futuros', () => {
     const pastResult = {
       id: 'r1',

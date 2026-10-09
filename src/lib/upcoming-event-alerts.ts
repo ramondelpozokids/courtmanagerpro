@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { madridTodayIso } from '@/lib/alerts-state';
+import { isPastCalendarAlert, madridTodayIso } from '@/lib/alerts-state';
 import { mapPackTripsForTeam } from '@/lib/club-trips';
 
 type UpcomingFixture = {
@@ -59,7 +59,41 @@ function fixturesFromPack(teamId: string): UpcomingFixture[] {
       home_away: null,
       competition: null,
     }))
-    .filter((f) => f.match_date && f.rival);
+    .filter((f) => f.match_date && f.rival && f.match_date >= madridTodayIso());
+}
+
+/** Descarta en base de datos partidos/viajes cuya fecha ya pasó. */
+export async function dismissPastEventAlerts(
+  supabase: SupabaseClient,
+  teamId: string
+): Promise<number> {
+  const { data, error } = await supabase
+    .from('alerts')
+    .select('id, type, title, message, metadata, entity_type')
+    .eq('team_id', teamId)
+    .eq('is_dismissed', false)
+    .limit(500);
+
+  if (error || !data?.length) return 0;
+
+  const pastIds = data.filter((row) => isPastCalendarAlert(row)).map((row) => String(row.id));
+  if (!pastIds.length) return 0;
+
+  const { error: updErr } = await supabase
+    .from('alerts')
+    .update({
+      is_dismissed: true,
+      is_read: true,
+      read_at: new Date().toISOString(),
+    })
+    .eq('team_id', teamId)
+    .in('id', pastIds);
+
+  if (updErr) {
+    console.warn('[alerts] dismiss past failed:', updErr.message);
+    return 0;
+  }
+  return pastIds.length;
 }
 
 /** Crea alertas de partidos/viajes futuros si la bandeja se quedó vacía de eventos. */
